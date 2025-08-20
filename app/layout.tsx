@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,13 +29,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="bg-green-500 w-full flex justify-center py-8">
+        <div className="bg-primary w-full flex flex-col justify-center items-center py-8 gap-2">
+          <Image src="/logo.svg" alt="Logo" width={100} height={100} />
           <h1 className="text-5xl font-bold text-white">SwiftReply</h1>
         </div>
 
         <div className="py-12">{children}</div>
 
-        <div className="bg-green-500 w-full flex flex-col justify-center py-8 px-8 text-center font-sm gap-4">
+        <div className="bg-primary w-full flex flex-col justify-center py-8 px-8 text-center font-sm gap-4">
           <div>
             <Link className="hover:underline" href="/privacy-policy">
               Privacy Policy
