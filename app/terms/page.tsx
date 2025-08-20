@@ -1,16 +1,14 @@
-import Image from "next/image";
-
-export default function PrivacyPolicy() {
+export default function Terms() {
   return (
     <div className="mx-auto max-w-3xl bg-white text-slate-900 px-6 md:px-10 leading-relaxed">
       <h1 className="text-3xl font-bold tracking-tight mb-6">
-        Terms and Conditions for SwiftReply
+        Terms of Service for SwiftReply
       </h1>
 
       <p className="mb-4 text-sm text-slate-600">Effective date: 18/08/2025</p>
 
       <p className="mb-6">
-        These Terms and Conditions (“Terms”) govern your use of the SwiftReply
+        These Terms of Service (“Terms”) govern your use of the SwiftReply
         application (the “App”), operated by{" "}
         <span className="font-medium">
           IO Shield Ltd (11265201), trading as SwiftReply
