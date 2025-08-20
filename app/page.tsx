@@ -24,7 +24,9 @@ export default function Home() {
         <li className="mb-2">
           ✅ Lightning-fast setup – up and running in as little as 1 day.
         </li>
-        <li className="mb-2">✅ Simple pricing – just £199 per month.</li>
+        <li className="mb-2">
+          ✅ Simple pricing – <b>zero</b> setup costs, just £199 per month.
+        </li>
       </ul>
 
       <p>

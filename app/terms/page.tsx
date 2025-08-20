@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="mx-auto max-w-3xl bg-white text-slate-900 p-6 md:p-10 leading-relaxed">
+    <div className="mx-auto max-w-3xl bg-white text-slate-900 px-6 md:px-10 leading-relaxed">
       <h1 className="text-3xl font-bold tracking-tight mb-6">
         Terms and Conditions for SwiftReply
       </h1>
