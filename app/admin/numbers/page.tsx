@@ -5,7 +5,7 @@
 import React from "react";
 
 const GRAPH_VERSION = "v23.0";
-const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN!;
+const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
 
 type Page<T> = { data: T[]; paging?: { next?: string } };
@@ -201,7 +201,8 @@ export default async function Page({ params }: { params: { wabaId: string } }) {
         <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-700">
           <p className="font-medium mb-2">Missing configuration</p>
           <p>
-            Set <code>META_ACCESS_TOKEN</code> in your environment.
+            Set <code>META_ACCESS_TOKEN_PRODUCTION_APP</code> in your
+            environment.
           </p>
         </div>
       </main>
