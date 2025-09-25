@@ -44,7 +44,7 @@ export default function WhatsAppSim({
         <div className="absolute w-[330px] h-[706px] top-[15px] left-[15px] bg-wabg rounded-[40px]" />
 
         <Image
-          src="/whatsAppSim/iPhone.png"
+          src="/whatsAppSim/iphone.png"
           alt="WhatsApp"
           width={360}
           height={736}
