@@ -9,21 +9,37 @@ import {
   MicrophoneIcon,
 } from "@heroicons/react/24/outline";
 import Message from "./message";
-import { useState } from "react";
-import { format, subMinutes } from "date-fns";
+import { addSeconds, format } from "date-fns";
 
 export default function WhatsAppSim({
   messages,
+  businessName,
+  startTime,
 }: {
-  messages: { role: string; content: string }[];
+  messages: {
+    role: string;
+    content: string;
+    time: number;
+    annotation: string;
+  }[];
+  businessName: string;
+  startTime: string;
 }) {
   // iphone background image is 1350x2760
   // height is 2.0444444 width
 
-  const [time, setTime] = useState(format(new Date(), "HH:mm"));
+  // convert start time string to a new date with the time set
+  let currentMessageTime = new Date();
+  currentMessageTime.setHours(parseInt(startTime.split(":")[0]));
+  currentMessageTime.setMinutes(parseInt(startTime.split(":")[1]));
+
+  const endTime = addSeconds(
+    currentMessageTime,
+    messages.reduce((acc, message) => acc + message.time, 0)
+  );
 
   return (
-    <div className={cn(`h-[736px] min-w-[360px]`)}>
+    <div className={cn(`h-[736px] w-[360px] text-[#222]`)}>
       <div className={cn(`w-full h-full relative `)}>
         <div className="absolute w-[330px] h-[706px] top-[15px] left-[15px] bg-wabg rounded-[40px]" />
 
@@ -37,7 +53,7 @@ export default function WhatsAppSim({
         <div className="absolute top-[29px] left-[20px]  w-[320px]  h-[680] flex flex-col">
           <div className="mx-auto w-[260px]  h-[30] flex items-center">
             <div className="w-[50%] font-bold text-[16px] pl-[10px]">
-              {time}
+              {format(endTime, "HH:mm")}
             </div>
             <div className="w-[50%] flex justify-end space-x-[6px] items-center">
               <div>
@@ -79,7 +95,7 @@ export default function WhatsAppSim({
               />
             </div>
             <div className="flex flex-col space-y-[-2px] ml-[10px]">
-              <div className="text-[14px] font-bold">VSL Support</div>
+              <div className="text-[14px] font-bold">{businessName}</div>
               <div className="text-[12px] text-[#777]">Business Account</div>
             </div>
           </div>
@@ -96,20 +112,22 @@ export default function WhatsAppSim({
             /> */}
 
             <div className="relative z-10 flex flex-col space-y-[12px] p-[12px]">
-              {messages.map((message, index) => (
-                <Message
-                  key={index}
-                  role={message.role}
-                  text={message.content}
-                  time={format(
-                    subMinutes(
-                      new Date(),
-                      Math.round(0.3 * (messages.length - index))
-                    ),
-                    "HH:mm"
-                  )}
-                />
-              ))}
+              {messages.map((message, index) => {
+                currentMessageTime = addSeconds(
+                  currentMessageTime,
+                  message.time
+                );
+
+                return (
+                  <Message
+                    key={index}
+                    role={message.role}
+                    text={message.content}
+                    time={format(currentMessageTime, "HH:mm")}
+                    annotation={message.annotation}
+                  />
+                );
+              })}
             </div>
           </div>
           <div className="w-full py-[10px] pl-[10px] flex items-center space-x-[10px]">

@@ -15,7 +15,13 @@ export interface FunctionTable {
 export interface ExampleConversationTable {
   id: string;
   exampleId: string;
-  messages: { role: string; content: string }[];
+  messages: {
+    role: string;
+    content: string;
+    annotation: string;
+    time: number;
+  }[];
   prompt: string;
   description: string;
+  startTime: string;
 }

@@ -51,14 +51,12 @@ export default function GenereateExampleForm() {
               <FormLabel>Prompt</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="shadcn"
+                  placeholder="Your Prompt"
                   {...field}
                   className="min-h-[400px]"
                 />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>Your prompt</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -66,6 +64,28 @@ export default function GenereateExampleForm() {
         <Button type="submit" disabled={loading}>
           Submit
         </Button>
+
+        <div>
+          <h2 className="text-xl font-bold">Tips</h2>
+          <div>
+            A good prompt should include:
+            <ul className="list-disc ml-6">
+              <li>
+                The name of the business, or let the generater decide a generic
+                one.
+              </li>
+              <li>
+                A little about the business, it&apos;s location, and it&apos;s
+                products/services.
+              </li>
+              <li>Key features of the bot</li>
+              <li>
+                Things it doesn&apos;t do, the AI will have a tendancy to add
+                features/services that the bot won&apos;t be doint.
+              </li>
+            </ul>
+          </div>
+        </div>
       </form>
     </Form>
   );

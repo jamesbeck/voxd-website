@@ -24,6 +24,10 @@ export interface Example {
   slug: string;
   short: string;
   body: string;
+  businessName: string;
+  prompt: string;
+  chatScenarioPrompts: string[];
+  imageGenerationPrompt: string;
   industries: IndustryTable[];
   functions: FunctionTable[];
   exampleConversations: ExampleConversationTable[];

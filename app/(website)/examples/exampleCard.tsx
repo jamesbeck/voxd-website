@@ -35,9 +35,10 @@ export default function ExampleCard({
           src={`/examples/${id}.png`}
           alt={`${title} Image`}
           fill
-          className="-z-10 object-cover object-center"
+          className="object-cover object-center"
         />
       </div>
+
       <div className="w-full bg-primary px-4 py-2">
         <h2 className="text-lg font-bold text-white">{title}</h2>
       </div>
