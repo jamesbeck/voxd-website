@@ -8,6 +8,24 @@ import {
 import { useState, useRef } from "react";
 import { useInView } from "motion/react";
 
+const InnerMessage = ({ text, time }: { text: string; time: string }) => {
+  return (
+    <>
+      <div
+        dangerouslySetInnerHTML={{ __html: text }}
+        className="flex flex-col gap-2 text-left"
+      />
+      <div className="text-[#777] text-[10px] flex justify-end">
+        {time}{" "}
+        <div className="flex space-x-[-8px] relative top-[1px]">
+          <CheckIcon className="w-3 h-3 " />
+          <CheckIcon className="w-3 h-3 " />
+        </div>
+      </div>
+    </>
+  );
+};
+
 export default function Message({
   role,
   text,
@@ -63,33 +81,31 @@ export default function Message({
           )}
           id="message"
         >
-          <Tooltip
-            // onOpenChange={(open) => {
-            //   if (role === "assistant") {
-            //     setTooltipOpen(open);
-            //   }
-            // }}
-            open={isInView && role === "assistant"}
-          >
-            <TooltipTrigger>
-              <div ref={ref}>
-                <div
-                  dangerouslySetInnerHTML={{ __html: text }}
-                  className="flex flex-col gap-2 text-left"
-                />
-                <div className="text-[#777] text-[10px] flex justify-end">
-                  {time}{" "}
-                  <div className="flex space-x-[-8px] relative top-[1px]">
-                    <CheckIcon className="w-3 h-3 " />
-                    <CheckIcon className="w-3 h-3 " />
-                  </div>
+          <div className="hidden md:block">
+            <Tooltip
+              // onOpenChange={(open) => {
+              //   if (role === "assistant") {
+              //     setTooltipOpen(open);
+              //   }
+              // }}
+              open={isInView && role === "assistant"}
+            >
+              <TooltipTrigger>
+                <div ref={ref}>
+                  <InnerMessage text={text} time={time} />
                 </div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="w-[200px]" side="right">
-              <p>{annotation}</p>
-            </TooltipContent>
-          </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent className="w-[200px]" side="right">
+                <p>{annotation}</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <div className="block md:hidden">
+            <div ref={ref}>
+              <InnerMessage text={text} time={time} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
