@@ -33,7 +33,7 @@ export default function ExampleCard({
       <div className="w-full relative h-[150px]">
         <Link href={`/examples/${slug}`}>
           <Image
-            src={`/examples/${id}.png`}
+            src={`https://${process.env.WASABI_ENDPOINT}/swiftreply/exampleImages/${id}.png`}
             alt={`${title} Image`}
             fill
             className="object-cover object-center"

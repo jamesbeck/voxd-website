@@ -53,7 +53,7 @@ export default async function ExamplesPage({
 
       <div className="relative w-full h-[300px]">
         <Image
-          src={`/examples/${example.id}.png`}
+          src={`https://${process.env.WASABI_ENDPOINT}/swiftreply/exampleImages/${example.id}.png`}
           alt={example?.title || ""}
           fill
           style={{ objectFit: "cover" }}

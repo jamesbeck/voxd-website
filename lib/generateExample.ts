@@ -11,6 +11,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import generateExampleChat from "./generateExampleChat";
 import fs from "fs";
+import AWS from "aws-sdk";
 
 const generateExample = async ({
   prompt,
@@ -133,7 +134,31 @@ const generateExample = async ({
 
   //write the image to disk
   const buffer = image.uint8Array;
-  fs.writeFileSync(`public/examples/${newExample[0].id}.png`, buffer);
+
+  //upload the image to wasabi using s3 api
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.WASABI_ACCESS_KEY_ID,
+    secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY,
+    region: process.env.WASABI_REGION,
+    endpoint: process.env.WASABI_ENDPOINT,
+  });
+
+  await s3.upload(
+    {
+      Bucket: "swiftreply",
+      Key: `exampleImages/${newExample[0].id}.png`,
+      Body: buffer,
+      ACL: "public-read",
+    },
+    (err: any, data: any) => {
+      if (err) {
+        console.log("Error uploading image");
+        console.log(err);
+      } else {
+        console.log(data);
+      }
+    }
+  );
 
   //generate example conversations
   for (const scenario of object.example.chatScenarios) {
@@ -143,9 +168,7 @@ const generateExample = async ({
     });
   }
 
-  // console.log("saved", newExample[0]);
-
-  return { success: true, data: "test" }; //newExample[0] };
+  return { success: true, data: newExample[0] };
 };
 
 export default generateExample;
