@@ -28,8 +28,8 @@ export default async function ExamplesPage({
         <ExampleFilters
           industries={industries}
           functions={functions}
-          selectedIndustry={params.industry}
-          selectedFunction={params.function}
+          selectedIndustry={params.industry || ""}
+          selectedFunction={params.function || ""}
         />
 
         <Suspense fallback={<div>Loading...</div>}>

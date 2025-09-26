@@ -19,35 +19,45 @@ export default function ExampleFilters({
   selectedFunction,
 }: {
   industries: Industry[];
-  selectedIndustry: string | undefined;
+  selectedIndustry: string;
   functions: Function[];
-  selectedFunction: string | undefined;
+  selectedFunction: string;
 }) {
   const router = useRouter();
+
+  console.log("from page", selectedIndustry, selectedFunction);
 
   const [industrySlug, setIndustrySlug] = useState(selectedIndustry);
   const [functionSlug, setFunctionSlug] = useState(selectedFunction);
 
   useEffect(() => {
+    console.log("going to", getUrl({ industrySlug, functionSlug }));
     router.push(getUrl({ industrySlug, functionSlug }));
   }, [industrySlug, functionSlug]);
+
+  useEffect(() => {
+    console.log("industry", selectedIndustry, industrySlug);
+    console.log("function", selectedFunction, functionSlug);
+    if (selectedIndustry != industrySlug) setIndustrySlug(selectedIndustry);
+    if (selectedFunction != functionSlug) setFunctionSlug(selectedFunction);
+  }, [selectedIndustry, selectedFunction]);
 
   const getUrl = ({
     industrySlug,
     functionSlug,
   }: {
-    industrySlug?: string;
-    functionSlug?: string;
+    industrySlug: string;
+    functionSlug: string;
   }) => {
     const url = new URL(window.location.href);
 
-    if (industrySlug === "any") {
+    if (industrySlug === "any" || industrySlug === "") {
       url.searchParams.delete("industry");
     } else if (industrySlug) {
       url.searchParams.set("industry", industrySlug);
     }
 
-    if (functionSlug === "any") {
+    if (functionSlug === "any" || functionSlug === "") {
       url.searchParams.delete("function");
     } else if (functionSlug) {
       url.searchParams.set("function", functionSlug);
@@ -55,6 +65,8 @@ export default function ExampleFilters({
 
     return url.toString();
   };
+
+  console.log("from component", industrySlug, functionSlug);
 
   return (
     <div className="flex gap-4 px-4 py-3 items-center bg-primary rounded-lg border border-darkgrey  ">
@@ -102,8 +114,8 @@ export default function ExampleFilters({
       <Button
         variant="outline"
         onClick={() => {
-          setIndustrySlug("any");
-          setFunctionSlug("any");
+          setIndustrySlug("");
+          setFunctionSlug("");
         }}
       >
         Clear
