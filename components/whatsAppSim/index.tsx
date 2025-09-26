@@ -15,6 +15,7 @@ export default function WhatsAppSim({
   messages,
   businessName,
   startTime,
+  exampleId,
 }: {
   messages: {
     role: string;
@@ -24,6 +25,7 @@ export default function WhatsAppSim({
   }[];
   businessName: string;
   startTime: string;
+  exampleId: string;
 }) {
   // iphone background image is 1350x2760
   // height is 2.0444444 width
@@ -88,7 +90,7 @@ export default function WhatsAppSim({
             <ChevronLeftIcon className="w-8 h-8" />
             <div className="w-[36px] h-[36px] relative ml-[10px]">
               <Image
-                src="/whatsAppSim/demoLogo.png"
+                src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleLogos/${exampleId}.png`}
                 alt="Logo"
                 fill
                 style={{ objectFit: "contain" }}

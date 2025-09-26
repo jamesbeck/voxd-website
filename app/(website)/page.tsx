@@ -8,7 +8,10 @@ export default function Home() {
         <h2 className="text-3xl font-bold">
           Bespoke WhatsApp AI Chatbots – Built Around Your Business
         </h2>
-        <p>
+
+        <h2 className="text-3xl font-bold">Coming Soon!</h2>
+
+        {/* <p>
           Looking to supercharge your customer communication? Our bespoke
           WhatsApp-powered AI chatbots are designed to fit seamlessly into your
           business.
@@ -27,7 +30,7 @@ export default function Home() {
             ✅ Lightning-fast setup – up and running in as little as 1 day.
           </li>
           <li className="mb-2">
-            ✅ Simple pricing – <b>zero</b> setup costs, just £199 per month.
+            ✅ Simple pricing – <b>zero</b> setup costs, from £399 per month.
           </li>
         </ul>
 
@@ -39,7 +42,7 @@ export default function Home() {
 
         <h2 className="text-3xl font-bold">
           Smarter conversations. Faster results.
-        </h2>
+        </h2> */}
       </div>
     </Container>
   );

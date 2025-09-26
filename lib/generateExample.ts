@@ -140,7 +140,7 @@ const generateExample = async ({
     accessKeyId: process.env.WASABI_ACCESS_KEY_ID,
     secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY,
     region: process.env.WASABI_REGION,
-    endpoint: process.env.WASABI_ENDPOINT,
+    endpoint: process.env.NEXT_PUBLIC_WASABI_ENDPOINT,
   });
 
   await s3.upload(
@@ -148,6 +148,34 @@ const generateExample = async ({
       Bucket: "swiftreply",
       Key: `exampleImages/${newExample[0].id}.png`,
       Body: buffer,
+      ACL: "public-read",
+    },
+    (err: any, data: any) => {
+      if (err) {
+        console.log("Error uploading image");
+        console.log(err);
+      } else {
+        console.log(data);
+      }
+    }
+  );
+
+  //generate logo
+  const { image: logo } = await generateImage({
+    model: openai.imageModel("dall-e-3"),
+    prompt: `Generate a logo for the business ${object.example.companyName}`,
+    maxImagesPerCall: 1,
+    size: "1024x1024",
+  });
+
+  //write the image to disk
+  const logoBuffer = logo.uint8Array;
+
+  await s3.upload(
+    {
+      Bucket: "swiftreply",
+      Key: `exampleLogos/${newExample[0].id}.png`,
+      Body: logoBuffer,
       ACL: "public-read",
     },
     (err: any, data: any) => {

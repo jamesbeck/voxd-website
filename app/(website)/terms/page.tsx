@@ -1,9 +1,10 @@
+import Container from "@/components/websiteui/container";
+import H2 from "@/components/websiteui/h2";
+
 export default function Terms() {
   return (
-    <div className="mx-auto max-w-3xl bg-white text-slate-900 px-6 md:px-10 leading-relaxed">
-      <h1 className="text-3xl font-bold tracking-tight mb-6">
-        Terms of Service for SwiftReply
-      </h1>
+    <Container>
+      <H2 className="text-center">Terms of Service for SwiftReply</H2>
 
       <p className="mb-4 text-sm text-slate-600">Effective date: 18/08/2025</p>
 
@@ -158,6 +159,6 @@ export default function Terms() {
         These Terms are provided for general information and do not constitute
         legal advice.
       </p>
-    </div>
+    </Container>
   );
 }

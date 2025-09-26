@@ -33,12 +33,20 @@ export default function ExampleCard({
       <div className="w-full relative h-[150px]">
         <Link href={`/examples/${slug}`}>
           <Image
-            src={`https://${process.env.WASABI_ENDPOINT}/swiftreply/exampleImages/${id}.png`}
+            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleImages/${id}.png`}
             alt={`${title} Image`}
             fill
             className="object-cover object-center"
           />
         </Link>
+        <Image
+          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleLogos/${id}.png`}
+          alt={`${title} Logo` || ""}
+          width={50}
+          height={50}
+          // className="w-full h-full"
+          className="absolute top-3 right-3 rounded-xl bg-white"
+        />
       </div>
 
       <div className="w-full bg-primary px-4 py-2">

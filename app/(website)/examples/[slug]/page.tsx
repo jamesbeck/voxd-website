@@ -53,7 +53,7 @@ export default async function ExamplesPage({
 
       <div className="relative w-full h-[300px]">
         <Image
-          src={`https://${process.env.WASABI_ENDPOINT}/swiftreply/exampleImages/${example.id}.png`}
+          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleImages/${example.id}.png`}
           alt={example?.title || ""}
           fill
           style={{ objectFit: "cover" }}
@@ -70,11 +70,22 @@ export default async function ExamplesPage({
       </Container>
 
       <Container>
-        <H1>{example.title}</H1>
-        <div
-          id="example-body"
-          dangerouslySetInnerHTML={{ __html: example.body }}
-        />
+        <div className="flex flex-col gap-4 items-center justify-center">
+          <Image
+            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleLogos/${example.id}.png`}
+            alt={`${example?.businessName} Logo` || ""}
+            width={150}
+            height={150}
+            // className="w-full h-full"
+            className="rounded-3xl"
+          />
+
+          <H1 className="text-center">{example.title}</H1>
+          <div
+            id="example-body"
+            dangerouslySetInnerHTML={{ __html: example.body }}
+          />
+        </div>
       </Container>
 
       <Container colour="green">
@@ -99,6 +110,7 @@ export default async function ExamplesPage({
                 messages={conversation.messages}
                 businessName={example.businessName}
                 startTime={conversation.startTime}
+                exampleId={example.id}
               />
             </div>
           </Container>

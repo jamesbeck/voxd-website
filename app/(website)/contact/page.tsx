@@ -1,7 +1,10 @@
+import Container from "@/components/websiteui/container";
+import H2 from "@/components/websiteui/h2";
+
 export default function ContactPage() {
   return (
-    <div>
-      <h1>Contact</h1>
-    </div>
+    <Container>
+      <H2 className="text-center">Contact</H2>
+    </Container>
   );
 }
