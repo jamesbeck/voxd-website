@@ -1,12 +1,16 @@
 "use server";
 
 import { openai } from "@ai-sdk/openai";
-import { generateObject } from "ai";
+import {
+  generateObject,
+  experimental_generateImage as generateImage,
+} from "ai";
 import { z } from "zod";
 import slugify from "slugify";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import generateExampleChat from "./generateExampleChat";
+import fs from "fs";
 
 const generateExample = async ({
   prompt,
@@ -65,7 +69,7 @@ const generateExample = async ({
     }),
     prompt: `
         You are an expert in writing comprehensive case studies for AI powered WhatsApp Chatbots.
-        
+
         The benefits of WhatsApp include:
         * No apps to download
         * No new logins or passwords
@@ -119,6 +123,18 @@ const generateExample = async ({
     }))
   );
 
+  //generate image
+  const { image } = await generateImage({
+    model: openai.imageModel("gpt-image-1"),
+    prompt: object.example.imageGenerationPrompt,
+    maxImagesPerCall: 1,
+    size: "1536x1024",
+  });
+
+  //write the image to disk
+  const buffer = image.uint8Array;
+  fs.writeFileSync(`public/examples/${newExample[0].id}.png`, buffer);
+
   //generate example conversations
   for (const scenario of object.example.chatScenarios) {
     await generateExampleChat({
@@ -127,9 +143,9 @@ const generateExample = async ({
     });
   }
 
-  console.log("saved", newExample[0]);
+  // console.log("saved", newExample[0]);
 
-  return { success: true, data: newExample[0] };
+  return { success: true, data: "test" }; //newExample[0] };
 };
 
 export default generateExample;
