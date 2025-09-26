@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Industry, Function } from "@/types/types";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ExampleFilters({
   industries,
@@ -24,6 +24,13 @@ export default function ExampleFilters({
   selectedFunction: string | undefined;
 }) {
   const router = useRouter();
+
+  const [industrySlug, setIndustrySlug] = useState(selectedIndustry);
+  const [functionSlug, setFunctionSlug] = useState(selectedFunction);
+
+  useEffect(() => {
+    router.push(getUrl({ industrySlug, functionSlug }));
+  }, [industrySlug, functionSlug]);
 
   const getUrl = ({
     industrySlug,
@@ -49,17 +56,15 @@ export default function ExampleFilters({
     return url.toString();
   };
 
-  const functionValue = selectedFunction || "any";
-  const industryValue = selectedIndustry || "any";
-
   return (
     <div className="flex gap-4 px-4 py-3 items-center bg-primary rounded-lg border border-darkgrey  ">
       <div className="text-white font-bold">Filters:</div>
       <Select
-        value={functionValue}
         onValueChange={(value) => {
-          router.push(getUrl({ functionSlug: value }));
+          setFunctionSlug(value);
         }}
+        defaultValue={selectedFunction}
+        value={functionSlug}
       >
         <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="Filter by Function" />
@@ -75,10 +80,11 @@ export default function ExampleFilters({
       </Select>
 
       <Select
-        value={industryValue}
         onValueChange={(value) => {
-          router.push(getUrl({ industrySlug: value }));
+          setIndustrySlug(value);
         }}
+        defaultValue={selectedIndustry}
+        value={industrySlug}
       >
         <SelectTrigger className="w-[180px] bg-white">
           <SelectValue placeholder="Filter by Industry" />
@@ -96,7 +102,8 @@ export default function ExampleFilters({
       <Button
         variant="outline"
         onClick={() => {
-          router.push(getUrl({ industrySlug: "any", functionSlug: "any" }));
+          setIndustrySlug("any");
+          setFunctionSlug("any");
         }}
       >
         Clear
