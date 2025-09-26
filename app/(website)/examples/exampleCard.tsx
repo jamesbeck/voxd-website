@@ -29,14 +29,16 @@ export default function ExampleCard({
   functions: FunctionTable[];
 }) {
   return (
-    <div className="w-full rounded-2xl overflow-hidden border border-gray-200 flex flex-col">
+    <div className="w-full rounded-2xl overflow-hidden border border-darkgrey flex flex-col">
       <div className="w-full relative h-[150px]">
-        <Image
-          src={`/examples/${id}.png`}
-          alt={`${title} Image`}
-          fill
-          className="object-cover object-center"
-        />
+        <Link href={`/examples/${slug}`}>
+          <Image
+            src={`/examples/${id}.png`}
+            alt={`${title} Image`}
+            fill
+            className="object-cover object-center"
+          />
+        </Link>
       </div>
 
       <div className="w-full bg-primary px-4 py-2">
@@ -49,14 +51,18 @@ export default function ExampleCard({
 
       <div className="flex flex-wrap gap-1 px-4 pt-3">
         {industries.map((industry) => (
-          <Badge variant="outline" key={industry.id}>
-            {industry.name}
-          </Badge>
+          <Link href={`/examples?industry=${industry.slug}`} key={industry.id}>
+            <Badge variant="outline" className="hover:border-black">
+              {industry.name}
+            </Badge>
+          </Link>
         ))}
         {functions.map((func) => (
-          <Badge variant="outline" key={func.id}>
-            {func.name}
-          </Badge>
+          <Link href={`/examples?function=${func.slug}`} key={func.id}>
+            <Badge variant="outline" className="hover:border-black">
+              {func.name}
+            </Badge>
+          </Link>
         ))}
       </div>
 

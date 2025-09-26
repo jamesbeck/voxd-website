@@ -50,6 +50,7 @@ export default function WhatsAppSim({
           height={736}
           className="w-full h-full absolute top-0 left-0"
         />
+
         <div className="absolute top-[29px] left-[20px]  w-[320px]  h-[680] flex flex-col">
           <div className="mx-auto w-[260px]  h-[30] flex items-center">
             <div className="w-[50%] font-bold text-[16px] pl-[10px]">

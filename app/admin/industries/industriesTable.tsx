@@ -6,8 +6,6 @@ import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 
 const IndustriesTable = ({ industries }: { industries: any }) => {
-  console.log(industries);
-
   return (
     <DataTable
       data={industries}

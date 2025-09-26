@@ -67,3 +67,35 @@ export const getExampleBySlug = async (slug: string): Promise<Example> => {
 
   return example;
 };
+
+export const getExamplesByIndustryOrFunction = async ({
+  industrySlug,
+  functionSlug,
+}: {
+  industrySlug?: string;
+  functionSlug?: string;
+}): Promise<Example[]> => {
+  const searchQuery = query(db);
+
+  if (industrySlug) {
+    searchQuery.whereExists(function () {
+      this.select(1)
+        .from("exampleIndustry as ei")
+        .join("industry as i", "i.id", "ei.industryId")
+        .whereRaw('ei."exampleId" = example.id')
+        .andWhere("i.slug", industrySlug);
+    });
+  }
+
+  if (functionSlug) {
+    searchQuery.whereExists(function () {
+      this.select(1)
+        .from("exampleFunction as ef")
+        .join("function as f", "f.id", "ef.functionId")
+        .whereRaw('ef."exampleId" = example.id')
+        .andWhere("f.slug", functionSlug);
+    });
+  }
+
+  return await searchQuery;
+};

@@ -45,6 +45,7 @@
 
 @theme {
   --color-primary: #25d366;
+  --color-darkgrey: #555;
   --color-wabg: rgba(239, 241, 231, 1);
   --color-wauserbg: rgba(223, 252, 214, 1);
   --color-waagentbg: rgba(255, 255, 255, 1);
