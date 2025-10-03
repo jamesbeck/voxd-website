@@ -25,9 +25,7 @@ export default function RootLayout({
         </Link>
       </div>
 
-      <div className="w-full py-2 flex justify-center border-b border-darkgrey">
-        <Menu />
-      </div>
+      <Menu />
 
       <div>{children}</div>
 

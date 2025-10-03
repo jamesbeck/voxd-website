@@ -8,7 +8,7 @@ const getAgents = async () => {
     .select(
       db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
       db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
-      db.raw('MIN("userMessage"."createdAt") as "firstMessageAt"')
+      db.raw('COUNT(DISTINCT "session"."id")::int as "sessionCount"')
     )
     .groupBy("agent.id");
 };

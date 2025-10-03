@@ -29,6 +29,11 @@ const AgentsTable = ({ agents }: { agents: any }) => {
           format: (value) => value || "",
         },
         {
+          label: "Sessions",
+          name: "sessionCount",
+          sort: true,
+        },
+        {
           label: "Messages",
           name: "messageCount",
           sort: true,

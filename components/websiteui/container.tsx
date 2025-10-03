@@ -11,7 +11,7 @@ export default function Container({
 
   return (
     <div className={cn("w-full", colourClass)}>
-      <div className="max-w-7xl mx-auto p-8">{children}</div>
+      <div className="max-w-7xl mx-auto py-16 px-8">{children}</div>
     </div>
   );
 }
