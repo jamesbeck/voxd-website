@@ -84,6 +84,11 @@ const PhoneNumberTable = ({
             >
               Register
             </Button>
+            <Button className="cursor-pointer" asChild>
+              <Link href={`https://wa.me/${row.number.replaceAll(" ", "")}`}>
+                Message
+              </Link>
+            </Button>
           </>
         );
       }}

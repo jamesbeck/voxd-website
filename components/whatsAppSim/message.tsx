@@ -42,7 +42,7 @@ export default function Message({
   const ref = useRef(null);
   const isInView = useInView(ref, {
     amount: "all",
-    margin: "100px",
+    // margin: "100px",
   });
 
   return (
@@ -102,7 +102,7 @@ export default function Message({
           </div>
 
           <div className="block md:hidden">
-            <div ref={ref}>
+            <div>
               <InnerMessage text={text} time={time} />
             </div>
           </div>

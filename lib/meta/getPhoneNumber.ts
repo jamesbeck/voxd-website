@@ -27,6 +27,7 @@ async function getPhoneNumber(id: string): Promise<PhoneNumber> {
   const res = await fetch(url, { cache: "no-store" });
 
   const json = await res.json();
+  console.log(JSON.stringify(json, null, 2));
 
   return json;
 }

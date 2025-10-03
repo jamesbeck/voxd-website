@@ -1,7 +1,16 @@
 import db from "../database/db";
 
 const getAgents = async () => {
-  return db("agent").select("*");
+  return db("agent")
+    .leftJoin("session", "agent.id", "session.agentId")
+    .leftJoin("userMessage", "session.id", "userMessage.sessionId")
+    .select("agent.*")
+    .select(
+      db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
+      db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
+      db.raw('MIN("userMessage"."createdAt") as "firstMessageAt"')
+    )
+    .groupBy("agent.id");
 };
 
 export default getAgents;
