@@ -10,7 +10,6 @@ import slugify from "slugify";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import generateExampleChat from "./generateExampleChat";
-import fs from "fs";
 import AWS from "aws-sdk";
 
 const generateExample = async ({
@@ -145,7 +144,7 @@ const generateExample = async ({
 
   await s3.upload(
     {
-      Bucket: "swiftreply",
+      Bucket: "voxd",
       Key: `exampleImages/${newExample[0].id}.png`,
       Body: buffer,
       ACL: "public-read",
@@ -173,7 +172,7 @@ const generateExample = async ({
 
   await s3.upload(
     {
-      Bucket: "swiftreply",
+      Bucket: "voxd",
       Key: `exampleLogos/${newExample[0].id}.png`,
       Body: logoBuffer,
       ACL: "public-read",

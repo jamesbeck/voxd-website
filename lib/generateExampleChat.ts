@@ -3,7 +3,6 @@
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
-import slugify from "slugify";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { getExampleById } from "./getExamples";

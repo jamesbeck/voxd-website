@@ -1,18 +1,16 @@
-import H1 from "@/components/adminui/h1";
+import H1 from "@/components/adminui/H1";
 import FunctionsTable from "./functionsTable";
-import getFunctions from "@/lib/getFunctions";
 import NewFunctionForm from "./newFunctionForm";
+import Container from "@/components/adminui/container";
 
 export default async function Page() {
-  const functions = await getFunctions();
-
   return (
-    <div>
+    <Container>
       <H1>Manage Functions</H1>
 
       <NewFunctionForm />
 
-      <FunctionsTable functions={functions} />
-    </div>
+      <FunctionsTable />
+    </Container>
   );
 }

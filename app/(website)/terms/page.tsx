@@ -4,15 +4,15 @@ import H2 from "@/components/websiteui/h2";
 export default function Terms() {
   return (
     <Container>
-      <H2 className="text-center">Terms of Service for SwiftReply</H2>
+      <H2 className="text-center">Terms of Service for Voxd</H2>
 
       <p className="mb-4 text-sm text-slate-600">Effective date: 18/08/2025</p>
 
       <p className="mb-6">
-        These Terms of Service (“Terms”) govern your use of the SwiftReply
-        application (the “App”), operated by{" "}
+        These Terms of Service (“Terms”) govern your use of the Voxd application
+        (the “App”), operated by{" "}
         <span className="font-medium">
-          IO Shield Ltd (11265201), trading as SwiftReply
+          IO Shield Ltd (11265201), trading as Voxd
         </span>{" "}
         (“we”, “us”, or “our”). By using the App, you agree to these Terms. If
         you do not agree, please do not use the App.
@@ -21,13 +21,13 @@ export default function Terms() {
       <h2 className="text-xl font-semibold mt-8 mb-3">1. Eligibility</h2>
       <p className="mb-6">
         You must be at least 18 years old, or have legal parental/guardian
-        consent if you are 13–17, to use the App. By using SwiftReply, you
-        confirm you meet these requirements.
+        consent if you are 13–17, to use the App. By using Voxd, you confirm you
+        meet these requirements.
       </p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">2. Our service</h2>
       <p className="mb-6">
-        SwiftReply automates WhatsApp message responses based on settings you
+        Voxd automates WhatsApp message responses based on settings you
         configure. We do not provide WhatsApp itself, and you remain bound by
         WhatsApp’s own Terms of Service. We do not access your Facebook data.
       </p>
@@ -112,7 +112,7 @@ export default function Terms() {
       <p className="mb-6">
         Our collection and use of personal data is described in our{" "}
         <a
-          href="https://swiftreply.app/privacy"
+          href="https://voxd.app/privacy"
           className="underline decoration-slate-400 hover:decoration-slate-700"
         >
           Privacy Policy
@@ -127,10 +127,10 @@ export default function Terms() {
         We may update these Terms from time to time. The latest version will
         always be available at{" "}
         <a
-          href="https://swiftreply.app/terms"
+          href="https://voxd.app/terms"
           className="underline decoration-slate-400 hover:decoration-slate-700"
         >
-          https://swiftreply.app/terms
+          https://voxd.app/terms
         </a>
         , with the effective date shown at the top. If changes are material, we
         may also notify you by email or within the App.
@@ -147,10 +147,10 @@ export default function Terms() {
       <p className="mb-6">
         If you have any questions about these Terms, please contact us at{" "}
         <a
-          href="mailto:hello@swiftreply.app"
+          href="mailto:hello@voxd.app"
           className="underline decoration-slate-400 hover:decoration-slate-700"
         >
-          hello@swiftreply.app
+          hello@voxd.app
         </a>
         .
       </p>

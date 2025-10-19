@@ -2,62 +2,53 @@
 
 import DataTable from "@/components/adminui/table";
 import Link from "next/link";
-import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PhoneNumber } from "@/lib/meta/types";
 import saRegisterPhoneNumber from "@/lib/meta/saRegisterPhoneNumber";
+import saGetPhoneNumbersTableData from "@/actions/saGetPhoneNumbersTableData";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-const PhoneNumberTable = ({
-  phoneNumbers,
-}: {
-  phoneNumbers: PhoneNumber[];
-}) => {
-  const tableData = phoneNumbers.map((phoneNumber) => {
-    return {
-      number: phoneNumber.display_phone_number,
-      displayName: phoneNumber.verified_name,
-      status: phoneNumber.status,
-      platformType: phoneNumber.platform_type,
-      id: phoneNumber.id,
-    };
-  });
-
+const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
   return (
     <DataTable
-      data={tableData}
-      defaultSort={[
-        {
-          id: "number",
-          desc: false,
-        },
-      ]}
+      getData={saGetPhoneNumbersTableData}
+      getDataParams={{ wabaId }}
+      defaultSort={{
+        name: "verifiedName",
+        direction: "asc",
+      }}
       columns={[
         {
           label: "ID",
           name: "id",
           sort: true,
-          format: (value) => value || "",
         },
         {
           label: "Number",
-          name: "number",
+          name: "displayPhoneNumber",
           sort: true,
-          format: (value) => value || "",
         },
         {
-          label: "Display Name",
-          name: "displayName",
+          label: "Verified Name",
+          name: "verifiedName",
           sort: true,
-          format: (value) => value || "",
         },
         {
           label: "Status",
           name: "status",
           sort: true,
-          format: (value) => (
-            <Badge variant={value == "CONNECTED" ? "default" : "destructive"}>
-              {value}
+          format: (row) => (
+            <Badge
+              className={cn(
+                row.status == "CONNECTED" ? "bg-green-500" : "bg-red-500"
+              )}
+            >
+              {row.status}
             </Badge>
           ),
         },
@@ -65,11 +56,78 @@ const PhoneNumberTable = ({
           label: "Platform Type",
           name: "platformType",
           sort: true,
-          format: (value) => (
-            <Badge variant={value == "CLOUD_API" ? "default" : "destructive"}>
-              {value}
+          format: (row) => (
+            <Badge
+              className={cn(
+                row.platformType == "CLOUD_API" ? "bg-green-500" : "bg-red-500"
+              )}
+            >
+              {row.platformType}
             </Badge>
           ),
+        },
+        {
+          label: "Account Mode",
+          name: "accountMode",
+          sort: true,
+          format: (row) => (
+            <Badge
+              className={cn(
+                row.accountMode == "LIVE" ? "bg-green-500" : "bg-red-500"
+              )}
+            >
+              {row.accountMode}
+            </Badge>
+          ),
+        },
+        {
+          label: "Send First Message",
+          name: "healthStatus",
+          sort: true,
+          format: (row: any) => {
+            return (
+              <div className="flex gap-1">
+                {row.healthStatus.entities.map((entity: any) => {
+                  return (
+                    <Tooltip
+                      key={entity.id}
+                      //only allow to open on hover if there are errors
+                      open={
+                        entity.can_send_message != "AVAILABLE" && entity.errors
+                          ? undefined
+                          : false
+                      }
+                    >
+                      <TooltipTrigger>
+                        <Badge
+                          className={cn(
+                            entity.can_send_message == "AVAILABLE"
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          )}
+                        >
+                          {entity.entity_type}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent className="flex flex-col gap-2">
+                        {entity.errors &&
+                          entity.can_send_message != "AVAILABLE" &&
+                          entity.errors.map((error: any) => (
+                            <div key={error.error_code}>
+                              <p className="font-bold">
+                                Error Code: {error.error_code}
+                              </p>
+                              <p>Description: {error.error_description}</p>
+                              <p>Solution: {error.possible_solution}</p>
+                            </div>
+                          ))}
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })}
+              </div>
+            );
+          },
         },
       ]}
       actions={(row: any) => {
@@ -87,7 +145,10 @@ const PhoneNumberTable = ({
             <Button className="cursor-pointer" asChild>
               <Link
                 target="_blank"
-                href={`https://wa.me/${row.number.replaceAll(" ", "")}`}
+                href={`https://wa.me/${row.displayPhoneNumber.replaceAll(
+                  " ",
+                  ""
+                )}`}
               >
                 Message
               </Link>

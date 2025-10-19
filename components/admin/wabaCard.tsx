@@ -3,7 +3,7 @@
 import saClearNumberWebhook from "@/lib/meta/saClearNumberWebhook";
 import saSetNumberWebhook from "@/lib/meta/saSetNumberWebhook";
 import saSubscribe from "@/lib/meta/saSubscribe";
-import type { Waba } from "@/lib/meta/types";
+import type { Waba } from "@/types/metaTypes";
 
 export default function WabaCard({ waba }: { waba: Waba }) {
   return (
@@ -28,12 +28,12 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "SwiftReply",
+              appName: "Voxd",
               unsubscribe: false,
             })
           }
         >
-          Subscribe to SwiftReply
+          Subscribe to Voxd
         </button>
         <button
           style={{
@@ -46,12 +46,12 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "SwiftReply",
+              appName: "Voxd",
               unsubscribe: true,
             })
           }
         >
-          Unsubscribe to SwiftReply
+          Unsubscribe to Voxd
         </button>
         <button
           style={{
@@ -64,12 +64,12 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "SwiftReply Test",
+              appName: "Voxd Test",
               unsubscribe: false,
             })
           }
         >
-          Subscribe to SwiftReply Development
+          Subscribe to Voxd Development
         </button>
         <button
           style={{
@@ -82,12 +82,12 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "SwiftReply Test",
+              appName: "Voxd Test",
               unsubscribe: true,
             })
           }
         >
-          Unsubscribe to SwiftReply Development
+          Unsubscribe to Voxd Development
         </button>
         <ul>
           {waba.subscribed_apps?.data.map((app) => (
@@ -129,11 +129,11 @@ export default function WabaCard({ waba }: { waba: Waba }) {
                   onClick={() =>
                     saSetNumberWebhook({
                       numberId: p.id,
-                      appName: "SwiftReply",
+                      appName: "Voxd",
                     })
                   }
                 >
-                  Set webhook to SwiftReply
+                  Set webhook to Voxd
                 </button>
                 <button
                   style={{
@@ -146,11 +146,11 @@ export default function WabaCard({ waba }: { waba: Waba }) {
                   onClick={() =>
                     saSetNumberWebhook({
                       numberId: p.id,
-                      appName: "SwiftReply Test",
+                      appName: "Voxd Test",
                     })
                   }
                 >
-                  Set webhook to SwiftReply Test
+                  Set webhook to Voxd Test
                 </button>
                 <button
                   style={{

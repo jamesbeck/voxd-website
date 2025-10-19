@@ -1,15 +1,25 @@
 import Link from "next/link";
-import H1 from "@/components/adminui/h1";
+import H1 from "@/components/adminui/H1";
 import AgentsTable from "./agentsTable";
-import getAgents from "@/lib/getAgents";
+import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import Container from "@/components/adminui/container";
+import { Button } from "@/components/ui/button";
 
 export default async function Page() {
-  const agents = await getAgents();
   return (
-    <div>
+    <Container>
+      <BreadcrumbSetter
+        breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Agents" }]}
+      />
       <H1>Manage Agents</H1>
 
-      <AgentsTable agents={agents} />
-    </div>
+      <div className="flex justify-end">
+        <Button asChild>
+          <Link href="/admin/agents/new">New Agent</Link>
+        </Button>
+      </div>
+
+      <AgentsTable />
+    </Container>
   );
 }

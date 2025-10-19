@@ -1,9 +1,6 @@
-import { Waba } from "./types";
+import { Waba } from "@/types/metaTypes";
 import getAll from "./getAll";
-import { env } from "process";
-import getNumber from "./getPhoneNumber";
 
-const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 const BUSINESS_ID = process.env.META_IO_SHIELD_BUSINESS_ID!;
 const GRAPH_URL = process.env.META_GRAPH_URL!;
 

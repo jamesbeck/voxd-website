@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Industry, Function } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -18,9 +17,9 @@ export default function ExampleFilters({
   functions,
   selectedFunction,
 }: {
-  industries: Industry[];
+  industries: { id: string; name: string; slug: string }[];
   selectedIndustry: string;
-  functions: Function[];
+  functions: { id: string; name: string; slug: string }[];
   selectedFunction: string;
 }) {
   const router = useRouter();

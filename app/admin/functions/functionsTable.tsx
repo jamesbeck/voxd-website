@@ -2,34 +2,27 @@
 
 import DataTable from "@/components/adminui/table";
 import Link from "next/link";
-import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Function } from "@/types/types";
+import saGetFunctionTableData from "@/actions/saGetFunctionTableData";
 
-const FunctionsTable = ({ functions }: { functions: Function[] }) => {
-  console.log(functions);
-
+const FunctionsTable = () => {
   return (
     <DataTable
-      data={functions}
-      defaultSort={[
-        {
-          id: "name",
-          desc: false,
-        },
-      ]}
+      getData={saGetFunctionTableData}
+      defaultSort={{
+        name: "name",
+        direction: "asc",
+      }}
       columns={[
         {
           label: "Name",
           name: "name",
           sort: true,
-          format: (value) => value || "",
         },
         {
           label: "Slug",
           name: "slug",
           sort: true,
-          format: (value) => value || "",
         },
         {
           label: "Example Count",

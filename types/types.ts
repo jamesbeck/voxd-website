@@ -1,21 +1,42 @@
-import {
-  IndustryTable,
-  FunctionTable,
-  ExampleConversationTable,
-} from "./dbTableTypes";
+export type ServerActionResponse =
+  | {
+      success: true;
+      data?: any;
+    }
+  | { success: false; error?: string; fieldErrors?: Record<string, string> };
 
-export interface ServerActionResponse {
-  success: boolean;
-  data?: any;
-  error?: string;
-}
+export type ServerActionReadResponse =
+  | {
+      success: true;
+      data: Record<string, any>[];
+      totalAvailable: number;
+      page: number;
+      pageSize: number;
+    }
+  | {
+      success: false;
+      error?: string;
+    };
 
-export interface Industry extends IndustryTable {
-  exampleCount: number;
-}
+export type ServerActionReadParams<TExtra = object> = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+  sortField?: string;
+  sortDirection?: "asc" | "desc";
+} & TExtra;
 
-export interface Function extends FunctionTable {
-  exampleCount: number;
+export type Roles = "admin" | "customer" | "partner";
+
+export interface User {
+  id: string;
+  name: string;
+  number?: string;
+  email?: string;
+  role: Roles;
+  createdAt: Date;
+  testingAgentId?: string;
+  customerIds?: string[];
 }
 
 export interface Example {
@@ -28,7 +49,16 @@ export interface Example {
   prompt: string;
   chatScenarioPrompts: string[];
   imageGenerationPrompt: string;
-  industries: IndustryTable[];
-  functions: FunctionTable[];
-  exampleConversations: ExampleConversationTable[];
+  industries: { id: string; name: string; slug: string }[];
+  functions: { id: string; name: string; slug: string }[];
+  exampleConversations: {
+    messages: {
+      role: string;
+      content: string;
+      time: number;
+      annotation: string;
+    }[];
+    description: string;
+    startTime: string;
+  }[];
 }

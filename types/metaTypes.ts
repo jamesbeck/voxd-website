@@ -1,4 +1,11 @@
-export type Page<T> = { data: T[]; paging?: { next?: string } };
+export type Page<T> = {
+  data: T[];
+  paging?: { 
+    cursors?: { before?: string; after?: string };
+    next?: string;
+    previous?: string;
+  };
+};
 
 export type Waba = {
   id: string;

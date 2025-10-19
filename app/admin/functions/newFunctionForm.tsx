@@ -37,7 +37,7 @@ export default function NewFunctionForm() {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    const response = await saCreateFunction({
+    await saCreateFunction({
       name: values.name,
     });
 

@@ -1,6 +1,3 @@
-import { PhoneNumber } from "./types";
-import getAll from "./getAll";
-
 const GRAPH_URL = process.env.META_GRAPH_URL!;
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 
@@ -16,7 +13,7 @@ const fields = [
   "platform_type",
 ].join(",");
 
-async function getPhoneNumber(id: string): Promise<PhoneNumber> {
+async function getPhoneNumber(id: string) {
   const qs = new URLSearchParams({
     fields,
     access_token: ACCESS_TOKEN,

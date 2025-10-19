@@ -35,7 +35,7 @@ export default function GenereateExampleForm() {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    const response = await generateExample({ prompt: values.prompt });
+    await generateExample({ prompt: values.prompt });
     console.log(values);
     setLoading(false);
   }

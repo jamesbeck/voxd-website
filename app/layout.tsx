@@ -8,7 +8,7 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Swift Reply",
+  title: "VOXD | WhatsApp AI Chatbots",
   description: "Bespoke WhatsApp AI Chatbots",
 };
 
@@ -19,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable} antialiased`}>{children}</body>
+      <body className={`${roboto.variable} antialiased text-darkgrey`}>
+        {children}
+      </body>
     </html>
   );
 }

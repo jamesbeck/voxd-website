@@ -1,5 +1,4 @@
-import db from "@/database/db";
-import H1 from "@/components/adminui/h1";
+import H1 from "@/components/adminui/H1";
 import WhatsAppSim from "@/components/whatsAppSim";
 import { getExampleBySlug } from "@/lib/getExamples";
 import Image from "next/image";
@@ -53,7 +52,7 @@ export default async function ExamplesPage({
 
       <div className="relative w-full h-[300px]">
         <Image
-          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleImages/${example.id}.png`}
+          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}.png`}
           alt={example?.title || ""}
           fill
           style={{ objectFit: "cover" }}
@@ -72,7 +71,7 @@ export default async function ExamplesPage({
       <Container>
         <div className="flex flex-col gap-4 items-center justify-center">
           <Image
-            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleLogos/${example.id}.png`}
+            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.png`}
             alt={`${example?.businessName} Logo` || ""}
             width={150}
             height={150}

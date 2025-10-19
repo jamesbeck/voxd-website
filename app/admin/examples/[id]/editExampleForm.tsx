@@ -65,7 +65,7 @@ export default function EditExampleForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    const response = await saUpdateExample({
+    await saUpdateExample({
       id,
       title: values.title,
       short: values.short,

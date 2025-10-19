@@ -3,13 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { Menu as MenuIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import {
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import {
   Sheet,
@@ -25,21 +25,24 @@ const menuItems = [
   { href: "/pricing", label: "Pricing" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
+  { href: "/login", label: "Login", highlight: true },
 ];
 
 export default function Menu() {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="w-full py-2 px-4 md:px-0 border-b border-darkgrey">
-      <div className="w-full flex justify-center">
+    <div className="">
+      <div className="w-full flex justify-end">
         <NavigationMenu viewport={false} className="hidden md:flex">
           <NavigationMenuList>
             {menuItems.map((item) => (
               <NavigationMenuItem key={item.href}>
                 <NavigationMenuLink
                   asChild
-                  className={navigationMenuTriggerStyle()}
+                  className={cn(
+                    item.highlight ? "bg-primary text-white font-bold" : ""
+                  )}
                 >
                   <Link href={item.href}>{item.label}</Link>
                 </NavigationMenuLink>
@@ -64,7 +67,7 @@ export default function Menu() {
           </SheetTrigger>
           <SheetContent side="right">
             <SheetHeader>
-              <SheetTitle className="m-4">SwiftReply</SheetTitle>
+              <SheetTitle className="m-4">Voxd</SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-2 mt-8 ml-8">
               {menuItems.map((item) => (

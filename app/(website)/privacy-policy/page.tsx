@@ -4,38 +4,38 @@ import H2 from "@/components/websiteui/h2";
 export default function PrivacyPolicy() {
   return (
     <Container>
-      <H2 className="text-center">Privacy Policy for SwiftReply</H2>
+      <H2 className="text-center">Privacy Policy for Voxd</H2>
 
       <p className="mb-4 text-sm text-slate-600">Effective date: 18/08/2025</p>
 
       <p className="mb-6">
         This Privacy Policy explains how{" "}
         <span className="font-medium">
-          IO Shield Ltd (11265201), trading as SwiftReply
+          IO Shield Ltd (11265201), trading as Voxd
         </span>{" "}
         (“we”, “us”, or “our”) collects, uses, shares, and protects information
-        when you use the SwiftReply application (the “App”).
+        when you use the Voxd application (the “App”).
       </p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">
         Who we are (Data Controller)
       </h2>
       <p className="mb-6">
-        IO Shield Ltd (11265201), trading as SwiftReply.
+        IO Shield Ltd (11265201), trading as Voxd.
         <br />
         Contact:{" "}
         <a
-          href="mailto:hello@swiftreply.app"
+          href="mailto:hello@voxd.app"
           className="underline decoration-slate-400 hover:decoration-slate-700"
         >
-          hello@swiftreply.app
+          hello@voxd.app
         </a>
       </p>
 
       <h2 className="text-xl font-semibold mt-8 mb-3">
         What information we collect
       </h2>
-      <p className="mb-2">When you use SwiftReply, we may process:</p>
+      <p className="mb-2">When you use Voxd, we may process:</p>
       <ul className="list-disc pl-6 space-y-2 mb-6">
         <li>
           <span className="font-medium">WhatsApp-related data:</span> messages
@@ -116,8 +116,8 @@ export default function PrivacyPolicy() {
       <h2 className="text-xl font-semibold mt-8 mb-3">Retention</h2>
       <p className="mb-6">
         We keep personal data only as long as necessary to provide the App and
-        meet the purposes described above. Messages processed by SwiftReply are
-        not stored beyond what is technically necessary to deliver the automated
+        meet the purposes described above. Messages processed by Voxd are not
+        stored beyond what is technically necessary to deliver the automated
         response. We periodically review retention and securely delete data that
         is no longer required.
       </p>
@@ -133,10 +133,10 @@ export default function PrivacyPolicy() {
       <p className="mb-6">
         To exercise your rights, contact us at{" "}
         <a
-          href="mailto:hello@swiftreply.app"
+          href="mailto:hello@voxd.app"
           className="underline decoration-slate-400 hover:decoration-slate-700"
         >
-          hello@swiftreply.app
+          hello@voxd.app
         </a>
         . You also have the right to lodge a complaint with the UK Information
         Commissioner’s Office (ICO).
@@ -163,10 +163,10 @@ export default function PrivacyPolicy() {
         We may update this Privacy Policy from time to time. The latest version
         will always be available at{" "}
         <a
-          href="https://swiftreply.app/privacy"
+          href="https://voxd.app/privacy"
           className="underline decoration-slate-400 hover:decoration-slate-700"
         >
-          https://swiftreply.app/privacy
+          https://voxd.app/privacy
         </a>
         , with the effective date shown at the top. Significant changes may also
         be communicated by email.
@@ -176,10 +176,10 @@ export default function PrivacyPolicy() {
       <p className="mb-6">
         Email:{" "}
         <a
-          href="mailto:hello@swiftreply.app"
+          href="mailto:hello@voxd.app"
           className="underline decoration-slate-400 hover:decoration-slate-700"
         >
-          hello@swiftreply.app
+          hello@voxd.app
         </a>
       </p>
 

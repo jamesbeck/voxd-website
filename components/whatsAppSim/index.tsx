@@ -90,7 +90,7 @@ export default function WhatsAppSim({
             <ChevronLeftIcon className="w-8 h-8" />
             <div className="w-[36px] h-[36px] relative ml-[10px]">
               <Image
-                src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleLogos/${exampleId}.png`}
+                src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${exampleId}.png`}
                 alt="Logo"
                 fill
                 style={{ objectFit: "contain" }}

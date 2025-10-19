@@ -2,12 +2,12 @@
 
 const apps = [
   {
-    name: "SwiftReply",
+    name: "Voxd",
     id: 24741739915423743,
     token: process.env.META_ACCESS_TOKEN_PRODUCTION_APP!,
   },
   {
-    name: "SwiftReply Test",
+    name: "Voxd Test",
     id: 998058092337050,
     token: process.env.META_ACCESS_TOKEN_DEVELOPMENT_APP!,
   },

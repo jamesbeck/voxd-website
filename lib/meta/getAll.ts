@@ -1,4 +1,4 @@
-import { Page } from "./types";
+import { Page } from "@/types/metaTypes";
 
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 
@@ -23,6 +23,7 @@ async function getAll<T>(url: string, params: Record<string, any>) {
     }
     const json = (await res.json()) as Page<T>;
     out.push(...(json.data || []));
+    console.log(json);
     next = json.paging?.next || "";
   }
   return out;

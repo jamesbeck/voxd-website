@@ -1,24 +1,21 @@
 import getMessages from "@/lib/getMessagesBySession";
-import Link from "next/link";
 import getAgentById from "@/lib/getAgentById";
 import getUserById from "@/lib/getUserById";
 import { format } from "date-fns";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import getSessionById from "@/lib/getSessionById";
 import DeleteSessionButton from "./deleteSessionButton";
+import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import Container from "@/components/adminui/container";
+import H1 from "@/components/adminui/H1";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page({
   params,
 }: {
   params: { sessionId: string };
 }) {
+  const accessToken = await verifyAccessToken();
+
   const awaitedParams = await params;
 
   const sessionId = awaitedParams.sessionId;
@@ -29,42 +26,25 @@ export default async function Page({
 
   const messages = await getMessages({ sessionId: sessionId });
 
-  //get most recent assistant message
-  const mostRecentAssistantMessage = messages.find(
-    (message: any) => message.role == "assistant"
-  );
-
   return (
-    <div>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/agents">Agents</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href={`/admin/agents/${agent.id}`}>
-              {agent.niceName}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{user.name}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <Container>
+      <BreadcrumbSetter
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Agents", href: "/admin/agents" },
+          { label: agent.niceName, href: `/admin/agents/${agent.id}` },
+          { label: session.id },
+        ]}
+      />
 
-      <h1 className="text-2xl font-semibold mb-4">
-        {user.name} <span className="text-xs">({user.number})</span> talking to{" "}
-        {agent.niceName}
-      </h1>
+      <H1 className="text-2xl font-semibold mb-4">
+        {user.name} ({user.number}) & {agent.niceName}
+      </H1>
 
       <div className="flex justify-end my-4 cursor-pointer">
-        <DeleteSessionButton sessionId={sessionId} agentId={agent.id} />
+        {!!accessToken?.admin && (
+          <DeleteSessionButton sessionId={sessionId} agentId={agent.id} />
+        )}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -80,11 +60,11 @@ export default async function Page({
               key={message.id}
             >
               <div
-                className={`p-4 border-b max-w-[80%] ${
+                className={`p-3 border-b max-w-[80%] ${
                   message.role == "assistant"
                     ? "bg-gray-200 "
                     : "bg-primary text-white"
-                } rounded-lg flex flex-col gap-4`}
+                } rounded-lg flex flex-col gap-2`}
               >
                 <div className="text-xs">
                   {format(message.createdAt, "dd/MM/yyyy HH:mm")}
@@ -92,22 +72,20 @@ export default async function Page({
 
                 {/* <div className="flex flex-col gap-2">{message.text}</div> */}
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 text-sm">
                   {textSplitOnLineBreaks.map((line: string, index: number) => (
                     <div key={index}>{line}</div>
                   ))}
                 </div>
 
-                <code>{JSON.stringify(message?.outputUserData)}</code>
+                {/* <code>{JSON.stringify(message?.outputUserData)}</code> */}
 
-                <div className="text-xs">
-                  ID: {message.id} ({message.responseStatus})
-                </div>
+                {/* <div className="text-xs">ID: {message.id}</div> */}
               </div>
             </div>
           );
         })}
       </div>
-    </div>
+    </Container>
   );
 }

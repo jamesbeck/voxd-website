@@ -1,4 +1,3 @@
-import db from "@/database/db";
 import EditExampleForm from "./editExampleForm";
 import getIndustries from "@/lib/getIndustries";
 import getFunctions from "@/lib/getFunctions";

@@ -1,9 +1,8 @@
-import { Industry } from "@/types/types";
 import db from "../database/db";
 
-const getIndustries = async (): Promise<Industry[]> => {
+const getIndustries = async () => {
   //get industries with count of examples
-  const industries = db("industry")
+  const industries = await db("industry")
     .leftJoin("exampleIndustry", "exampleIndustry.industryId", "industry.id")
     .select(
       "industry.id",

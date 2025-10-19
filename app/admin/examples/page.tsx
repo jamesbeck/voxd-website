@@ -1,14 +1,13 @@
-import H1 from "@/components/adminui/h1";
+import H1 from "@/components/adminui/H1";
 import ExamplesTable from "./examplesTable";
-import { getExamples } from "@/lib/getExamples";
+import Container from "@/components/adminui/container";
 
 export default async function Page() {
-  const examples = await getExamples();
   return (
-    <div>
+    <Container>
       <H1>Manage Examples</H1>
 
-      <ExamplesTable examples={examples} />
-    </div>
+      <ExamplesTable />
+    </Container>
   );
 }

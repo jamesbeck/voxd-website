@@ -4,64 +4,64 @@ import DataTable from "@/components/adminui/table";
 import Link from "next/link";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
+import saGetSessionTableData from "@/actions/saGetSessionsTableData";
 
-const SessionsTable = ({ sessions }: { sessions: any; agentId: string }) => {
+const SessionsTable = ({ agentId }: { agentId: string }) => {
+  const columns = [
+    {
+      label: "Name",
+      name: "name",
+      sort: true,
+    },
+    {
+      label: "Number",
+      name: "number",
+      sort: true,
+    },
+    {
+      label: "First Seen",
+      name: "firstMessageAt",
+      sort: true,
+      format: (row: any) =>
+        row.firstMessageAt
+          ? `${format(
+              row.firstMessageAt,
+              "dd/MM/yyyy HH:mm"
+            )} (${formatDistance(row.firstMessageAt, new Date())})`
+          : "",
+    },
+    {
+      label: "Last Seen",
+      name: "lastMessageAt",
+      sort: true,
+      format: (row: any) =>
+        row.lastMessageAt
+          ? `${format(row.lastMessageAt, "dd/MM/yyyy HH:mm")} (${formatDistance(
+              row.lastMessageAt,
+              new Date()
+            )})`
+          : "",
+    },
+    {
+      label: "Messages",
+      name: "messageCount",
+      sort: true,
+    },
+  ];
+
   return (
     <DataTable
-      data={sessions}
-      defaultSort={[
-        {
-          id: "lastMessageAt",
-          desc: true,
-        },
-      ]}
-      columns={[
-        {
-          label: "Name",
-          name: "name",
-          sort: true,
-          format: (value) => value || "",
-        },
-        {
-          label: "Number",
-          name: "number",
-          sort: true,
-        },
-        {
-          label: "First Seen",
-          name: "firstMessageAt",
-          sort: true,
-          format: (value) =>
-            value
-              ? `${format(value, "dd/MM/yyyy HH:mm")} (${formatDistance(
-                  value,
-                  new Date()
-                )})`
-              : "",
-        },
-        {
-          label: "Last Seen",
-          name: "lastMessageAt",
-          sort: true,
-          format: (value) =>
-            value
-              ? `${format(value, "dd/MM/yyyy HH:mm")} (${formatDistance(
-                  value,
-                  new Date()
-                )})`
-              : "",
-        },
-        {
-          label: "Messages",
-          name: "messageCount",
-          sort: true,
-          format: (value) => value || "",
-        },
-      ]}
+      defaultSort={{
+        name: "lastMessageAt",
+        direction: "desc",
+      }}
+      getData={saGetSessionTableData}
+      getDataParams={{ agentId }}
+      columns={columns}
       actions={(row: any) => {
         return (
           <>
-            <Button className="cursor-pointer" asChild>
+            <Button asChild size={"sm"}>
               <Link href={`/admin/sessions/${row.id}`}>View</Link>
             </Button>
           </>

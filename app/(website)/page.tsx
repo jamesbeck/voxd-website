@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Container from "@/components/websiteui/container";
-import WhatsAppSim from "@/components/whatsAppSim";
 import { getExamples } from "@/lib/getExamples";
 import {
   MessageSquare,
@@ -64,19 +63,10 @@ export default async function Home() {
 
   return (
     <>
-      <div className="w-full h-[400px] relative">
-        <Image
-          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleImages/${eg1.id}.png`}
-          alt="Hero Image"
-          fill
-          className="object-cover"
-        />
-      </div>
-
       {/* Introduction Section */}
       <Container>
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-br to-primary from-darkgrey bg-clip-text text-transparent">
             We Build Bespoke WhatsApp AI Chatbots Built Around Your Business
           </h2>
           <p className="text-xl text-gray-600 leading-relaxed">
@@ -99,12 +89,21 @@ export default async function Home() {
         </div>
       </Container>
 
+      <div className="w-full h-[400px] relative">
+        <Image
+          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${eg1.id}.png`}
+          alt="Hero Image"
+          fill
+          className="object-cover"
+        />
+      </div>
+
       {/* Features Section */}
 
       <Container colour="green">
         <div className="text-center mb-12">
           <h3 className="text-3xl md:text-4xl font-bold mb-4">
-            Why Choose SwiftReply?
+            Why Choose Voxd?
           </h3>
           <p className="text-lg max-w-2xl mx-auto">
             Everything you need to deliver exceptional customer experiences
@@ -148,7 +147,7 @@ export default async function Home() {
               Meet <span className="font-semibold">Clive</span>, our
               WhatsApp-based sales assistant. Chat with him now to discover what
               an intelligent chatbot could do for your business – and experience
-              the power of SwiftReply firsthand.
+              the power of Voxd firsthand.
             </p>
             <div className="pt-6">
               <a
@@ -175,7 +174,7 @@ export default async function Home() {
             </h3>
             <p className="text-lg ">
               Join businesses that are delivering smarter conversations and
-              faster results with SwiftReply.
+              faster results with Voxd.
             </p>
           </div>
         </div>

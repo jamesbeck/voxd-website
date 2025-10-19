@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
 import "@/app/globals.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,20 +10,15 @@ export default function RootLayout({
 }>) {
   return (
     <div>
-      <div className="bg-primary w-full flex flex-col justify-center items-center py-4 gap-2">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo.svg"
-            alt="Logo"
-            width={60}
-            height={60}
-            className="relative top-1"
-          />
-          <h1 className="text-4xl font-bold text-white">SwiftReply</h1>
+      <div className="bg-white w-full flex  items-center py-4 px-4 gap-2 ">
+        <Link href="/" className="">
+          <Image src="/logo.svg" alt="Logo" width={140} height={50} />
         </Link>
-      </div>
 
-      <Menu />
+        <div className="flex-1">
+          <Menu />
+        </div>
+      </div>
 
       <div>{children}</div>
 
@@ -47,9 +40,9 @@ export default function RootLayout({
           </Link>
         </div>
         <div className="text-xs">
-          © {new Date().getFullYear()} SwiftReply. All rights reserved.
-          SwiftReply is a trading style of IO Shield Limited, a company
-          registered in England and Wales (Company No. 11265201).
+          © {new Date().getFullYear()} Voxd. All rights reserved. Voxd is a
+          trading style of IO Shield Limited, a company registered in England
+          and Wales (Company No. 11265201).
         </div>
       </div>
     </div>

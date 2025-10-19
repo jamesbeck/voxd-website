@@ -3,25 +3,21 @@
 import DataTable from "@/components/adminui/table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Example } from "@/types/types";
-import { IndustryTable, FunctionTable } from "@/types/dbTableTypes";
+import saGetExampleTableData from "@/actions/saGetExampleTableData";
 
-const ExamplesTable = ({ examples }: { examples: Example[] }) => {
+const ExamplesTable = () => {
   return (
     <DataTable
-      data={examples}
-      defaultSort={[
-        {
-          id: "title",
-          desc: false,
-        },
-      ]}
+      getData={saGetExampleTableData}
+      defaultSort={{
+        name: "title",
+        direction: "desc",
+      }}
       columns={[
         {
           label: "Title",
           name: "title",
           sort: true,
-          format: (value) => value || "",
         },
         // {
         //   label: "Slug",
@@ -29,30 +25,30 @@ const ExamplesTable = ({ examples }: { examples: Example[] }) => {
         //   sort: true,
         //   format: (value) => value || "",
         // },
-        {
-          label: "Industries",
-          name: "industries",
-          sort: true,
-          format: (value) => (
-            <ul>
-              {value.map((industry: IndustryTable) => (
-                <li key={industry.id}>{industry.name}</li>
-              ))}
-            </ul>
-          ),
-        },
-        {
-          label: "Functions",
-          name: "functions",
-          sort: true,
-          format: (value) => (
-            <ul>
-              {value.map((func: FunctionTable) => (
-                <li key={func.id}>{func.name}</li>
-              ))}
-            </ul>
-          ),
-        },
+        // {
+        //   label: "Industries",
+        //   name: "industries",
+        //   sort: true,
+        //   format: (value) => (
+        //     <ul>
+        //       {value.map((industry: IndustryTable) => (
+        //         <li key={industry.id}>{industry.name}</li>
+        //       ))}
+        //     </ul>
+        //   ),
+        // },
+        // {
+        //   label: "Functions",
+        //   name: "functions",
+        //   sort: true,
+        //   format: (value) => (
+        //     <ul>
+        //       {value.map((func: FunctionTable) => (
+        //         <li key={func.id}>{func.name}</li>
+        //       ))}
+        //     </ul>
+        //   ),
+        // },
       ]}
       actions={(row: any) => {
         return (

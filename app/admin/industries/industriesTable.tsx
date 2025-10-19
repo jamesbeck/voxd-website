@@ -2,31 +2,27 @@
 
 import DataTable from "@/components/adminui/table";
 import Link from "next/link";
-import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
+import saGetIndustryTableData from "@/actions/saGetIndustryTableData";
 
-const IndustriesTable = ({ industries }: { industries: any }) => {
+const IndustriesTable = () => {
   return (
     <DataTable
-      data={industries}
-      defaultSort={[
-        {
-          id: "name",
-          desc: false,
-        },
-      ]}
+      getData={saGetIndustryTableData}
+      defaultSort={{
+        name: "name",
+        direction: "asc",
+      }}
       columns={[
         {
           label: "Name",
           name: "name",
           sort: true,
-          format: (value) => value || "",
         },
         {
           label: "Slug",
           name: "slug",
           sort: true,
-          format: (value) => value || "",
         },
         {
           label: "Example Count",

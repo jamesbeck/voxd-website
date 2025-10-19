@@ -1,5 +1,4 @@
-import Link from "next/link";
-import H1 from "@/components/adminui/h1";
+import H1 from "@/components/adminui/H1";
 import GenerateExampleForm from "./generateExampleForm";
 
 export default async function Page() {

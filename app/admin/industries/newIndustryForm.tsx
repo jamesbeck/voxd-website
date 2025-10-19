@@ -37,7 +37,7 @@ export default function NewIndustryForm() {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    const response = await saCreateIndustry({
+    await saCreateIndustry({
       name: values.name,
     });
 

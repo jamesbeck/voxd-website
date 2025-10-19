@@ -1,11 +1,11 @@
-import { cn, nl2br } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { useInView } from "motion/react";
 
 const InnerMessage = ({ text, time }: { text: string; time: string }) => {
@@ -37,8 +37,6 @@ export default function Message({
   time: string;
   annotation: string;
 }) {
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-
   const ref = useRef(null);
   const isInView = useInView(ref, {
     amount: "all",

@@ -1,16 +1,6 @@
-import {
-  Card,
-  CardContent,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { IndustryTable, FunctionTable } from "@/types/dbTableTypes";
 import Image from "next/image";
 
 export default function ExampleCard({
@@ -25,22 +15,22 @@ export default function ExampleCard({
   title: string;
   short: string;
   slug: string;
-  industries: IndustryTable[];
-  functions: FunctionTable[];
+  industries: { id: string; name: string; slug: string }[];
+  functions: { id: string; name: string; slug: string }[];
 }) {
   return (
     <div className="w-full rounded-2xl overflow-hidden border border-darkgrey flex flex-col">
       <div className="w-full relative h-[150px]">
         <Link href={`/examples/${slug}`}>
           <Image
-            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleImages/${id}.png`}
+            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${id}.png`}
             alt={`${title} Image`}
             fill
             className="object-cover object-center"
           />
         </Link>
         <Image
-          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/swiftreply/exampleLogos/${id}.png`}
+          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${id}.png`}
           alt={`${title} Logo` || ""}
           width={50}
           height={50}
