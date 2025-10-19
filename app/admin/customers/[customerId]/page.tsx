@@ -2,7 +2,7 @@ import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import H1 from "@/components/adminui/H1";
 import getCustomerById from "@/lib/getCustomerById";
-import Container from "@/components/adminui/container";
+import Container from "@/components/adminui/Container";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import H2 from "@/components/adminui/H2";
 import EditCustomerForm from "./editCustomerForm";

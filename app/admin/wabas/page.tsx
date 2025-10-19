@@ -5,7 +5,7 @@ import WabasTable from "../wabasTable";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { notFound } from "next/navigation";
 import WabasActions from "./WabasActions";
-import Container from "@/components/adminui/container";
+import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
 import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
 

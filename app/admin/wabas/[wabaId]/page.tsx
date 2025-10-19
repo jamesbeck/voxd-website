@@ -2,7 +2,7 @@ import React from "react";
 import getWaba from "@/lib/meta/getWaba";
 import PhoneNumberTable from "./phoneNumberTable";
 import H2 from "@/components/adminui/H2";
-import Container from "@/components/adminui/container";
+import Container from "@/components/adminui/Container";
 import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
 
 export default async function Page({ params }: { params: { wabaId: string } }) {

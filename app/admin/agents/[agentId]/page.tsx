@@ -2,7 +2,7 @@ import SessionsTable from "./sessionsTable";
 import getAgentById from "@/lib/getAgentById";
 import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
-import Container from "@/components/adminui/container";
+import Container from "@/components/adminui/Container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import H2 from "@/components/adminui/H2";
 import { notFound } from "next/navigation";

@@ -2,7 +2,7 @@ import getUserById from "@/lib/getUserById";
 import H1 from "@/components/adminui/H1";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SessionsTable from "./sessionsTable";
-import Container from "@/components/adminui/container";
+import Container from "@/components/adminui/Container";
 import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
 import { User } from "@/types/types";
 import NewUserForm from "./newUserForm";

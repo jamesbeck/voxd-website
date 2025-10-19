@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import getSessionById from "@/lib/getSessionById";
 import DeleteSessionButton from "./deleteSessionButton";
 import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
-import Container from "@/components/adminui/container";
+import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
