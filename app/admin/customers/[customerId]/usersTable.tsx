@@ -2,7 +2,7 @@
 
 import { format, formatDistance } from "date-fns";
 import saGetUserTableData from "@/actions/saGetUserTableData";
-import DataTable from "@/components/adminui/table2";
+import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 

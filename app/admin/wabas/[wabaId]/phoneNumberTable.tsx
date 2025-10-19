@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable from "@/components/adminui/table2";
+import DataTable from "@/components/adminui/Table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
