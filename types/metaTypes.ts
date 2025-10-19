@@ -1,6 +1,6 @@
 export type Page<T> = {
   data: T[];
-  paging?: { 
+  paging?: {
     cursors?: { before?: string; after?: string };
     next?: string;
     previous?: string;
