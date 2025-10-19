@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable, { Column } from "@/components/adminui/table";
+import DataTable, { Column } from "@/components/adminui/table2";
 import Link from "next/link";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
