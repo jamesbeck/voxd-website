@@ -9,6 +9,7 @@ const saUpdateUser = async ({
   name,
   number,
   email,
+  partnerId,
   testingAgentId,
   customerIds,
 }: {
@@ -16,6 +17,7 @@ const saUpdateUser = async ({
   name?: string;
   number?: string;
   email?: string;
+  partnerId?: string;
   testingAgentId?: string;
   customerIds?: string[];
 }): Promise<ServerActionResponse> => {
@@ -50,7 +52,7 @@ const saUpdateUser = async ({
   //update the user
   await db("user")
     .where({ id: userId })
-    .update({ name, number, email, testingAgentId });
+    .update({ name, number, email, partnerId, testingAgentId });
 
   //update customer associations
   if (customerIds) {

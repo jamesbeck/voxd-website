@@ -23,8 +23,8 @@ const config: Record<string, Knex.Config> = {
     },
     searchPath: "public",
     pool: {
-      min: 2,
-      max: 10,
+      min: 0, // Lower min connections in development
+      max: 5, // Lower max connections in development
     },
     // migrations: {
     //   tableName: "knex_migrations",

@@ -14,21 +14,11 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { saUpdateUser } from "@/actions/saUpdateUser";
+import { saCreateUser } from "@/actions/saCreateUser";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import H2 from "@/components/adminui/H2";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import saGetCustomerTableData from "@/actions/saGetCustomerTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -41,32 +31,9 @@ const formSchema = z.object({
     )
     .or(z.literal("")),
   email: z.email("Invalid email address").or(z.literal("")),
-  partnerId: z.string().optional(),
-  testingAgentId: z.string().optional(),
-  customerIds: z.string().array(),
 });
 
-export default function EditUserForm({
-  userId,
-  name,
-  number,
-  email,
-  partnerId,
-  testingAgentId,
-  customerIds,
-  agentOptions,
-  partnerOptions,
-}: {
-  userId: string;
-  name?: string;
-  number?: string;
-  email?: string;
-  partnerId?: string;
-  testingAgentId?: string;
-  customerIds?: string[];
-  agentOptions: { value: string; label: string }[];
-  partnerOptions: { value: string; label: string }[];
-}) {
+export default function NewUserForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -74,12 +41,9 @@ export default function EditUserForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: name || "",
-      number: number || "",
-      email: email || "",
-      partnerId: partnerId || "",
-      testingAgentId: testingAgentId || "",
-      customerIds: customerIds || [],
+      name: "",
+      number: "",
+      email: "",
     },
   });
 
@@ -87,14 +51,10 @@ export default function EditUserForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdateUser({
-      userId: userId,
+    const response = await saCreateUser({
       name: values.name,
       number: values.number,
       email: values.email,
-      partnerId: values.partnerId,
-      testingAgentId: values.testingAgentId,
-      customerIds: values.customerIds,
     });
 
     if (!response.success) {
@@ -121,8 +81,8 @@ export default function EditUserForm({
     }
 
     if (response.success) {
-      toast.success(`User ${values.name} updated`);
-      router.refresh();
+      toast.success(`User ${values.name} created`);
+      router.push(`/admin/users/${response.data.id}`);
     }
 
     setLoading(false);
@@ -130,8 +90,7 @@ export default function EditUserForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <H2>Edit User</H2>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="name"
@@ -189,88 +148,6 @@ export default function EditUserForm({
                 <Input placeholder="john.doe@example.com" {...field} />
               </FormControl>
               {/* <FormDescription>Put your user email here</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="partnerId"
-          // rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Partner</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Partner" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {partnerOptions.map((partner) => (
-                      <SelectItem key={partner.value} value={partner.value}>
-                        {partner.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="testingAgentId"
-          // rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Testing Agent</FormLabel>
-              <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Development Agent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {agentOptions.map((agent) => (
-                      <SelectItem key={agent.value} value={agent.value}>
-                        {agent.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              {/* <FormDescription>Put your user email here</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="customerIds"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Customers</FormLabel>
-              <FormControl>
-                <RemoteMultiSelect
-                  {...field}
-                  serverAction={saGetCustomerTableData}
-                  label={(record) => `${record.name}`}
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Search and select customers..."
-                  emptyMessage="No customers found"
-                  pageSize={50}
-                  searchDebounceMs={300}
-                />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

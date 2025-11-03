@@ -41,7 +41,6 @@ const formSchema = z.object({
     )
     .or(z.literal("")),
   email: z.email("Invalid email address").or(z.literal("")),
-  partnerId: z.string().optional(),
   testingAgentId: z.string().optional(),
   customerIds: z.string().array(),
 });
@@ -51,21 +50,17 @@ export default function EditUserForm({
   name,
   number,
   email,
-  partnerId,
   testingAgentId,
   customerIds,
   agentOptions,
-  partnerOptions,
 }: {
   userId: string;
   name?: string;
   number?: string;
   email?: string;
-  partnerId?: string;
   testingAgentId?: string;
   customerIds?: string[];
   agentOptions: { value: string; label: string }[];
-  partnerOptions: { value: string; label: string }[];
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -77,7 +72,6 @@ export default function EditUserForm({
       name: name || "",
       number: number || "",
       email: email || "",
-      partnerId: partnerId || "",
       testingAgentId: testingAgentId || "",
       customerIds: customerIds || [],
     },
@@ -92,7 +86,6 @@ export default function EditUserForm({
       name: values.name,
       number: values.number,
       email: values.email,
-      partnerId: values.partnerId,
       testingAgentId: values.testingAgentId,
       customerIds: values.customerIds,
     });
@@ -189,37 +182,6 @@ export default function EditUserForm({
                 <Input placeholder="john.doe@example.com" {...field} />
               </FormControl>
               {/* <FormDescription>Put your user email here</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="partnerId"
-          // rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Partner</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Partner" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {partnerOptions.map((partner) => (
-                      <SelectItem key={partner.value} value={partner.value}>
-                        {partner.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

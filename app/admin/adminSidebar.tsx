@@ -70,6 +70,12 @@ const liveDataItems: MenuItem[] = [
   },
   {
     roles: ["admin"],
+    title: "Partners",
+    url: "/admin/partners",
+    icon: Inbox,
+  },
+  {
+    roles: ["admin"],
     title: "Users",
     url: "/admin/users",
     icon: Inbox,

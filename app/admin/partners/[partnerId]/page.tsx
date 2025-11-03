@@ -11,7 +11,6 @@ import UserActions from "./UserActions";
 import EditUserForm from "./editUserForm";
 import H2 from "@/components/adminui/H2";
 import getAgents from "@/lib/getAgents";
-import getPartners from "@/lib/getPartners";
 
 export default async function Page({ params }: { params: { userId: string } }) {
   const userId = (await params).userId;
@@ -24,9 +23,6 @@ export default async function Page({ params }: { params: { userId: string } }) {
 
   //get all agents for the edit form
   const agents = await getAgents();
-
-  //get all partners for the edit form
-  const partners = await getPartners();
 
   return (
     <Container>
@@ -57,10 +53,6 @@ export default async function Page({ params }: { params: { userId: string } }) {
                 agentOptions={agents.map((agent) => ({
                   value: agent.id,
                   label: agent.niceName,
-                }))}
-                partnerOptions={partners.map((partner) => ({
-                  value: partner.id,
-                  label: partner.name,
                 }))}
               />
             </TabsContent>
