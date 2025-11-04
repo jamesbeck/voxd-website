@@ -11,13 +11,17 @@ import AgentActions from "./agentActions";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import UsersTable from "./usersTable";
 import userCanViewAgent from "@/lib/userCanViewAgent";
+import Link from "next/link";
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: { agentId: string };
+  searchParams: { tab?: string };
 }) {
   const agentId = (await params).agentId;
+  const activeTab = (await searchParams).tab || "sessions";
 
   let agent;
 
@@ -30,7 +34,7 @@ export default async function Page({
   const token = await verifyAccessToken();
 
   //can the user view this agent?
-  if (!(await userCanViewAgent({ userId: token.userId, agentId: agentId! }))) {
+  if (!(await userCanViewAgent({ agentId: agentId! }))) {
     return notFound();
   }
 
@@ -49,13 +53,23 @@ export default async function Page({
       )}
       {agent && (
         <>
-          <Tabs defaultValue="sessions" className="space-y-2">
+          <Tabs value={activeTab} className="space-y-2">
             <TabsList>
               {!!token.admin && (
-                <TabsTrigger value="edit">Edit Agent</TabsTrigger>
+                <TabsTrigger value="edit" asChild>
+                  <Link href={`/admin/agents/${agentId}?tab=edit`}>
+                    Edit Agent
+                  </Link>
+                </TabsTrigger>
               )}
-              <TabsTrigger value="sessions">Sessions</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="sessions" asChild>
+                <Link href={`/admin/agents/${agentId}?tab=sessions`}>
+                  Sessions
+                </Link>
+              </TabsTrigger>
+              <TabsTrigger value="users" asChild>
+                <Link href={`/admin/agents/${agentId}?tab=users`}>Users</Link>
+              </TabsTrigger>
             </TabsList>
             {!!token.admin && (
               <TabsContent value="edit">

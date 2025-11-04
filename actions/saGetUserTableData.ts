@@ -30,9 +30,7 @@ const saGetUserTableData = async ({
     };
   }
 
-  if (
-    !(await userCanViewAgent({ userId: accessToken.userId, agentId: agentId! }))
-  ) {
+  if (!(await userCanViewAgent({ agentId: agentId! }))) {
     return {
       success: false,
       error: "You do not have permission to view this agent.",
