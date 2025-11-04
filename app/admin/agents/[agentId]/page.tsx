@@ -12,6 +12,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import UsersTable from "./usersTable";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import Link from "next/link";
+import Dashboard from "./dashboard";
 
 export default async function Page({
   params,
@@ -21,7 +22,7 @@ export default async function Page({
   searchParams: { tab?: string };
 }) {
   const agentId = (await params).agentId;
-  const activeTab = (await searchParams).tab || "sessions";
+  const activeTab = (await searchParams).tab || "dashboard";
 
   let agent;
 
@@ -55,6 +56,11 @@ export default async function Page({
         <>
           <Tabs value={activeTab} className="space-y-2">
             <TabsList>
+              <TabsTrigger value="dashboard" asChild>
+                <Link href={`/admin/agents/${agentId}?tab=dashboard`}>
+                  Dashboard
+                </Link>
+              </TabsTrigger>
               {!!token.admin && (
                 <TabsTrigger value="edit" asChild>
                   <Link href={`/admin/agents/${agentId}?tab=edit`}>
@@ -71,6 +77,12 @@ export default async function Page({
                 <Link href={`/admin/agents/${agentId}?tab=users`}>Users</Link>
               </TabsTrigger>
             </TabsList>
+            <TabsContent value="dashboard">
+              <Container>
+                <H2>Dashboard</H2>
+                <Dashboard agentId={agentId} />
+              </Container>
+            </TabsContent>
             {!!token.admin && (
               <TabsContent value="edit">
                 <Container>
