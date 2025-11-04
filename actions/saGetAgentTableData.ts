@@ -22,7 +22,8 @@ const saGetAgentTableData = async ({
   const base = db("agent")
     .leftJoin("session", "agent.id", "session.agentId")
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
-    .groupBy("agent.id")
+    .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
+    .groupBy("agent.id", "phoneNumber.id")
     .where((qb) => {
       if (search) {
         qb.where("agent.name", "ilike", `%${search}%`);
@@ -51,6 +52,7 @@ const saGetAgentTableData = async ({
   const agents = await base
     .clone()
     .select("agent.*")
+    .select("phoneNumber.displayPhoneNumber as phoneNumber")
     .select(
       db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
       db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),

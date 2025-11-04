@@ -6,6 +6,7 @@ import {
 } from "@/types/types";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import userCanViewAgent from "@/lib/userCanViewAgent";
 
 const saGetUserTableData = async ({
   search,
@@ -14,15 +15,27 @@ const saGetUserTableData = async ({
   sortField = "id",
   sortDirection = "asc",
   customerId,
+  agentId,
 }: ServerActionReadParams & {
   customerId?: string;
+  agentId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken?.admin) {
+  //you must be admin if not filtering by customerId or agentId
+  if (!accessToken?.admin && !customerId && !agentId) {
     return {
       success: false,
       error: "You do not have permission to view users.",
+    };
+  }
+
+  if (
+    !(await userCanViewAgent({ userId: accessToken.userId, agentId: agentId! }))
+  ) {
+    return {
+      success: false,
+      error: "You do not have permission to view this agent.",
     };
   }
 
@@ -44,6 +57,11 @@ const saGetUserTableData = async ({
   if (customerId) {
     base.leftJoin("customerUser", "user.id", "customerUser.userId");
     base.where("customerUser.customerId", customerId);
+  }
+
+  if (agentId) {
+    base.leftJoin("agent", "agent.id", "session.agentId");
+    base.where("agent.id", agentId);
   }
 
   //count query

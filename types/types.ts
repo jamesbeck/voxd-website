@@ -35,6 +35,7 @@ export interface User {
   email?: string;
   role: Roles;
   createdAt: Date;
+  partnerId?: string;
   testingAgentId?: string;
   customerIds?: string[];
 }

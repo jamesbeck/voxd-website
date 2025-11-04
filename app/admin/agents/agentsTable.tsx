@@ -19,6 +19,11 @@ const AgentsTable = () => {
       sort: true,
     },
     {
+      label: "Phone Number",
+      name: "phoneNumber",
+      sort: true,
+    },
+    {
       label: "Sessions",
       name: "sessionCount",
       sort: true,
@@ -46,9 +51,21 @@ const AgentsTable = () => {
 
   const actions = (row: any) => {
     return (
-      <Button asChild size={"sm"}>
-        <Link href={`/admin/agents/${row.id}`}>View</Link>
-      </Button>
+      <div className="flex gap-1">
+        <Button asChild size={"sm"}>
+          <Link href={`/admin/agents/${row.id}`}>View</Link>
+        </Button>
+        {!!row.phoneNumber && (
+          <Button className="cursor-pointer" size={"sm"} asChild>
+            <Link
+              target="_blank"
+              href={`https://wa.me/${row.phoneNumber.replaceAll(" ", "")}`}
+            >
+              Message
+            </Link>
+          </Button>
+        )}
+      </div>
     );
   };
 

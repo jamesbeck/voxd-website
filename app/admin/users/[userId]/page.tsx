@@ -52,6 +52,7 @@ export default async function Page({ params }: { params: { userId: string } }) {
                 name={user.name}
                 email={user.email}
                 number={user.number}
+                partnerId={user.partnerId}
                 testingAgentId={user.testingAgentId}
                 customerIds={user.customerIds}
                 agentOptions={agents.map((agent) => ({

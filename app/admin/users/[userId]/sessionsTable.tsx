@@ -58,7 +58,7 @@ const SessionsTable = ({ userId }: { userId: string }) => {
         return (
           <>
             <Button asChild size={"sm"}>
-              <Link href={`/admin/sessions/${row.id}`}>View</Link>
+              <Link href={`/admin/sessions/${row.id}`}>View Chat</Link>
             </Button>
           </>
         );

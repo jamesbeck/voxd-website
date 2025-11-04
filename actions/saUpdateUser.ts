@@ -52,7 +52,13 @@ const saUpdateUser = async ({
   //update the user
   await db("user")
     .where({ id: userId })
-    .update({ name, number, email, partnerId, testingAgentId });
+    .update({
+      name,
+      number,
+      email,
+      partnerId: partnerId || null,
+      testingAgentId: testingAgentId || null,
+    });
 
   //update customer associations
   if (customerIds) {
