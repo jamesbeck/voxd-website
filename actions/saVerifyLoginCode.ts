@@ -2,12 +2,10 @@
 import { ServerActionResponse } from "@/types/types";
 import db from "@/database/db";
 import { compare } from "bcryptjs";
-import { hash } from "bcryptjs";
 import { verifyIdToken } from "@/lib/auth/verifyToken";
 import { AccessTokenPayload, IdTokenPayload } from "@/types/tokenTypes";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { id } from "zod/v4/locales";
 import { redirect } from "next/navigation";
 import { addSeconds } from "date-fns";
 
@@ -105,7 +103,6 @@ const saVerifyLoginCode = async ({
       customer: !!customers.length,
       partner: !!user.partnerId,
       partnerId: user.partnerId,
-      customerIds: customers.map((customer) => customer.customerId),
     } as AccessTokenPayload,
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) }

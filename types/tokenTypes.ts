@@ -12,5 +12,4 @@ export interface AccessTokenPayload {
   customer: boolean;
   partner: boolean;
   partnerId?: string;
-  customerIds?: string[];
 }
