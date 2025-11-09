@@ -14,7 +14,13 @@ import {
 import saSendLoginCode from "@/actions/saSendLoginCode";
 import Image from "next/image";
 
-export default function LoginForm({ email }: { email?: string }) {
+export default function LoginForm({
+  email,
+  logoUrl,
+}: {
+  email?: string;
+  logoUrl?: string;
+}) {
   const form = useForm<{ email: string }>({
     defaultValues: { email: email || "" },
   });
@@ -35,10 +41,10 @@ export default function LoginForm({ email }: { email?: string }) {
   return (
     <div className="max-w-sm mx-auto mt-20 p-6 border border-gray-200 rounded-lg shadow-sm bg-white">
       <Image
-        src="/logo.svg"
+        src={logoUrl || "/logo.svg"}
         alt="Logo"
-        width={140}
-        height={50}
+        width={200}
+        height={100}
         className="mx-auto mb-4"
       />
       <Form {...form}>

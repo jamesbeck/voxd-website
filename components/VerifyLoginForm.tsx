@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/form";
 import saVerifyLoginCode from "@/actions/saVerifyLoginCode";
 import Link from "next/link";
+import Image from "next/image";
 
-export default function VerifyLoginForm() {
+export default function VerifyLoginForm({ logoUrl }: { logoUrl?: string }) {
   const form = useForm<{ otp: string }>({
     defaultValues: { otp: "" },
   });
@@ -44,6 +45,13 @@ export default function VerifyLoginForm() {
 
   return (
     <div className="max-w-sm mx-auto mt-20 p-6 border border-gray-200 rounded-lg shadow-sm bg-white">
+      <Image
+        src={logoUrl || "/logo.svg"}
+        alt="Logo"
+        width={200}
+        height={100}
+        className="mx-auto mb-4"
+      />
       <h2 className="text-2xl font-semibold mb-6 text-center">
         Enter Login Code
       </h2>

@@ -1,11 +1,11 @@
-import LoginForm from "@/components/LoginForm";
-import { verifyIdToken } from "@/lib/auth/verifyToken";
-import { getPartnerByDomain } from "@/lib/getPartnerByDomain";
 import { headers } from "next/headers";
+import { getPartnerByDomain } from "@/lib/getPartnerByDomain";
 
-export default async function LoginPage() {
-  const idToken = await verifyIdToken(false);
-
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   const headersList = await headers();
   const domain = headersList.get("x-domain");
 
@@ -23,14 +23,7 @@ export default async function LoginPage() {
           : undefined
       }
     >
-      <LoginForm
-        email={idToken?.email}
-        logoUrl={
-          partner?.domain
-            ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
-            : undefined
-        }
-      />
+      {children}
     </div>
   );
 }

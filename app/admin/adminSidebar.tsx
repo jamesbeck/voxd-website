@@ -127,11 +127,13 @@ export default function AdminSidebar({
   admin,
   customer,
   partner,
+  logoUrl,
 }: {
   email?: string;
   admin?: boolean;
   customer?: boolean;
   partner?: boolean;
+  logoUrl?: string;
 }) {
   const userRoles: Roles[] = [];
   if (admin) userRoles.push("admin");
@@ -142,7 +144,7 @@ export default function AdminSidebar({
     <Sidebar collapsible="icon" className="bg-cream">
       <SidebarHeader>
         <Image
-          src="/logo.svg"
+          src={logoUrl || "/logo.svg"}
           alt="Logo"
           width={300}
           height={50}

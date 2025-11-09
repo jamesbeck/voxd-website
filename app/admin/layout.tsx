@@ -4,6 +4,8 @@ import { BreadcrumbProvider } from "@/components/admin/BreadcrumbProvider";
 import TopBar from "@/components/admin/TopBar";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { Toaster } from "sonner";
+import { headers } from "next/headers";
+import { getPartnerByDomain } from "@/lib/getPartnerByDomain";
 
 export default async function RootLayout({
   children,
@@ -12,15 +14,36 @@ export default async function RootLayout({
 }>) {
   const accessToken = await verifyAccessToken();
 
+  const headersList = await headers();
+  const domain = headersList.get("x-domain");
+
+  //if no domain use voxd.ai
+  const partnerDomain = domain || "voxd.ai";
+  const partner = await getPartnerByDomain({ domain: partnerDomain });
+
   return (
     <SidebarProvider>
       <BreadcrumbProvider>
-        <div className="w-full flex overflow-hidden min-h-screen">
+        <div
+          className="w-full flex overflow-hidden min-h-screen"
+          style={
+            partner?.colour
+              ? ({
+                  "--color-primary": `#${partner?.colour}`,
+                } as React.CSSProperties)
+              : undefined
+          }
+        >
           <AdminSidebar
             email={accessToken?.email}
             admin={accessToken?.admin}
             customer={accessToken?.customer}
             partner={accessToken?.partner}
+            logoUrl={
+              partner?.domain
+                ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
+                : undefined
+            }
           />
           <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <TopBar />

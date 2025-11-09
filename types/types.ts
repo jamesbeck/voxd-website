@@ -40,6 +40,13 @@ export interface User {
   customerIds?: string[];
 }
 
+export interface Partner {
+  id: string;
+  name: string;
+  colour: string;
+  domain: string;
+}
+
 export interface Example {
   id: string;
   title: string;
