@@ -7,12 +7,12 @@ import { z, treeifyError } from "zod";
 // Validation schema for creating a quote
 const createQuoteSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
-  customerId: z.string().trim().min(1, "Customer ID is required"),
+  organisationId: z.string().trim().min(1, "Organisation ID is required"),
 });
 
 const saCreateQuote = async (input: {
   title: string;
-  customerId: string;
+  organisationId: string;
 }): Promise<ServerActionResponse> => {
   const parsed = createQuoteSchema.safeParse(input);
   if (!parsed.success) {
@@ -24,12 +24,12 @@ const saCreateQuote = async (input: {
     };
   }
 
-  const { title, customerId } = parsed.data;
+  const { title, organisationId } = parsed.data;
 
-  // Insert new quote (include customerId if column exists; adjust as needed)
+  // Insert new quote (include organisationId if column exists; adjust as needed)
   try {
     const [newQuote] = await db("quote")
-      .insert({ title, customerId })
+      .insert({ title, organisationId })
       .returning("id");
 
     return { success: true, data: newQuote };

@@ -1,0 +1,44 @@
+"use server";
+
+import db from "../database/db";
+import { ServerActionResponse } from "@/types/types";
+
+const saCreateOrganisation = async ({
+  name,
+  userIds,
+}: {
+  name: string;
+  userIds: string[];
+}): Promise<ServerActionResponse> => {
+  //check organisation name is unique
+  const existingOrganisation = await db("organisation")
+    .select("*")
+    .whereRaw("LOWER(name) = ?", name.toLowerCase())
+    .first();
+
+  if (existingOrganisation) {
+    return {
+      success: false,
+      fieldErrors: { name: "Organisation already exists" },
+    };
+  }
+
+  //create a new organisation
+  const [newOrganisation] = await db("organisation")
+    .insert({ name })
+    .returning("id");
+
+  //create user_organisation associations
+  if (userIds && userIds.length > 0) {
+    const userOrganisationAssociations = userIds.map((userId) => ({
+      userId: userId,
+      organisationId: newOrganisation.id,
+    }));
+
+    await db("organisationUser").insert(userOrganisationAssociations);
+  }
+
+  return { success: true, data: newOrganisation };
+};
+
+export { saCreateOrganisation };

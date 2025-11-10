@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 
 //   name: waba.name,
-//   accountReviewStatus: waba.account_review_status,
+//   organisationReviewStatus: waba.organisation_review_status,
 //   canSendMessage: waba.health_status?.can_send_message,
 //   subscribedApps:
 //     waba.subscribed_apps?.data.map(

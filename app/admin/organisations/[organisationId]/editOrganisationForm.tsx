@@ -14,7 +14,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { saUpdateCustomer } from "@/actions/saUpdateCustomer";
+import { saUpdateOrganisation } from "@/actions/saUpdateOrganisation";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -27,12 +27,12 @@ const formSchema = z.object({
   userIds: z.string().array(),
 });
 
-export default function NewCustomerForm({
-  customerId,
+export default function NewOrganisationForm({
+  organisationId,
   name,
   userIds,
 }: {
-  customerId: string;
+  organisationId: string;
   name?: string;
   userIds?: string[];
 }) {
@@ -52,8 +52,8 @@ export default function NewCustomerForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdateCustomer({
-      customerId: customerId,
+    const response = await saUpdateOrganisation({
+      organisationId: organisationId,
       name: values.name,
       userIds: values.userIds,
     });
@@ -63,7 +63,7 @@ export default function NewCustomerForm({
       setLoading(false);
 
       if (!response.success) {
-        toast.error("There was an error updating the customer");
+        toast.error("There was an error updating the organisation");
 
         if (response.error) {
           form.setError("root", {
@@ -84,7 +84,7 @@ export default function NewCustomerForm({
     }
 
     if (response.success) {
-      toast.success(`Customer ${values.name} updated`);
+      toast.success(`Organisation ${values.name} updated`);
       router.refresh();
     }
 

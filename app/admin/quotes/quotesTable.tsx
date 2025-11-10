@@ -15,8 +15,8 @@ const QuotesTable = () => {
       format: (row: any) => row.title || "",
     },
     {
-      label: "Customer",
-      name: "customerName",
+      label: "Organisation",
+      name: "organisationName",
       sort: true,
       // format: (value: string) => value || "",}
     },

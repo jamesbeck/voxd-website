@@ -2,6 +2,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   InputOTP,
   InputOTPGroup,
@@ -30,16 +31,30 @@ export default function VerifyLoginForm({ logoUrl }: { logoUrl?: string }) {
     const result = await saVerifyLoginCode({
       otp: values.otp,
     });
-    if (result.success) {
-      // TODO: Redirect or set session
-      // router.push("/dashboard");
-    } else {
+
+    if (!result.success) {
+      // Handle error case
+      setLoading(false);
+
+      toast.error("There was an error creating the user");
+
       if (result.error) {
-        for (const [key, value] of Object.entries(result.error)) {
-          form.setError(key as any, { message: value });
+        form.setError("root", {
+          type: "manual",
+          message: result.error,
+        });
+      }
+
+      if (result.fieldErrors) {
+        for (const key in result.fieldErrors) {
+          form.setError(key as keyof typeof values, {
+            type: "manual",
+            message: result.fieldErrors[key],
+          });
         }
       }
     }
+
     setLoading(false);
   }
 

@@ -2,12 +2,12 @@ import db from "../database/db";
 
 const getUserById = async ({ userId }: { userId: string }) => {
   const user = await db("user")
-    .leftJoin("customerUser", "user.id", "customerUser.userId")
+    .leftJoin("organisationUser", "user.id", "organisationUser.userId")
     .groupBy("user.id")
     .select("user.*")
     .select([
       db.raw(
-        'COALESCE(ARRAY_AGG("customerUser"."customerId") FILTER (WHERE "customerUser"."customerId" IS NOT NULL), ARRAY[]::uuid[]) as "customerIds"'
+        'COALESCE(ARRAY_AGG("organisationUser"."organisationId") FILTER (WHERE "organisationUser"."organisationId" IS NOT NULL), ARRAY[]::uuid[]) as "organisationIds"'
       ),
     ])
     .where("user.id", userId)

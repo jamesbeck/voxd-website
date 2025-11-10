@@ -11,7 +11,7 @@ const saUpdateUser = async ({
   email,
   partnerId,
   testingAgentId,
-  customerIds,
+  organisationIds,
 }: {
   userId: string;
   name?: string;
@@ -19,7 +19,7 @@ const saUpdateUser = async ({
   email?: string;
   partnerId?: string;
   testingAgentId?: string;
-  customerIds?: string[];
+  organisationIds?: string[];
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -60,19 +60,21 @@ const saUpdateUser = async ({
       testingAgentId: testingAgentId || null,
     });
 
-  //update customer associations
-  if (customerIds) {
+  //update organisation associations
+  if (organisationIds) {
     //delete existing associations
-    await db("customerUser").where({ userId }).del();
+    await db("organisationUser").where({ userId }).del();
 
     //create new associations
-    if (customerIds.length > 0) {
-      const userCustomerAssociations = customerIds.map((customerId) => ({
-        userId: userId,
-        customerId: customerId,
-      }));
+    if (organisationIds.length > 0) {
+      const userOrganisationAssociations = organisationIds.map(
+        (organisationId) => ({
+          userId: userId,
+          organisationId: organisationId,
+        })
+      );
 
-      await db("customerUser").insert(userCustomerAssociations);
+      await db("organisationUser").insert(userOrganisationAssociations);
     }
   }
 

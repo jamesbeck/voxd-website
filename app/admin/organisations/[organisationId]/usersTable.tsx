@@ -6,7 +6,7 @@ import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-const usersTable = ({ customerId }: { customerId: string }) => {
+const usersTable = ({ organisationId }: { organisationId: string }) => {
   const columns = [
     {
       label: "Name",
@@ -48,7 +48,7 @@ const usersTable = ({ customerId }: { customerId: string }) => {
     <DataTable
       columns={columns}
       getData={saGetUserTableData}
-      getDataParams={{ customerId }}
+      getDataParams={{ organisationId }}
       actions={(row: any) => {
         return (
           <>

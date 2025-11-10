@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import saGetCustomerTableData from "@/actions/saGetCustomerTableData";
+import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -43,7 +43,7 @@ const formSchema = z.object({
   email: z.email("Invalid email address").or(z.literal("")),
   partnerId: z.string().optional(),
   testingAgentId: z.string().optional(),
-  customerIds: z.string().array(),
+  organisationIds: z.string().array(),
 });
 
 export default function EditUserForm({
@@ -53,7 +53,7 @@ export default function EditUserForm({
   email,
   partnerId,
   testingAgentId,
-  customerIds,
+  organisationIds,
   agentOptions,
   partnerOptions,
 }: {
@@ -63,7 +63,7 @@ export default function EditUserForm({
   email?: string;
   partnerId?: string;
   testingAgentId?: string;
-  customerIds?: string[];
+  organisationIds?: string[];
   agentOptions: { value: string; label: string }[];
   partnerOptions: { value: string; label: string }[];
 }) {
@@ -79,7 +79,7 @@ export default function EditUserForm({
       email: email || "",
       partnerId: partnerId || "",
       testingAgentId: testingAgentId || "",
-      customerIds: customerIds || [],
+      organisationIds: organisationIds || [],
     },
   });
 
@@ -94,7 +94,7 @@ export default function EditUserForm({
       email: values.email,
       partnerId: values.partnerId,
       testingAgentId: values.testingAgentId,
-      customerIds: values.customerIds,
+      organisationIds: values.organisationIds,
     });
 
     if (!response.success) {
@@ -253,20 +253,20 @@ export default function EditUserForm({
         />
         <FormField
           control={form.control}
-          name="customerIds"
+          name="organisationIds"
           rules={{ required: true }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Customers</FormLabel>
+              <FormLabel>Organisations</FormLabel>
               <FormControl>
                 <RemoteMultiSelect
                   {...field}
-                  serverAction={saGetCustomerTableData}
+                  serverAction={saGetOrganisationTableData}
                   label={(record) => `${record.name}`}
                   valueField="id"
                   sortField="name"
-                  placeholder="Search and select customers..."
-                  emptyMessage="No customers found"
+                  placeholder="Search and select organisations..."
+                  emptyMessage="No organisations found"
                   pageSize={50}
                   searchDebounceMs={300}
                 />

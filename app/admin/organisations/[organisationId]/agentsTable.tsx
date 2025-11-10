@@ -6,7 +6,7 @@ import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 import saGetAgentTableData from "@/actions/saGetAgentTableData";
 
-const AgentsTable = ({ customerId }: { customerId: string }) => {
+const AgentsTable = ({ organisationId }: { organisationId: string }) => {
   const columns = [
     {
       label: "Name",
@@ -61,7 +61,7 @@ const AgentsTable = ({ customerId }: { customerId: string }) => {
       }}
       actions={actions}
       getData={saGetAgentTableData}
-      getDataParams={{ customerId }}
+      getDataParams={{ organisationId }}
     />
   );
 };

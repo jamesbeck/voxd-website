@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { addSeconds } from "date-fns";
+import { headers } from "next/headers";
 
 const saVerifyLoginCode = async ({
   otp,
@@ -71,10 +72,62 @@ const saVerifyLoginCode = async ({
     return { success: false, error: "Incorrect code." };
   }
 
-  //get users customers
-  const customers = await db("customerUser")
-    .select("customerId")
+  //get users organisations
+  const organisations = await db("organisationUser")
+    .leftJoin(
+      "organisation",
+      "organisationUser.organisationId",
+      "organisation.id"
+    )
+    .select("organisationId", "partnerId")
     .where({ userId: user.id });
+
+  const awaitedHeaders = await headers();
+  const hostname = awaitedHeaders.get("host") || "";
+  const domain = hostname.split(":")[0].replace(".local", ""); // Remove port and local if present
+
+  //if we're a partner, make sure they're logging in to the right domain
+  if (user.partnerId) {
+    const partner = await db("partner")
+      .select("domain")
+      .where({ id: user.partnerId })
+      .first();
+
+    //if domain doesn't match
+    if (partner?.domain && domain !== partner.domain) {
+      return {
+        success: false,
+        error: "Incorrect code.",
+      };
+    }
+  }
+
+  //if we're a organisation make sure we're logging in at the right partner (if there is one)
+  if (organisations.length && !user.partnerId) {
+    const partnerIds = Array.from(
+      new Set(
+        organisations
+          .map((c) => c.partnerId)
+          .filter((pid): pid is string => !!pid)
+      )
+    );
+
+    if (partnerIds.length > 0) {
+      const partners = await db("partner")
+        .select("domain")
+        .whereIn("id", partnerIds);
+
+      const partnerDomains = partners.map((p) => p.domain).filter(Boolean);
+
+      //if none of the domains match
+      if (partnerDomains.length > 0 && !partnerDomains.includes(domain)) {
+        return {
+          success: false,
+          error: "Incorrect code.",
+        };
+      }
+    }
+  }
 
   // TODO: Set session/cookie here
   const cookiesStore = await cookies();
@@ -100,7 +153,7 @@ const saVerifyLoginCode = async ({
       email: idToken.email,
       name: user.name,
       admin: user.admin,
-      customer: !!customers.length,
+      organisation: !!organisations.length,
       partner: !!user.partnerId,
       partnerId: user.partnerId,
     } as AccessTokenPayload,

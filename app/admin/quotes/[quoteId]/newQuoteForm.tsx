@@ -45,7 +45,7 @@ export default function NewQuoteForm() {
 
     const response = await saCreateQuote({
       title: values.title,
-      customerId: "1", // Temporary until we have customers
+      organisationId: "1", // Temporary until we have organisations
     });
 
     if (!response.success) {
@@ -53,7 +53,7 @@ export default function NewQuoteForm() {
       setLoading(false);
 
       if (response.error) {
-        toast.error("There was an error creating the customer");
+        toast.error("There was an error creating the organisation");
 
         if (response.error)
           form.setError("root", {

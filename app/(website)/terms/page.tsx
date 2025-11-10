@@ -50,7 +50,7 @@ export default function Terms() {
         </li>
         <li>
           You are responsible for maintaining the confidentiality of your login
-          credentials and account.
+          credentials and organisation.
         </li>
       </ul>
 

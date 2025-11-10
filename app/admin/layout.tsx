@@ -6,6 +6,21 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { Toaster } from "sonner";
 import { headers } from "next/headers";
 import { getPartnerByDomain } from "@/lib/getPartnerByDomain";
+import type { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = await headers();
+  const domain = headersList.get("x-domain");
+  const partnerDomain = domain || "voxd.ai";
+  const partner = await getPartnerByDomain({ domain: partnerDomain });
+
+  return {
+    title: partner?.name
+      ? `${partner.name} | WhatsApp AI Chatbots`
+      : "VOXD | WhatsApp AI Chatbots",
+    description: partner?.name || "WhatsApp AI Chatbots",
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -37,7 +52,7 @@ export default async function RootLayout({
           <AdminSidebar
             email={accessToken?.email}
             admin={accessToken?.admin}
-            customer={accessToken?.customer}
+            organisation={accessToken?.organisation}
             partner={accessToken?.partner}
             logoUrl={
               partner?.domain

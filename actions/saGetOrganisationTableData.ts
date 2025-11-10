@@ -6,9 +6,8 @@ import {
   ServerActionReadResponse,
   ServerActionReadParams,
 } from "@/types/types";
-import { notFound } from "next/navigation";
 
-const saGetQuoteTableData = async ({
+const saGetOrganisationTableData = async ({
   search,
   page = 1,
   pageSize = 100,
@@ -17,24 +16,28 @@ const saGetQuoteTableData = async ({
 }: ServerActionReadParams): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.admin && !accessToken.partner)
-    return {
-      success: false,
-      error: "You do not have permission to view organisations.",
-    };
-
-  const base = db("quote")
-    .leftJoin("organisation", "organisation.id", "quote.organisationId")
-    .groupBy("quote.id", "organisation.id")
+  const base = db("organisation")
+    .leftJoin("agent", "organisation.id", "agent.organisationId")
+    .leftJoin(
+      "organisationUser",
+      "organisation.id",
+      "organisationUser.organisationId"
+    )
+    .groupBy("organisation.id")
     .where((qb) => {
       if (search) {
         qb.where("organisation.name", "ilike", `%${search}%`);
       }
     });
 
-  //if not admin add where clause to only get the agent with the email from the access token
-  if (accessToken?.partner) {
-    base.where("organisation.partnerId", accessToken.partnerId);
+  //if organisation is logged in, restrict to their agents
+  if (accessToken?.organisation && !accessToken.admin) {
+    base.where("organisationUser.userId", accessToken!.userId);
+  }
+
+  //if partner is logged in, restrict to their agents
+  if (accessToken?.partner && !accessToken.admin) {
+    base.where("organisation.partnerId", accessToken!.partnerId);
   }
 
   //count query
@@ -46,22 +49,22 @@ const saGetQuoteTableData = async ({
 
   const totalAvailable = countResult ? parseInt(countResult.count) : 0;
 
-  const quotes = await base
+  const organisations = await base
     .clone()
-    .select("quote.*", "organisation.name as organisationName")
-
-    // .select([db.raw('COUNT("agent"."id")::int as "agentCount"')])
+    .select("organisation.*")
+    .select([db.raw('COUNT("agent"."id")::int as "agentCount"')])
+    .select([db.raw('COUNT("organisationUser"."id")::int as "userCount"')])
     .orderBy(sortField, sortDirection)
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 
   return {
     success: true,
-    data: quotes,
+    data: organisations,
     totalAvailable,
     page,
     pageSize,
   };
 };
 
-export default saGetQuoteTableData;
+export default saGetOrganisationTableData;

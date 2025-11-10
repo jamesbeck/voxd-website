@@ -14,7 +14,7 @@ const saGetFunctionTableData = async ({
   sortField = "id",
   sortDirection = "asc",
 }: ServerActionReadParams & {
-  customerId?: string;
+  organisationId?: string;
 }): Promise<ServerActionReadResponse> => {
   await verifyAccessToken();
 

@@ -40,13 +40,13 @@ export default function PrivacyPolicy() {
         <li>
           <span className="font-medium">WhatsApp-related data:</span> messages
           you send and receive via WhatsApp, for the sole purpose of automating
-          replies that you configure. We do not access your Facebook account or
-          data.
+          replies that you configure. We do not access your Facebook
+          organisation or data.
         </li>
         <li>
           <span className="font-medium">You provide directly:</span> your
-          contact details, account information, or settings you configure in the
-          App.
+          contact details, organisation information, or settings you configure
+          in the App.
         </li>
         <li>
           <span className="font-medium">Automatically collected:</span>{" "}
@@ -66,7 +66,7 @@ export default function PrivacyPolicy() {
         <li>To automate WhatsApp replies according to your settings.</li>
         <li>To operate, maintain, and improve the App.</li>
         <li>
-          To provide customer support and communicate with you about service
+          To provide organisation support and communicate with you about service
           updates.
         </li>
         <li>
@@ -100,7 +100,8 @@ export default function PrivacyPolicy() {
       <ul className="list-disc pl-6 space-y-2 mb-6">
         <li>
           <span className="font-medium">Service providers:</span> e.g. hosting,
-          analytics, or customer support, under strict contractual safeguards.
+          analytics, or organisation support, under strict contractual
+          safeguards.
         </li>
         <li>
           <span className="font-medium">Legal or safety reasons:</span> where

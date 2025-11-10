@@ -54,7 +54,7 @@ export default async function Page({ params }: { params: { userId: string } }) {
                 number={user.number}
                 partnerId={user.partnerId}
                 testingAgentId={user.testingAgentId}
-                customerIds={user.customerIds}
+                organisationIds={user.organisationIds}
                 agentOptions={agents.map((agent) => ({
                   value: agent.id,
                   label: agent.niceName,

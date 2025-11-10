@@ -63,7 +63,7 @@ const generateExample = async ({
         chatScenarios: z
           .array(z.string())
           .describe(
-            "A list of 5 detailed scenarios that the chatbot should be able to handle. The scenarios should be realistic and demonstrate a broad range of capabilities of the chatbot. They should include both simple, positive interactions as well as at least one example where the chat bot had to hand a more difficuly customer/scenario. "
+            "A list of 5 detailed scenarios that the chatbot should be able to handle. The scenarios should be realistic and demonstrate a broad range of capabilities of the chatbot. They should include both simple, positive interactions as well as at least one example where the chat bot had to hand a more difficuly organisation/scenario. "
           ),
       }),
     }),

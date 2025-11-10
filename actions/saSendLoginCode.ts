@@ -11,7 +11,6 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { IdTokenPayload } from "@/types/tokenTypes";
-import { addSeconds } from "date-fns";
 
 const saSendLoginCode = async ({
   email,
@@ -59,22 +58,26 @@ const saSendLoginCode = async ({
     sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
     // Send code via SendGrid
-    try {
-      await sendgrid.send({
-        from: "Voxd Login <sw@jamesbeck.co.uk>",
-        to:
-          process.env.NODE_ENV === "production"
-            ? [user.email]
-            : ["james@jamesbeck.co.uk"],
-        subject: "Your Login Code",
-        text: `Your login code is: ${paddedCode}`,
-        html: `<p>Your login code is: <strong>${paddedCode}</strong></p>`,
-      });
-    } catch (error) {
-      return {
-        success: false,
-        fieldErrors: { root: "Failed to send email." },
-      };
+    //only send if not development
+    if (process.env.NODE_ENV !== "development") {
+      try {
+        await sendgrid.send({
+          from: "Voxd Login <sw@jamesbeck.co.uk>",
+          to:
+            // always send to me if staging
+            process.env.NODE_ENV === "production"
+              ? [user.email]
+              : ["james@jamesbeck.co.uk"],
+          subject: "Your Login Code",
+          text: `Your login code is: ${paddedCode}`,
+          html: `<p>Your login code is: <strong>${paddedCode}</strong></p>`,
+        });
+      } catch (error) {
+        return {
+          success: false,
+          fieldErrors: { root: "Failed to send email." },
+        };
+      }
     }
   }
 

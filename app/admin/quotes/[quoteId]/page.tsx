@@ -1,9 +1,9 @@
 import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
-import NewCustomerForm from "./newQuoteForm";
+import NewOrganisationForm from "./newQuoteForm";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
 
-export default function NewCustomerPage() {
+export default function NewOrganisationPage() {
   return (
     <Container>
       <BreadcrumbSetter
@@ -14,7 +14,7 @@ export default function NewCustomerPage() {
         ]}
       />
       <H1>New Quote</H1>
-      <NewCustomerForm />
+      <NewOrganisationForm />
     </Container>
   );
 }

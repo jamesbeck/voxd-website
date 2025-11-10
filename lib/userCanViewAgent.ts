@@ -11,9 +11,13 @@ const userCanViewAgent = async ({
   if (token.admin) return true;
 
   const agents = await db("agent")
-    .leftJoin("customer", "agent.customerId", "customer.id")
-    .leftJoin("customerUser", "customer.id", "customerUser.customerId")
-    .where("customerUser.userId", token.userId)
+    .leftJoin("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin(
+      "organisationUser",
+      "organisation.id",
+      "organisationUser.organisationId"
+    )
+    .where("organisationUser.userId", token.userId)
     .andWhere("agent.id", agentId)
     .select("agent.id");
   return agents.length > 0;

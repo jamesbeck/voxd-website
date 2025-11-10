@@ -39,13 +39,13 @@ export default async function Home() {
       icon: Clock,
       title: "24/7 Availability",
       description:
-        "Your chatbot never sleeps. Deliver instant responses to customers around the clock, every day.",
+        "Your chatbot never sleeps. Deliver instant responses to organisations around the clock, every day.",
     },
     {
       icon: MessageSquare,
       title: "WhatsApp Native",
       description:
-        "Meet customers where they are. Built specifically for WhatsApp with support for rich media and interactions.",
+        "Meet organisations where they are. Built specifically for WhatsApp with support for rich media and interactions.",
     },
     {
       icon: Shield,
@@ -70,11 +70,11 @@ export default async function Home() {
             We Build Bespoke WhatsApp AI Chatbots Built Around Your Business
           </h2>
           <p className="text-xl text-gray-600 leading-relaxed">
-            Transform your customer communication with intelligent AI chatbots
-            that work tirelessly on WhatsApp. Designed to fit seamlessly into
-            your business operations, our bespoke solutions automate customer
-            support, streamline sales, and manage bookings with enterprise-grade
-            reliability.
+            Transform your organisation communication with intelligent AI
+            chatbots that work tirelessly on WhatsApp. Designed to fit
+            seamlessly into your business operations, our bespoke solutions
+            automate organisation support, streamline sales, and manage bookings
+            with enterprise-grade reliability.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-4">
             <div className="bg-primary text-white px-6 py-3 rounded-lg font-semibold">
@@ -106,7 +106,7 @@ export default async function Home() {
             Why Choose Voxd?
           </h3>
           <p className="text-lg max-w-2xl mx-auto">
-            Everything you need to deliver exceptional customer experiences
+            Everything you need to deliver exceptional organisation experiences
             through WhatsApp
           </p>
         </div>
@@ -170,7 +170,7 @@ export default async function Home() {
         <div className="py-16 px-4 md:px-6">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h3 className="text-3xl md:text-4xl font-bold">
-              Ready to Transform Your Customer Communication?
+              Ready to Transform Your Organisation Communication?
             </h3>
             <p className="text-lg ">
               Join businesses that are delivering smarter conversations and

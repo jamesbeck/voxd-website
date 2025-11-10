@@ -3,15 +3,15 @@
 import DataTable from "@/components/adminui/Table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import saGetCustomerTableData from "@/actions/saGetCustomerTableData";
+import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 
-const CustomersTable = () => {
+const OrganisationsTable = () => {
   const columns = [
     {
       label: "Name",
       name: "name",
       sort: true,
-      linkTo: (row: any) => `/admin/customers/${row.id}`,
+      linkTo: (row: any) => `/admin/organisations/${row.id}`,
       format: (row: any) => row.name || "",
     },
     {
@@ -31,18 +31,18 @@ const CustomersTable = () => {
   const actions = (row: any) => {
     return (
       <Button asChild size={"sm"}>
-        <Link href={`/admin/customers/${row.id}`}>View</Link>
+        <Link href={`/admin/organisations/${row.id}`}>View</Link>
       </Button>
     );
   };
 
   return (
     <DataTable
-      getData={saGetCustomerTableData}
+      getData={saGetOrganisationTableData}
       columns={columns}
       actions={actions}
     />
   );
 };
 
-export default CustomersTable;
+export default OrganisationsTable;

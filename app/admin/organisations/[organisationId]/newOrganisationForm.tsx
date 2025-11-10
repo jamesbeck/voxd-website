@@ -14,7 +14,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { saCreateCustomer } from "@/actions/saCreateCustomer";
+import { saCreateOrganisation } from "@/actions/saCreateOrganisation";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -27,7 +27,7 @@ const formSchema = z.object({
   userIds: z.string().array(),
 });
 
-export default function NewCustomerForm() {
+export default function NewOrganisationForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -44,7 +44,7 @@ export default function NewCustomerForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saCreateCustomer({
+    const response = await saCreateOrganisation({
       name: values.name,
       userIds: values.userIds,
     });
@@ -54,7 +54,7 @@ export default function NewCustomerForm() {
       setLoading(false);
 
       if (!response.success) {
-        toast.error("There was an error creating the customer");
+        toast.error("There was an error creating the organisation");
 
         if (response.error) {
           form.setError("root", {
@@ -75,8 +75,8 @@ export default function NewCustomerForm() {
     }
 
     if (response.success) {
-      toast.success(`Customer ${values.name} created`);
-      router.push(`/admin/customers/${response.data.id}`);
+      toast.success(`Organisation ${values.name} created`);
+      router.push(`/admin/organisations/${response.data.id}`);
     }
 
     setLoading(false);

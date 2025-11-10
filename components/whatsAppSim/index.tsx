@@ -99,7 +99,9 @@ export default function WhatsAppSim({
             </div>
             <div className="flex flex-col space-y-[-2px] ml-[10px]">
               <div className="text-[14px] font-bold">{businessName}</div>
-              <div className="text-[12px] text-[#777]">Business Account</div>
+              <div className="text-[12px] text-[#777]">
+                Business Organisation
+              </div>
             </div>
           </div>
           <div className="w-full h-[540px] relative overflow-y-scroll bg-[url(/whatsAppSim/bg.png)] bg-contain bg-repeat ">

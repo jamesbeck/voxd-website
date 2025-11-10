@@ -9,7 +9,7 @@ export interface AccessTokenPayload {
   email: string;
   name: string;
   admin: boolean;
-  customer: boolean;
+  organisation: boolean;
   partner: boolean;
   partnerId?: string;
 }

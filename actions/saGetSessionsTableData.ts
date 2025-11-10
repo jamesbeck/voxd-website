@@ -19,7 +19,7 @@ const saGetSessionsTableData = async ({
   agentId?: string;
   userId?: string;
 }>): Promise<ServerActionReadResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
   const base = db("session")
     .join("user", "session.userId", "user.id")
@@ -38,6 +38,25 @@ const saGetSessionsTableData = async ({
 
   if (userId) {
     base.where("session.userId", userId);
+  }
+
+  //if organisation is logging in, restrict to their agents
+  if (accessToken?.organisation) {
+    base
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .leftJoin(
+        "organisationUser",
+        "organisation.id",
+        "organisationUser.organisationId"
+      )
+      .where("organisationUser.userId", accessToken!.userId);
+  }
+
+  //if partner is logging in, restrict to their agents
+  if (accessToken?.partner) {
+    base
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .where("organisation.partnerId", accessToken!.partnerId);
   }
 
   //count query

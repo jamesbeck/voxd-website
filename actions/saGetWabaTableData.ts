@@ -28,7 +28,7 @@ const saGetWabaTableData = async ({
 
   //if not admin add where clause to only get the agent with the email from the access token
   // if (!accessToken?.admin) {
-  //   base.whereIn("agent.customerId", accessToken?.customerIds || []);
+  //   base.whereIn("agent.organisationId", accessToken?.organisationIds || []);
   // }
 
   //count query

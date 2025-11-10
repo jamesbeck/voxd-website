@@ -67,16 +67,16 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
           ),
         },
         {
-          label: "Account Mode",
-          name: "accountMode",
+          label: "Organisation Mode",
+          name: "organisationMode",
           sort: true,
           format: (row) => (
             <Badge
               className={cn(
-                row.accountMode == "LIVE" ? "bg-green-500" : "bg-red-500"
+                row.organisationMode == "LIVE" ? "bg-green-500" : "bg-red-500"
               )}
             >
-              {row.accountMode}
+              {row.organisationMode}
             </Badge>
           ),
         },

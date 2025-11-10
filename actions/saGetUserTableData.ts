@@ -6,7 +6,6 @@ import {
 } from "@/types/types";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import userCanViewAgent from "@/lib/userCanViewAgent";
 
 const saGetUserTableData = async ({
   search,
@@ -14,33 +13,25 @@ const saGetUserTableData = async ({
   pageSize = 100,
   sortField = "id",
   sortDirection = "asc",
-  customerId,
+  organisationId,
   agentId,
 }: ServerActionReadParams & {
-  customerId?: string;
+  organisationId?: string;
   agentId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
-
-  //you must be admin if not filtering by customerId or agentId
-  if (!accessToken?.admin && !customerId && !agentId) {
-    return {
-      success: false,
-      error: "You do not have permission to view users.",
-    };
-  }
-
-  if (!(await userCanViewAgent({ agentId: agentId! }))) {
-    return {
-      success: false,
-      error: "You do not have permission to view this agent.",
-    };
-  }
 
   //base query
   const base = db("user")
     .leftJoin("session", "user.id", "session.userId")
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
+    .leftJoin("agent", "agent.id", "session.agentId")
+    .leftJoin("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin(
+      "organisationUser",
+      "organisation.id",
+      "organisationUser.organisationId"
+    )
     .groupBy("user.id")
     .where((qb) => {
       if (search) {
@@ -52,14 +43,26 @@ const saGetUserTableData = async ({
       }
     });
 
-  if (customerId) {
-    base.leftJoin("customerUser", "user.id", "customerUser.userId");
-    base.where("customerUser.customerId", customerId);
+  //filter by organisationId if provided
+  if (organisationId) {
+    base.where("organisationUser.organisationId", organisationId);
   }
 
+  //filter by agentId if provided
   if (agentId) {
-    base.leftJoin("agent", "agent.id", "session.agentId");
     base.where("agent.id", agentId);
+  }
+
+  //if organisation is logged in, restrict to their agents
+  if (accessToken?.organisation && !accessToken.admin) {
+    base.where("organisationUser.userId", accessToken!.userId);
+  }
+
+  //if partner is logged in, restrict to their agents
+  if (accessToken?.partner) {
+    base
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .where("organisation.partnerId", accessToken!.partnerId);
   }
 
   //count query

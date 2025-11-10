@@ -43,7 +43,7 @@ type MenuItem = {
 };
 
 // Menu items.
-const liveDataItems: MenuItem[] = [
+const menuItems: MenuItem[] = [
   {
     roles: ["admin"],
     title: "Admin Home",
@@ -63,7 +63,19 @@ const liveDataItems: MenuItem[] = [
     icon: Home,
   },
   {
-    roles: ["admin", "customer"],
+    roles: ["partner", "admin", "organisation"],
+    title: "Organisations",
+    url: "/admin/organisations",
+    icon: Home,
+  },
+  {
+    roles: ["partner", "admin"],
+    title: "Quotes",
+    url: "/admin/quotes",
+    icon: FileText,
+  },
+  {
+    roles: ["admin", "organisation"],
     title: "Agents",
     url: "/admin/agents",
     icon: HatGlassesIcon,
@@ -75,7 +87,7 @@ const liveDataItems: MenuItem[] = [
     icon: Inbox,
   },
   {
-    roles: ["admin"],
+    roles: ["admin", "partner", "organisation"],
     title: "Users",
     url: "/admin/users",
     icon: Inbox,
@@ -106,38 +118,22 @@ const liveDataItems: MenuItem[] = [
   },
 ];
 
-// Menu items.
-const partnerItems: MenuItem[] = [
-  {
-    roles: ["partner", "admin"],
-    title: "Customers",
-    url: "/admin/customers",
-    icon: Home,
-  },
-  {
-    roles: ["partner", "admin"],
-    title: "Quotes",
-    url: "/admin/quotes",
-    icon: FileText,
-  },
-];
-
 export default function AdminSidebar({
   email,
   admin,
-  customer,
+  organisation,
   partner,
   logoUrl,
 }: {
   email?: string;
   admin?: boolean;
-  customer?: boolean;
+  organisation?: boolean;
   partner?: boolean;
   logoUrl?: string;
 }) {
   const userRoles: Roles[] = [];
   if (admin) userRoles.push("admin");
-  if (customer) userRoles.push("customer");
+  if (organisation) userRoles.push("organisation");
   if (partner) userRoles.push("partner");
 
   return (
@@ -157,7 +153,7 @@ export default function AdminSidebar({
             <SidebarGroupLabel>Live Data</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {liveDataItems.map((item) => {
+                {menuItems.map((item) => {
                   if (!item.roles.some((role) => userRoles.includes(role))) {
                     return null;
                   }
@@ -176,31 +172,7 @@ export default function AdminSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         )}
-        {(partner || admin) && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Sales</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {partnerItems.map((item) => {
-                  if (!item.roles.some((role) => userRoles.includes(role))) {
-                    return null;
-                  }
 
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
         {admin && (
           <SidebarGroup>
             <SidebarGroupLabel>CMS</SidebarGroupLabel>

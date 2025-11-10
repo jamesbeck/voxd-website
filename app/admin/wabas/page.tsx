@@ -23,7 +23,7 @@ export default async function Page() {
       />
 
       <H1 className="text-2xl font-semibold mb-4">
-        WhatsApp Business Accounts
+        WhatsApp Business Organisations
       </H1>
 
       <WabasActions />

@@ -26,7 +26,7 @@ export type ServerActionReadParams<TExtra = object> = {
   sortDirection?: "asc" | "desc";
 } & TExtra;
 
-export type Roles = "admin" | "customer" | "partner";
+export type Roles = "admin" | "organisation" | "partner";
 
 export interface User {
   id: string;
@@ -37,7 +37,7 @@ export interface User {
   createdAt: Date;
   partnerId?: string;
   testingAgentId?: string;
-  customerIds?: string[];
+  organisationIds?: string[];
 }
 
 export interface Partner {

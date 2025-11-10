@@ -13,9 +13,9 @@ const saGetAgentTableData = async ({
   pageSize = 100,
   sortField = "id",
   sortDirection = "asc",
-  customerId,
+  organisationId,
 }: ServerActionReadParams & {
-  customerId?: string;
+  organisationId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -31,14 +31,28 @@ const saGetAgentTableData = async ({
       }
     });
 
-  if (customerId) {
-    base.where("agent.customerId", customerId);
+  if (organisationId) {
+    base.where("agent.organisationId", organisationId);
   }
 
-  // //if not admin add where clause to only get the agent with the email from the access token
-  // if (!accessToken?.admin) {
-  //   base.whereIn("agent.customerId", accessToken?.customerIds || []);
-  // }
+  //if organisation is logging in, restrict to their agents
+  if (accessToken?.organisation && !accessToken.admin) {
+    base
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .leftJoin(
+        "organisationUser",
+        "organisation.id",
+        "organisationUser.organisationId"
+      )
+      .where("organisationUser.userId", accessToken!.userId);
+  }
+
+  //if partner is logging in, restrict to their agents
+  if (accessToken?.partner && !accessToken.admin) {
+    base
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .where("organisation.partnerId", accessToken!.partnerId);
+  }
 
   //count query
   const countQuery = base.clone().select("agent.id");
