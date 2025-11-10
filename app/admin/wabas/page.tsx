@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import WabasActions from "./WabasActions";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 
 export default async function Page() {
   const accessToken = await verifyAccessToken();

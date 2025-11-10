@@ -1,13 +1,15 @@
 "use client";
 
 import {
-  Calendar,
   Home,
   Inbox,
-  Search,
-  Settings,
-  HatGlassesIcon,
+  Smartphone,
   FileText,
+  Phone,
+  BotMessageSquare,
+  Building,
+  Handshake,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -54,19 +56,19 @@ const menuItems: MenuItem[] = [
     roles: ["admin"],
     title: "WABAs",
     url: "/admin/wabas",
-    icon: Home,
+    icon: Smartphone,
   },
   {
     roles: ["admin"],
     title: "Phone Numbers",
     url: "/admin/phone-numbers",
-    icon: Home,
+    icon: Phone,
   },
   {
     roles: ["partner", "admin", "organisation"],
     title: "Organisations",
     url: "/admin/organisations",
-    icon: Home,
+    icon: Building,
   },
   {
     roles: ["partner", "admin"],
@@ -75,46 +77,22 @@ const menuItems: MenuItem[] = [
     icon: FileText,
   },
   {
-    roles: ["admin", "organisation"],
+    roles: ["admin", "partner", "organisation"],
     title: "Agents",
     url: "/admin/agents",
-    icon: HatGlassesIcon,
+    icon: BotMessageSquare,
   },
   {
     roles: ["admin"],
     title: "Partners",
     url: "/admin/partners",
-    icon: Inbox,
+    icon: Handshake,
   },
   {
     roles: ["admin", "partner", "organisation"],
-    title: "Users",
-    url: "/admin/users",
-    icon: Inbox,
-  },
-  {
-    roles: ["admin"],
-    title: "Industries",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    roles: ["admin"],
-    title: "Functions",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    roles: ["admin"],
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    roles: ["admin"],
-    title: "Settings",
-    url: "#",
-    icon: Settings,
+    title: "Chat Users",
+    url: "/admin/chatUsers",
+    icon: User,
   },
 ];
 
@@ -148,30 +126,28 @@ export default function AdminSidebar({
         />
       </SidebarHeader>
       <SidebarContent>
-        {!partner && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Live Data</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map((item) => {
-                  if (!item.roles.some((role) => userRoles.includes(role))) {
-                    return null;
-                  }
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        <SidebarGroup>
+          <SidebarGroupLabel>Live Data</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => {
+                if (!item.roles.some((role) => userRoles.includes(role))) {
+                  return null;
+                }
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {admin && (
           <SidebarGroup>

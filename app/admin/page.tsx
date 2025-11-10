@@ -1,14 +1,24 @@
 import React from "react";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import Container from "@/components/websiteui/container";
+import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 
 export default async function Page() {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
+
+  let adminAreaTitle = "Customer Admin Area";
+  if (accessToken.partner) adminAreaTitle = `Partner Admin Area`;
+  if (accessToken.admin) adminAreaTitle = "VOXD Master Admin Area";
 
   return (
     <Container>
-      <H1>Admin area</H1>
+      <BreadcrumbSetter breadcrumbs={[{ label: "Admin" }]} />
+      <H1>{adminAreaTitle}</H1>
+      {!!accessToken.admin && <p>Welcome, Master Admin!</p>}
+      {!!accessToken.partner && (
+        <p>Welcome to the your VOXD partner admin area.</p>
+      )}
     </Container>
   );
 }

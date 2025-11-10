@@ -1,4 +1,4 @@
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import NewOrganisationForm from "./newQuoteForm";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";

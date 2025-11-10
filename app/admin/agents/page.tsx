@@ -1,7 +1,7 @@
 import Link from "next/link";
 import H1 from "@/components/adminui/H1";
 import AgentsTable from "./agentsTable";
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import { Button } from "@/components/ui/button";
 

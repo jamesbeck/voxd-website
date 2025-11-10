@@ -1,7 +1,7 @@
 import H1 from "@/components/adminui/H1";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Container from "@/components/adminui/Container";
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import { Partner } from "@/types/types";
 import NewPartnerForm from "./newPartnerForm";
 import { notFound } from "next/navigation";

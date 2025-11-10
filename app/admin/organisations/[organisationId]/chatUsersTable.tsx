@@ -1,12 +1,12 @@
 "use client";
 
 import { format, formatDistance } from "date-fns";
-import saGetUserTableData from "@/actions/saGetUserTableData";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import saGetChatUserTableData from "@/actions/saGetChatUserTableData";
 
-const usersTable = ({ organisationId }: { organisationId: string }) => {
+const ChatUsersTable = ({ organisationId }: { organisationId: string }) => {
   const columns = [
     {
       label: "Name",
@@ -47,13 +47,13 @@ const usersTable = ({ organisationId }: { organisationId: string }) => {
   return (
     <DataTable
       columns={columns}
-      getData={saGetUserTableData}
+      getData={saGetChatUserTableData}
       getDataParams={{ organisationId }}
       actions={(row: any) => {
         return (
           <>
             <Button asChild size={"sm"}>
-              <Link href={`/admin/users/${row.id}`}>View</Link>
+              <Link href={`/admin/chatUsers/${row.id}`}>View</Link>
             </Button>
           </>
         );
@@ -62,4 +62,4 @@ const usersTable = ({ organisationId }: { organisationId: string }) => {
   );
 };
 
-export default usersTable;
+export default ChatUsersTable;

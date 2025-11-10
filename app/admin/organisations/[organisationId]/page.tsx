@@ -1,4 +1,4 @@
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import H1 from "@/components/adminui/H1";
 import getOrganisationById from "@/lib/getOrganisationById";
@@ -8,8 +8,9 @@ import H2 from "@/components/adminui/H2";
 import EditOrganisationForm from "./editOrganisationForm";
 import { notFound } from "next/navigation";
 import AgentsTable from "./agentsTable";
-import UsersTable from "./usersTable";
 import NewOrganisationForm from "./newOrganisationForm";
+import AdminUsersTable from "./adminUsersTable";
+import ChatUsersTable from "./chatUsersTable";
 
 export default async function Page({
   params,
@@ -44,6 +45,7 @@ export default async function Page({
             <TabsList>
               <TabsTrigger value="edit">Edit Organisation</TabsTrigger>
               <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
+              <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
               <TabsTrigger value="agents">Agents</TabsTrigger>
             </TabsList>
             <TabsContent value="edit">
@@ -56,7 +58,13 @@ export default async function Page({
             <TabsContent value="adminUsers">
               <Container>
                 <H2>Admin Users</H2>
-                <UsersTable organisationId={organisation.id} />
+                <AdminUsersTable organisationId={organisation.id} />
+              </Container>
+            </TabsContent>
+            <TabsContent value="chatUsers">
+              <Container>
+                <H2>Chat Users</H2>
+                <ChatUsersTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
             <TabsContent value="agents">

@@ -7,7 +7,9 @@ interface BreadcrumbSetterProps {
   breadcrumbs: Breadcrumb[];
 }
 
-export function BreadcrumbSetter({ breadcrumbs }: BreadcrumbSetterProps) {
+export default function BreadcrumbSetter({
+  breadcrumbs,
+}: BreadcrumbSetterProps) {
   const { setBreadcrumbs } = useBreadcrumbs();
   useEffect(() => {
     setBreadcrumbs(breadcrumbs);

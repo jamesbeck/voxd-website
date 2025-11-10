@@ -4,7 +4,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { notFound } from "next/navigation";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import QuotesTable from "./quotesTable";
 import { Button } from "@/components/ui/button";
 

@@ -18,6 +18,7 @@ const userCanViewAgent = async ({
       "organisationUser.organisationId"
     )
     .where("organisationUser.userId", token.userId)
+    .orWhere("organisation.partnerId", token.partnerId)
     .andWhere("agent.id", agentId)
     .select("agent.id");
   return agents.length > 0;

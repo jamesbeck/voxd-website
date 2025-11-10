@@ -1,6 +1,6 @@
 import SessionsTable from "./sessionsTable";
 import getAgentById from "@/lib/getAgentById";
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -98,8 +98,11 @@ export default async function Page({
             </TabsContent>
             <TabsContent value="users">
               <Container>
-                <H2>Users</H2>
-                <p>Users associated with this agent will be listed here.</p>
+                <H2>Chat Users</H2>
+                <p>
+                  Chat users that have ever interacted with this agent are
+                  listed below.
+                </p>
                 <UsersTable agentId={agentId} />
               </Container>
             </TabsContent>

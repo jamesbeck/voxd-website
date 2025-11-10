@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import saGetUserTableData from "@/actions/saGetUserTableData";
+import saGetUserTableData from "@/actions/saGetAdminUserTableData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({

@@ -2,7 +2,7 @@ import Link from "next/link";
 import React from "react";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
-import { BreadcrumbSetter } from "@/components/admin/BreadcrumbSetter";
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import OrganisationsTable from "./organisationsTable";
 import { Button } from "@/components/ui/button";
 

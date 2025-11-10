@@ -1,7 +1,7 @@
 "use client";
 
 import { format, formatDistance } from "date-fns";
-import saGetUserTableData from "@/actions/saGetUserTableData";
+import saGetUserTableData from "@/actions/saGetChatUserTableData";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -53,7 +53,7 @@ const usersTable = ({ agentId }: { agentId: string }) => {
         return (
           <>
             <Button asChild size={"sm"}>
-              <Link href={`/admin/users/${row.id}`}>View</Link>
+              <Link href={`/admin/chatUsers/${row.id}`}>View</Link>
             </Button>
           </>
         );

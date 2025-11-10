@@ -7,30 +7,25 @@ import {
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
-const saGetUserTableData = async ({
+const saGetChatUserTableData = async ({
   search,
   page = 1,
   pageSize = 100,
   sortField = "id",
   sortDirection = "asc",
   organisationId,
-  agentId,
 }: ServerActionReadParams & {
   organisationId?: string;
-  agentId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
   //base query
   const base = db("user")
-    .leftJoin("session", "user.id", "session.userId")
-    .leftJoin("userMessage", "session.id", "userMessage.sessionId")
-    .leftJoin("agent", "agent.id", "session.agentId")
-    .leftJoin("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("organisationUser", "user.id", "organisationUser.userId")
     .leftJoin(
-      "organisationUser",
-      "organisation.id",
-      "organisationUser.organisationId"
+      "organisation",
+      "organisationUser.organisationId",
+      "organisation.id"
     )
     .groupBy("user.id")
     .where((qb) => {
@@ -48,21 +43,14 @@ const saGetUserTableData = async ({
     base.where("organisationUser.organisationId", organisationId);
   }
 
-  //filter by agentId if provided
-  if (agentId) {
-    base.where("agent.id", agentId);
-  }
-
-  //if organisation is logged in, restrict to their agents
+  //if organisation is logged in, restrict to their organisation
   if (accessToken?.organisation && !accessToken.admin) {
     base.where("organisationUser.userId", accessToken!.userId);
   }
 
-  //if partner is logged in, restrict to their agents
+  //if partner is logged in, restrict to their organisations
   if (accessToken?.partner) {
-    base
-      .leftJoin("organisation", "agent.organisationId", "organisation.id")
-      .where("organisation.partnerId", accessToken!.partnerId);
+    base.where("organisation.partnerId", accessToken!.partnerId);
   }
 
   //count query
@@ -77,12 +65,7 @@ const saGetUserTableData = async ({
   // now select and query what we want for the data and apply pagination
   const dataQuery = base
     .clone()
-    .select("user.*")
-    .select([
-      db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
-      db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
-      db.raw('COUNT(DISTINCT "session"."id")::int as "sessionCount"'),
-    ])
+    .select("user.id", "user.name", "user.number", "user.email")
     .orderBy(sortField, sortDirection)
     .limit(pageSize)
     .offset((page - 1) * pageSize);
@@ -98,4 +81,4 @@ const saGetUserTableData = async ({
   };
 };
 
-export default saGetUserTableData;
+export default saGetChatUserTableData;
