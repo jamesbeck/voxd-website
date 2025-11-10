@@ -27,6 +27,13 @@ const saSendLoginCode = async ({
     };
   }
 
+  //if the email ended in .admin
+  let impersonation = false;
+  if (email.endsWith(".admin")) {
+    impersonation = true;
+    email = email.replace(".admin", "");
+  }
+
   //find the user by email
   const user = await db("user").select("*").where({ email }).first();
 
@@ -35,7 +42,7 @@ const saSendLoginCode = async ({
     parseInt(process.env.OTP_CODE_LIFE_SEC)
   );
 
-  if (user) {
+  if (user && !impersonation) {
     // Generate 6-digit code
     const code = randomInt(0, 999999).toString();
     //pad with leading zeros

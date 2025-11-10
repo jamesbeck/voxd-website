@@ -53,6 +53,10 @@ export default function VerifyLoginForm({ logoUrl }: { logoUrl?: string }) {
           });
         }
       }
+
+      //empty the otp field
+      form.setValue("otp", "");
+      return;
     }
 
     setLoading(false);
