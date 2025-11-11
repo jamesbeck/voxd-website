@@ -8,6 +8,13 @@ export default function H1({
   className?: string;
 }) {
   return (
-    <h1 className={cn("text-2xl font-semibold", className)}>{children}</h1>
+    <h1
+      className={cn(
+        "text-2xl font-semibold border-b-1 border-lightgrey pb-3",
+        className
+      )}
+    >
+      {children}
+    </h1>
   );
 }

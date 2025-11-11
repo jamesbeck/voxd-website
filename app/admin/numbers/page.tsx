@@ -4,7 +4,7 @@
 
 import React from "react";
 
-const GRAPH_VERSION = "v23.0";
+const GRAPH_VERSION = "v24.0";
 const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
 

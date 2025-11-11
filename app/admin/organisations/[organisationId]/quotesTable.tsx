@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import { format } from "date-fns";
 
-const QuotesTable = () => {
+const QuotesTable = ({ organisationId }: { organisationId: string }) => {
   const columns = [
     {
       label: "Title",
@@ -41,6 +41,7 @@ const QuotesTable = () => {
   return (
     <DataTable
       getData={saGetQuoteTableData}
+      getDataParams={{ organisationId }}
       columns={columns}
       actions={actions}
     />

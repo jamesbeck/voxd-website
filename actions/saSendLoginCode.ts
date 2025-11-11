@@ -11,12 +11,21 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { IdTokenPayload } from "@/types/tokenTypes";
+import { headers } from "next/headers";
+import getPartnerByDomain from "@/lib/getPartnerByDomain";
 
 const saSendLoginCode = async ({
   email,
 }: {
   email: string;
 }): Promise<ServerActionResponse> => {
+  const headersList = await headers();
+  const domain = headersList.get("x-domain");
+
+  //if no domain use voxd.ai
+  const partnerDomain = domain || "voxd.ai";
+  const partner = await getPartnerByDomain({ domain: partnerDomain });
+
   //use zod to cehck if email is valid
   const emailSchema = z.email();
   const parseResult = emailSchema.safeParse(email);
@@ -66,26 +75,35 @@ const saSendLoginCode = async ({
 
     // Send code via SendGrid
     //only send if not development
-    if (process.env.NODE_ENV !== "development") {
-      try {
-        await sendgrid.send({
-          from: "Voxd Login <sw@jamesbeck.co.uk>",
-          to:
-            // always send to me if staging
-            process.env.NODE_ENV === "production"
-              ? [user.email]
-              : ["james@jamesbeck.co.uk"],
-          subject: "Your Login Code",
-          text: `Your login code is: ${paddedCode}`,
-          html: `<p>Your login code is: <strong>${paddedCode}</strong></p>`,
-        });
-      } catch (error) {
-        return {
-          success: false,
-          fieldErrors: { root: "Failed to send email." },
-        };
-      }
+    // if (process.env.NODE_ENV !== "development") {
+    console.log(partnerDomain);
+
+    //voxd emails are getting blocked
+    //need to try:
+    //  - changing the dmarc to v=DMARC1; p=none; (same as jamesbeck.co.uk)
+    // - not suing automated security from sendgrid and setting our own SPF record (I think we have to delete and recreate the domain)
+    try {
+      const emailR = await sendgrid.send({
+        from: `${partner?.name || "Voxd"} Login <login@jamesbeck.co.uk>`,
+        to:
+          // always send to me if staging
+          process.env.NODE_ENV === "production"
+            ? [user.email]
+            : ["james@jamesbeck.co.uk"],
+        subject: "Your Login Code",
+        text: `Your login code is: ${paddedCode}`,
+        html: `<p>Your login code is: <strong>${paddedCode}</strong></p>`,
+      });
+
+      console.log("Email sent", emailR);
+    } catch (error) {
+      console.log(error);
+      return {
+        success: false,
+        fieldErrors: { root: "Failed to send email." },
+      };
     }
+    // }
   }
 
   //send a cookie regardless so we dont't reveal if the email exists

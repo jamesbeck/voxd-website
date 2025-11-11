@@ -14,28 +14,23 @@ import {
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { saCreateQuote } from "@/actions/saCreateQuote";
+
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import saUpdateQuoteSpecification from "@/actions/saUpdateQuoteSpecification";
 
 const formSchema = z.object({
-  title: z.string().nonempty("Title is required"),
-  organisationId: z.string().nonempty("Organisation is required"),
+  specification: z.string().optional(),
 });
 
-export default function NewQuoteForm({
-  organisationOptions,
+export default function EditSpecificationForm({
+  quoteId,
+  specification,
 }: {
-  organisationOptions: { label: string; value: string }[];
+  quoteId: string;
+  specification: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -44,8 +39,7 @@ export default function NewQuoteForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      organisationId: "",
+      specification: specification || "",
     },
   });
 
@@ -53,9 +47,9 @@ export default function NewQuoteForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saCreateQuote({
-      title: values.title,
-      organisationId: values.organisationId,
+    const response = await saUpdateQuoteSpecification({
+      quoteId: quoteId,
+      specification: values.specification,
     });
 
     if (!response.success) {
@@ -63,7 +57,7 @@ export default function NewQuoteForm({
       setLoading(false);
 
       if (response.error) {
-        toast.error("There was an error creating the organisation");
+        toast.error("There was an error updating the quote");
 
         if (response.error)
           form.setError("root", {
@@ -82,8 +76,8 @@ export default function NewQuoteForm({
     }
 
     if (response.success) {
-      toast.success(`Quote ${values.title} created`);
-      router.push(`/admin/quotes/${response.data.id}`);
+      toast.success(`Quote ${quoteId} updated`);
+      router.refresh();
     }
 
     setLoading(false);
@@ -94,54 +88,17 @@ export default function NewQuoteForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="title"
+          name="specification"
           rules={{ required: true }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Quote Title</FormLabel>
+              <FormLabel>Specification</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Bookings chatbot integrated with HubSpot"
-                  {...field}
-                />
+                <Textarea placeholder="" {...field} className="h-[300px]" />
               </FormControl>
               <FormDescription>
-                Give the quote a meaningful title
+                Put your specification notes here
               </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="organisationId"
-          // rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organisation</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Organisation" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {organisationOptions.map((organisation) => (
-                      <SelectItem
-                        key={organisation.value}
-                        value={organisation.value}
-                      >
-                        {organisation.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

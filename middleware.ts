@@ -3,7 +3,9 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
-  const domain = hostname.split(":")[0].replace(".local", ""); // Remove port if present
+  let domain = hostname.split(":")[0].replace(".local", ""); // Remove port if present
+
+  if (domain === "localhost") domain = "voxd.ai";
 
   // Create response
   let response: NextResponse;

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useBreadcrumbs, Breadcrumb } from "./BreadcrumbProvider";
 
 interface BreadcrumbSetterProps {
-  breadcrumbs: Breadcrumb[];
+  breadcrumbs: (Breadcrumb | null)[];
 }
 
 export default function BreadcrumbSetter({
@@ -12,7 +12,8 @@ export default function BreadcrumbSetter({
 }: BreadcrumbSetterProps) {
   const { setBreadcrumbs } = useBreadcrumbs();
   useEffect(() => {
-    setBreadcrumbs(breadcrumbs);
+    const filteredBreadcrumbs = breadcrumbs.filter(Boolean) as Breadcrumb[];
+    setBreadcrumbs(filteredBreadcrumbs);
     // Optionally clear on unmount:
     // return () => setBreadcrumbs([]);
   }, [breadcrumbs, setBreadcrumbs]);

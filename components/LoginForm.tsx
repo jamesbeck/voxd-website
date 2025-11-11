@@ -46,6 +46,7 @@ export default function LoginForm({
         width={200}
         height={100}
         className="mx-auto mb-4"
+        unoptimized
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

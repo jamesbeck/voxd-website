@@ -28,6 +28,7 @@ import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 import { useDebounce } from "@uidotdev/usehooks";
+import { Button } from "../ui/button";
 
 export type Column = {
   label: string;
@@ -203,12 +204,16 @@ export default function DataTable<TExtra extends object = object>({
                     return (
                       <TableCell key={column.name}>
                         {column.linkTo ? (
-                          <Link
-                            href={column.linkTo(datum)}
-                            className="underline"
+                          <Button
+                            variant={"outline"}
+                            size="sm"
+                            className="cursor:pointer"
+                            asChild={true}
                           >
-                            {formattedValue}
-                          </Link>
+                            <Link href={column.linkTo(datum)}>
+                              {formattedValue}
+                            </Link>
+                          </Button>
                         ) : (
                           formattedValue
                         )}

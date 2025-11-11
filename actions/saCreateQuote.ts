@@ -29,7 +29,7 @@ const saCreateQuote = async (input: {
   // Insert new quote (include organisationId if column exists; adjust as needed)
   try {
     const [newQuote] = await db("quote")
-      .insert({ title, organisationId })
+      .insert({ title, organisationId, status: "draft" })
       .returning("id");
 
     return { success: true, data: newQuote };

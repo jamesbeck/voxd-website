@@ -6,7 +6,6 @@ import {
   ServerActionReadResponse,
   ServerActionReadParams,
 } from "@/types/types";
-import { notFound } from "next/navigation";
 
 const saGetQuoteTableData = async ({
   search,
@@ -14,7 +13,10 @@ const saGetQuoteTableData = async ({
   pageSize = 100,
   sortField = "id",
   sortDirection = "asc",
-}: ServerActionReadParams): Promise<ServerActionReadResponse> => {
+  organisationId,
+}: ServerActionReadParams & {
+  organisationId?: string;
+}): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
   if (!accessToken.admin && !accessToken.partner)
@@ -29,10 +31,13 @@ const saGetQuoteTableData = async ({
     .where((qb) => {
       if (search) {
         qb.where("organisation.name", "ilike", `%${search}%`);
+        qb.orWhere("quote.title", "ilike", `%${search}%`);
       }
     });
 
-  //if not admin add where clause to only get the agent with the email from the access token
+  if (organisationId) base.where("quote.organisationId", organisationId);
+
+  //if not admin add where clause to only get the quote for relevant organisations
   if (accessToken?.partner) {
     base.where("organisation.partnerId", accessToken.partnerId);
   }

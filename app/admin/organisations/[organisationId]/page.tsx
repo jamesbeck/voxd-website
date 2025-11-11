@@ -11,6 +11,7 @@ import AgentsTable from "./agentsTable";
 import NewOrganisationForm from "./newOrganisationForm";
 import AdminUsersTable from "./adminUsersTable";
 import ChatUsersTable from "./chatUsersTable";
+import QuotesTable from "./quotesTable";
 
 export default async function Page({
   params,
@@ -47,6 +48,7 @@ export default async function Page({
               <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
               <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
               <TabsTrigger value="agents">Agents</TabsTrigger>
+              <TabsTrigger value="quotes">Quotes</TabsTrigger>
             </TabsList>
             <TabsContent value="edit">
               <EditOrganisationForm
@@ -71,6 +73,12 @@ export default async function Page({
               <Container>
                 <H2>Agents</H2>
                 <AgentsTable organisationId={organisation.id} />
+              </Container>
+            </TabsContent>
+            <TabsContent value="quotes">
+              <Container>
+                <H2>Quotes</H2>
+                <QuotesTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
           </Tabs>
