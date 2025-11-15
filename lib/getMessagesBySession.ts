@@ -14,9 +14,15 @@ const getMessages = async ({ sessionId }: { sessionId: string }) => {
     .where({ sessionId })
     .orderBy("createdAt", "asc");
 
+  const toolCalls = await db("toolCall").whereIn(
+    "assistantMessageId",
+    assistantMessages.map((m) => m.id)
+  );
+
   const assistantMessagesWithRole = assistantMessages.map((m) => ({
     ...m,
     role: "assistant",
+    toolCalls: toolCalls.filter((tc) => tc.assistantMessageId === m.id),
   }));
 
   const messages = [...userMessagesWithRole, ...assistantMessagesWithRole].sort(

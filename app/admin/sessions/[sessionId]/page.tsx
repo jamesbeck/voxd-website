@@ -1,13 +1,15 @@
 import getMessages from "@/lib/getMessagesBySession";
 import getAgentById from "@/lib/getAgentById";
 import getUserById from "@/lib/getUserById";
-import { format } from "date-fns";
+import { differenceInMilliseconds, format } from "date-fns";
 import getSessionById from "@/lib/getSessionById";
 import DeleteSessionButton from "./deleteSessionButton";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { Card, CardContent } from "@/components/ui/card";
+import { notFound } from "next/navigation";
 
 export default async function Page({
   params,
@@ -21,6 +23,9 @@ export default async function Page({
   const sessionId = awaitedParams.sessionId;
 
   const session = await getSessionById({ sessionId: sessionId });
+
+  if (!session) notFound();
+
   const user = await getUserById({ userId: session.userId });
   const agent = await getAgentById({ agentId: session.agentId });
 
@@ -40,6 +45,50 @@ export default async function Page({
       <H1 className="text-2xl font-semibold mb-4">
         {user.name} ({user.number}) & {agent.niceName}
       </H1>
+
+      <Card>
+        <CardContent>
+          <table>
+            <tbody>
+              <tr>
+                <td className="font-bold pr-4">Conversation Start Date:</td>
+                <td>{format(session.createdAt, "dd/MM/yyyy HH:mm:ss")}</td>
+              </tr>
+              <tr>
+                <td className="font-bold pr-4">Last Message Date:</td>
+                <td>
+                  {session.lastUserMessageDate
+                    ? format(session.lastUserMessageDate, "dd/MM/yyyy HH:mm:ss")
+                    : "N/A"}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-bold pr-4">Approx. Prompt Cost:</td>
+                <td>
+                  ${session.totalPromptCost.toFixed(4)} (
+                  {session.totalPromptTokens} tokens)
+                </td>
+              </tr>
+              <tr>
+                <td className="font-bold pr-4">Approx. Response Cost:</td>
+                <td>
+                  ${session.totalCompletionCost.toFixed(4)} (
+                  {session.totalCompletionTokens} tokens)
+                </td>
+              </tr>
+              <tr>
+                <td className="font-bold pr-4">Approx. Total Cost</td>
+                <td>
+                  $
+                  {(
+                    session.totalPromptCost + session.totalCompletionCost
+                  ).toFixed(4)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
 
       <div className="flex justify-end my-4 cursor-pointer">
         {!!accessToken?.admin && (
@@ -78,7 +127,37 @@ export default async function Page({
                   ))}
                 </div>
 
-                {/* <code>{JSON.stringify(message?.outputUserData)}</code> */}
+                {message.role === "assistant" && (
+                  <code className="text-xs">
+                    <b>Tokens</b>: In {message?.promptTokens} + Out{" "}
+                    {message?.completionTokens} ={" "}
+                    {message?.promptTokens + message?.completionTokens}
+                    <br />
+                    <b>Total Response Time:</b>{" "}
+                    {(
+                      differenceInMilliseconds(
+                        message.responseReceivedAt,
+                        message.responseRequestedAt
+                      ) / 1000
+                    ).toFixed(2)}
+                    s
+                    <br />
+                    <b>Tools:</b>{" "}
+                    {message.toolCalls.length > 0
+                      ? message.toolCalls
+                          .map(
+                            (toolCall: any) =>
+                              `${toolCall.toolName} (${(
+                                differenceInMilliseconds(
+                                  toolCall.finishedAt,
+                                  toolCall.startedAt
+                                ) / 1000
+                              ).toFixed(2)}s)`
+                          )
+                          .join(", ")
+                      : "None"}
+                  </code>
+                )}
 
                 {/* <div className="text-xs">ID: {message.id}</div> */}
               </div>

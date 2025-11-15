@@ -13,6 +13,7 @@ import UsersTable from "./usersTable";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import Link from "next/link";
 import Dashboard from "./dashboard";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function Page({
   params,
@@ -54,6 +55,14 @@ export default async function Page({
       )}
       {agent && (
         <>
+          <Card>
+            <CardContent>
+              <div>
+                <b>Model:</b> {agent?.provider} / {agent?.model}
+              </div>
+            </CardContent>
+          </Card>
+
           <Tabs value={activeTab} className="space-y-2">
             <TabsList>
               <TabsTrigger value="dashboard" asChild>

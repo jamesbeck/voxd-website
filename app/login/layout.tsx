@@ -11,7 +11,9 @@ export default async function RootLayout({
 
   //if no domain use voxd.ai
   const partnerDomain = domain || "voxd.ai";
+  // console.log(partnerDomain);
   const partner = await getPartnerByDomain({ domain: partnerDomain });
+  // console.log(partner, 123);
 
   return (
     <div
@@ -23,6 +25,7 @@ export default async function RootLayout({
           : undefined
       }
     >
+      {partner?.colour}
       {children}
     </div>
   );

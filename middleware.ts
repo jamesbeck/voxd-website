@@ -3,15 +3,13 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
-  let domain = hostname.split(":")[0].replace(".local", ""); // Remove port if present
-
-  if (domain === "localhost") domain = "voxd.ai";
+  const domain = hostname.split(":")[0]; // Remove port if present
 
   // Create response
   let response: NextResponse;
 
   // Allowed domains that don't redirect
-  const allowedDomains = ["voxd.ai", "localhost"];
+  const allowedDomains = ["voxd.ai"];
 
   // Paths that are always allowed (login and admin)
   const isLoginPath = request.nextUrl.pathname.startsWith("/login");

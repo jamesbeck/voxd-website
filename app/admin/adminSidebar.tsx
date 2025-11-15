@@ -117,11 +117,13 @@ export default function AdminSidebar({
   return (
     <Sidebar collapsible="icon" className="bg-cream">
       <SidebarHeader>
+        {logoUrl}
         <Image
           src={logoUrl || "/logo.svg"}
           alt="Logo"
           width={300}
           height={50}
+          unoptimized
           className="p-2"
         />
       </SidebarHeader>

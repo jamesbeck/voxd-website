@@ -70,6 +70,7 @@ export default function VerifyLoginForm({ logoUrl }: { logoUrl?: string }) {
         width={200}
         height={100}
         className="mx-auto mb-4"
+        unoptimized
       />
       <h2 className="text-2xl font-semibold mb-6 text-center">
         Enter Login Code

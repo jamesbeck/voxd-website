@@ -47,6 +47,12 @@ const SessionsTable = ({ agentId }: { agentId: string }) => {
       name: "messageCount",
       sort: true,
     },
+    {
+      label: "Cost",
+      name: "totalCost",
+      sort: true,
+      format: (row: any) => `$${row.totalCost.toFixed(4)}`,
+    },
   ];
 
   return (

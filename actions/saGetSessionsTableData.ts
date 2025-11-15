@@ -83,7 +83,22 @@ const saGetSessionsTableData = async ({
     .select(
       db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
       db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
-      db.raw('MIN("userMessage"."createdAt") as "firstMessageAt"')
+      db.raw('MIN("userMessage"."createdAt") as "firstMessageAt"'),
+      db.raw(
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."promptTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalPromptTokens"'
+      ),
+      db.raw(
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."completionTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalCompletionTokens"'
+      ),
+      db.raw(
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."promptTokens" * "model"."inputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalPromptCost"'
+      ),
+      db.raw(
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."completionTokens" * "model"."outputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalCompletionCost"'
+      ),
+      db.raw(
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."promptTokens" * "model"."inputTokenCost" + "assistantMessage"."completionTokens" * "model"."outputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalCost"'
+      )
     )
     .orderBy(sortField, sortDirection)
     .limit(pageSize)
