@@ -25,7 +25,6 @@ export default async function RootLayout({
           : undefined
       }
     >
-      {partner?.colour}
       {children}
     </div>
   );
