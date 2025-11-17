@@ -1,16 +1,10 @@
 import VerifyLoginForm from "@/components/VerifyLoginForm";
 import { verifyIdToken } from "@/lib/auth/verifyToken";
-import { getPartnerByDomain } from "@/lib/getPartnerByDomain";
-import { headers } from "next/headers";
 import type { Metadata } from "next";
+import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const domain = headersList.get("x-domain");
-
-  //if no domain use voxd.ai
-  const partnerDomain = domain || "voxd.ai";
-  const partner = await getPartnerByDomain({ domain: partnerDomain });
+  const partner = await getPartnerFromHeaders();
 
   return {
     title: partner?.name
@@ -23,20 +17,25 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function VerifyCodePage() {
   await verifyIdToken();
 
-  const headersList = await headers();
-  const domain = headersList.get("x-domain");
-
-  //if no domain use voxd.ai
-  const partnerDomain = domain || "voxd.ai";
-  const partner = await getPartnerByDomain({ domain: partnerDomain });
+  const partner = await getPartnerFromHeaders();
 
   return (
-    <VerifyLoginForm
-      logoUrl={
-        partner?.domain
-          ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
+    <div
+      style={
+        partner?.colour
+          ? ({
+              "--color-primary": `#${partner?.colour}`,
+            } as React.CSSProperties)
           : undefined
       }
-    />
+    >
+      <VerifyLoginForm
+        logoUrl={
+          partner?.domain
+            ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
+            : undefined
+        }
+      />
+    </div>
   );
 }

@@ -36,7 +36,7 @@ const saGetAgentTableData = async ({
   }
 
   //if organisation is logging in, restrict to their agents
-  if (accessToken?.organisation && !accessToken.admin) {
+  if (!accessToken.partner && !accessToken.admin) {
     base
       .leftJoin("organisation", "agent.organisationId", "organisation.id")
       .leftJoin(

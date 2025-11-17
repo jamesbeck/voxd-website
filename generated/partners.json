@@ -1,0 +1,28 @@
+[
+  {
+    "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
+    "name": "ChatFox",
+    "billingAddressLine1": null,
+    "billingAddressLine2": null,
+    "billingCity": null,
+    "billingState": null,
+    "billingPostcode": null,
+    "billingCountry": null,
+    "billingEmails": null,
+    "domain": "portal.chatfox.ai",
+    "colour": "081d35"
+  },
+  {
+    "id": "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
+    "name": "Voxd",
+    "billingAddressLine1": null,
+    "billingAddressLine2": null,
+    "billingCity": null,
+    "billingState": null,
+    "billingPostcode": null,
+    "billingCountry": null,
+    "billingEmails": null,
+    "domain": "voxd.ai",
+    "colour": "00a9ff"
+  }
+]

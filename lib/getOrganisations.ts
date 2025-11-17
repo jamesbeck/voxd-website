@@ -20,7 +20,7 @@ const getOrganisations = async (): Promise<Organisations> => {
     .select("organisation.id", "organisation.name");
 
   //if organisation is logged in, restrict to their agents
-  if (accessToken?.organisation && !accessToken.admin) {
+  if (!accessToken.partner && !accessToken.admin) {
     organisationsQuery.where("organisationUser.userId", accessToken!.userId);
   }
 

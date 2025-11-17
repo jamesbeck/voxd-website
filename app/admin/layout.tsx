@@ -2,17 +2,13 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AdminSidebar from "./adminSidebar";
 import { BreadcrumbProvider } from "@/components/admin/BreadcrumbProvider";
 import TopBar from "@/components/admin/TopBar";
-import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { Toaster } from "sonner";
-import { headers } from "next/headers";
-import { getPartnerByDomain } from "@/lib/getPartnerByDomain";
 import type { Metadata } from "next";
+import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers();
-  const domain = headersList.get("x-domain");
-  const partnerDomain = domain || "voxd.ai";
-  const partner = await getPartnerByDomain({ domain: partnerDomain });
+  const partner = await getPartnerFromHeaders();
 
   return {
     title: partner?.name
@@ -27,14 +23,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const partner = await getPartnerFromHeaders();
   const accessToken = await verifyAccessToken();
-
-  const headersList = await headers();
-  const domain = headersList.get("x-domain");
-
-  //if no domain use voxd.ai
-  const partnerDomain = domain || "voxd.ai";
-  const partner = await getPartnerByDomain({ domain: partnerDomain });
 
   return (
     <SidebarProvider>
@@ -52,7 +42,6 @@ export default async function RootLayout({
           <AdminSidebar
             email={accessToken?.email}
             admin={accessToken?.admin}
-            organisation={accessToken?.organisation}
             partner={accessToken?.partner}
             logoUrl={
               partner?.domain

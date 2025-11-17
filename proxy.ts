@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const hostname = request.headers.get("host") || "";
   const domain = hostname.split(":")[0]; // Remove port if present
 
   // Create response
   let response: NextResponse;
 
-  // Allowed domains that don't redirect
-  const allowedDomains = ["voxd.ai"];
+  // Allowed domains that don't redirect if someone tries to access the website (not portal)
+  const allowedDomains = ["voxd.ai", "localhost"];
 
   // Paths that are always allowed (login and admin)
   const isLoginPath = request.nextUrl.pathname.startsWith("/login");
@@ -28,9 +28,6 @@ export function middleware(request: NextRequest) {
   } else {
     response = NextResponse.next();
   }
-
-  // Add custom header with the domain
-  response.headers.set("x-domain", domain);
 
   return response;
 }

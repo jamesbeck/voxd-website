@@ -54,7 +54,7 @@ const saGetChatUserTableData = async ({
   }
 
   //if organisation is logged in, restrict to their agents
-  if (accessToken?.organisation && !accessToken.admin) {
+  if (!accessToken.partner && !accessToken.admin) {
     base.where("organisationUser.userId", accessToken!.userId);
   }
 

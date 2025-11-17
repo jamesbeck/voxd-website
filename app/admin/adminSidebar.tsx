@@ -38,7 +38,7 @@ import logout from "@/actions/saLogout";
 import { Roles } from "@/types/types";
 
 type MenuItem = {
-  roles: Roles[];
+  roles?: Roles[];
   title: string;
   url: string;
   icon: React.ElementType;
@@ -65,7 +65,6 @@ const menuItems: MenuItem[] = [
     icon: Phone,
   },
   {
-    roles: ["partner", "admin", "organisation"],
     title: "Organisations",
     url: "/admin/organisations",
     icon: Building,
@@ -77,7 +76,6 @@ const menuItems: MenuItem[] = [
     icon: FileText,
   },
   {
-    roles: ["admin", "partner", "organisation"],
     title: "Agents",
     url: "/admin/agents",
     icon: BotMessageSquare,
@@ -89,7 +87,6 @@ const menuItems: MenuItem[] = [
     icon: Handshake,
   },
   {
-    roles: ["admin", "partner", "organisation"],
     title: "Chat Users",
     url: "/admin/chatUsers",
     icon: User,
@@ -99,25 +96,21 @@ const menuItems: MenuItem[] = [
 export default function AdminSidebar({
   email,
   admin,
-  organisation,
   partner,
   logoUrl,
 }: {
   email?: string;
   admin?: boolean;
-  organisation?: boolean;
   partner?: boolean;
   logoUrl?: string;
 }) {
   const userRoles: Roles[] = [];
   if (admin) userRoles.push("admin");
-  if (organisation) userRoles.push("organisation");
   if (partner) userRoles.push("partner");
 
   return (
     <Sidebar collapsible="icon" className="bg-cream">
       <SidebarHeader>
-        {logoUrl}
         <Image
           src={logoUrl || "/logo.svg"}
           alt="Logo"
@@ -133,7 +126,10 @@ export default function AdminSidebar({
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
-                if (!item.roles.some((role) => userRoles.includes(role))) {
+                if (
+                  item.roles &&
+                  !item.roles.some((role) => userRoles.includes(role))
+                ) {
                   return null;
                 }
                 return (
