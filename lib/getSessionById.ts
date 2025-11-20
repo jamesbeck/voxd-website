@@ -16,6 +16,7 @@ interface Session {
   totalPromptCost: number;
   totalCompletionCost: number;
   totalCost: number;
+  paused: boolean;
 }
 
 const getSessionById = async ({
