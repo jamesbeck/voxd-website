@@ -7,7 +7,7 @@ const getOrganisationById = async ({
 }): Promise<{
   id: string;
   name: string;
-  userIds?: string[];
+  adminUserIds?: string[];
 }> => {
   const organisation = await db("organisation")
     .leftJoin(
@@ -19,7 +19,7 @@ const getOrganisationById = async ({
     .select("organisation.*")
     .select([
       db.raw(
-        'COALESCE(ARRAY_AGG("organisationUser"."userId") FILTER (WHERE "organisationUser"."userId" IS NOT NULL), ARRAY[]::uuid[]) as "userIds"'
+        'COALESCE(ARRAY_AGG("organisationUser"."adminUserId") FILTER (WHERE "organisationUser"."adminUserId" IS NOT NULL), ARRAY[]::uuid[]) as "adminUserId"'
       ),
     ])
     .where("organisation.id", organisationId)

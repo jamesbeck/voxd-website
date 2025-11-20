@@ -32,7 +32,7 @@ const saGetOrganisationTableData = async ({
 
   //if organisation is logged in, restrict to their agents
   if (!accessToken.admin && !accessToken.partner) {
-    base.where("organisationUser.userId", accessToken!.userId);
+    base.where("organisationUser.adminUserId", accessToken!.adminUserId);
   }
 
   //if partner is logged in, restrict to their agents

@@ -39,14 +39,17 @@ const saSendLoginCode = async ({
   }
 
   //find the user by email
-  const user = await db("user").select("*").where({ email }).first();
+  const adminUser = await db("adminUser")
+    .select("*")
+    .where({ email: email?.toLowerCase() })
+    .first();
 
   const otpExpiry = addMinutes(
     new Date(),
     parseInt(process.env.OTP_CODE_LIFE_SEC)
   );
 
-  if (user && !impersonation) {
+  if (adminUser && !impersonation) {
     // Generate 6-digit code
     const code = randomInt(0, 999999).toString();
     //pad with leading zeros
@@ -57,14 +60,13 @@ const saSendLoginCode = async ({
     console.log(paddedCode);
 
     // Save hashed code to DB
-    await db("user")
+    await db("adminUser")
       .update({
-        email,
         otp: hashedCode,
         otpExpiry,
         otpAttempts: 0,
       })
-      .where({ id: user.id });
+      .where({ id: adminUser.id });
 
     sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
@@ -78,7 +80,7 @@ const saSendLoginCode = async ({
           to:
             // always send to me if staging
             process.env.NODE_ENV === "production"
-              ? [user.email]
+              ? [adminUser.email]
               : ["james@jamesbeck.co.uk"],
           subject: "Your Login Code",
           html: `
@@ -161,7 +163,7 @@ const saSendLoginCode = async ({
   //set a cookie that includes the email address they tried to login with
   const idToken = jwt.sign(
     {
-      email: email,
+      email: adminUser.email,
       otpExpiry,
       failedAttempts: 0,
     } as IdTokenPayload,

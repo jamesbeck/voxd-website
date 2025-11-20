@@ -14,6 +14,7 @@ import userCanViewAgent from "@/lib/userCanViewAgent";
 import Link from "next/link";
 import Dashboard from "./dashboard";
 import { Card, CardContent } from "@/components/ui/card";
+import EditAgentForm from "./editAgentForm";
 
 export default async function Page({
   params,
@@ -96,6 +97,12 @@ export default async function Page({
               <TabsContent value="edit">
                 <Container>
                   <H2>Edit Agent</H2>
+                  <EditAgentForm
+                    agentId={agentId}
+                    name={agent?.name}
+                    niceName={agent?.niceName}
+                    openAiApiKey={agent?.openAiApiKey}
+                  />
                 </Container>
               </TabsContent>
             )}

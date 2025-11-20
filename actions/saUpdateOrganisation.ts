@@ -6,11 +6,11 @@ import { ServerActionResponse } from "@/types/types";
 const saUpdateOrganisation = async ({
   organisationId,
   name,
-  userIds,
+  adminUserIds,
 }: {
   organisationId: string;
   name: string;
-  userIds: string[];
+  adminUserIds: string[];
 }): Promise<ServerActionResponse> => {
   if (!organisationId) {
     return {
@@ -36,13 +36,13 @@ const saUpdateOrganisation = async ({
   await db("organisation").where({ id: organisationId }).update({ name });
 
   //update user associations
-  if (userIds) {
+  if (adminUserIds) {
     //delete existing associations
     await db("organisationUser").where({ organisationId }).del();
     //insert new associations
-    const organisationUserData = userIds.map((userId) => ({
+    const organisationUserData = adminUserIds.map((adminUserId) => ({
       organisationId,
-      userId,
+      adminUserId,
     }));
     await db("organisationUser").insert(organisationUserData);
   }

@@ -14,27 +14,33 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { saUpdateOrganisation } from "@/actions/saUpdateOrganisation";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import saUpdateAgent from "@/actions/saUpdateAgent";
+import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
-  adminUserIds: z.string().array(),
+  niceName: z.string().nonempty("Nice Name is required"),
+  organisationId: z.string().nonempty("Organisation is required"),
+  openAiApiKey: z.string().optional(),
 });
 
-export default function NewOrganisationForm({
-  organisationId,
+export default function EditAgentForm({
+  agentId,
   name,
-  adminUserIds,
+  niceName,
+  organisationId,
+  openAiApiKey,
 }: {
-  organisationId: string;
+  agentId: string;
   name?: string;
-  adminUserIds?: string[];
+  niceName?: string;
+  organisationId?: string;
+  openAiApiKey?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -44,7 +50,9 @@ export default function NewOrganisationForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: name || "",
-      adminUserIds: adminUserIds || [],
+      niceName: niceName || "",
+      organisationId: organisationId || "",
+      openAiApiKey: openAiApiKey || "",
     },
   });
 
@@ -52,10 +60,12 @@ export default function NewOrganisationForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdateOrganisation({
-      organisationId: organisationId,
+    const response = await saUpdateAgent({
+      agentId: agentId,
       name: values.name,
-      adminUserIds: values.adminUserIds,
+      niceName: values.niceName,
+      organisationId: values.organisationId,
+      openAiApiKey: values.openAiApiKey,
     });
 
     if (!response.success) {
@@ -63,7 +73,7 @@ export default function NewOrganisationForm({
       setLoading(false);
 
       if (!response.success) {
-        toast.error("There was an error updating the organisation");
+        toast.error("There was an error updating the agent");
 
         if (response.error) {
           form.setError("root", {
@@ -84,7 +94,7 @@ export default function NewOrganisationForm({
     }
 
     if (response.success) {
-      toast.success(`Organisation ${values.name} updated`);
+      toast.success(`Agent ${values.name} saved`);
       router.refresh();
     }
 
@@ -102,7 +112,7 @@ export default function NewOrganisationForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Joe Bloggs Ltd" {...field} />
+                <Input placeholder="Acme Inc" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -111,27 +121,50 @@ export default function NewOrganisationForm({
 
         <FormField
           control={form.control}
-          name="adminUserIds"
+          name="niceName"
           rules={{ required: true }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Admin Users</FormLabel>
+              <FormLabel>Nice Name</FormLabel>
               <FormControl>
-                <RemoteMultiSelect
+                <Input placeholder="Acme Sales Assistant" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="organisationId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Organisation</FormLabel>
+              <FormControl>
+                <RemoteSelect
                   {...field}
-                  serverAction={saGetAdminUserTableData}
-                  label={(record) =>
-                    `${record.name} (${[record.number, record.email]
-                      .filter(Boolean)
-                      .join(" / ")})`
-                  }
+                  serverAction={saGetOrganisationTableData}
+                  label={(record) => `${record.name}`}
                   valueField="id"
                   sortField="name"
-                  placeholder="Search and select users..."
-                  emptyMessage="No users found"
-                  pageSize={50}
-                  searchDebounceMs={300}
+                  placeholder="Select an organisation..."
+                  emptyMessage="No organisations found"
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="openAiApiKey"
+          rules={{ required: true }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>OpenAI API Key</FormLabel>
+              <FormControl>
+                <Input placeholder="sk-..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

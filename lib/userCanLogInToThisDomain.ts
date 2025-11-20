@@ -7,20 +7,20 @@ export default async function userCanLogInToThisDomain() {
 
   if (!idToken) return false;
 
-  const user = await db("user")
+  const adminUser = await db("adminUser")
     .select("*")
     .where({ email: idToken.email })
     .first();
 
-  if (!user) return false;
+  if (!adminUser) return false;
 
   const partnerFromDomain = await getPartnerFromHeaders();
 
   //if we're a partner (but not admin), make sure they're logging in to the right domain
-  if (!user.admin && user.partnerId) {
+  if (!adminUser.admin && adminUser.partnerId) {
     const partnerFromToken = await db("partner")
       .select("domain")
-      .where({ id: user.partnerId })
+      .where({ id: adminUser.partnerId })
       .first();
 
     //if domain doesn't match
@@ -37,10 +37,10 @@ export default async function userCanLogInToThisDomain() {
       "organisation.id"
     )
     .select("organisationId", "partnerId")
-    .where({ userId: user.id, partnerId: partnerFromDomain?.id });
+    .where({ adminUserId: adminUser.id, partnerId: partnerFromDomain?.id });
 
   //if no organisations and not a partner (or admin), fail
-  if (!user.admin && !user.partnerId && !organisations.length) {
+  if (!adminUser.admin && !adminUser.partnerId && !organisations.length) {
     return false;
   }
 

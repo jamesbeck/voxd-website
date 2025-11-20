@@ -10,6 +10,7 @@ import {
   Building,
   Handshake,
   User,
+  UserCog,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -90,6 +91,11 @@ const menuItems: MenuItem[] = [
     title: "Chat Users",
     url: "/admin/chatUsers",
     icon: User,
+  },
+  {
+    title: "Admin Users",
+    url: "/admin/adminUsers",
+    icon: UserCog,
   },
 ];
 

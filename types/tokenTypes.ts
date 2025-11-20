@@ -5,7 +5,7 @@ export interface IdTokenPayload {
 }
 
 export interface AccessTokenPayload {
-  userId: string;
+  adminUserId: string;
   email: string;
   name: string;
   admin: boolean;

@@ -4,21 +4,17 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saUpdateUser = async ({
-  userId,
+const saUpdateAdminUser = async ({
+  adminUserId,
   name,
-  number,
   email,
   partnerId,
-  testingAgentId,
   organisationIds,
 }: {
-  userId: string;
+  adminUserId: string;
   name?: string;
-  number?: string;
   email?: string;
   partnerId?: string;
-  testingAgentId?: string;
   organisationIds?: string[];
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
@@ -29,17 +25,17 @@ const saUpdateUser = async ({
       error: "You do not have permission to update users.",
     };
 
-  if (!userId) {
+  if (!adminUserId) {
     return {
       success: false,
-      error: "User ID is required",
+      error: "Admin User ID is required",
     };
   }
 
   //find the existing user
-  const existingUser = await db("user")
+  const existingUser = await db("adminUser")
     .select("*")
-    .where({ id: userId })
+    .where({ id: adminUserId })
     .first();
 
   if (!existingUser) {
@@ -50,27 +46,25 @@ const saUpdateUser = async ({
   }
 
   //update the user
-  await db("user")
-    .where({ id: userId })
+  await db("adminUser")
+    .where({ id: adminUserId })
     .update({
       name,
-      number,
       email: email?.toLowerCase(),
       partnerId: partnerId || null,
-      testingAgentId: testingAgentId || null,
     });
 
   //update organisation associations
   if (organisationIds) {
     //delete existing associations
-    await db("organisationUser").where({ userId }).del();
+    await db("organisationUser").where({ adminUserId }).del();
 
     //create new associations
     if (organisationIds.length > 0) {
       const userOrganisationAssociations = organisationIds.map(
         (organisationId) => ({
-          userId: userId,
-          organisationId: organisationId,
+          adminUserId,
+          organisationId,
         })
       );
 
@@ -81,4 +75,4 @@ const saUpdateUser = async ({
   return { success: true };
 };
 
-export { saUpdateUser };
+export { saUpdateAdminUser };

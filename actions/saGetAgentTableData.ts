@@ -44,7 +44,7 @@ const saGetAgentTableData = async ({
         "organisation.id",
         "organisationUser.organisationId"
       )
-      .where("organisationUser.userId", accessToken!.userId);
+      .where("organisationUser.adminUserId", accessToken!.adminUserId);
   }
 
   //if partner is logging in, restrict to their agents

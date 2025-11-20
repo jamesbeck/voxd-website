@@ -57,6 +57,8 @@ const saSendMessage = async ({
 
     const data = await res.json();
 
+    //facebook appears to silently fail if we can't message this user (24hr window)
+
     if (!res.ok) {
       console.error("Error response from Meta API:", data);
       return { success: false, error: "Failed to send message via Meta API" };
@@ -66,7 +68,7 @@ const saSendMessage = async ({
         sessionId: session.id,
         text: message,
         whatsappMessageId: data.messages[0].id,
-        userId: accessToken.userId,
+        adminUserId: accessToken.adminUserId,
       });
     }
     return { success: true };

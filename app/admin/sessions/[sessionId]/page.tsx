@@ -1,6 +1,6 @@
 import getMessages from "@/lib/getMessagesBySession";
 import getAgentById from "@/lib/getAgentById";
-import getUserById from "@/lib/getUserById";
+import getUserById from "@/lib/getChatUserById";
 import {
   differenceInMilliseconds,
   differenceInSeconds,

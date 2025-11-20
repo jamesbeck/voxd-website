@@ -54,7 +54,7 @@ export default async function Page({
               <EditOrganisationForm
                 organisationId={organisation.id}
                 name={organisation.name}
-                userIds={organisation.userIds}
+                adminUserIds={organisation.adminUserIds}
               />
             </TabsContent>
             <TabsContent value="adminUsers">

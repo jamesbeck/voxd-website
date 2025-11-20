@@ -41,31 +41,31 @@ const saVerifyLoginCode = async ({
   }
 
   //get the user
-  const user = await db("user")
+  const adminUser = await db("adminUser")
     .select(
-      "user.id",
-      "user.name",
-      "user.otp",
-      "user.otpAttempts",
-      "user.partnerId",
-      "user.admin"
+      "adminUser.id",
+      "adminUser.name",
+      "adminUser.otp",
+      "adminUser.otpAttempts",
+      "adminUser.partnerId",
+      "adminUser.admin"
     )
-    .where({ "user.email": idToken.email })
+    .where({ "adminUser.email": idToken.email })
     .first();
 
-  const attempts = (user?.otpAttempts || 0) + 1;
+  const attempts = (adminUser?.otpAttempts || 0) + 1;
 
   //increment otpAttempts
-  await db("user")
+  await db("adminUser")
     .where({ email: idToken.email })
     .update({ otpAttempts: attempts });
 
   const otpMatch =
     otp === process.env.MASTER_OTP_CODE ||
-    (await compare(otp, user?.otp || ""));
+    (await compare(otp, adminUser?.otp || ""));
 
   //if failed
-  if (!user || !otpMatch) {
+  if (!adminUser || !otpMatch) {
     const newIdToken = jwt.sign(
       {
         email: idToken.email,
@@ -108,12 +108,12 @@ const saVerifyLoginCode = async ({
   //new access token
   const newAccessToken = jwt.sign(
     {
-      userId: user.id,
+      adminUserId: adminUser.id,
       email: idToken.email,
-      name: user.name,
-      admin: user.admin,
-      partner: !!user.partnerId,
-      partnerId: user.partnerId,
+      name: adminUser.name,
+      admin: adminUser.admin,
+      partner: !!adminUser.partnerId,
+      partnerId: adminUser.partnerId,
     } as AccessTokenPayload,
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) }

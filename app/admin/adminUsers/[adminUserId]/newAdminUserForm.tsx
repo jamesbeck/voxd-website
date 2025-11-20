@@ -14,28 +14,19 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { saUpdateOrganisation } from "@/actions/saUpdateOrganisation";
+import { saCreateAdminUser } from "@/actions/saCreateAdminUser";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
-  adminUserIds: z.string().array(),
+  //only accept number characters including any hidden or RTL characters
+  email: z.email("Invalid email address").or(z.literal("")),
 });
 
-export default function NewOrganisationForm({
-  organisationId,
-  name,
-  adminUserIds,
-}: {
-  organisationId: string;
-  name?: string;
-  adminUserIds?: string[];
-}) {
+export default function NewAdminUserForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -43,8 +34,8 @@ export default function NewOrganisationForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: name || "",
-      adminUserIds: adminUserIds || [],
+      name: "",
+      email: "",
     },
   });
 
@@ -52,40 +43,37 @@ export default function NewOrganisationForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdateOrganisation({
-      organisationId: organisationId,
+    const response = await saCreateAdminUser({
       name: values.name,
-      adminUserIds: values.adminUserIds,
+      email: values.email,
     });
 
     if (!response.success) {
       // Handle error case
       setLoading(false);
 
-      if (!response.success) {
-        toast.error("There was an error updating the organisation");
+      toast.error("There was an error creating the user");
 
-        if (response.error) {
-          form.setError("root", {
+      if (response.error) {
+        form.setError("root", {
+          type: "manual",
+          message: response.error,
+        });
+      }
+
+      if (response.fieldErrors) {
+        for (const key in response.fieldErrors) {
+          form.setError(key as keyof typeof values, {
             type: "manual",
-            message: response.error,
+            message: response.fieldErrors[key],
           });
-        }
-
-        if (response.fieldErrors) {
-          for (const key in response.fieldErrors) {
-            form.setError(key as keyof typeof values, {
-              type: "manual",
-              message: response.fieldErrors[key],
-            });
-          }
         }
       }
     }
 
     if (response.success) {
-      toast.success(`Organisation ${values.name} updated`);
-      router.refresh();
+      toast.success(`User ${values.name} created`);
+      router.push(`/admin/adminUsers/${response.data.id}`);
     }
 
     setLoading(false);
@@ -102,8 +90,9 @@ export default function NewOrganisationForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Joe Bloggs Ltd" {...field} />
+                <Input placeholder="John Doe" {...field} />
               </FormControl>
+              {/* <FormDescription>Give the user a name</FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -111,28 +100,15 @@ export default function NewOrganisationForm({
 
         <FormField
           control={form.control}
-          name="adminUserIds"
+          name="email"
           rules={{ required: true }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Admin Users</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <RemoteMultiSelect
-                  {...field}
-                  serverAction={saGetAdminUserTableData}
-                  label={(record) =>
-                    `${record.name} (${[record.number, record.email]
-                      .filter(Boolean)
-                      .join(" / ")})`
-                  }
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Search and select users..."
-                  emptyMessage="No users found"
-                  pageSize={50}
-                  searchDebounceMs={300}
-                />
+                <Input placeholder="john.doe@example.com" {...field} />
               </FormControl>
+              {/* <FormDescription>Put your user email here</FormDescription> */}
               <FormMessage />
             </FormItem>
           )}

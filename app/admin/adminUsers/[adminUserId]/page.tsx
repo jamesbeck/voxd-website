@@ -1,29 +1,29 @@
-import getUserById from "@/lib/getChatUserById";
+import getAdminUserById from "@/lib/getAdminUserById";
 import H1 from "@/components/adminui/H1";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SessionsTable from "./sessionsTable";
 import Container from "@/components/adminui/Container";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import { User } from "@/types/types";
-import NewUserForm from "./newUserForm";
+import NewAdminUserForm from "./newAdminUserForm";
 import { notFound } from "next/navigation";
-import UserActions from "./UserActions";
-import EditUserForm from "./editUserForm";
+import AdminUserActions from "./AdminUserActions";
+import EditAdminUserForm from "./editAdminUserForm";
 import H2 from "@/components/adminui/H2";
-import getAgents from "@/lib/getAgents";
 import getPartners from "@/lib/getPartners";
 
-export default async function Page({ params }: { params: { userId: string } }) {
-  const userId = (await params).userId;
+export default async function Page({
+  params,
+}: {
+  params: { adminUserId: string };
+}) {
+  const adminUserId = (await params).adminUserId;
 
   let user: User | null = null;
 
-  if (userId && userId != "new") user = await getUserById({ userId: userId });
+  if (adminUserId && adminUserId != "new")
+    user = await getAdminUserById({ adminUserId });
 
-  if (!user && userId !== "new") return notFound();
-
-  //get all agents for the edit form
-  const agents = await getAgents();
+  if (!user && adminUserId !== "new") return notFound();
 
   //get all partners for the edit form
   const partners = await getPartners();
@@ -33,46 +33,35 @@ export default async function Page({ params }: { params: { userId: string } }) {
       <BreadcrumbSetter
         breadcrumbs={[
           { label: "Admin", href: "/admin" },
-          { label: "Users", href: "/admin/users" },
-          { label: user?.name || "New User" },
+          { label: "Admin Users", href: "/admin/adminUsers" },
+          { label: user?.name || "New Admin User" },
         ]}
       />
-      <H1>{user?.name || "New User"}</H1>
+      <H1>{user?.name || "New Admin User"}</H1>
       {user && (
         <>
-          <UserActions user={user} />
+          <AdminUserActions user={user} />
           <Tabs defaultValue="sessions" className="space-y-2">
             <TabsList>
               <TabsTrigger value="edit">Edit User</TabsTrigger>
-              <TabsTrigger value="sessions">Sessions</TabsTrigger>
             </TabsList>
             <TabsContent value="edit">
-              <EditUserForm
-                userId={userId}
+              <EditAdminUserForm
+                adminUserId={adminUserId}
                 name={user.name}
                 email={user.email}
-                number={user.number}
                 partnerId={user.partnerId}
-                testingAgentId={user.testingAgentId}
                 organisationIds={user.organisationIds}
-                agentOptions={agents.map((agent) => ({
-                  value: agent.id,
-                  label: agent.niceName,
-                }))}
                 partnerOptions={partners.map((partner) => ({
                   value: partner.id,
                   label: partner.name,
                 }))}
               />
             </TabsContent>
-            <TabsContent value="sessions">
-              <H2>Sessions</H2>
-              <SessionsTable userId={userId} />
-            </TabsContent>
           </Tabs>
         </>
       )}
-      {!user && <NewUserForm />}
+      {!user && <NewAdminUserForm />}
     </Container>
   );
 }
