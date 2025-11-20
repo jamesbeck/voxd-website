@@ -6,9 +6,11 @@ import { ServerActionResponse } from "@/types/types";
 const saCreateAdminUser = async ({
   name,
   email,
+  organisationIds,
 }: {
   name: string;
   email?: string;
+  organisationIds: string[];
 }): Promise<ServerActionResponse> => {
   //check user number and email is unique
   const existingUser = await db("adminUser")

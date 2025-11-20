@@ -1,10 +1,10 @@
 "use client";
 import { AlertCircleIcon } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,11 +19,15 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
+import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   //only accept number characters including any hidden or RTL characters
   email: z.email("Invalid email address").or(z.literal("")),
+  organisationIds: z.string().array(),
 });
 
 export default function NewAdminUserForm() {
@@ -36,6 +40,7 @@ export default function NewAdminUserForm() {
     defaultValues: {
       name: "",
       email: "",
+      organisationIds: [],
     },
   });
 
@@ -46,6 +51,7 @@ export default function NewAdminUserForm() {
     const response = await saCreateAdminUser({
       name: values.name,
       email: values.email,
+      organisationIds: values.organisationIds,
     });
 
     if (!response.success) {
@@ -109,6 +115,35 @@ export default function NewAdminUserForm() {
                 <Input placeholder="john.doe@example.com" {...field} />
               </FormControl>
               {/* <FormDescription>Put your user email here</FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="organisationIds"
+          rules={{ required: true }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Organisations</FormLabel>
+              <FormDescription>
+                Which organisation's agents do you want this user to have access
+                to?
+              </FormDescription>
+              <FormControl>
+                <RemoteMultiSelect
+                  {...field}
+                  serverAction={saGetOrganisationTableData}
+                  label={(record) => `${record.name}`}
+                  valueField="id"
+                  sortField="name"
+                  placeholder="Search and select organisations..."
+                  emptyMessage="No organisations found"
+                  pageSize={50}
+                  searchDebounceMs={300}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
