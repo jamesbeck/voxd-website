@@ -12,8 +12,11 @@ import EditUserForm from "./editUserForm";
 import H2 from "@/components/adminui/H2";
 import getAgents from "@/lib/getAgents";
 import getPartners from "@/lib/getPartners";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page({ params }: { params: { userId: string } }) {
+  const token = await verifyAccessToken();
+
   const userId = (await params).userId;
 
   let user: User | null = null;
@@ -67,7 +70,7 @@ export default async function Page({ params }: { params: { userId: string } }) {
             </TabsContent>
             <TabsContent value="sessions">
               <H2>Sessions</H2>
-              <SessionsTable userId={userId} />
+              <SessionsTable userId={userId} admin={!!token.admin} />
             </TabsContent>
           </Tabs>
         </>

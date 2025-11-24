@@ -72,6 +72,7 @@ const saGetSessionsTableData = async ({
     .clone()
     .select(
       "session.id",
+      "session.sessionType",
       "user.id as userId",
       "user.name",
       "user.number",

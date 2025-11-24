@@ -5,9 +5,32 @@ import Link from "next/link";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 import saGetSessionTableData from "@/actions/saGetSessionsTableData";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-const SessionsTable = ({ agentId }: { agentId: string }) => {
+const SessionsTable = ({
+  agentId,
+  admin,
+}: {
+  agentId: string;
+  admin: boolean;
+}) => {
   const columns = [
+    {
+      label: "Type",
+      name: "sessionType",
+      sort: true,
+      format: (row: any) => (
+        <Badge
+          className={cn(
+            row.sessionType == "live" ? "bg-green-500" : "bg-red-500",
+            "capitalize"
+          )}
+        >
+          {row.sessionType}
+        </Badge>
+      ),
+    },
     {
       label: "Name",
       name: "name",
@@ -67,9 +90,11 @@ const SessionsTable = ({ agentId }: { agentId: string }) => {
       actions={(row: any) => {
         return (
           <>
-            <Button asChild size={"sm"}>
-              <Link href={`/admin/sessions/${row.id}`}>View</Link>
-            </Button>
+            {(row.sessionType != "development" || admin) && (
+              <Button asChild size={"sm"}>
+                <Link href={`/admin/sessions/${row.id}`}>View</Link>
+              </Button>
+            )}
           </>
         );
       }}

@@ -111,7 +111,7 @@ export default async function Page({
             <TabsContent value="sessions">
               <Container>
                 <H2>Sessions</H2>
-                <SessionsTable agentId={agentId} />
+                <SessionsTable agentId={agentId} admin={!!token.admin} />
               </Container>
             </TabsContent>
             <TabsContent value="users">
