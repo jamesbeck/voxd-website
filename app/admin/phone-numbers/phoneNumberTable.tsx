@@ -33,6 +33,11 @@ const PhoneNumberTable = () => {
           sort: true,
         },
         {
+          label: "Meta ID",
+          name: "metaId",
+          sort: true,
+        },
+        {
           label: "Verified Name",
           name: "verifiedName",
           sort: true,

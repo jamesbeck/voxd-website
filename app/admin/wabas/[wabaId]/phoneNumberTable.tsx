@@ -34,6 +34,11 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
           sort: true,
         },
         {
+          label: "Meta ID",
+          name: "metaId",
+          sort: true,
+        },
+        {
           label: "Verified Name",
           name: "verifiedName",
           sort: true,

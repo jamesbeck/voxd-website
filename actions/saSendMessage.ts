@@ -21,6 +21,7 @@ const saSendMessage = async ({
       .where({ "session.id": sessionId })
       .select(
         "session.id",
+        "session.sessionType",
         "phoneNumber.metaId as phoneNumberMetaId",
         "agent.id as agentId",
         "user.number as userPhoneNumber"
@@ -32,8 +33,18 @@ const saSendMessage = async ({
 
     const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP;
 
+    //if session type is live use the agents phone number to send
+    //if session type is development, use the development waba number (701062049765457)
+    //if session type is test, use the test number (743921902140200)
+
+    let phoneNumberMetaIdToUse = session.phoneNumberMetaId;
+    if (session.sessionType === "development")
+      phoneNumberMetaIdToUse = "701062049765457";
+    else if (session.sessionType === "test")
+      phoneNumberMetaIdToUse = "743921902140200";
+
     const url = `${process.env.META_GRAPH_URL}/${
-      session.phoneNumberMetaId || "701062049765457"
+      phoneNumberMetaIdToUse || "701062049765457"
     }/messages`;
 
     const payload = {

@@ -15,7 +15,14 @@ export default function Conversation({
   messages: any[];
   sessionId: string;
 }) {
-  const lastMessage = messages[messages.length - 1];
+  const lastMessageFromUser = messages
+    .slice()
+    .reverse()
+    .find((message) => message.role === "user");
+
+  const lastMessageFromUserSecondsAgo = lastMessageFromUser
+    ? differenceInSeconds(new Date(), lastMessageFromUser.createdAt)
+    : null;
 
   return (
     <>
@@ -90,15 +97,18 @@ export default function Conversation({
           );
         })}
       </div>
-      {(lastMessage.responseStatus == "waiting" ||
-        lastMessage.responseStatus == "processing") && (
+      {(lastMessageFromUser.responseStatus == "waiting" ||
+        lastMessageFromUser.responseStatus == "processing") && (
         <div>
           Generating... <Spinner />
         </div>
       )}
 
       <div>
-        <SendMessageForm sessionId={sessionId} />
+        <SendMessageForm
+          sessionId={sessionId}
+          lastMessageFromUserSecondsAgo={lastMessageFromUserSecondsAgo}
+        />
       </div>
     </>
   );
