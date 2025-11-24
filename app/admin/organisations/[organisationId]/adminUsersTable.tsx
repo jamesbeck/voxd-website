@@ -30,7 +30,7 @@ const AdminUsersTable = ({ organisationId }: { organisationId: string }) => {
         return (
           <>
             <Button asChild size={"sm"}>
-              <Link href={`/admin/users/${row.id}`}>View</Link>
+              <Link href={`/admin/adminUsers/${row.id}`}>View</Link>
             </Button>
           </>
         );

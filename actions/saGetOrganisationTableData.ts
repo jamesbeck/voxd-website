@@ -30,12 +30,17 @@ const saGetOrganisationTableData = async ({
       }
     });
 
-  //if organisation is logged in, restrict to their agents
+  //if organisation user is logged in, restrict to their organisations only
   if (!accessToken.admin && !accessToken.partner) {
-    base.where("organisationUser.adminUserId", accessToken!.adminUserId);
+    base.whereExists(function () {
+      this.select("*")
+        .from("organisationUser as ou")
+        .whereRaw('"ou"."organisationId" = "organisation"."id"')
+        .where("ou.adminUserId", accessToken!.adminUserId);
+    });
   }
 
-  //if partner is logged in, restrict to their agents
+  //if partner is logged in, restrict to their organisations
   if (accessToken?.partner && !accessToken.admin) {
     base.where("organisation.partnerId", accessToken!.partnerId);
   }
@@ -52,8 +57,10 @@ const saGetOrganisationTableData = async ({
   const organisations = await base
     .clone()
     .select("organisation.*")
-    .select([db.raw('COUNT("agent"."id")::int as "agentCount"')])
-    .select([db.raw('COUNT("organisationUser"."id")::int as "userCount"')])
+    .select([db.raw('COUNT(DISTINCT "agent"."id")::int as "agentCount"')])
+    .select([
+      db.raw('COUNT(DISTINCT "organisationUser"."id")::int as "userCount"'),
+    ])
     .orderBy(sortField, sortDirection)
     .limit(pageSize)
     .offset((page - 1) * pageSize);

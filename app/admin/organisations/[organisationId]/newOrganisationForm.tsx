@@ -24,7 +24,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
-  userIds: z.string().array(),
+  adminUserIds: z.string().array(),
 });
 
 export default function NewOrganisationForm() {
@@ -36,7 +36,7 @@ export default function NewOrganisationForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      userIds: [],
+      adminUserIds: [],
     },
   });
 
@@ -46,7 +46,7 @@ export default function NewOrganisationForm() {
 
     const response = await saCreateOrganisation({
       name: values.name,
-      userIds: values.userIds,
+      adminUserIds: values.adminUserIds,
     });
 
     if (!response.success) {
@@ -102,7 +102,7 @@ export default function NewOrganisationForm() {
 
         <FormField
           control={form.control}
-          name="userIds"
+          name="adminUserIds"
           rules={{ required: true }}
           render={({ field }) => (
             <FormItem>

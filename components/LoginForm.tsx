@@ -17,9 +17,11 @@ import Image from "next/image";
 export default function LoginForm({
   email,
   logoUrl,
+  redirectTo,
 }: {
   email?: string;
   logoUrl?: string;
+  redirectTo?: string;
 }) {
   const form = useForm<{ email: string }>({
     defaultValues: { email: email || "" },
@@ -29,11 +31,17 @@ export default function LoginForm({
 
   async function onSubmit(values: { email: string }) {
     setLoading(true);
-    const sendLoginCodeResult = await saSendLoginCode({ email: values.email });
+    const sendLoginCodeResult = await saSendLoginCode({
+      email: values.email,
+      redirectTo,
+    });
     if (!sendLoginCodeResult.success) {
       form.setError("root", { message: sendLoginCodeResult.error });
     } else {
-      router.push("/login/verify");
+      // This part might not be reached if saSendLoginCode redirects
+      router.push(
+        `/login/verify${redirectTo ? `?redirectTo=${redirectTo}` : ""}`
+      );
     }
     setLoading(false);
   }

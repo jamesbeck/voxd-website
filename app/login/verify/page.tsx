@@ -14,8 +14,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function VerifyCodePage() {
+export default async function VerifyCodePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   await verifyIdToken();
+  const { redirectTo } = await searchParams;
 
   const partner = await getPartnerFromHeaders();
 
@@ -35,6 +40,7 @@ export default async function VerifyCodePage() {
             ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
             : undefined
         }
+        redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
       />
     </div>
   );

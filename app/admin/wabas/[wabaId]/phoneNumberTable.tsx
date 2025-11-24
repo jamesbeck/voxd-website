@@ -138,7 +138,9 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
             </Button>
             <Button
               className="cursor-pointer"
-              onClick={() => saRegisterPhoneNumber({ phoneNumberId: row.id })}
+              onClick={() =>
+                saRegisterPhoneNumber({ phoneNumberId: row.metaId })
+              }
             >
               Register
             </Button>

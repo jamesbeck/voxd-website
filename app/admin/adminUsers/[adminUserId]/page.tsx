@@ -8,14 +8,15 @@ import NewAdminUserForm from "./newAdminUserForm";
 import { notFound } from "next/navigation";
 import AdminUserActions from "./AdminUserActions";
 import EditAdminUserForm from "./editAdminUserForm";
-import H2 from "@/components/adminui/H2";
-import getPartners from "@/lib/getPartners";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page({
   params,
 }: {
   params: { adminUserId: string };
 }) {
+  const token = await verifyAccessToken();
+
   const adminUserId = (await params).adminUserId;
 
   let user: User | null = null;
@@ -24,9 +25,6 @@ export default async function Page({
     user = await getAdminUserById({ adminUserId });
 
   if (!user && adminUserId !== "new") return notFound();
-
-  //get all partners for the edit form
-  const partners = await getPartners();
 
   return (
     <Container>
@@ -40,8 +38,12 @@ export default async function Page({
       <H1>{user?.name || "New Admin User"}</H1>
       {user && (
         <>
-          <AdminUserActions user={user} />
-          <Tabs defaultValue="sessions" className="space-y-2">
+          <AdminUserActions
+            user={user}
+            admin={token.admin}
+            partner={token.partner}
+          />
+          <Tabs defaultValue="edit" className="space-y-2">
             <TabsList>
               <TabsTrigger value="edit">Edit User</TabsTrigger>
             </TabsList>
@@ -50,12 +52,7 @@ export default async function Page({
                 adminUserId={adminUserId}
                 name={user.name}
                 email={user.email}
-                partnerId={user.partnerId}
                 organisationIds={user.organisationIds}
-                partnerOptions={partners.map((partner) => ({
-                  value: partner.id,
-                  label: partner.name,
-                }))}
               />
             </TabsContent>
           </Tabs>

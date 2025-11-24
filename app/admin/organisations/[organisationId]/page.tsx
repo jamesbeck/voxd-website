@@ -18,7 +18,7 @@ export default async function Page({
 }: {
   params: { organisationId: string };
 }) {
-  await verifyAccessToken();
+  const token = await verifyAccessToken();
 
   const organisationId = (await params).organisationId;
 
@@ -48,7 +48,9 @@ export default async function Page({
               <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
               <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
               <TabsTrigger value="agents">Agents</TabsTrigger>
-              <TabsTrigger value="quotes">Quotes</TabsTrigger>
+              {token.admin || token.partner ? (
+                <TabsTrigger value="quotes">Quotes</TabsTrigger>
+              ) : null}
             </TabsList>
             <TabsContent value="edit">
               <EditOrganisationForm
@@ -75,12 +77,14 @@ export default async function Page({
                 <AgentsTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
-            <TabsContent value="quotes">
-              <Container>
-                <H2>Quotes</H2>
-                <QuotesTable organisationId={organisation.id} />
-              </Container>
-            </TabsContent>
+            {token.admin || token.partner ? (
+              <TabsContent value="quotes">
+                <Container>
+                  <H2>Quotes</H2>
+                  <QuotesTable organisationId={organisation.id} />
+                </Container>
+              </TabsContent>
+            ) : null}
           </Tabs>
         </>
       )}

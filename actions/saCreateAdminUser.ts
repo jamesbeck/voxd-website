@@ -28,11 +28,25 @@ const saCreateAdminUser = async ({
   }
 
   //create a new user
-  const [newUser] = await db("adminUser")
+  const [newAdminUser] = await db("adminUser")
     .insert({ name, email: email?.toLowerCase() })
     .returning("id");
 
-  return { success: true, data: newUser };
+  if (organisationIds) {
+    //create new associations
+    if (organisationIds.length > 0) {
+      const userOrganisationAssociations = organisationIds.map(
+        (organisationId) => ({
+          adminUserId: newAdminUser.id,
+          organisationId,
+        })
+      );
+
+      await db("organisationUser").insert(userOrganisationAssociations);
+    }
+  }
+
+  return { success: true, data: newAdminUser };
 };
 
 export { saCreateAdminUser };

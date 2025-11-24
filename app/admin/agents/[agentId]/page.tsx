@@ -102,6 +102,8 @@ export default async function Page({
                     name={agent?.name}
                     niceName={agent?.niceName}
                     openAiApiKey={agent?.openAiApiKey}
+                    organisationId={agent?.organisationId}
+                    phoneNumberId={agent?.phoneNumberId}
                   />
                 </Container>
               </TabsContent>

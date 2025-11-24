@@ -21,11 +21,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import saUpdateAgent from "@/actions/saUpdateAgent";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
+import saGetPhoneNumbersTableData from "@/actions/saGetPhoneNumbersTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   niceName: z.string().nonempty("Nice Name is required"),
   organisationId: z.string().nonempty("Organisation is required"),
+  phoneNumberId: z.string().optional(),
   openAiApiKey: z.string().optional(),
 });
 
@@ -34,12 +36,14 @@ export default function EditAgentForm({
   name,
   niceName,
   organisationId,
+  phoneNumberId,
   openAiApiKey,
 }: {
   agentId: string;
   name?: string;
   niceName?: string;
   organisationId?: string;
+  phoneNumberId?: string;
   openAiApiKey?: string;
 }) {
   const [loading, setLoading] = useState(false);
@@ -52,6 +56,7 @@ export default function EditAgentForm({
       name: name || "",
       niceName: niceName || "",
       organisationId: organisationId || "",
+      phoneNumberId: phoneNumberId || "",
       openAiApiKey: openAiApiKey || "",
     },
   });
@@ -65,6 +70,7 @@ export default function EditAgentForm({
       name: values.name,
       niceName: values.niceName,
       organisationId: values.organisationId,
+      phoneNumberId: values.phoneNumberId,
       openAiApiKey: values.openAiApiKey,
     });
 
@@ -149,6 +155,30 @@ export default function EditAgentForm({
                   sortField="name"
                   placeholder="Select an organisation..."
                   emptyMessage="No organisations found"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phoneNumberId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>PhoneNumber</FormLabel>
+              <FormControl>
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetPhoneNumbersTableData}
+                  label={(record) =>
+                    `${record.displayPhoneNumber} ${record.verifiedName}`
+                  }
+                  valueField="id"
+                  sortField="displayPhoneNumber"
+                  placeholder="Select a phone number..."
+                  emptyMessage="No phone numbers found"
                 />
               </FormControl>
               <FormMessage />

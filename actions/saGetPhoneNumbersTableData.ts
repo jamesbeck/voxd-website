@@ -15,7 +15,7 @@ const saGetPhoneNumbersTableData = async ({
   sortDirection = "asc",
   wabaId,
 }: ServerActionReadParams & {
-  wabaId: string;
+  wabaId?: string;
 }): Promise<ServerActionReadResponse> => {
   // const accessToken = await verifyAccessToken();
 

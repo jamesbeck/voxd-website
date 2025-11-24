@@ -12,8 +12,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const idToken = await verifyIdToken(false);
+  const { redirectTo } = await searchParams;
 
   const partner = await getPartnerFromHeaders();
 
@@ -34,6 +39,7 @@ export default async function LoginPage() {
             ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
             : undefined
         }
+        redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
       />
     </div>
   );

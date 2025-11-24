@@ -50,6 +50,7 @@ export type RHFFieldProps = {
   value?: string[]; // RHF provides this
   onChange?: (values: string[]) => void; // RHF provides this
   onBlur?: () => void; // RHF provides this
+  "aria-invalid"?: boolean; // For form validation styling
 };
 
 // Works inside <FormControl>{...field}</FormControl>
@@ -74,6 +75,7 @@ export const RemoteMultiSelect = React.forwardRef<
       maxHeight = 220,
       searchDebounceMs = 300,
       pageSize = 100,
+      "aria-invalid": ariaInvalid,
     },
     ref
   ) => {
@@ -205,6 +207,7 @@ export const RemoteMultiSelect = React.forwardRef<
             variant="outline"
             role="combobox"
             aria-expanded={open}
+            aria-invalid={ariaInvalid}
             disabled={disabled}
             tabIndex={0}
             onMouseDown={() => {
@@ -220,6 +223,7 @@ export const RemoteMultiSelect = React.forwardRef<
             className={cn(
               "w-full justify-between text-left min-h-10 h-auto py-2",
               selectedOptions.length === 0 && "text-muted-foreground",
+              "aria-invalid:!border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
               className
             )}
           >

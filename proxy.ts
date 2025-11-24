@@ -29,6 +29,9 @@ export function proxy(request: NextRequest) {
     response = NextResponse.next();
   }
 
+  // Add custom path header for server components
+  response.headers.set("x-pathname", request.nextUrl.pathname);
+
   return response;
 }
 

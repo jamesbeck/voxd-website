@@ -12,8 +12,10 @@ import userCanLogInToThisDomain from "@/lib/userCanLogInToThisDomain";
 
 const saVerifyLoginCode = async ({
   otp,
+  redirectTo,
 }: {
   otp: string;
+  redirectTo?: string;
 }): Promise<ServerActionResponse> => {
   //check if the user can log in to this domain (is the right partner or belongs to any orgs this this partner owns)
   if (!(await userCanLogInToThisDomain()))
@@ -129,7 +131,7 @@ const saVerifyLoginCode = async ({
     ),
   });
 
-  redirect("/admin");
+  redirect(redirectTo || "/admin");
 };
 
 export default saVerifyLoginCode;

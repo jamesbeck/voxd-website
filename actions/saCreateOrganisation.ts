@@ -5,10 +5,10 @@ import { ServerActionResponse } from "@/types/types";
 
 const saCreateOrganisation = async ({
   name,
-  userIds,
+  adminUserIds,
 }: {
   name: string;
-  userIds: string[];
+  adminUserIds: string[];
 }): Promise<ServerActionResponse> => {
   //check organisation name is unique
   const existingOrganisation = await db("organisation")
@@ -29,9 +29,9 @@ const saCreateOrganisation = async ({
     .returning("id");
 
   //create user_organisation associations
-  if (userIds && userIds.length > 0) {
-    const userOrganisationAssociations = userIds.map((userId) => ({
-      userId: userId,
+  if (adminUserIds && adminUserIds.length > 0) {
+    const userOrganisationAssociations = adminUserIds.map((adminUserId) => ({
+      adminUserId: adminUserId,
       organisationId: newOrganisation.id,
     }));
 

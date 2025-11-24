@@ -8,12 +8,14 @@ const saUpdateAgent = async ({
   name,
   niceName,
   organisationId,
+  phoneNumberId,
   openAiApiKey,
 }: {
   agentId: string;
   name?: string;
   niceName?: string;
   organisationId?: string;
+  phoneNumberId?: string;
   openAiApiKey?: string;
 }): Promise<ServerActionResponse> => {
   if (!agentId) {
@@ -37,12 +39,15 @@ const saUpdateAgent = async ({
   }
 
   //update the agent
-  await db("agent").where({ id: agentId }).update({
-    name,
-    niceName,
-    organisationId,
-    openAiApiKey,
-  });
+  await db("agent")
+    .where({ id: agentId })
+    .update({
+      name,
+      niceName,
+      organisationId: organisationId || null,
+      phoneNumberId: phoneNumberId || null,
+      openAiApiKey,
+    });
 
   return { success: true };
 };

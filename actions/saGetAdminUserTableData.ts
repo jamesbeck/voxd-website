@@ -49,7 +49,12 @@ const saGetAdminUserTableData = async ({
 
   //if organisation is logged in, restrict to their organisations
   if (!accessToken.partner && !accessToken.admin) {
-    base.where("organisationUser.adminUserId", accessToken!.adminUserId);
+    base.whereIn(
+      "organisationUser.organisationId",
+      db("organisationUser")
+        .select("organisationId")
+        .where("adminUserId", accessToken!.adminUserId)
+    );
   }
 
   //if partner is logged in and not admin, restrict to their organisations

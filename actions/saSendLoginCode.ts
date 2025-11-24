@@ -15,8 +15,10 @@ import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
 
 const saSendLoginCode = async ({
   email,
+  redirectTo,
 }: {
   email: string;
+  redirectTo?: string;
 }): Promise<ServerActionResponse> => {
   //use zod to cehck if email is valid
   const emailSchema = z.email();
@@ -163,7 +165,7 @@ const saSendLoginCode = async ({
   //set a cookie that includes the email address they tried to login with
   const idToken = jwt.sign(
     {
-      email: adminUser.email,
+      email,
       otpExpiry,
       failedAttempts: 0,
     } as IdTokenPayload,
@@ -178,7 +180,7 @@ const saSendLoginCode = async ({
     // expires: 0,
   });
 
-  redirect("/login/verify");
+  redirect(`/login/verify${redirectTo ? `?redirectTo=${redirectTo}` : ""}`);
 };
 
 export default saSendLoginCode;

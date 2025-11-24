@@ -20,7 +20,13 @@ import saVerifyLoginCode from "@/actions/saVerifyLoginCode";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function VerifyLoginForm({ logoUrl }: { logoUrl?: string }) {
+export default function VerifyLoginForm({
+  logoUrl,
+  redirectTo,
+}: {
+  logoUrl?: string;
+  redirectTo?: string;
+}) {
   const form = useForm<{ otp: string }>({
     defaultValues: { otp: "" },
   });
@@ -30,6 +36,7 @@ export default function VerifyLoginForm({ logoUrl }: { logoUrl?: string }) {
     setLoading(true);
     const result = await saVerifyLoginCode({
       otp: values.otp,
+      redirectTo,
     });
 
     if (!result.success) {

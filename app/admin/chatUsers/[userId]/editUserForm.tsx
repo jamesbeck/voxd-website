@@ -92,7 +92,6 @@ export default function EditUserForm({
       name: values.name,
       number: values.number,
       email: values.email,
-      partnerId: values.partnerId,
       testingAgentId: values.testingAgentId,
       organisationIds: values.organisationIds,
     });

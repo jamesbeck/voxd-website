@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { saCreateAdminUser } from "@/actions/saCreateAdminUser";
 import { useRouter } from "next/navigation";
@@ -26,8 +26,11 @@ import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   //only accept number characters including any hidden or RTL characters
-  email: z.email("Invalid email address").or(z.literal("")),
-  organisationIds: z.string().array(),
+  email: z.email("Invalid email address").nonempty("Email is required"),
+  organisationIds: z
+    .string()
+    .array()
+    .min(1, "At least one organisation must be selected"),
 });
 
 export default function NewAdminUserForm() {
@@ -43,6 +46,22 @@ export default function NewAdminUserForm() {
       organisationIds: [],
     },
   });
+
+  // Check if user has access to only one organisation and preselect it
+  useEffect(() => {
+    const checkOrganisations = async () => {
+      const response = await saGetOrganisationTableData({
+        page: 1,
+        pageSize: 100,
+      });
+
+      if (response.success && response.data.length === 1) {
+        form.setValue("organisationIds", [response.data[0].id]);
+      }
+    };
+
+    checkOrganisations();
+  }, [form]);
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {

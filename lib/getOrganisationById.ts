@@ -19,11 +19,14 @@ const getOrganisationById = async ({
     .select("organisation.*")
     .select([
       db.raw(
-        'COALESCE(ARRAY_AGG("organisationUser"."adminUserId") FILTER (WHERE "organisationUser"."adminUserId" IS NOT NULL), ARRAY[]::uuid[]) as "adminUserId"'
+        'COALESCE(ARRAY_AGG("organisationUser"."adminUserId") FILTER (WHERE "organisationUser"."adminUserId" IS NOT NULL), ARRAY[]::uuid[]) as "adminUserIds"'
       ),
     ])
     .where("organisation.id", organisationId)
     .first();
+
+  console.log(organisation);
+
   return organisation;
 };
 
