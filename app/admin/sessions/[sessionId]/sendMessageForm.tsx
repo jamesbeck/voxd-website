@@ -111,26 +111,24 @@ export default function NewQuoteForm({
       </CardHeader>
       <CardContent>
         {hasBeenLongerThan24Hours ? (
-          <div className="mb-6 rounded-md bg-red-50 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-700">
-                  Cannot send message
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>
-                    It has been more than 24 hours since the last message from
-                    the user. WhatsApp does not allow free text messages outside
-                    of this window.
-                  </p>
-                </div>
+          <div className="mb-4 rounded-md bg-red-50 p-4">
+            <div className="flex flex-col">
+              <h3 className="text-sm font-medium text-destructive">
+                Cannot send message
+              </h3>
+              <div className="text-sm text-destructive">
+                <p>
+                  It has been more than 24 hours since the last message from the
+                  user. WhatsApp does not allow free text messages outside of
+                  this window.
+                </p>
               </div>
             </div>
           </div>
         ) : (
           lastMessageFromUserSecondsAgo !== null && (
-            <div className="mb-6 rounded-md bg-blue-50 p-4">
-              <p className="text-sm text-blue-700">
+            <div className="mb-4 rounded-md bg-primary p-4">
+              <p className="text-sm text-white">
                 Time remaining to reply:{" "}
                 <span className="font-semibold">
                   {formatTimeRemaining(secondsUntil24Hours)}
