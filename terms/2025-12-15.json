@@ -1065,37 +1065,43 @@
         {
           "id": "ip.ownership",
           "title": "Ownership",
-          "text": "All intellectual property rights in the Services remain the property of Voxd or its licensors. No rights are transferred except as expressly stated.",
+          "text": "All intellectual property rights in the Services remain the property of Voxd or its licensors. No rights are transferred except as expressly stated in these Terms.",
           "children": []
         },
         {
           "id": "ip.ai_outputs_ownership",
           "title": "AI Outputs - Ownership (as between the parties)",
-          "text": "As between Voxd and the Client, and subject to the Client's compliance with these Terms and payment of all Fees, the Client shall own all right, title, and interest (if any) in and to the AI Outputs generated for the Client through use of the Services.",
+          "text": "As between Voxd and the Client, and subject to the Client's compliance with these Terms and payment of all applicable Fees, the Client shall own all right, title, and interest (if any) in and to the AI Outputs generated for the Client through use of the Services.",
           "children": []
         },
         {
-          "id": "ip.no_warranty_uniqueness",
-          "title": "No Warranty of Uniqueness / Non-Infringement",
-          "text": "The Client acknowledges that AI Outputs may be similar or identical to outputs generated for other customers or third parties and that AI Outputs may incorporate or reflect third-party materials. Voxd makes no warranty or representation that any AI Output is original, unique, non-infringing, or suitable for any particular purpose.",
+          "id": "ip.no_warranty_originality",
+          "title": "No Warranty of Originality or Non-Infringement",
+          "text": "The Client acknowledges that AI Outputs may be generated using artificial intelligence and machine-learning systems and may be similar or identical to outputs generated for other customers or third parties. Voxd makes no warranty or representation that any AI Output is original, unique, non-infringing, or free from third-party rights.",
           "children": []
         },
         {
           "id": "ip.client_responsibility",
-          "title": "Client Responsibility for Use and Clearance",
-          "text": "The Client is solely responsible for reviewing, approving, and determining whether any AI Output may be used, published, relied upon, or commercialised, and for obtaining any necessary rights, consents, licences, or permissions (including for any intellectual property rights) in connection with the Client's intended use of the AI Outputs.",
+          "title": "Client Responsibility for Review and Clearance",
+          "text": "The Client is solely responsible for reviewing, approving, and determining whether any AI Output may be used, relied upon, published, communicated, or commercialised, and for obtaining any necessary rights, consents, licences, or permissions in connection with the Client's intended use of the AI Outputs.",
           "children": []
         },
         {
           "id": "ip.client_materials",
-          "title": "Client Materials and Third-Party Rights",
-          "text": "The Client warrants that it has all necessary rights, licences, and permissions to provide to Voxd (and to any Third-Party Services used in connection with the Services) any prompts, scripts, content, data, documents, branding, trademarks, or other materials supplied by or on behalf of the Client (\"Client Materials\"), and that the use of Client Materials as contemplated by these Terms will not infringe any third-party rights.",
+          "title": "Client Materials",
+          "text": "The Client warrants that it has all necessary rights, licences, and permissions to provide to Voxd (and to any Third-Party Services used in connection with the Services) any prompts, scripts, content, data, documents, branding, trademarks, policies, or other materials supplied by or on behalf of the Client (\"Client Materials\"), and that the use of such Client Materials as contemplated by these Terms will not infringe or misappropriate any third-party rights.",
           "children": []
         },
         {
           "id": "ip.reservation_of_rights",
           "title": "Reservation of Rights",
-          "text": "Except as expressly stated in these Terms, no intellectual property rights are granted or transferred. Voxd and its licensors retain all rights in and to the Services, including any underlying software, tooling, configurations, templates, methodologies, and know-how, and nothing in these Terms grants the Client any rights to Voxd's technology other than the right to use the Services during the term.",
+          "text": "Except as expressly stated in these Terms, no intellectual property rights are granted or transferred. Voxd and its licensors retain all rights in and to the Services, including any underlying software, tooling, configurations, templates, methodologies, workflows, and know-how, whether developed before, during, or after the provision of the Services.",
+          "children": []
+        },
+        {
+          "id": "ip.no_indemnity",
+          "title": "No Obligation to Defend or Indemnify",
+          "text": "To the fullest extent permitted by law, Voxd does not provide any indemnity, warranty, or assurance in respect of any intellectual property infringement or alleged infringement arising from or related to AI Outputs, Client Materials, or the Client's use of the Services.",
           "children": []
         }
       ]
@@ -1138,9 +1144,101 @@
       "order": 20,
       "clauses": [
         {
-          "id": "indemnity.client",
-          "title": "Client Indemnity",
-          "text": "The Client shall indemnify Voxd against all claims arising from the Client\u2019s use of the Services, including content, AI outputs, and third-party integrations.",
+          "id": "indemnity.scope",
+          "title": "Indemnity Scope",
+          "text": "The Client shall indemnify, defend, and hold harmless Voxd, its directors, officers, employees, contractors, and affiliates from and against any and all claims, demands, actions, proceedings, losses, damages, liabilities, costs, and expenses (including reasonable legal fees) arising out of or in connection with:",
+          "children": [
+            {
+              "id": "indemnity.scope.ai_outputs",
+              "title": "AI Outputs",
+              "text": "any use of, reliance upon, publication, communication, or distribution of any AI Outputs by or on behalf of the Client, including any claim that an AI Output is inaccurate, misleading, defamatory, discriminatory, unlawful, or harmful;",
+              "children": []
+            },
+            {
+              "id": "indemnity.scope.ip_infringement",
+              "title": "Intellectual Property Infringement",
+              "text": "any claim that any AI Output, Client Materials, prompts, scripts, data, or content provided by or on behalf of the Client infringes, misappropriates, or otherwise violates any intellectual property rights or other proprietary rights of any third party;",
+              "children": []
+            },
+            {
+              "id": "indemnity.scope.client_materials",
+              "title": "Client Materials and Instructions",
+              "text": "any Client Materials, instructions, workflows, configurations, or requirements supplied by or on behalf of the Client, including Voxd's use of such materials or instructions in accordance with these Terms;",
+              "children": []
+            },
+            {
+              "id": "indemnity.scope.regulatory",
+              "title": "Regulatory and Legal Compliance",
+              "text": "the Client's failure to comply with applicable laws, regulations, or regulatory guidance in connection with its use of the Services, including data protection, marketing, communications, consumer protection, or sector-specific regulations;",
+              "children": []
+            },
+            {
+              "id": "indemnity.scope.platform_policies",
+              "title": "Platform Policies and Third-Party Terms",
+              "text": "any breach by the Client of the terms, acceptable use policies, or requirements of any Third-Party Services, including WhatsApp, Meta Platforms, or any LLM provider;",
+              "children": []
+            },
+            {
+              "id": "indemnity.scope.misuse",
+              "title": "Misuse or Prohibited Use",
+              "text": "any use of the Services that breaches {{section:acceptable_use}} (Acceptable Use and Prohibited Activities) or otherwise exposes Voxd to legal, regulatory, or reputational risk.",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "indemnity.application",
+          "title": "Application of Indemnity",
+          "text": "The indemnity in this {{section:indemnity}} shall apply regardless of whether the relevant claim arises from: AI Outputs generated automatically or in response to prompts; actions or omissions of the Client, its staff, contractors, or end users; or the involvement of any Third-Party Services.",
+          "children": []
+        },
+        {
+          "id": "indemnity.voxd_obligations",
+          "title": "Voxd's Obligations",
+          "text": "Voxd shall: promptly notify the Client of any claim for which indemnity is sought (provided that any failure to notify promptly shall not relieve the Client of its indemnity obligations except to the extent it materially prejudices the defence of the claim); and reasonably cooperate with the Client in the defence or settlement of such claim at the Client's expense.",
+          "children": []
+        },
+        {
+          "id": "indemnity.no_admission",
+          "title": "No Admission of Liability",
+          "text": "Nothing in this {{section:indemnity}} shall be construed as an admission of liability by Voxd or as a waiver of any rights, remedies, or defences available to Voxd.",
+          "children": []
+        },
+        {
+          "id": "indemnity.without_prejudice",
+          "title": "Without Prejudice to Other Rights",
+          "text": "The Client's indemnity obligations under this {{section:indemnity}} are without prejudice to, and shall not limit, any other rights or remedies available to Voxd under these Terms or at law.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "assignment_and_subcontracting",
+      "title": "Assignment and Subcontracting",
+      "order": 21,
+      "clauses": [
+        {
+          "id": "assignment.by_client",
+          "title": "Assignment by the Client",
+          "text": "The Client shall not assign, transfer, novate, subcontract, or otherwise deal with any of its rights or obligations under these Terms without the prior written consent of Voxd (such consent not to be unreasonably withheld or delayed).",
+          "children": []
+        },
+        {
+          "id": "assignment.by_voxd",
+          "title": "Assignment by Voxd",
+          "text": "Voxd may assign, transfer, novate, or otherwise deal with its rights and obligations under these Terms, in whole or in part, without the Client's consent, including in connection with: (a) a merger, acquisition, reorganisation, or sale of all or substantially all of Voxd's business or assets; or (b) an assignment to an affiliate or group company.",
+          "children": []
+        },
+        {
+          "id": "assignment.subcontracting",
+          "title": "Subcontracting by Voxd",
+          "text": "Voxd may subcontract, delegate, or otherwise perform any of its obligations under these Terms through subcontractors, agents, or service providers, provided that Voxd remains responsible for the performance of the Services in accordance with these Terms.",
+          "children": []
+        },
+        {
+          "id": "assignment.no_release",
+          "title": "No Release of Liability",
+          "text": "Any subcontracting or assignment by Voxd shall not relieve Voxd of its obligations under these Terms.",
           "children": []
         }
       ]
@@ -1148,7 +1246,7 @@
     {
       "id": "force_majeure",
       "title": "Force Majeure",
-      "order": 21,
+      "order": 22,
       "clauses": [
         {
           "id": "force_majeure.events",
@@ -1161,7 +1259,7 @@
     {
       "id": "changes_to_terms",
       "title": "Changes to These Terms",
-      "order": 22,
+      "order": 23,
       "clauses": [
         {
           "id": "changes.right",
@@ -1174,7 +1272,7 @@
     {
       "id": "governing_law_and_jurisdiction",
       "title": "Governing Law and Jurisdiction",
-      "order": 23,
+      "order": 24,
       "clauses": [
         {
           "id": "law.jurisdiction",
