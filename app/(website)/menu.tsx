@@ -55,7 +55,6 @@ export default function Menu() {
       {/* Mobile Menu */}
 
       <div className="w-full flex md:hidden items-center">
-        <div className="flex-1">Message us on WhatsApp now</div>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <button

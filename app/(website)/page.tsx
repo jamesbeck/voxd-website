@@ -7,7 +7,19 @@ import {
   Brain,
   PlugZap,
   Clock,
-  Shield,
+  AlertTriangle,
+  Layers,
+  LayoutDashboard,
+  MessagesSquare,
+  Edit3,
+  PauseCircle,
+  UserCheck,
+  BarChart3,
+  Download,
+  Sliders,
+  GitBranch,
+  ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -21,43 +33,109 @@ export default async function Home() {
       icon: Brain,
       title: "Intelligent Conversations",
       description:
-        "Advanced AI capable of handling complex workflows and understanding context to deliver human-like responses.",
+        "Advanced AI capable of handling complex workflows, maintaining context, and delivering human-like responses.",
     },
     {
       icon: PlugZap,
       title: "Seamless Integration",
       description:
-        "Connects with any CRM, database, or backend system. No matter your tech stack, we'll make it work.",
+        "Connects effortlessly with CRMs, databases, APIs, and backend systems — regardless of your tech stack.",
     },
     {
       icon: Zap,
       title: "Lightning-Fast Setup",
       description:
-        "Get your AI chatbot up and running in as little as 1 day. No lengthy implementation periods.",
+        "Go live in as little as one day with minimal configuration and no long onboarding cycles.",
     },
     {
       icon: Clock,
       title: "24/7 Availability",
       description:
-        "Your chatbot never sleeps. Deliver instant responses to organisations around the clock, every day.",
+        "Always-on AI support that delivers instant responses around the clock, every day of the year.",
     },
     {
       icon: MessageSquare,
       title: "WhatsApp Native",
       description:
-        "Meet organisations where they are. Built specifically for WhatsApp with support for rich media and interactions.",
+        "Built specifically for WhatsApp with first-class support for rich media, templates, and interactive messages.",
     },
     {
-      icon: Shield,
+      icon: ShieldCheck,
       title: "Enterprise-Grade Security",
       description:
-        "Your data is protected with industry-leading security standards and full compliance with data protection regulations.",
+        "Industry-leading security practices, encrypted data, and full compliance with data protection regulations.",
     },
     {
-      icon: Shield,
-      title: "Guardrails and Safety Nets",
+      icon: AlertTriangle,
+      title: "Guardrails & Safety Nets",
       description:
-        "We don't just blindly trust AI, our service is built on multiple layers of tailored safety mechanisms.",
+        "Multi-layered safety mechanisms to prevent hallucinations, enforce policies, and reduce operational risk.",
+    },
+    {
+      icon: Layers,
+      title: "Multi-Agent Architecture",
+      description:
+        "Specialized AI agents collaborate behind the scenes to handle different tasks, intents, and scenarios.",
+    },
+    {
+      icon: LayoutDashboard,
+      title: "Unified Operator Dashboard",
+      description:
+        "A central dashboard to monitor, manage, and control all AI conversations across channels in real time.",
+    },
+    {
+      icon: MessagesSquare,
+      title: "Conversation Explorer",
+      description:
+        "Browse raw conversations with full message history, metadata, timestamps, and AI decision traces.",
+    },
+    {
+      icon: Edit3,
+      title: "Reply Annotation & Feedback",
+      description:
+        "Annotate AI responses, leave internal notes, and provide feedback to continuously improve model behavior.",
+    },
+    {
+      icon: PauseCircle,
+      title: "AI Response Control",
+      description:
+        "Pause, resume, or override AI responses at any time — giving humans full control when needed.",
+    },
+    {
+      icon: UserCheck,
+      title: "Human-in-the-Loop Replies",
+      description:
+        "Jump into live conversations and reply manually, with seamless handoff between AI and human operators.",
+    },
+    {
+      icon: BarChart3,
+      title: "Usage & Performance Analytics",
+      description:
+        "Track message volumes, response times, resolution rates, and AI performance metrics in real time.",
+    },
+    {
+      icon: Download,
+      title: "Data Export & Audit Logs",
+      description:
+        "Export conversations, annotations, and usage data for reporting, compliance, or external analysis.",
+    },
+    {
+      icon: Sliders,
+      title: "Dynamic Prompt & Policy Management",
+      description:
+        "Adjust prompts, rules, and constraints without redeploying or interrupting live conversations.",
+    },
+    {
+      icon: GitBranch,
+      title: "Conversation Versioning",
+      description:
+        "Track changes to prompts, logic, and responses over time with full rollback capabilities.",
+    },
+    {
+      icon: ShieldAlert,
+      title: "Role-Based Access Control",
+      description:
+        "Fine-grained permissions for admins, operators, reviewers, and auditors.",
     },
   ];
 
@@ -76,15 +154,22 @@ export default async function Home() {
             automate organisation support, streamline sales, and manage bookings
             with enterprise-grade reliability.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 pt-4">
-            <div className="bg-primary text-white px-6 py-3 rounded-lg font-semibold">
-              Zero Setup Costs
-            </div>
-            <Link href="/pricing">
-              <div className="bg-gray-100 text-gray-900 px-6 py-3 rounded-lg font-semibold">
-                From £299 / month
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-4">
+            <a
+              href="https://wa.me/TBC"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
+            >
+              <MessageSquare className="w-6 h-6" />
+              Get Started on WhatsApp
+            </a>
+            <div className="hidden md:block">
+              <div className="bg-gray-200 w-32 h-32 rounded-lg flex items-center justify-center text-gray-500 text-sm">
+                QR Code
               </div>
-            </Link>
+              <p className="text-sm text-gray-500 mt-2">Scan to chat</p>
+            </div>
           </div>
         </div>
       </Container>

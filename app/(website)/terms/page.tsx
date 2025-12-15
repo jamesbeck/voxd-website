@@ -1,164 +1,168 @@
+import H1 from "@/components/adminui/H1";
 import Container from "@/components/websiteui/container";
 import H2 from "@/components/websiteui/h2";
+import termsData from "@/terms/2025-12-15.json";
+
+interface Clause {
+  id: string;
+  title: string;
+  text?: string;
+  order?: number;
+  children?: Clause[];
+}
+
+interface Section {
+  id: string;
+  title: string;
+  order: number;
+  clauses: Clause[];
+}
+
+interface Definition {
+  key: string;
+  definedTerm: string;
+  description: string;
+}
+
+function ClauseRenderer({
+  clause,
+  depth = 0,
+  numbering = "",
+}: {
+  clause: Clause;
+  depth?: number;
+  numbering?: string;
+}) {
+  const nestedClauses = clause.children || [];
+  const hasNestedClauses = nestedClauses.length > 0;
+
+  return (
+    <div className={`${depth > 0 ? "ml-6" : ""} mb-4`}>
+      {numbering && <span className="font-semibold mr-2">{numbering}</span>}
+      {clause.title && depth > 0 && (
+        <span className="font-semibold">{clause.title}: </span>
+      )}
+      {clause.text && (
+        <span className="text-gray-700 leading-relaxed">{clause.text}</span>
+      )}
+      {hasNestedClauses && (
+        <div className="mt-3">
+          {nestedClauses.map((child, index) => (
+            <ClauseRenderer
+              key={child.id}
+              clause={child}
+              depth={depth + 1}
+              numbering={`${numbering}${index + 1}.`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SectionRenderer({
+  section,
+  sectionNumber,
+}: {
+  section: Section;
+  sectionNumber: number;
+}) {
+  return (
+    <section className="mb-10">
+      <H2 className="mb-4">
+        {sectionNumber}. {section.title}
+      </H2>
+      {section.clauses.length > 0 ? (
+        <div className="space-y-4">
+          {section.clauses.map((clause, index) => (
+            <ClauseRenderer
+              key={clause.id}
+              clause={clause}
+              depth={0}
+              numbering={`${sectionNumber}.${index + 1} `}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 italic">This section is pending content.</p>
+      )}
+    </section>
+  );
+}
 
 export default function Terms() {
+  const { meta, definitions, sections } = termsData as {
+    meta: {
+      documentType: string;
+      companyName: string;
+      version: string;
+      status: string;
+      jurisdiction: string;
+      lastUpdated: string;
+    };
+    definitions: {
+      version: string;
+      terms: Definition[];
+    };
+    sections: Section[];
+  };
+
+  const sortedSections = [...sections].sort((a, b) => a.order - b.order);
+
   return (
     <Container>
-      <H2 className="text-center">Terms of Service for Voxd</H2>
+      <H1 className="text-center mb-8">Voxd Terms of Service</H1>
 
-      <p className="mb-4 text-sm text-slate-600">Effective date: 18/08/2025</p>
+      {/* Meta Information */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-10">
+        <p className="text-sm text-gray-600">
+          <strong>Company:</strong> {meta.companyName}
+        </p>
+        <p className="text-sm text-gray-600">
+          <strong>Version:</strong> {meta.version}
+        </p>
+        <p className="text-sm text-gray-600">
+          <strong>Jurisdiction:</strong> {meta.jurisdiction}
+        </p>
+        <p className="text-sm text-gray-600">
+          <strong>Last Updated:</strong>{" "}
+          {new Date(meta.lastUpdated).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
+        {meta.status === "draft" && (
+          <p className="text-sm text-amber-600 mt-2 font-semibold">
+            ⚠️ This document is currently in draft status.
+          </p>
+        )}
+      </div>
 
-      <p className="mb-6">
-        These Terms of Service (“Terms”) govern your use of the Voxd application
-        (the “App”), operated by{" "}
-        <span className="font-medium">
-          IO Shield Ltd (11265201), trading as Voxd
-        </span>{" "}
-        (“we”, “us”, or “our”). By using the App, you agree to these Terms. If
-        you do not agree, please do not use the App.
-      </p>
+      {/* Definitions */}
+      <section className="mb-10">
+        <H2 className="mb-4">Definitions</H2>
+        <dl className="space-y-4">
+          {definitions.terms.map((term) => (
+            <div key={term.key} className="border-b border-gray-100 pb-4">
+              <dt className="font-semibold text-gray-900 mb-1">
+                &quot;{term.definedTerm}&quot;
+              </dt>
+              <dd className="text-gray-700 ml-4">{term.description}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
 
-      <h2 className="text-xl font-semibold mt-8 mb-3">1. Eligibility</h2>
-      <p className="mb-6">
-        You must be at least 18 years old, or have legal parental/guardian
-        consent if you are 13–17, to use the App. By using Voxd, you confirm you
-        meet these requirements.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">2. Our service</h2>
-      <p className="mb-6">
-        Voxd automates WhatsApp message responses based on settings you
-        configure. We do not provide WhatsApp itself, and you remain bound by
-        WhatsApp’s own Terms of Service. We do not access your Facebook data.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        3. Your responsibilities
-      </h2>
-      <ul className="list-disc pl-6 space-y-2 mb-6">
-        <li>
-          You are responsible for the content of automated replies you configure
-          and send.
-        </li>
-        <li>
-          You must not use the App for unlawful, harmful, fraudulent, or abusive
-          purposes.
-        </li>
-        <li>
-          You must ensure you have the right to use WhatsApp in connection with
-          automated responses.
-        </li>
-        <li>
-          You are responsible for maintaining the confidentiality of your login
-          credentials and organisation.
-        </li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">4. Prohibited use</h2>
-      <p className="mb-2">You agree not to use the App to:</p>
-      <ul className="list-disc pl-6 space-y-2 mb-6">
-        <li>Send spam, bulk, or unsolicited communications.</li>
-        <li>Harass, abuse, or defame any individual or organisation.</li>
-        <li>Infringe any intellectual property or other rights.</li>
-        <li>
-          Interfere with or disrupt the security, integrity, or performance of
-          the App.
-        </li>
-      </ul>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        5. Intellectual property
-      </h2>
-      <p className="mb-6">
-        All intellectual property rights in the App, including but not limited
-        to software, branding, and design, are owned by or licensed to IO Shield
-        Ltd. You are granted a limited, non-transferable licence to use the App
-        solely for its intended purpose.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">6. Availability</h2>
-      <p className="mb-6">
-        We aim to provide a reliable service but do not guarantee uninterrupted
-        availability. We may suspend, withdraw, or modify all or part of the App
-        without notice, including for maintenance or security reasons.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        7. Limitation of liability
-      </h2>
-      <p className="mb-6">
-        To the maximum extent permitted by law, IO Shield Ltd is not liable for
-        any indirect, incidental, special, or consequential damages arising out
-        of your use of the App. Our total liability for direct damages will not
-        exceed the amount you have paid to us (if any) in the 12 months
-        preceding the claim.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">8. Indemnity</h2>
-      <p className="mb-6">
-        You agree to indemnify and hold harmless IO Shield Ltd from any claims,
-        damages, or expenses arising from your use of the App, including your
-        automated messages and any breach of these Terms.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">9. Termination</h2>
-      <p className="mb-6">
-        We may suspend or terminate your access to the App at any time if you
-        breach these Terms or misuse the service. You may stop using the App at
-        any time by uninstalling or disabling it.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">10. Data protection</h2>
-      <p className="mb-6">
-        Our collection and use of personal data is described in our{" "}
-        <a
-          href="https://voxd.app/privacy"
-          className="underline decoration-slate-400 hover:decoration-slate-700"
-        >
-          Privacy Policy
-        </a>
-        , which forms part of these Terms.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">
-        11. Changes to these Terms
-      </h2>
-      <p className="mb-6">
-        We may update these Terms from time to time. The latest version will
-        always be available at{" "}
-        <a
-          href="https://voxd.app/terms"
-          className="underline decoration-slate-400 hover:decoration-slate-700"
-        >
-          https://voxd.app/terms
-        </a>
-        , with the effective date shown at the top. If changes are material, we
-        may also notify you by email or within the App.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">12. Governing law</h2>
-      <p className="mb-6">
-        These Terms are governed by and construed in accordance with the laws of
-        England and Wales. Any disputes shall be subject to the exclusive
-        jurisdiction of the courts of England and Wales.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-8 mb-3">13. Contact us</h2>
-      <p className="mb-6">
-        If you have any questions about these Terms, please contact us at{" "}
-        <a
-          href="mailto:hello@voxd.app"
-          className="underline decoration-slate-400 hover:decoration-slate-700"
-        >
-          hello@voxd.app
-        </a>
-        .
-      </p>
-
-      <p className="mt-10 text-xs text-slate-500">
-        These Terms are provided for general information and do not constitute
-        legal advice.
-      </p>
+      {/* Sections */}
+      {sortedSections.map((section, index) => (
+        <SectionRenderer
+          key={section.id}
+          section={section}
+          sectionNumber={index + 1}
+        />
+      ))}
     </Container>
   );
 }
