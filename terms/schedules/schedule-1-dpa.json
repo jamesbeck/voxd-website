@@ -1,0 +1,317 @@
+{
+  "meta": {
+    "documentType": "schedule",
+    "scheduleNumber": 1,
+    "title": "Data Processing Addendum (UK GDPR)",
+    "parentDocument": "2025-12-15.json",
+    "companyName": "Voxd AI LTD",
+    "version": "1.0.0",
+    "status": "draft",
+    "jurisdiction": "England and Wales",
+    "lastUpdated": "2025-12-15"
+  },
+  "sections": [
+    {
+      "id": "dpa_definitions",
+      "title": "Definitions",
+      "order": 1,
+      "clauses": [
+        {
+          "id": "dpa.definitions.intro",
+          "title": "Definitions",
+          "text": "In this Schedule:",
+          "children": [
+            {
+              "id": "dpa.definitions.gdpr_terms",
+              "title": "UK GDPR Terms",
+              "text": "\"Controller\", \"Processor\", \"Personal Data\", \"Processing\", \"Personal Data Breach\", \"Data Subject\", and \"Supervisory Authority\" have the meanings given in the UK GDPR.",
+              "children": []
+            },
+            {
+              "id": "dpa.definitions.services",
+              "title": "Services",
+              "text": "\"Services\" has the meaning set out in the Terms.",
+              "children": []
+            },
+            {
+              "id": "dpa.definitions.subprocessor",
+              "title": "Sub-processor",
+              "text": "\"Sub-processor\" means any third party engaged by Voxd to process Personal Data on behalf of the Client.",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dpa_roles",
+      "title": "Roles of the Parties",
+      "order": 2,
+      "clauses": [
+        {
+          "id": "dpa.roles.acknowledgement",
+          "title": "Acknowledgement of Roles",
+          "text": "The parties acknowledge that, for the purposes of the UK GDPR: the Client is the Controller of Personal Data processed in connection with the Services; and Voxd is the Processor, except where otherwise agreed in writing.",
+          "children": []
+        },
+        {
+          "id": "dpa.roles.instructions",
+          "title": "Processing on Instructions",
+          "text": "Voxd shall process Personal Data only on documented instructions from the Client, including as set out in these Terms and this Schedule, unless required to do otherwise by applicable law.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_details",
+      "title": "Details of the Processing",
+      "order": 3,
+      "clauses": [
+        {
+          "id": "dpa.details.subject_matter",
+          "title": "Subject matter of processing",
+          "text": "Provision of AI-powered chatbot configuration, integration, and related services.",
+          "children": []
+        },
+        {
+          "id": "dpa.details.duration",
+          "title": "Duration of processing",
+          "text": "For the duration of the Services and any applicable retention period set out in these Terms or agreed in writing.",
+          "children": []
+        },
+        {
+          "id": "dpa.details.nature_purpose",
+          "title": "Nature and purpose of processing",
+          "text": "Processing Personal Data as necessary to configure, operate, and support chatbot interactions and integrations as instructed by the Client.",
+          "children": []
+        },
+        {
+          "id": "dpa.details.data_subjects",
+          "title": "Categories of Data Subjects",
+          "text": "May include the Client's customers, prospective customers, employees, contractors, and other end users who interact with the chatbot.",
+          "children": []
+        },
+        {
+          "id": "dpa.details.data_types",
+          "title": "Types of Personal Data",
+          "text": "May include names, contact details, message content, identifiers, and any other Personal Data submitted by or on behalf of the Client through use of the Services.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_processor_obligations",
+      "title": "Processor Obligations",
+      "order": 4,
+      "clauses": [
+        {
+          "id": "dpa.processor.obligations",
+          "title": "Voxd's Obligations",
+          "text": "Voxd shall:",
+          "children": [
+            {
+              "id": "dpa.processor.obligations.instructions",
+              "title": "Process on Instructions",
+              "text": "process Personal Data only in accordance with the Client's documented instructions;",
+              "children": []
+            },
+            {
+              "id": "dpa.processor.obligations.confidentiality",
+              "title": "Confidentiality",
+              "text": "ensure that persons authorised to process Personal Data are subject to confidentiality obligations;",
+              "children": []
+            },
+            {
+              "id": "dpa.processor.obligations.security",
+              "title": "Security Measures",
+              "text": "implement appropriate technical and organisational measures to protect Personal Data against unauthorised or unlawful processing, accidental loss, destruction, or damage;",
+              "children": []
+            },
+            {
+              "id": "dpa.processor.obligations.reliability",
+              "title": "Personnel Reliability",
+              "text": "take reasonable steps to ensure the reliability of personnel with access to Personal Data.",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "dpa.processor.no_validation",
+          "title": "No Validation of Instructions",
+          "text": "Voxd does not determine the purposes or means of processing and does not independently validate the lawfulness of the Client's instructions.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_subprocessing",
+      "title": "Sub-processing",
+      "order": 5,
+      "clauses": [
+        {
+          "id": "dpa.subprocessing.authorisation",
+          "title": "Authorisation",
+          "text": "The Client authorises Voxd to engage Sub-processors for the provision of the Services, including hosting providers, infrastructure providers, and AI or messaging platform providers.",
+          "children": []
+        },
+        {
+          "id": "dpa.subprocessing.obligations",
+          "title": "Sub-processor Obligations",
+          "text": "Voxd shall ensure that any Sub-processor is subject to data protection obligations substantially similar to those set out in this Schedule.",
+          "children": []
+        },
+        {
+          "id": "dpa.subprocessing.list",
+          "title": "Sub-processor List",
+          "text": "A list of current Sub-processors may be made available by Voxd via the client portal or upon reasonable request.",
+          "children": []
+        },
+        {
+          "id": "dpa.subprocessing.changes",
+          "title": "Changes to Sub-processors",
+          "text": "Voxd may add or replace Sub-processors from time to time. Where reasonably practicable, Voxd shall provide notice of material changes. Continued use of the Services constitutes acceptance of such changes.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_international_transfers",
+      "title": "International Transfers",
+      "order": 6,
+      "clauses": [
+        {
+          "id": "dpa.transfers.acknowledgement",
+          "title": "Acknowledgement of Transfers",
+          "text": "The Client acknowledges that Personal Data may be transferred to, stored, or processed outside the UK in connection with the Services, including by Sub-processors.",
+          "children": []
+        },
+        {
+          "id": "dpa.transfers.safeguards",
+          "title": "Transfer Safeguards",
+          "text": "Voxd shall ensure that any such transfers are subject to appropriate safeguards in accordance with the UK GDPR, such as the UK International Data Transfer Agreement (IDTA) or other approved transfer mechanisms.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_security",
+      "title": "Security Measures",
+      "order": 7,
+      "clauses": [
+        {
+          "id": "dpa.security.measures",
+          "title": "Security Measures",
+          "text": "Voxd shall implement appropriate technical and organisational measures designed to ensure a level of security appropriate to the risk, taking into account the nature of the processing and the Services.",
+          "children": []
+        },
+        {
+          "id": "dpa.security.examples",
+          "title": "Examples of Measures",
+          "text": "Such measures may include, where appropriate, access controls, encryption in transit, logical separation of environments, and incident response procedures.",
+          "children": []
+        },
+        {
+          "id": "dpa.security.no_guarantee",
+          "title": "No Absolute Security Guarantee",
+          "text": "The Client acknowledges that no system is completely secure and that Voxd does not guarantee absolute security.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_breaches",
+      "title": "Personal Data Breaches",
+      "order": 8,
+      "clauses": [
+        {
+          "id": "dpa.breaches.notification",
+          "title": "Breach Notification",
+          "text": "Voxd shall notify the Client without undue delay after becoming aware of a Personal Data Breach affecting Personal Data processed on behalf of the Client.",
+          "children": []
+        },
+        {
+          "id": "dpa.breaches.assistance",
+          "title": "Breach Assistance",
+          "text": "Voxd shall provide reasonable assistance to enable the Client to comply with its notification obligations under the UK GDPR.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_assistance",
+      "title": "Assistance to the Client",
+      "order": 9,
+      "clauses": [
+        {
+          "id": "dpa.assistance.scope",
+          "title": "Scope of Assistance",
+          "text": "Voxd shall provide reasonable assistance to the Client, taking into account the nature of the processing, in responding to: Data Subject rights requests; and regulatory inquiries or investigations relating to the processing.",
+          "children": []
+        },
+        {
+          "id": "dpa.assistance.fees",
+          "title": "Fees for Assistance",
+          "text": "Voxd may charge reasonable fees for assistance that requires material effort or is outside the scope of the Services.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_retention",
+      "title": "Data Retention and Deletion",
+      "order": 10,
+      "clauses": [
+        {
+          "id": "dpa.retention.termination",
+          "title": "Deletion or Return on Termination",
+          "text": "Upon termination or expiry of the Services, Voxd shall, at the Client's option and subject to applicable law, delete or return Personal Data processed on behalf of the Client.",
+          "children": []
+        },
+        {
+          "id": "dpa.retention.exceptions",
+          "title": "Retention Exceptions",
+          "text": "Voxd may retain Personal Data where required by law or for legitimate business purposes such as backups, audit logs, or dispute resolution, provided that such data remains subject to appropriate safeguards.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_audits",
+      "title": "Audits",
+      "order": 11,
+      "clauses": [
+        {
+          "id": "dpa.audits.right",
+          "title": "Right to Audit",
+          "text": "The Client may, on reasonable written notice and no more than once in any twelve (12) month period, audit Voxd's compliance with this Schedule.",
+          "children": []
+        },
+        {
+          "id": "dpa.audits.conditions",
+          "title": "Audit Conditions",
+          "text": "Audits shall be: limited to information reasonably necessary to demonstrate compliance; conducted during normal business hours; and subject to confidentiality obligations.",
+          "children": []
+        },
+        {
+          "id": "dpa.audits.alternative",
+          "title": "Alternative to Audit",
+          "text": "Voxd may satisfy audit requests by providing relevant certifications, summaries, or third-party audit reports where available.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dpa_liability",
+      "title": "Liability",
+      "order": 12,
+      "clauses": [
+        {
+          "id": "dpa.liability.limitation",
+          "title": "Liability Limitation",
+          "text": "Each party's liability arising out of or in connection with this Schedule shall be subject to the limitations and exclusions of liability set out in the Terms.",
+          "children": []
+        }
+      ]
+    }
+  ]
+}
