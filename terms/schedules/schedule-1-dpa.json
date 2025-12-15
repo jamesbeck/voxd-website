@@ -14,7 +14,6 @@
     {
       "id": "dpa_definitions",
       "title": "Definitions",
-      "order": 1,
       "clauses": [
         {
           "id": "dpa.definitions.intro",
@@ -46,7 +45,6 @@
     {
       "id": "dpa_roles",
       "title": "Roles of the Parties",
-      "order": 2,
       "clauses": [
         {
           "id": "dpa.roles.acknowledgement",
@@ -65,7 +63,6 @@
     {
       "id": "dpa_details",
       "title": "Details of the Processing",
-      "order": 3,
       "clauses": [
         {
           "id": "dpa.details.subject_matter",
@@ -102,7 +99,6 @@
     {
       "id": "dpa_processor_obligations",
       "title": "Processor Obligations",
-      "order": 4,
       "clauses": [
         {
           "id": "dpa.processor.obligations",
@@ -146,7 +142,6 @@
     {
       "id": "dpa_subprocessing",
       "title": "Sub-processing",
-      "order": 5,
       "clauses": [
         {
           "id": "dpa.subprocessing.authorisation",
@@ -177,7 +172,6 @@
     {
       "id": "dpa_international_transfers",
       "title": "International Transfers",
-      "order": 6,
       "clauses": [
         {
           "id": "dpa.transfers.acknowledgement",
@@ -196,7 +190,6 @@
     {
       "id": "dpa_security",
       "title": "Security Measures",
-      "order": 7,
       "clauses": [
         {
           "id": "dpa.security.measures",
@@ -221,7 +214,6 @@
     {
       "id": "dpa_breaches",
       "title": "Personal Data Breaches",
-      "order": 8,
       "clauses": [
         {
           "id": "dpa.breaches.notification",
@@ -240,7 +232,6 @@
     {
       "id": "dpa_assistance",
       "title": "Assistance to the Client",
-      "order": 9,
       "clauses": [
         {
           "id": "dpa.assistance.scope",
@@ -259,7 +250,6 @@
     {
       "id": "dpa_retention",
       "title": "Data Retention and Deletion",
-      "order": 10,
       "clauses": [
         {
           "id": "dpa.retention.termination",
@@ -278,7 +268,6 @@
     {
       "id": "dpa_audits",
       "title": "Audits",
-      "order": 11,
       "clauses": [
         {
           "id": "dpa.audits.right",
@@ -303,7 +292,6 @@
     {
       "id": "dpa_liability",
       "title": "Liability",
-      "order": 12,
       "clauses": [
         {
           "id": "dpa.liability.limitation",

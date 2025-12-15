@@ -96,15 +96,53 @@
         "key": "Writing",
         "definedTerm": "Writing or Written",
         "description": "Communication in written form, including electronic communications, where expressly permitted under these Terms."
+      },
+      {
+        "key": "SetupFee",
+        "definedTerm": "Setup Fee",
+        "description": "The one-off fee payable by the Client for the initial configuration, onboarding, and setup of the Services, as specified in the applicable Order Form."
+      },
+      {
+        "key": "MonthlyFee",
+        "definedTerm": "Monthly Fee",
+        "description": "The recurring monthly service fee payable by the Client for the ongoing provision and maintenance of the Services, as specified in the applicable Order Form."
+      },
+      {
+        "key": "DirectDebitMandate",
+        "definedTerm": "Direct Debit Mandate",
+        "description": "A valid instruction authorising Voxd to collect payments directly from the Client's nominated bank account for Monthly Fees and any other amounts due under these Terms."
+      },
+      {
+        "key": "ClientPortal",
+        "definedTerm": "Client Portal",
+        "description": "The online platform provided by Voxd through which the Client may access the Services, submit Change Requests, view billing information, and communicate with Voxd."
+      },
+      {
+        "key": "ChangeRequest",
+        "definedTerm": "Change Request",
+        "description": "A request submitted by the Client via the Client Portal for modifications, updates, or enhancements to the chatbot configuration, content, behaviour, or functionality."
+      },
+      {
+        "key": "MonthlyChangeAllowance",
+        "definedTerm": "Monthly Change Allowance",
+        "description": "The amount of time included within the Monthly Fee for processing Change Requests, as specified in these Terms or the applicable Order Form."
+      },
+      {
+        "key": "HourlyRate",
+        "definedTerm": "Hourly Rate",
+        "description": "The rate charged by Voxd for work exceeding the Monthly Change Allowance or for additional services, as specified in the applicable Order Form."
+      },
+      {
+        "key": "GoLiveDate",
+        "definedTerm": "Go-Live Date",
+        "description": "The date on which the chatbot is ready for live deployment, as determined by Voxd and communicated to the Client."
       }
     ]
   },
-
   "sections": [
     {
       "id": "pre_contractual_statements",
       "title": "Pre-Contractual Statements",
-      "order": 1,
       "clauses": [
         {
           "id": "pcs.entire_agreement",
@@ -166,7 +204,6 @@
     {
       "id": "about_the_company",
       "title": "About Voxd AI LTD",
-      "order": 2,
       "clauses": [
         {
           "id": "about.company_identity",
@@ -209,7 +246,6 @@
     {
       "id": "definitions_and_interpretation",
       "title": "Definitions and Interpretation",
-      "order": 3,
       "clauses": [
         {
           "id": "interpretation.general",
@@ -265,7 +301,6 @@
     {
       "id": "scope_of_services",
       "title": "Scope of Services",
-      "order": 4,
       "clauses": [
         {
           "id": "scope.general",
@@ -339,7 +374,6 @@
     {
       "id": "client_obligations",
       "title": "Client Obligations and Responsibilities",
-      "order": 5,
       "clauses": [
         {
           "id": "client.general",
@@ -394,13 +428,61 @@
           "title": "Cooperation",
           "text": "The Client shall provide reasonable cooperation, access, and information as required by Voxd to perform the Services. Voxd shall not be liable for delays or failures caused by the Client's lack of cooperation.",
           "children": []
+        },
+        {
+          "id": "client.setup_preconditions",
+          "title": "Setup Preconditions",
+          "text": "Before work can commence on the Services, the Client must complete all of the following:",
+          "children": [
+            {
+              "id": "client.setup_preconditions.contract",
+              "title": "Contract and Terms",
+              "text": "sign the applicable Order Form and accept these Terms and Conditions in full;",
+              "children": []
+            },
+            {
+              "id": "client.setup_preconditions.direct_debit",
+              "title": "Direct Debit Mandate",
+              "text": "complete and submit a valid Direct Debit Mandate;",
+              "children": []
+            },
+            {
+              "id": "client.setup_preconditions.setup_fee",
+              "title": "Setup Fee Payment",
+              "text": "pay the agreed Setup Fee in full;",
+              "children": []
+            },
+            {
+              "id": "client.setup_preconditions.information",
+              "title": "Required Information and Assets",
+              "text": "provide all required information, materials, content, and assets as requested by Voxd; and",
+              "children": []
+            },
+            {
+              "id": "client.setup_preconditions.third_party_accounts",
+              "title": "Third-Party Account Setup",
+              "text": "set up all required third-party accounts, including but not limited to Meta/WhatsApp Business accounts and LLM provider accounts.",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "client.prompt_completion",
+          "title": "Prompt Completion of Setup Requirements",
+          "text": "The Client is responsible for completing all setup requirements promptly. Voxd shall have no obligation to commence work until all setup preconditions set out in this section have been satisfied.",
+          "children": []
+        },
+        {
+          "id": "client.delay_liability",
+          "title": "Delays Caused by Client",
+          "text": "Voxd accepts no liability for any delays, missed deadlines, or extended project timelines resulting from the Client's failure to provide information, access, approvals, or to complete third-party account setup in a timely manner.",
+          "children": []
         }
       ]
     },
     {
       "id": "acceptable_use",
       "title": "Acceptable Use and Prohibited Activities",
-      "order": 6,
       "clauses": [
         {
           "id": "acceptable_use.compliance",
@@ -504,7 +586,6 @@
     {
       "id": "ai_outputs_and_disclaimer",
       "title": "AI Outputs and Disclaimer",
-      "order": 7,
       "clauses": [
         {
           "id": "ai.nature_of_ai",
@@ -591,7 +672,6 @@
     {
       "id": "third_party_services_and_integrations",
       "title": "Third-Party Services and Integrations",
-      "order": 8,
       "clauses": [
         {
           "id": "thirdparty.general",
@@ -690,7 +770,6 @@
     {
       "id": "whatsapp_and_meta",
       "title": "WhatsApp and Meta Disclaimer",
-      "order": 9,
       "clauses": [
         {
           "id": "wm.general",
@@ -757,7 +836,6 @@
     {
       "id": "fees_and_payment",
       "title": "Fees, Billing and Payment",
-      "order": 10,
       "clauses": [
         {
           "id": "fees.general",
@@ -774,8 +852,51 @@
         {
           "id": "fees.monthly",
           "title": "Monthly Service Fees",
-          "text": "Monthly service fees are payable in advance and cover the ongoing provision of the Services as agreed between the parties.",
+          "text": "Monthly service fees are payable in advance by Direct Debit and cover the ongoing provision of the Services as agreed between the parties.",
           "children": []
+        },
+        {
+          "id": "fees.monthly_commencement",
+          "title": "Commencement of Monthly Fees",
+          "text": "Monthly Fees shall become chargeable from the Go-Live Date, regardless of whether the Client chooses to delay deployment or launch of the chatbot.",
+          "children": []
+        },
+        {
+          "id": "fees.collection_date",
+          "title": "Direct Debit Collection Date",
+          "text": "Monthly Fees will be collected by Direct Debit on or around the Go-Live Date and thereafter monthly on the corresponding date (or such other date notified by Voxd). Voxd may change the collection date on not less than ten (10) Business Days' notice.",
+          "children": []
+        },
+        {
+          "id": "fees.whats_included",
+          "title": "Services Included in Monthly Fee",
+          "text": "Unless otherwise specified in the applicable Order Form, the Monthly Fee includes:",
+          "children": [
+            {
+              "id": "fees.whats_included.hosting",
+              "title": "Hosting and Maintenance",
+              "text": "ongoing hosting, maintenance, and support of the chatbot;",
+              "children": []
+            },
+            {
+              "id": "fees.whats_included.monitoring",
+              "title": "Monitoring and Platform Access",
+              "text": "access to the Client Portal for monitoring and management;",
+              "children": []
+            },
+            {
+              "id": "fees.whats_included.change_allowance",
+              "title": "Monthly Change Allowance",
+              "text": "up to thirty (30) minutes of change request time per calendar month, as further described in {{section:change_requests}}; and",
+              "children": []
+            },
+            {
+              "id": "fees.whats_included.general",
+              "title": "Other Services",
+              "text": "all other services not expressly stated as chargeable elsewhere in these Terms or the applicable Order Form.",
+              "children": []
+            }
+          ]
         },
         {
           "id": "fees.minimum_term",
@@ -786,8 +907,39 @@
         {
           "id": "fees.direct_debit",
           "title": "Payment Method",
-          "text": "Payment of monthly service fees shall be made by Direct Debit. The Client agrees to maintain a valid Direct Debit mandate for the duration of the Services.",
+          "text": "Payment of Monthly Fees shall be made by Direct Debit. The Client agrees to complete and maintain a valid Direct Debit Mandate for the duration of the Services.",
           "children": []
+        },
+        {
+          "id": "fees.cancelled_mandate",
+          "title": "Cancelled or Withdrawn Mandate",
+          "text": "If the Client cancels or withdraws the Direct Debit Mandate, Voxd may suspend the Services immediately until a valid mandate is reinstated and all outstanding amounts are paid.",
+          "children": []
+        },
+        {
+          "id": "fees.failed_direct_debit",
+          "title": "Failed Direct Debit Payments",
+          "text": "If a Direct Debit payment fails for any reason:",
+          "children": [
+            {
+              "id": "fees.failed_direct_debit.retry",
+              "title": "Automatic Retry",
+              "text": "Voxd will attempt one automatic retry of the failed payment;",
+              "children": []
+            },
+            {
+              "id": "fees.failed_direct_debit.manual",
+              "title": "Manual Payment Request",
+              "text": "if the retry is unsuccessful, Voxd will request a manual payment from the Client; and",
+              "children": []
+            },
+            {
+              "id": "fees.failed_direct_debit.suspension",
+              "title": "Service Suspension",
+              "text": "if payment is not resolved within a reasonable timeframe, Voxd reserves the right to suspend or disable the Services immediately until all outstanding amounts are settled in full.",
+              "children": []
+            }
+          ]
         },
         {
           "id": "fees.failure_to_pay",
@@ -803,15 +955,46 @@
           ]
         },
         {
+          "id": "fees.late_payment_interest",
+          "title": "Late Payment Interest and Debt Recovery",
+          "text": "Voxd reserves the right to charge statutory interest and recover reasonable debt recovery costs in accordance with the Late Payment of Commercial Debts (Interest) Act 1998.",
+          "children": []
+        },
+        {
           "id": "fees.price_changes",
           "title": "Changes to Fees",
-          "text": "Voxd reserves the right to vary its fees on reasonable notice to the Client. Any fee changes shall take effect at the start of the next billing period unless otherwise stated.",
+          "text": "Any changes to Fees will be notified at least thirty (30) days in advance and will take effect from the start of the next billing period. Fees will not increase during the Initial Term except as expressly set out in the Order Form.",
           "children": []
         },
         {
           "id": "fees.third_party_costs",
           "title": "Third-Party Costs",
-          "text": "The Client acknowledges that fees payable to Voxd do not include costs charged by third-party providers, including but not limited to LLM providers, WhatsApp, Meta, or integrated services. All such costs are the sole responsibility of the Client.",
+          "text": "The following costs are not included in fees payable to Voxd and are the sole responsibility of the Client:",
+          "children": [
+            {
+              "id": "fees.third_party_costs.llm",
+              "title": "LLM Provider Fees",
+              "text": "Large Language Model (LLM) usage fees, payable directly to the Client's chosen LLM provider;",
+              "children": []
+            },
+            {
+              "id": "fees.third_party_costs.whatsapp",
+              "title": "WhatsApp and Meta Fees",
+              "text": "WhatsApp messaging fees and any other charges imposed by Meta, payable directly to Meta; and",
+              "children": []
+            },
+            {
+              "id": "fees.third_party_costs.other",
+              "title": "Other Third-Party Costs",
+              "text": "any other costs charged by third-party providers or integrated services.",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "fees.third_party_no_responsibility",
+          "title": "No Responsibility for Third-Party Billing",
+          "text": "Voxd is not responsible for pricing changes, billing issues, service outages, or disputes relating to any third-party services or providers.",
           "children": []
         },
         {
@@ -835,9 +1018,81 @@
       ]
     },
     {
+      "id": "change_requests",
+      "title": "Change Requests and Included Allowance",
+      "clauses": [
+        {
+          "id": "change.allowance",
+          "title": "Monthly Change Allowance",
+          "text": "Each Client receives thirty (30) minutes of change request time per calendar month, included within the Monthly Fee (the \"Monthly Change Allowance\").",
+          "children": []
+        },
+        {
+          "id": "change.allowance_usage",
+          "title": "Use of Monthly Change Allowance",
+          "text": "The Monthly Change Allowance may be used for any type of change, including content updates, behavioural adjustments, or functional refinements. Time is tracked cumulatively across all Change Requests during the calendar month.",
+          "children": []
+        },
+        {
+          "id": "change.no_rollover",
+          "title": "No Rollover",
+          "text": "Unused time from the Monthly Change Allowance does not roll over to future months and shall be forfeited at the end of each calendar month.",
+          "children": []
+        },
+        {
+          "id": "change.additional_work",
+          "title": "Additional Chargeable Work",
+          "text": "Once the Monthly Change Allowance has been exhausted, any further work will be charged at the Hourly Rate specified in the applicable Order Form.",
+          "children": []
+        },
+        {
+          "id": "change.quotes",
+          "title": "Quotes for Additional Work",
+          "text": "Where a Change Request is expected to exceed the remaining Monthly Change Allowance, Voxd will provide a quote for the additional work in advance. Work will only proceed once the Client has approved the Change Request and accepted the quoted cost.",
+          "children": []
+        },
+        {
+          "id": "change.request_process",
+          "title": "Change Request Process",
+          "text": "Change Requests must be submitted via the Client Portal by:",
+          "children": [
+            {
+              "id": "change.request_process.ticket",
+              "title": "Support Ticket",
+              "text": "creating a new support ticket; or",
+              "children": []
+            },
+            {
+              "id": "change.request_process.annotation",
+              "title": "Conversation Annotation",
+              "text": "annotating a specific chatbot response or conversation within the Client Portal.",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "change.time_tracking",
+          "title": "Time Tracking",
+          "text": "Voxd will assess each Change Request and track time spent against the Monthly Change Allowance. The Client may view their remaining allowance via the Client Portal.",
+          "children": []
+        },
+        {
+          "id": "change.billing",
+          "title": "Billing for Additional Work",
+          "text": "Approved charges for work exceeding the Monthly Change Allowance will be added to the next monthly Direct Debit payment.",
+          "children": []
+        },
+        {
+          "id": "change.implementation",
+          "title": "Implementation",
+          "text": "Once a Change Request has been approved by the Client (and, where applicable, any quoted cost accepted), the change will be scheduled and implemented without further confirmation.",
+          "children": []
+        }
+      ]
+    },
+    {
       "id": "term_and_minimum_commitment",
       "title": "Term and Minimum Commitment",
-      "order": 11,
       "clauses": [
         {
           "id": "term.commencement",
@@ -868,7 +1123,6 @@
     {
       "id": "notice_periods",
       "title": "Notice Periods",
-      "order": 12,
       "clauses": [
         {
           "id": "notice.general",
@@ -911,7 +1165,6 @@
     {
       "id": "suspension_and_service_availability",
       "title": "Suspension, Downtime and Availability",
-      "order": 13,
       "clauses": [
         {
           "id": "availability.as_is",
@@ -997,8 +1250,19 @@
     {
       "id": "termination",
       "title": "Termination",
-      "order": 14,
       "clauses": [
+        {
+          "id": "termination.minimum_term",
+          "title": "Minimum Contract Term",
+          "text": "The minimum contract term is defined in the applicable Order Form. Following expiry of the Initial Term, either party may terminate the agreement by giving not less than thirty (30) days' written notice in accordance with {{section:notice_periods}}.",
+          "children": []
+        },
+        {
+          "id": "termination.early_cancellation",
+          "title": "Early Cancellation",
+          "text": "If the Client terminates or cancels the agreement before the end of the Initial Term (other than for cause in accordance with this section), the full remaining balance of all Monthly Fees due for the remainder of the Initial Term shall become immediately due and payable.",
+          "children": []
+        },
         {
           "id": "termination.for_cause",
           "title": "Termination for Cause",
@@ -1014,7 +1278,7 @@
         {
           "id": "termination.effect",
           "title": "Effect of Termination",
-          "text": "Upon termination, the Client\u2019s right to use the Services shall cease immediately. Termination shall not affect accrued rights or liabilities.",
+          "text": "Upon termination, the Client's right to use the Services shall cease immediately. Termination shall not affect accrued rights or liabilities.",
           "children": []
         }
       ]
@@ -1022,7 +1286,6 @@
     {
       "id": "refunds",
       "title": "Refunds",
-      "order": 15,
       "clauses": [
         {
           "id": "refunds.none",
@@ -1035,7 +1298,6 @@
     {
       "id": "data_protection_and_gdpr",
       "title": "Data Protection and GDPR",
-      "order": 16,
       "clauses": [
         {
           "id": "gdpr.general",
@@ -1060,7 +1322,6 @@
     {
       "id": "intellectual_property",
       "title": "Intellectual Property",
-      "order": 17,
       "clauses": [
         {
           "id": "ip.ownership",
@@ -1109,7 +1370,6 @@
     {
       "id": "confidentiality",
       "title": "Confidentiality",
-      "order": 18,
       "clauses": [
         {
           "id": "confidentiality.general",
@@ -1122,7 +1382,6 @@
     {
       "id": "limitation_of_liability",
       "title": "Limitation of Liability",
-      "order": 19,
       "clauses": [
         {
           "id": "liability.exclusion",
@@ -1133,7 +1392,7 @@
         {
           "id": "liability.cap",
           "title": "Liability Cap",
-          "text": "Voxd\u2019s total liability shall not exceed the fees paid by the Client in the three (3) months preceding the claim.",
+          "text": "Voxd’s total liability shall not exceed the fees paid by the Client in the three (3) months preceding the claim.",
           "children": []
         }
       ]
@@ -1141,7 +1400,6 @@
     {
       "id": "indemnity",
       "title": "Indemnity",
-      "order": 20,
       "clauses": [
         {
           "id": "indemnity.scope",
@@ -1215,7 +1473,6 @@
     {
       "id": "assignment_and_subcontracting",
       "title": "Assignment and Subcontracting",
-      "order": 21,
       "clauses": [
         {
           "id": "assignment.by_client",
@@ -1246,7 +1503,6 @@
     {
       "id": "force_majeure",
       "title": "Force Majeure",
-      "order": 22,
       "clauses": [
         {
           "id": "force_majeure.events",
@@ -1259,7 +1515,6 @@
     {
       "id": "changes_to_terms",
       "title": "Changes to These Terms",
-      "order": 23,
       "clauses": [
         {
           "id": "changes.right",
@@ -1272,7 +1527,6 @@
     {
       "id": "governing_law_and_jurisdiction",
       "title": "Governing Law and Jurisdiction",
-      "order": 24,
       "clauses": [
         {
           "id": "law.jurisdiction",

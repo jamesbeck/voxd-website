@@ -15,7 +15,6 @@ interface Clause {
 interface Section {
   id: string;
   title: string;
-  order: number;
   clauses: Clause[];
 }
 
@@ -53,15 +52,15 @@ function resolveReferences(
     const [, type, id] = match;
 
     if (type === "section") {
-      const section = sections.find((s) => s.id === id);
-      if (section) {
+      const sectionIndex = sections.findIndex((s) => s.id === id);
+      if (sectionIndex !== -1) {
         parts.push(
           <a
             key={`section-${id}-${match.index}`}
-            href={`#section-${section.id}`}
+            href={`#section-${sections[sectionIndex].id}`}
             className="text-primary hover:underline font-medium"
           >
-            Section {section.order}
+            Section {sectionIndex + 1}
           </a>
         );
       } else {
@@ -196,13 +195,13 @@ function TableOfContents({
             Definitions
           </a>
         </li>
-        {sections.map((section) => (
+        {sections.map((section, index) => (
           <li key={section.id}>
             <a
               href={`#section-${section.id}`}
               className="text-gray-700 hover:text-primary hover:underline"
             >
-              {section.order}. {section.title}
+              {index + 1}. {section.title}
             </a>
           </li>
         ))}
@@ -244,7 +243,6 @@ export default function Terms() {
     sections: Section[];
   };
 
-  const sortedSections = [...sections].sort((a, b) => a.order - b.order);
   const schedules = meta.schedules || [];
 
   return (
@@ -278,7 +276,7 @@ export default function Terms() {
       </div>
 
       {/* Table of Contents */}
-      <TableOfContents sections={sortedSections} schedules={schedules} />
+      <TableOfContents sections={sections} schedules={schedules} />
 
       {/* Definitions */}
       <section id="definitions" className="mb-10 scroll-mt-24">
@@ -296,12 +294,12 @@ export default function Terms() {
       </section>
 
       {/* Sections */}
-      {sortedSections.map((section) => (
+      {sections.map((section, index) => (
         <SectionRenderer
           key={section.id}
           section={section}
-          sectionNumber={section.order}
-          sections={sortedSections}
+          sectionNumber={index + 1}
+          sections={sections}
           schedules={schedules}
         />
       ))}

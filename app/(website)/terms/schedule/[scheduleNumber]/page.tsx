@@ -18,7 +18,6 @@ interface Clause {
 interface Section {
   id: string;
   title: string;
-  order: number;
   clauses: Clause[];
 }
 
@@ -115,13 +114,13 @@ function TableOfContents({ sections }: { sections: Section[] }) {
     <nav className="bg-gray-50 p-6 rounded-lg mb-10">
       <h3 className="font-bold text-lg mb-4">Contents</h3>
       <ul className="space-y-2 text-sm">
-        {sections.map((section) => (
+        {sections.map((section, index) => (
           <li key={section.id}>
             <a
               href={`#section-${section.id}`}
               className="text-gray-700 hover:text-primary hover:underline"
             >
-              {section.order}. {section.title}
+              {index + 1}. {section.title}
             </a>
           </li>
         ))}
@@ -169,10 +168,6 @@ export default async function SchedulePage({
     notFound();
   }
 
-  const sortedSections = [...scheduleData.sections].sort(
-    (a, b) => a.order - b.order
-  );
-
   return (
     <Container>
       {/* Back link */}
@@ -219,14 +214,14 @@ export default async function SchedulePage({
       </div>
 
       {/* Table of Contents */}
-      <TableOfContents sections={sortedSections} />
+      <TableOfContents sections={scheduleData.sections} />
 
       {/* Sections */}
-      {sortedSections.map((section) => (
+      {scheduleData.sections.map((section, index) => (
         <SectionRenderer
           key={section.id}
           section={section}
-          sectionNumber={section.order}
+          sectionNumber={index + 1}
         />
       ))}
 
