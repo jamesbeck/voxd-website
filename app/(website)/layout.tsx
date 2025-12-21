@@ -39,10 +39,14 @@ export default function RootLayout({
             Terms of Service
           </Link>
         </div>
-        <div className="text-xs">
-          © {new Date().getFullYear()} Voxd. All rights reserved. Voxd is a
-          trading style of IO Shield Limited, a company registered in England
-          and Wales (Company No. 11265201).
+        <div className="text-xs text-center">
+          © {new Date().getFullYear()} Voxd AI Ltd. All rights reserved.
+          <br />
+          Voxd AI Ltd is a company registered in England and Wales (Company No.
+          16911937).
+          <br />
+          Registered Office: Wharf Cottage, Daneway, Sapperton, Gloucestershire,
+          GL7 6LN
         </div>
       </div>
     </div>

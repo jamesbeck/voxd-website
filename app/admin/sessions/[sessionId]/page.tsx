@@ -13,7 +13,6 @@ import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import { Card, CardContent } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import SendMessageForm from "./sendMessageForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +21,16 @@ import H2 from "@/components/adminui/H2";
 import { Spinner } from "@/components/ui/spinner";
 import Conversation from "./conversation";
 import SessionActions from "./sessionActions";
+import WorkerRunsTable from "./workerRunsTable";
+import DataCard, { DataItem } from "@/components/adminui/DataCard";
+import {
+  Calendar,
+  Clock,
+  Activity,
+  DollarSign,
+  MessageSquare,
+  Zap,
+} from "lucide-react";
 
 export default async function Page({
   searchParams,
@@ -73,103 +82,122 @@ export default async function Page({
         {user.name} ({user.number}) & {agent.niceName}
       </H1>
 
-      <SessionActions
-        sessionId={sessionId}
-        name={session.id}
-        agentId={agent.id}
-        paused={session.paused}
-      />
-
       <Tabs value={activeTab} className="space-y-2">
-        <TabsList>
-          <TabsTrigger value="conversation" asChild>
-            <Link href={`/admin/sessions/${sessionId}?tab=conversation`}>
-              Conversation
-            </Link>
-          </TabsTrigger>
+        <div className="flex items-center justify-between gap-4 mb-2">
+          <TabsList>
+            <TabsTrigger value="conversation" asChild>
+              <Link href={`/admin/sessions/${sessionId}?tab=conversation`}>
+                Conversation
+              </Link>
+            </TabsTrigger>
 
-          <TabsTrigger value="info" asChild>
-            <Link href={`/admin/sessions/${sessionId}?tab=info`}>Info</Link>
-          </TabsTrigger>
-          <TabsTrigger value="workers" asChild>
-            <Link href={`/admin/sessions/${sessionId}?tab=workers`}>
-              Workers
-            </Link>
-          </TabsTrigger>
-        </TabsList>
+            <TabsTrigger value="info" asChild>
+              <Link href={`/admin/sessions/${sessionId}?tab=info`}>Info</Link>
+            </TabsTrigger>
+            <TabsTrigger value="workers" asChild>
+              <Link href={`/admin/sessions/${sessionId}?tab=workers`}>
+                Workers
+              </Link>
+            </TabsTrigger>
+          </TabsList>
+
+          <SessionActions
+            sessionId={sessionId}
+            name={session.id}
+            agentId={agent.id}
+            paused={session.paused}
+            closed={!!session.closedAt}
+          />
+        </div>
         <TabsContent value="conversation">
           <Container>
-            <H2>Conversation</H2>
             <Conversation messages={messages} sessionId={sessionId} />
           </Container>
         </TabsContent>
         <TabsContent value="info">
           <Container>
-            <H2>Info</H2>
-            <Card>
-              <CardContent>
-                <table>
-                  <tbody>
-                    <tr>
-                      <td className="font-bold pr-4">
-                        Conversation Start Date:
-                      </td>
-                      <td>
-                        {format(session.createdAt, "dd/MM/yyyy HH:mm:ss")} (
-                        {formatDistance(session.createdAt, new Date())})
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-bold pr-4">Last Message Date:</td>
-                      <td>
-                        {session.lastUserMessageDate
-                          ? format(
-                              session.lastUserMessageDate,
-                              "dd/MM/yyyy HH:mm:ss"
-                            ) +
-                            ` (${formatDistance(
-                              session.lastUserMessageDate,
-                              new Date()
-                            )})`
-                          : "N/A"}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-bold pr-4">Session Status:</td>
-                      <td>{session.paused ? "Paused" : "Active"}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-bold pr-4">Approx. Prompt Cost:</td>
-                      <td>
-                        ${session.totalPromptCost.toFixed(4)} (
-                        {session.totalPromptTokens} tokens)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-bold pr-4">Approx. Response Cost:</td>
-                      <td>
-                        ${session.totalCompletionCost.toFixed(4)} (
-                        {session.totalCompletionTokens} tokens)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-bold pr-4">Approx. Total Cost</td>
-                      <td>
-                        $
-                        {(
-                          session.totalPromptCost + session.totalCompletionCost
-                        ).toFixed(4)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
+            <DataCard
+              items={
+                [
+                  {
+                    label: "Conversation Start Date",
+                    value: format(session.createdAt, "dd/MM/yyyy HH:mm:ss"),
+                    description: formatDistance(session.createdAt, new Date(), {
+                      addSuffix: true,
+                    }),
+                    icon: <Calendar className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Last Message Date",
+                    value: session.lastUserMessageDate
+                      ? format(
+                          session.lastUserMessageDate,
+                          "dd/MM/yyyy HH:mm:ss"
+                        )
+                      : "No messages yet",
+                    description: session.lastUserMessageDate
+                      ? formatDistance(
+                          session.lastUserMessageDate,
+                          new Date(),
+                          {
+                            addSuffix: true,
+                          }
+                        )
+                      : undefined,
+                    icon: <Clock className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Session Status",
+                    value: sessionStatus,
+                    icon: <Activity className="h-4 w-4" />,
+                    variant: session.closedAt
+                      ? "danger"
+                      : session.paused
+                      ? "warning"
+                      : "success",
+                  },
+                  session.closedReason
+                    ? {
+                        label: "Close Reason",
+                        value: session.closedReason,
+                        icon: <Activity className="h-4 w-4" />,
+                      }
+                    : null,
+                  {
+                    label: "Total Messages",
+                    value: messages.length.toString(),
+                    icon: <MessageSquare className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Approx. Prompt Cost",
+                    value: `$${session.totalPromptCost.toFixed(4)}`,
+                    description: `${session.totalPromptTokens.toLocaleString()} tokens`,
+                    icon: <Zap className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Approx. Response Cost",
+                    value: `$${session.totalCompletionCost.toFixed(4)}`,
+                    description: `${session.totalCompletionTokens.toLocaleString()} tokens`,
+                    icon: <Zap className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Approx. Total Cost",
+                    value: `$${(
+                      session.totalPromptCost + session.totalCompletionCost
+                    ).toFixed(4)}`,
+                    description: `${(
+                      session.totalPromptTokens + session.totalCompletionTokens
+                    ).toLocaleString()} total tokens`,
+                    icon: <DollarSign className="h-4 w-4" />,
+                  },
+                ].filter(Boolean) as DataItem[]
+              }
+            />
           </Container>
         </TabsContent>
         <TabsContent value="workers">
           <Container>
-            <H2>Workers</H2>
+            <WorkerRunsTable sessionId={sessionId} />
           </Container>
         </TabsContent>
       </Tabs>
