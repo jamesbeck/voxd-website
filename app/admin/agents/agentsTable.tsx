@@ -63,10 +63,10 @@ const AgentsTable = () => {
   ];
 
   const actions = (row: any) => {
-    const whatsappUrl = row.phoneNumber 
-      ? `https://wa.me/${row.phoneNumber.replaceAll(" ", "")}` 
+    const whatsappUrl = row.phoneNumber
+      ? `https://wa.me/${row.phoneNumber.replaceAll(" ", "")}`
       : "";
-    
+
     return (
       <div className="flex gap-1">
         <Button asChild size={"sm"}>
@@ -75,16 +75,13 @@ const AgentsTable = () => {
         {!!row.phoneNumber && (
           <>
             <Button className="cursor-pointer" size={"sm"} asChild>
-              <Link
-                target="_blank"
-                href={whatsappUrl}
-              >
+              <Link target="_blank" href={whatsappUrl}>
                 Message
               </Link>
             </Button>
-            <Button 
-              className="cursor-pointer" 
-              size={"sm"} 
+            <Button
+              className="cursor-pointer"
+              size={"sm"}
               variant="outline"
               onClick={() => {
                 setSelectedWhatsAppUrl(whatsappUrl);
@@ -111,7 +108,7 @@ const AgentsTable = () => {
         actions={actions}
         getData={saGetAgentTableData}
       />
-      
+
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -121,8 +118,8 @@ const AgentsTable = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center p-6">
-            <QRCodeSVG 
-              value={selectedWhatsAppUrl} 
+            <QRCodeSVG
+              value={selectedWhatsAppUrl}
               size={256}
               level="H"
               includeMargin
