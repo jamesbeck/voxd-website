@@ -151,8 +151,12 @@ export default function BulkImportForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="sentence">Sentence (recommended)</SelectItem>
-                    <SelectItem value="paragraph">Paragraph (newlines only)</SelectItem>
+                    <SelectItem value="sentence">
+                      Sentence (recommended)
+                    </SelectItem>
+                    <SelectItem value="paragraph">
+                      Paragraph (newlines only)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
