@@ -9,6 +9,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Alert from "@/components/admin/Alert";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 
 export default function UserActions({ user }: { user: User }) {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
@@ -32,7 +41,7 @@ export default function UserActions({ user }: { user: User }) {
     // If successful
     toast.success(`Successfully deleted ${user.name}`);
     setIsDeletingUser(false);
-    router.push("/admin/users");
+    router.push("/admin/chatUsers");
   };
 
   const deleteUserSessions = async () => {
@@ -55,32 +64,62 @@ export default function UserActions({ user }: { user: User }) {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Alert
-        destructive
-        title={`Delete ${user.name}'s Sessions`}
-        description="This action cannot be undone."
-        actionText="Delete"
-        onAction={deleteUserSessions}
-      >
-        <Button className="cursor-pointer" variant="destructive" size="sm">
-          {isDeletingSessions ? <Spinner /> : null}
-          Delete {user.name}'s Sessions
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="More Options"
+          className="h-8 w-8"
+        >
+          <MoreHorizontalIcon className="h-4 w-4" />
         </Button>
-      </Alert>
-
-      <Alert
-        destructive
-        title={`Delete ${user.name}`}
-        description="This action cannot be undone."
-        actionText="Delete"
-        onAction={deleteUser}
-      >
-        <Button className="cursor-pointer" variant="destructive" size="sm">
-          {isDeletingUser ? <Spinner /> : null}
-          Delete {user.name}
-        </Button>
-      </Alert>
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuGroup>
+          <Alert
+            destructive
+            title={`Delete ${user.name}'s Sessions`}
+            description="This action cannot be undone. All sessions for this user will be permanently deleted."
+            actionText="Delete Sessions"
+            onAction={deleteUserSessions}
+          >
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={(e) => e.preventDefault()}
+            >
+              {isDeletingSessions ? (
+                <Spinner />
+              ) : (
+                <Trash2Icon className="h-4 w-4" />
+              )}
+              Delete Sessions
+            </DropdownMenuItem>
+          </Alert>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <Alert
+            destructive
+            title={`Delete ${user.name}`}
+            description="This action cannot be undone. The user and all their data will be permanently deleted."
+            actionText="Delete"
+            onAction={deleteUser}
+          >
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={(e) => e.preventDefault()}
+            >
+              {isDeletingUser ? (
+                <Spinner />
+              ) : (
+                <Trash2Icon className="h-4 w-4" />
+              )}
+              Delete User
+            </DropdownMenuItem>
+          </Alert>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

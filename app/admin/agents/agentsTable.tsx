@@ -57,11 +57,21 @@ const AgentsTable = () => {
       label: "Name",
       name: "name",
       sort: true,
+      format: (row: any) => (
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/admin/agents/${row.id}`}>{row.name}</Link>
+        </Button>
+      ),
     },
     {
       label: "Nice Name",
       name: "niceName",
       sort: true,
+      format: (row: any) => (
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/admin/agents/${row.id}`}>{row.niceName}</Link>
+        </Button>
+      ),
     },
     {
       label: "Phone Number",
@@ -108,7 +118,7 @@ const AgentsTable = () => {
           <>
             <Button className="cursor-pointer" size={"sm"} asChild>
               <Link target="_blank" href={whatsappUrl}>
-                Message
+                Link
               </Link>
             </Button>
             <Button

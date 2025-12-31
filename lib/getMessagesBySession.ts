@@ -29,8 +29,13 @@ const getMessages = async ({ sessionId }: { sessionId: string }) => {
 
   const manualMessages = await db("manualMessage")
     .leftJoin("adminUser", "manualMessage.adminUserId", "adminUser.id")
+    .leftJoin("apiKey", "manualMessage.apiKeyId", "apiKey.id")
     .where({ sessionId })
-    .select("manualMessage.*", "adminUser.name as userName")
+    .select(
+      "manualMessage.*",
+      "adminUser.name as userName",
+      "apiKey.name as apiKeyName"
+    )
     .orderBy("createdAt", "asc");
 
   const manualMessagesWithRole = manualMessages.map((m) => ({

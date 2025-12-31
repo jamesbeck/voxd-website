@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable, { Column } from "@/components/adminui/Table";
+import DataTable from "@/components/adminui/Table";
 import Link from "next/link";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -13,14 +13,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const SessionsTable = ({
-  userId,
-  admin,
-}: {
-  userId: string;
-  admin: boolean;
-}) => {
-  const columns: Column[] = [
+const SessionsTable = ({ admin }: { admin: boolean }) => {
+  const columns = [
     {
       label: "Type",
       name: "sessionType",
@@ -73,6 +67,21 @@ const SessionsTable = ({
       ),
     },
     {
+      label: "Name",
+      name: "name",
+      sort: true,
+      format: (row: any) => (
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/admin/chatUsers/${row.userId}`}>{row.name}</Link>
+        </Button>
+      ),
+    },
+    {
+      label: "Number",
+      name: "number",
+      sort: true,
+    },
+    {
       label: "First Seen",
       name: "firstMessageAt",
       sort: true,
@@ -116,7 +125,7 @@ const SessionsTable = ({
         direction: "desc",
       }}
       getData={saGetSessionTableData}
-      getDataParams={{ userId }}
+      getDataParams={{}}
       columns={columns}
       actions={(row: any) => {
         return (

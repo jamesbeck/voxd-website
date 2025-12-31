@@ -37,6 +37,8 @@ interface ManualMessage {
   sessionId: string;
   adminUserId: string;
   userName: string | null;
+  apiKeyId: string | null;
+  apiKeyName: string | null;
   text: string;
   createdAt: Date;
   role: "manual";
@@ -93,7 +95,12 @@ const getMessageById = async ({
   if (messageType === "manual") {
     const message = await db("manualMessage")
       .leftJoin("adminUser", "manualMessage.adminUserId", "adminUser.id")
-      .select("manualMessage.*", "adminUser.name as userName")
+      .leftJoin("apiKey", "manualMessage.apiKeyId", "apiKey.id")
+      .select(
+        "manualMessage.*",
+        "adminUser.name as userName",
+        "apiKey.name as apiKeyName"
+      )
       .where("manualMessage.id", messageId)
       .first();
     if (!message) return null;

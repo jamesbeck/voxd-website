@@ -59,6 +59,11 @@ const saGetSessionsTableData = async ({
       .where("organisation.partnerId", accessToken!.partnerId);
   }
 
+  //only admin users can see development sessions
+  if (!accessToken.admin) {
+    base.where("session.sessionType", "!=", "development");
+  }
+
   //count query
   const countQuery = base.clone().select("session.id");
   const countResult = await db
@@ -73,6 +78,9 @@ const saGetSessionsTableData = async ({
     .select(
       "session.id",
       "session.sessionType",
+      "session.closedAt",
+      "session.closedReason",
+      "session.paused",
       "user.id as userId",
       "user.name",
       "user.number",

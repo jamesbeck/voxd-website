@@ -23,6 +23,7 @@ import Conversation from "./conversation";
 import SessionActions from "./sessionActions";
 import WorkerRunsTable from "./workerRunsTable";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
+import { Button } from "@/components/ui/button";
 import {
   Calendar,
   Clock,
@@ -30,6 +31,7 @@ import {
   DollarSign,
   MessageSquare,
   Zap,
+  ChevronLeft,
 } from "lucide-react";
 
 export default async function Page({
@@ -101,13 +103,22 @@ export default async function Page({
             </TabsTrigger>
           </TabsList>
 
-          <SessionActions
-            sessionId={sessionId}
-            name={session.id}
-            agentId={agent.id}
-            paused={session.paused}
-            closed={!!session.closedAt}
-          />
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/admin/agents/${agent.id}?tab=sessions`}>
+                <ChevronLeft className="h-4 w-4" />
+                Back to Agent
+              </Link>
+            </Button>
+
+            <SessionActions
+              sessionId={sessionId}
+              name={session.id}
+              agentId={agent.id}
+              paused={session.paused}
+              closed={!!session.closedAt}
+            />
+          </div>
         </div>
         <TabsContent value="conversation">
           <Container>

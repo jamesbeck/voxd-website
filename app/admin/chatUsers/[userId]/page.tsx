@@ -43,12 +43,15 @@ export default async function Page({ params }: { params: { userId: string } }) {
       <H1>{user?.name || "New User"}</H1>
       {user && (
         <>
-          <UserActions user={user} />
           <Tabs defaultValue="sessions" className="space-y-2">
-            <TabsList>
-              <TabsTrigger value="edit">Edit User</TabsTrigger>
-              <TabsTrigger value="sessions">Sessions</TabsTrigger>
-            </TabsList>
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <TabsList>
+                <TabsTrigger value="edit">Edit User</TabsTrigger>
+                <TabsTrigger value="sessions">Sessions</TabsTrigger>
+              </TabsList>
+
+              <UserActions user={user} />
+            </div>
             <TabsContent value="edit">
               <EditUserForm
                 userId={userId}

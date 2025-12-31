@@ -21,46 +21,130 @@ const saGetChatUserTableData = async ({
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  //base query
-  const base = db("user")
-    .leftJoin("session", "user.id", "session.userId")
+  // Helper to build access-restricted session subquery
+  const buildAccessRestrictedSessionQuery = () => {
+    const subquery = db("session")
+      .leftJoin("agent", "session.agentId", "agent.id")
+      .leftJoin("organisation", "agent.organisationId", "organisation.id");
+
+    if (organisationId) {
+      subquery.where("organisation.id", organisationId);
+    }
+    if (agentId) {
+      subquery.where("agent.id", agentId);
+    }
+    if (!accessToken.partner && !accessToken.admin) {
+      subquery.whereExists(function (this: any) {
+        this.select(db.raw(1))
+          .from("organisationUser")
+          .whereRaw('"organisationUser"."organisationId" = "organisation"."id"')
+          .where("organisationUser.adminUserId", accessToken!.adminUserId);
+      });
+    }
+    if (accessToken?.partner && !accessToken.admin) {
+      subquery.where("organisation.partnerId", accessToken!.partnerId);
+    }
+    // Only admin can see development sessions
+    if (!accessToken.admin) {
+      subquery.where("session.sessionType", "!=", "development");
+    }
+
+    return subquery;
+  };
+
+  // Session count subquery
+  const sessionCountSubquery = buildAccessRestrictedSessionQuery()
+    .clone()
+    .select(db.raw('COUNT(DISTINCT "session"."id")'))
+    .whereRaw('"session"."userId" = "user"."id"');
+
+  // Message count subquery
+  const messageCountSubquery = buildAccessRestrictedSessionQuery()
+    .clone()
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
-    .leftJoin("agent", "agent.id", "session.agentId")
-    .leftJoin("organisation", "agent.organisationId", "organisation.id")
-    .leftJoin(
-      "organisationUser",
-      "organisation.id",
-      "organisationUser.organisationId"
+    .select(db.raw('COUNT("userMessage"."id")'))
+    .whereRaw('"session"."userId" = "user"."id"');
+
+  // Last message subquery
+  const lastMessageSubquery = buildAccessRestrictedSessionQuery()
+    .clone()
+    .leftJoin("userMessage", "session.id", "userMessage.sessionId")
+    .select(db.raw('MAX("userMessage"."createdAt")'))
+    .whereRaw('"session"."userId" = "user"."id"');
+
+  // Agents subquery
+  const agentsSubquery = buildAccessRestrictedSessionQuery()
+    .clone()
+    .select(
+      db.raw(`
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', "agent"."id",
+              'name', "agent"."name",
+              'niceName', "agent"."niceName"
+            )
+          ) FILTER (WHERE "agent"."id" IS NOT NULL),
+          '[]'
+        )
+      `)
     )
-    .groupBy("user.id")
-    .where((qb) => {
-      if (search) {
-        qb.where("user.name", "ilike", `%${search}%`).orWhere(
-          "user.number",
-          "ilike",
-          `%${search}%`
-        );
+    .whereRaw('"session"."userId" = "user"."id"');
+
+  // Cost subquery
+  const costSubquery = db("assistantMessage")
+    .select(
+      db.raw(
+        'SUM("assistantMessage"."promptTokens" * "model"."inputTokenCost" + "assistantMessage"."completionTokens" * "model"."outputTokenCost") / 1000000.0'
+      )
+    )
+    .leftJoin("model", "assistantMessage.modelId", "model.id")
+    .leftJoin("session", "assistantMessage.sessionId", "session.id")
+    .leftJoin("agent", "session.agentId", "agent.id")
+    .leftJoin("organisation", "agent.organisationId", "organisation.id")
+    .whereRaw('"session"."userId" = "user"."id"')
+    .modify((qb: any) => {
+      if (organisationId) {
+        qb.where("organisation.id", organisationId);
+      }
+      if (agentId) {
+        qb.where("agent.id", agentId);
+      }
+      if (!accessToken.partner && !accessToken.admin) {
+        qb.whereExists(function (this: any) {
+          this.select(db.raw(1))
+            .from("organisationUser")
+            .whereRaw(
+              '"organisationUser"."organisationId" = "organisation"."id"'
+            )
+            .where("organisationUser.adminUserId", accessToken!.adminUserId);
+        });
+      }
+      if (accessToken?.partner && !accessToken.admin) {
+        qb.where("organisation.partnerId", accessToken!.partnerId);
+      }
+      // Only admin can see development sessions
+      if (!accessToken.admin) {
+        qb.where("session.sessionType", "!=", "development");
       }
     });
 
-  //filter by organisationId if provided
-  if (organisationId) {
-    base.where("organisationUser.organisationId", organisationId);
-  }
+  // Base query just for users who have sessions matching access criteria
+  const base = db("user").whereExists(
+    buildAccessRestrictedSessionQuery()
+      .clone()
+      .select(db.raw(1))
+      .whereRaw('"session"."userId" = "user"."id"')
+  );
 
-  //filter by agentId if provided
-  if (agentId) {
-    base.where("agent.id", agentId);
-  }
-
-  //if organisation is logged in, restrict to their agents
-  if (!accessToken.partner && !accessToken.admin) {
-    base.where("organisationUser.adminUserId", accessToken!.adminUserId);
-  }
-
-  //if partner is logged in, restrict to their agents
-  if (accessToken?.partner && !accessToken.admin) {
-    base.where("organisation.partnerId", accessToken!.partnerId);
+  if (search) {
+    base.where((qb) => {
+      qb.where("user.name", "ilike", `%${search}%`).orWhere(
+        "user.number",
+        "ilike",
+        `%${search}%`
+      );
+    });
   }
 
   //count query
@@ -77,21 +161,13 @@ const saGetChatUserTableData = async ({
     .clone()
     .select("user.*")
     .select([
-      db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
-      db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
-      db.raw('COUNT(DISTINCT "session"."id")::int as "sessionCount"'),
-      db.raw(`
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', "agent"."id",
-              'name', "agent"."name",
-              'niceName', "agent"."niceName"
-            )
-          ) FILTER (WHERE "agent"."id" IS NOT NULL),
-          '[]'
-        ) as agents
-      `),
+      db.raw(`(${sessionCountSubquery.toQuery()})::int as "sessionCount"`),
+      db.raw(`(${messageCountSubquery.toQuery()})::int as "messageCount"`),
+      db.raw(`(${lastMessageSubquery.toQuery()}) as "lastMessageAt"`),
+      db.raw(`(${agentsSubquery.toQuery()}) as "agents"`),
+      db.raw(
+        `CAST(COALESCE((${costSubquery.toQuery()}), 0) AS FLOAT) as "totalCost"`
+      ),
     ])
     .orderBy(sortField, sortDirection)
     .limit(pageSize)

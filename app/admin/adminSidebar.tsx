@@ -11,6 +11,7 @@ import {
   Handshake,
   User,
   UserCog,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -80,6 +81,11 @@ const menuItems: MenuItem[] = [
     title: "Agents",
     url: "/admin/agents",
     icon: BotMessageSquare,
+  },
+  {
+    title: "Sessions",
+    url: "/admin/sessions",
+    icon: MessageCircle,
   },
   {
     roles: ["admin"],

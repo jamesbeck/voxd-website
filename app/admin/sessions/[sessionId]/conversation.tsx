@@ -15,7 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Bot, Clock, Coins, Wrench } from "lucide-react";
+import { Bot, Clock, Cog, Coins, Type, Wrench } from "lucide-react";
 
 export default function Conversation({
   messages,
@@ -64,9 +64,12 @@ export default function Conversation({
                 <div className="px-4 py-2">
                   <div className="text-[11px] opacity-60 mb-1">
                     {format(message.createdAt, "dd/MM/yyyy HH:mm")}
-                    {message.role != "user" &&
-                      message.role === "manual" &&
-                      ` • ${message.userName}`}
+                    {message.role === "manual" &&
+                      (message.apiKeyName
+                        ? ` • API: ${message.apiKeyName}`
+                        : message.userName
+                        ? ` • ${message.userName}`
+                        : "")}
                   </div>
 
                   <div className="text-sm whitespace-pre-wrap">
@@ -85,9 +88,7 @@ export default function Conversation({
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p className="font-medium">Model</p>
-                          <p className="text-xs text-muted-foreground">
-                            {message.model}
-                          </p>
+                          <p className="text-xs opacity-70">{message.model}</p>
                         </TooltipContent>
                       </Tooltip>
 
@@ -103,10 +104,10 @@ export default function Conversation({
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p className="font-medium">Token Usage</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs opacity-70">
                             Input: {message?.promptTokens} tokens
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs opacity-70">
                             Output: {message?.completionTokens} tokens
                           </p>
                         </TooltipContent>
@@ -129,7 +130,7 @@ export default function Conversation({
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p className="font-medium">Response Time</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs opacity-70">
                             Total time to generate response
                           </p>
                         </TooltipContent>
@@ -149,10 +150,7 @@ export default function Conversation({
                             <p className="font-medium">Tools Used</p>
                             {message.toolCalls.map(
                               (toolCall: any, idx: number) => (
-                                <p
-                                  key={idx}
-                                  className="text-xs text-muted-foreground"
-                                >
+                                <p key={idx} className="text-xs opacity-70">
                                   {toolCall.toolName} (
                                   {(
                                     differenceInMilliseconds(
@@ -167,6 +165,23 @@ export default function Conversation({
                           </TooltipContent>
                         </Tooltip>
                       )}
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
+                            <Type className="h-3.5 w-3.5" />
+                            <span className="text-[11px]">
+                              {message.text.length}
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p className="font-medium">Character Count</p>
+                          <p className="text-xs opacity-70">
+                            {message.text.length} characters
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
 
                     <div className="ml-auto">
@@ -179,7 +194,61 @@ export default function Conversation({
                         <Link
                           href={`/admin/messages/${message.id}?type=${message.role}`}
                         >
-                          View Info
+                          View
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {message.role === "manual" && (
+                  <div className="px-4 py-2 border-t border-border/30 flex items-center gap-3">
+                    <TooltipProvider delayDuration={0}>
+                      {(message.apiKeyName || message.userName) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
+                              <Cog className="h-3.5 w-3.5" />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom">
+                            <p className="font-medium">Manually Sent</p>
+                            <p className="text-xs opacity-70">
+                              {message.apiKeyName || message.userName}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
+                            <Type className="h-3.5 w-3.5" />
+                            <span className="text-[11px]">
+                              {message.text.length}
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p className="font-medium">Character Count</p>
+                          <p className="text-xs opacity-70">
+                            {message.text.length} characters
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    <div className="ml-auto">
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 text-[11px] px-2"
+                      >
+                        <Link
+                          href={`/admin/messages/${message.id}?type=${message.role}`}
+                        >
+                          View
                         </Link>
                       </Button>
                     </div>
@@ -211,12 +280,29 @@ export default function Conversation({
                           </TooltipTrigger>
                           <TooltipContent side="bottom">
                             <p className="font-medium">Response Time</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs opacity-70">
                               Time since previous message
                             </p>
                           </TooltipContent>
                         </Tooltip>
                       )}
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1 text-primary-foreground/70 hover:text-primary-foreground transition-colors cursor-default">
+                            <Type className="h-3.5 w-3.5" />
+                            <span className="text-[11px]">
+                              {message.text.length}
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p className="font-medium">Character Count</p>
+                          <p className="text-xs opacity-70">
+                            {message.text.length} characters
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
 
                     <div className="ml-auto">
@@ -229,7 +315,7 @@ export default function Conversation({
                         <Link
                           href={`/admin/messages/${message.id}?type=${message.role}`}
                         >
-                          View Info
+                          View
                         </Link>
                       </Button>
                     </div>

@@ -363,7 +363,9 @@ export default async function Page({
                   ? [
                       {
                         label: "Sent By",
-                        value: message.userName || "Unknown",
+                        value: message.apiKeyName
+                          ? `API: ${message.apiKeyName}`
+                          : message.userName || "Unknown",
                         icon: <User className="h-4 w-4" />,
                       },
                     ]

@@ -12,7 +12,11 @@ const usersTable = () => {
       label: "Name",
       name: "name",
       sort: true,
-      // format: (value) => value || "",
+      format: (row: any) => (
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/admin/chatUsers/${row.id}`}>{row.name}</Link>
+        </Button>
+      ),
     },
     {
       label: "Number",
@@ -26,17 +30,15 @@ const usersTable = () => {
       format: (row: any) => {
         const agentLinks = row.agents.map((agent: any) => {
           return (
-            <Link
-              key={agent.id}
-              href={`/admin/agents/${agent.id}`}
-              className="underline"
-            >
-              {agent.niceName}
-            </Link>
+            <Button key={agent.id} asChild size="sm" variant="outline">
+              <Link href={`/admin/agents/${agent.id}`}>{agent.niceName}</Link>
+            </Button>
           );
         });
 
-        return <div className="flex flex-col gap-1">{agentLinks}</div>;
+        return (
+          <div className="flex flex-col gap-1 items-start">{agentLinks}</div>
+        );
       },
     },
     {
@@ -48,6 +50,12 @@ const usersTable = () => {
       label: "Messages",
       name: "messageCount",
       sort: true,
+    },
+    {
+      label: "Cost",
+      name: "totalCost",
+      sort: true,
+      format: (row: any) => `$${row.totalCost.toFixed(4)}`,
     },
     {
       label: "Last Message",

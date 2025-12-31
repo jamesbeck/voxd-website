@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import saGetSessionTableData from "@/actions/saGetSessionsTableData";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const SessionsTable = ({
   agentId,
@@ -32,9 +37,40 @@ const SessionsTable = ({
       ),
     },
     {
+      label: "Status",
+      name: "closedAt",
+      sort: true,
+      format: (row: any) => {
+        let status = "Active";
+        let color = "bg-green-500";
+        if (row.closedAt) {
+          status = "Closed";
+          color = "bg-gray-500";
+        } else if (row.paused) {
+          status = "Paused";
+          color = "bg-yellow-500";
+        }
+        const badge = <Badge className={color}>{status}</Badge>;
+        if (row.closedAt && row.closedReason) {
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>{badge}</TooltipTrigger>
+              <TooltipContent>{row.closedReason}</TooltipContent>
+            </Tooltip>
+          );
+        }
+        return badge;
+      },
+    },
+    {
       label: "Name",
       name: "name",
       sort: true,
+      format: (row: any) => (
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/admin/chatUsers/${row.userId}`}>{row.name}</Link>
+        </Button>
+      ),
     },
     {
       label: "Number",

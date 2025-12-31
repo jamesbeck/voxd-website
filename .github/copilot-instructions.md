@@ -1,5 +1,9 @@
 # Copilot Instructions
 
+## User Access Levels
+
+See [user-access-levels.md](.github/user-access-levels.md) for detailed documentation on the three user levels (Admin, Partner, Organisation) and what data each can access.
+
 ## Database Schema
 
 When working with database-related code in this project:
