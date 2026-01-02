@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import saGetUserTableData from "@/actions/saGetChatUserTableData";
+import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
@@ -110,7 +110,7 @@ export default function NewOrganisationForm() {
               <FormControl>
                 <RemoteMultiSelect
                   {...field}
-                  serverAction={saGetUserTableData}
+                  serverAction={saGetAdminUserTableData}
                   label={(record) =>
                     `${record.name} (${[record.number, record.email]
                       .filter(Boolean)
