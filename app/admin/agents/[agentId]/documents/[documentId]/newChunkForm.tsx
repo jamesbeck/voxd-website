@@ -91,7 +91,7 @@ export default function NewChunkForm({
       router.push(
         `/admin/agents/${agentId}/documents/${documentId}?tab=chunks`
       );
-      router.refresh();
+      return;
     }
 
     setLoading(false);
