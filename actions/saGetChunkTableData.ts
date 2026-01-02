@@ -24,7 +24,7 @@ const saGetChunkTableData = async ({
     .where((qb) => {
       if (search) {
         qb.where("content", "ilike", `%${search}%`).orWhere(
-          "titlePath",
+          "title",
           "ilike",
           `%${search}%`
         );
@@ -42,7 +42,7 @@ const saGetChunkTableData = async ({
     .select(
       "knowledgeChunk.id",
       "knowledgeChunk.content",
-      "knowledgeChunk.titlePath",
+      "knowledgeChunk.title",
       "knowledgeChunk.chunkIndex",
       "knowledgeChunk.tokenCount",
       "knowledgeChunk.createdAt",

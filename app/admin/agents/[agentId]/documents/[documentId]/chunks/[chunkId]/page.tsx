@@ -108,10 +108,10 @@ export default async function Page({
                     value: chunk.chunkIndex,
                     icon: <Hash className="h-4 w-4" />,
                   },
-                  chunk.titlePath
+                  chunk.title
                     ? {
-                        label: "Title Path",
-                        value: chunk.titlePath,
+                        label: "Title",
+                        value: chunk.title,
                         icon: <Layers className="h-4 w-4" />,
                       }
                     : null,
@@ -161,7 +161,7 @@ export default async function Page({
                 documentId={documentId}
                 agentId={agentId}
                 content={chunk.content}
-                titlePath={chunk.titlePath}
+                title={chunk.title}
               />
             </Container>
           </TabsContent>

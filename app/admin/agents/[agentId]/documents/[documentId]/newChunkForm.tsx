@@ -34,7 +34,7 @@ const formSchema = z.object({
       MAX_CONTENT_LENGTH,
       `Content must be at most ${MAX_CONTENT_LENGTH} characters`
     ),
-  titlePath: z.string().optional(),
+  title: z.string().optional(),
 });
 
 export default function NewChunkForm({
@@ -51,7 +51,7 @@ export default function NewChunkForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       content: "",
-      titlePath: "",
+      title: "",
     },
   });
 
@@ -61,7 +61,7 @@ export default function NewChunkForm({
     const response = await saCreateChunk({
       documentId,
       content: values.content,
-      titlePath: values.titlePath,
+      title: values.title,
     });
 
     if (!response.success) {
@@ -105,19 +105,21 @@ export default function NewChunkForm({
       >
         <FormField
           control={form.control}
-          name="titlePath"
+          name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title Path</FormLabel>
+              <FormLabel>Title / Question</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., Getting Started > Installation"
+                  placeholder="e.g., How do I reset my password?"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Optional hierarchical path to help identify the chunk&apos;s
-                location within the document
+                The title of the information or the question it answers. This is
+                included in the embedding for better semantic matching. E.g.
+                &quot;Password Reset Instructions&quot; or &quot;How do I reset
+                my password?&quot;
               </FormDescription>
               <FormMessage />
             </FormItem>

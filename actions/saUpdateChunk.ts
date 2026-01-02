@@ -9,11 +9,11 @@ import { embed } from "ai";
 const saUpdateChunk = async ({
   chunkId,
   content,
-  titlePath,
+  title,
 }: {
   chunkId: string;
   content: string;
-  titlePath?: string;
+  title?: string;
 }): Promise<ServerActionResponse> => {
   await verifyAccessToken();
 
@@ -48,16 +48,18 @@ const saUpdateChunk = async ({
   }
 
   // Generate new embedding using the agent's OpenAI API key
+  // Include title in the embedding text if provided
+  const embeddingText = title ? `${title}\n\n${content}` : content;
   let embeddingVector: number[] | null = null;
   let tokenCount: number | null = null;
   try {
     const openai = createOpenAI({ apiKey: chunk.openAiApiKey });
     const { embedding, usage } = await embed({
       model: openai.embedding("text-embedding-3-small"),
-      value: content,
+      value: embeddingText,
     });
     embeddingVector = embedding;
-    tokenCount = usage?.tokens ?? Math.ceil(content.length / 4);
+    tokenCount = usage?.tokens ?? Math.ceil(embeddingText.length / 4);
   } catch (error) {
     console.error("Error generating embedding:", error);
     return {
@@ -73,14 +75,14 @@ const saUpdateChunk = async ({
     .where({ id: chunkId })
     .update({
       content,
-      titlePath,
+      title,
       tokenCount,
       embedding: embeddingVector ? `[${embeddingVector.join(",")}]` : null,
     })
     .returning([
       "id",
       "content",
-      "titlePath",
+      "title",
       "chunkIndex",
       "tokenCount",
       "createdAt",

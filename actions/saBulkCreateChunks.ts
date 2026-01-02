@@ -93,7 +93,7 @@ const saBulkCreateChunks = async ({
   const chunkRecords = chunks.map((content, index) => ({
     documentId,
     content,
-    titlePath: null,
+    title: null,
     chunkIndex: startIndex + index,
     tokenCount: tokenCounts[index],
     embedding: embeddings[index] ? `[${embeddings[index].join(",")}]` : null,

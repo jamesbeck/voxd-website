@@ -34,7 +34,7 @@ const formSchema = z.object({
       MAX_CONTENT_LENGTH,
       `Content must be at most ${MAX_CONTENT_LENGTH} characters`
     ),
-  titlePath: z.string().optional(),
+  title: z.string().optional(),
 });
 
 export default function EditChunkForm({
@@ -42,13 +42,13 @@ export default function EditChunkForm({
   documentId,
   agentId,
   content,
-  titlePath,
+  title,
 }: {
   chunkId: string;
   documentId: string;
   agentId: string;
   content?: string;
-  titlePath?: string;
+  title?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -57,7 +57,7 @@ export default function EditChunkForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       content: content || "",
-      titlePath: titlePath || "",
+      title: title || "",
     },
   });
 
@@ -67,7 +67,7 @@ export default function EditChunkForm({
     const response = await saUpdateChunk({
       chunkId,
       content: values.content,
-      titlePath: values.titlePath,
+      title: values.title,
     });
 
     if (!response.success) {
@@ -108,19 +108,21 @@ export default function EditChunkForm({
       >
         <FormField
           control={form.control}
-          name="titlePath"
+          name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title Path</FormLabel>
+              <FormLabel>Title / Question</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., Getting Started > Installation"
+                  placeholder="e.g., How do I reset my password?"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Optional hierarchical path to help identify the chunk&apos;s
-                location within the document
+                The title of the information or the question it answers. This is
+                included in the embedding for better semantic matching. E.g.
+                &quot;Password Reset Instructions&quot; or &quot;How do I reset
+                my password?&quot;
               </FormDescription>
               <FormMessage />
             </FormItem>

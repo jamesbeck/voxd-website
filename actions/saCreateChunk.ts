@@ -9,11 +9,11 @@ import { embed } from "ai";
 const saCreateChunk = async ({
   documentId,
   content,
-  titlePath,
+  title,
 }: {
   documentId: string;
   content: string;
-  titlePath?: string;
+  title?: string;
 }): Promise<ServerActionResponse> => {
   await verifyAccessToken();
 
@@ -47,16 +47,18 @@ const saCreateChunk = async ({
   const chunkIndex = lastChunk ? lastChunk.chunkIndex + 1 : 0;
 
   // Generate embedding using the agent's OpenAI API key
+  // Include title in the embedding text if provided
+  const embeddingText = title ? `${title}\n\n${content}` : content;
   let embeddingVector: number[] | null = null;
   let tokenCount: number | null = null;
   try {
     const openai = createOpenAI({ apiKey: document.openAiApiKey });
     const { embedding, usage } = await embed({
       model: openai.embedding("text-embedding-3-small"),
-      value: content,
+      value: embeddingText,
     });
     embeddingVector = embedding;
-    tokenCount = usage?.tokens ?? Math.ceil(content.length / 4);
+    tokenCount = usage?.tokens ?? Math.ceil(embeddingText.length / 4);
   } catch (error) {
     console.error("Error generating embedding:", error);
     return {
@@ -72,7 +74,7 @@ const saCreateChunk = async ({
     .insert({
       documentId,
       content,
-      titlePath,
+      title,
       chunkIndex,
       tokenCount,
       embedding: embeddingVector ? `[${embeddingVector.join(",")}]` : null,
@@ -80,7 +82,7 @@ const saCreateChunk = async ({
     .returning([
       "id",
       "content",
-      "titlePath",
+      "title",
       "chunkIndex",
       "tokenCount",
       "createdAt",

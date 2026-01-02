@@ -10,7 +10,7 @@ import { z } from "zod";
 const chunkSchema = z.object({
   chunks: z.array(
     z.object({
-      titlePath: z
+      title: z
         .string()
         .describe("A short descriptive title for this chunk (max 100 chars)"),
       content: z
@@ -71,7 +71,7 @@ const saSmartChunkDocument = async ({
   const startIndex = lastChunk ? lastChunk.chunkIndex + 1 : 0;
 
   // Use LLM to intelligently chunk the text
-  let chunks: { titlePath: string; content: string }[];
+  let chunks: { title: string; content: string }[];
   try {
     const { object } = await generateObject({
       model: openai(modelName),
@@ -109,17 +109,22 @@ ${text}`,
     };
   }
 
-  // Generate embeddings for all chunks
+  // Generate embeddings for all chunks (include title in embedding text)
   let embeddings: number[][] = [];
   let tokenCounts: number[] = [];
   try {
     const result = await embedMany({
       model: openai.embedding("text-embedding-3-small"),
-      values: chunks.map((c) => c.content),
+      values: chunks.map((c) =>
+        c.title ? `${c.title}\n\n${c.content}` : c.content
+      ),
     });
     embeddings = result.embeddings;
-    // Estimate token counts per chunk
-    tokenCounts = chunks.map((c) => Math.ceil(c.content.length / 4));
+    // Estimate token counts per chunk (including title)
+    tokenCounts = chunks.map((c) => {
+      const embeddingText = c.title ? `${c.title}\n\n${c.content}` : c.content;
+      return Math.ceil(embeddingText.length / 4);
+    });
   } catch (error) {
     console.error("Error generating embeddings:", error);
     return {
@@ -134,7 +139,7 @@ ${text}`,
   const chunkRecords = chunks.map((chunk, index) => ({
     documentId,
     content: chunk.content,
-    titlePath: chunk.titlePath,
+    title: chunk.title,
     chunkIndex: startIndex + index,
     tokenCount: tokenCounts[index],
     embedding: embeddings[index] ? `[${embeddings[index].join(",")}]` : null,

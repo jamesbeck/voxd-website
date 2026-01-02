@@ -21,10 +21,10 @@ const ChunksTable = ({
       sort: true,
     },
     {
-      label: "Title Path",
-      name: "titlePath",
+      label: "Title",
+      name: "title",
       sort: true,
-      format: (row: any) => row.titlePath || "-",
+      format: (row: any) => row.title || "-",
     },
     {
       label: "Content Preview",

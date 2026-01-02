@@ -13,7 +13,7 @@ const getChunkById = async ({ chunkId }: { chunkId: string }) => {
       "knowledgeChunk.id",
       "knowledgeChunk.documentId",
       "knowledgeChunk.content",
-      "knowledgeChunk.titlePath",
+      "knowledgeChunk.title",
       "knowledgeChunk.chunkIndex",
       "knowledgeChunk.tokenCount",
       "knowledgeChunk.createdAt",
