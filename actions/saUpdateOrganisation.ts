@@ -7,10 +7,12 @@ const saUpdateOrganisation = async ({
   organisationId,
   name,
   adminUserIds,
+  partnerId,
 }: {
   organisationId: string;
   name: string;
   adminUserIds: string[];
+  partnerId?: string;
 }): Promise<ServerActionResponse> => {
   if (!organisationId) {
     return {
@@ -33,7 +35,7 @@ const saUpdateOrganisation = async ({
   }
 
   //update the organisation
-  await db("organisation").where({ id: organisationId }).update({ name });
+  await db("organisation").where({ id: organisationId }).update({ name, partnerId: partnerId || null });
 
   //update user associations
   if (adminUserIds) {

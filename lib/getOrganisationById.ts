@@ -7,6 +7,7 @@ const getOrganisationById = async ({
 }): Promise<{
   id: string;
   name: string;
+  partnerId?: string;
   adminUserIds?: string[];
 }> => {
   const organisation = await db("organisation")

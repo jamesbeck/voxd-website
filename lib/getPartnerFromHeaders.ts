@@ -7,7 +7,10 @@ export default async function getPartnerFromHeaders() {
   let domain = host?.split(":")[0];
 
   if (process.env.NODE_ENV === "development") {
-    domain = process.env.DEVELOPTMENT_PARTNER_DOMAIN || domain;
+    const devDomain = process.env.DEVELOPTMENT_PARTNER_DOMAIN;
+    if (devDomain) {
+      domain = devDomain;
+    }
   }
 
   if (!domain) {
@@ -15,6 +18,15 @@ export default async function getPartnerFromHeaders() {
   }
 
   const partner = partners.find((p) => p.domain === domain);
+
+  if (!partner && process.env.NODE_ENV === "development") {
+    const validDomains = partners.map((p) => p.domain);
+    throw new Error(
+      `Invalid partner domain: "${domain}"\n` +
+        `Valid partner domains are:\n` +
+        validDomains.map((d) => `  - ${d}`).join("\n")
+    );
+  }
 
   return partner;
 }

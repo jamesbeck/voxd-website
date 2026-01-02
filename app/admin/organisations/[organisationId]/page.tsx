@@ -56,7 +56,9 @@ export default async function Page({
               <EditOrganisationForm
                 organisationId={organisation.id}
                 name={organisation.name}
+                partnerId={organisation.partnerId}
                 adminUserIds={organisation.adminUserIds}
+                isAdmin={token.admin}
               />
             </TabsContent>
             <TabsContent value="adminUsers">
@@ -88,7 +90,7 @@ export default async function Page({
           </Tabs>
         </>
       )}
-      {!organisation && <NewOrganisationForm />}
+      {!organisation && <NewOrganisationForm isAdmin={token.admin} />}
     </Container>
   );
 }

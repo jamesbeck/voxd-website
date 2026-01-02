@@ -19,22 +19,29 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
+import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
+  partnerId: z.string().optional(),
   adminUserIds: z.string().array(),
 });
 
 export default function NewOrganisationForm({
   organisationId,
   name,
+  partnerId,
   adminUserIds,
+  isAdmin,
 }: {
   organisationId: string;
   name?: string;
+  partnerId?: string;
   adminUserIds?: string[];
+  isAdmin?: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -44,6 +51,7 @@ export default function NewOrganisationForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: name || "",
+      partnerId: partnerId || "",
       adminUserIds: adminUserIds || [],
     },
   });
@@ -55,6 +63,7 @@ export default function NewOrganisationForm({
     const response = await saUpdateOrganisation({
       organisationId: organisationId,
       name: values.name,
+      partnerId: values.partnerId,
       adminUserIds: values.adminUserIds,
     });
 
@@ -108,6 +117,30 @@ export default function NewOrganisationForm({
             </FormItem>
           )}
         />
+
+        {isAdmin && (
+          <FormField
+            control={form.control}
+            name="partnerId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Partner (Optional)</FormLabel>
+                <FormControl>
+                  <RemoteSelect
+                    {...field}
+                    serverAction={saGetPartnerTableData}
+                    label={(record) => `${record.name}`}
+                    valueField="id"
+                    sortField="name"
+                    placeholder="Select a partner..."
+                    emptyMessage="No partners found"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}
