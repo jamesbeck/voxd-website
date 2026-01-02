@@ -28,13 +28,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
+import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   //only accept number characters including any hidden or RTL characters
   email: z.email("Invalid email address").nonempty("Email is required"),
   testingAgentId: z.string().optional(),
+  partnerId: z.string().optional(),
   organisationIds: z
     .string()
     .array()
@@ -45,12 +48,14 @@ export default function editAdminUserForm({
   adminUserId,
   name,
   email,
+  partnerId,
   organisationIds,
 }: {
   adminUserId: string;
   name?: string;
   number?: string;
   email?: string;
+  partnerId?: string;
   organisationIds?: string[];
 }) {
   const [loading, setLoading] = useState(false);
@@ -62,6 +67,7 @@ export default function editAdminUserForm({
     defaultValues: {
       name: name || "",
       email: email || "",
+      partnerId: partnerId || "",
       organisationIds: organisationIds || [],
     },
   });
@@ -74,6 +80,7 @@ export default function editAdminUserForm({
       adminUserId: adminUserId,
       name: values.name,
       email: values.email,
+      partnerId: values.partnerId,
       organisationIds: values.organisationIds,
     });
 
@@ -139,6 +146,28 @@ export default function editAdminUserForm({
                 <Input placeholder="john.doe@example.com" {...field} />
               </FormControl>
               {/* <FormDescription>Put your user email here</FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="partnerId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Partner (Optional)</FormLabel>
+              <FormControl>
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetPartnerTableData}
+                  label={(record) => `${record.name}`}
+                  valueField="id"
+                  sortField="name"
+                  placeholder="Select a partner..."
+                  emptyMessage="No partners found"
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

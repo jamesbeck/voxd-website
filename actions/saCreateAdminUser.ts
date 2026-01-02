@@ -6,10 +6,12 @@ import { ServerActionResponse } from "@/types/types";
 const saCreateAdminUser = async ({
   name,
   email,
+  partnerId,
   organisationIds,
 }: {
   name: string;
   email?: string;
+  partnerId?: string;
   organisationIds: string[];
 }): Promise<ServerActionResponse> => {
   //check user number and email is unique
@@ -29,7 +31,7 @@ const saCreateAdminUser = async ({
 
   //create a new user
   const [newAdminUser] = await db("adminUser")
-    .insert({ name, email: email?.toLowerCase() })
+    .insert({ name, email: email?.toLowerCase(), partnerId: partnerId || null })
     .returning("id");
 
   if (organisationIds) {

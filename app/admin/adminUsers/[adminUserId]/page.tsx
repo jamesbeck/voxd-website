@@ -52,6 +52,7 @@ export default async function Page({
                 adminUserId={adminUserId}
                 name={user.name}
                 email={user.email}
+                partnerId={user.partnerId}
                 organisationIds={user.organisationIds}
               />
             </TabsContent>
