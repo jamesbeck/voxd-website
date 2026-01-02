@@ -35,7 +35,9 @@ const saUpdateOrganisation = async ({
   }
 
   //update the organisation
-  await db("organisation").where({ id: organisationId }).update({ name, partnerId: partnerId || null });
+  await db("organisation")
+    .where({ id: organisationId })
+    .update({ name, partnerId: partnerId || null });
 
   //update user associations
   if (adminUserIds) {

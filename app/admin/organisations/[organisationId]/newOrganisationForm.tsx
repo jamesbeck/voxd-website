@@ -30,7 +30,11 @@ const formSchema = z.object({
   adminUserIds: z.string().array(),
 });
 
-export default function NewOrganisationForm({ isAdmin }: { isAdmin?: boolean }) {
+export default function NewOrganisationForm({
+  isAdmin,
+}: {
+  isAdmin?: boolean;
+}) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
