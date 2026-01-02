@@ -170,7 +170,11 @@ export default function DataTable<TExtra extends object = object>({
                   </TableHead>
                 );
               })}
-              {actions && <TableHead>Actions</TableHead>}
+              {actions && (
+                <TableHead className="sticky right-0 bg-background shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                  Actions
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -220,7 +224,11 @@ export default function DataTable<TExtra extends object = object>({
                       </TableCell>
                     );
                   })}
-                  {actions && <TableCell>{actions(datum)}</TableCell>}
+                  {actions && (
+                    <TableCell className="sticky right-0 bg-background shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
+                      {actions(datum)}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
           </TableBody>
