@@ -13,7 +13,14 @@ const saCreatePartialPrompt = async ({
   name: string;
   text: string;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
+
+  if (!accessToken.admin) {
+    return {
+      success: false,
+      error: "Only admin users can create partial prompts.",
+    };
+  }
 
   // Check the agent exists
   const agent = await db("agent").where("id", agentId).first();

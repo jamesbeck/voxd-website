@@ -242,27 +242,31 @@ export default async function Page({
                       agent&apos;s system prompt.
                     </p>
                   </div>
-                  <Button asChild>
-                    <Link
-                      href={`/admin/agents/${agentId}?tab=new-partial-prompt`}
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      New Partial Prompt
-                    </Link>
-                  </Button>
+                  {!!token.admin && (
+                    <Button asChild>
+                      <Link
+                        href={`/admin/agents/${agentId}?tab=new-partial-prompt`}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        New Partial Prompt
+                      </Link>
+                    </Button>
+                  )}
                 </div>
                 <PartialPromptsTable agentId={agentId} />
               </Container>
             </TabsContent>
-            <TabsContent value="new-partial-prompt">
-              <Container>
-                <H2>New Partial Prompt</H2>
-                <p className="text-muted-foreground mb-4">
-                  Create a new partial prompt for this agent.
-                </p>
-                <NewPartialPromptForm agentId={agentId} />
-              </Container>
-            </TabsContent>
+            {!!token.admin && (
+              <TabsContent value="new-partial-prompt">
+                <Container>
+                  <H2>New Partial Prompt</H2>
+                  <p className="text-muted-foreground mb-4">
+                    Create a new partial prompt for this agent.
+                  </p>
+                  <NewPartialPromptForm agentId={agentId} />
+                </Container>
+              </TabsContent>
+            )}
           </Tabs>
         </>
       )}

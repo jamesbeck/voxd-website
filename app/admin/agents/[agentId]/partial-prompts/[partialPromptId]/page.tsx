@@ -63,15 +63,13 @@ export default async function Page({
                 Info
               </Link>
             </TabsTrigger>
-            {!!token.admin && (
-              <TabsTrigger value="edit" asChild>
-                <Link
-                  href={`/admin/agents/${agentId}/partial-prompts/${partialPromptId}?tab=edit`}
-                >
-                  Edit
-                </Link>
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="edit" asChild>
+              <Link
+                href={`/admin/agents/${agentId}/partial-prompts/${partialPromptId}?tab=edit`}
+              >
+                Edit
+              </Link>
+            </TabsTrigger>
           </TabsList>
           {!!token.admin && (
             <PartialPromptActions
@@ -120,19 +118,17 @@ export default async function Page({
           </Container>
         </TabsContent>
 
-        {!!token.admin && (
-          <TabsContent value="edit">
-            <Container>
-              <H2>Edit Partial Prompt</H2>
-              <EditPartialPromptForm
-                partialPromptId={partialPromptId}
-                agentId={agentId}
-                name={partialPrompt.name}
-                text={partialPrompt.text}
-              />
-            </Container>
-          </TabsContent>
-        )}
+        <TabsContent value="edit">
+          <Container>
+            <H2>Edit Partial Prompt</H2>
+            <EditPartialPromptForm
+              partialPromptId={partialPromptId}
+              agentId={agentId}
+              name={partialPrompt.name}
+              text={partialPrompt.text}
+            />
+          </Container>
+        </TabsContent>
       </Tabs>
     </Container>
   );

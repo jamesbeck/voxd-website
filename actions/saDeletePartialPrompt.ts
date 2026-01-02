@@ -9,7 +9,14 @@ const saDeletePartialPrompt = async ({
 }: {
   partialPromptId: string;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
+
+  if (!accessToken.admin) {
+    return {
+      success: false,
+      error: "Only admin users can delete partial prompts.",
+    };
+  }
 
   try {
     await db("partialPrompt").delete().where({ id: partialPromptId });
