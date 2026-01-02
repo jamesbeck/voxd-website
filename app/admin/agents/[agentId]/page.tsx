@@ -183,6 +183,7 @@ export default async function Page({
                     openAiApiKey={agent?.openAiApiKey}
                     organisationId={agent?.organisationId}
                     phoneNumberId={agent?.phoneNumberId}
+                    modelId={agent?.modelId}
                   />
                 </Container>
               </TabsContent>

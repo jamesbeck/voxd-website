@@ -22,6 +22,7 @@ import saUpdateAgent from "@/actions/saUpdateAgent";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetPhoneNumbersTableData from "@/actions/saGetPhoneNumbersTableData";
+import saGetModelTableData from "@/actions/saGetModelTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -29,6 +30,7 @@ const formSchema = z.object({
   organisationId: z.string().nonempty("Organisation is required"),
   phoneNumberId: z.string().optional(),
   openAiApiKey: z.string().optional(),
+  modelId: z.string().optional(),
 });
 
 export default function EditAgentForm({
@@ -38,6 +40,7 @@ export default function EditAgentForm({
   organisationId,
   phoneNumberId,
   openAiApiKey,
+  modelId,
 }: {
   agentId: string;
   name?: string;
@@ -45,6 +48,7 @@ export default function EditAgentForm({
   organisationId?: string;
   phoneNumberId?: string;
   openAiApiKey?: string;
+  modelId?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -58,6 +62,7 @@ export default function EditAgentForm({
       organisationId: organisationId || "",
       phoneNumberId: phoneNumberId || "",
       openAiApiKey: openAiApiKey || "",
+      modelId: modelId || "",
     },
   });
 
@@ -72,6 +77,7 @@ export default function EditAgentForm({
       organisationId: values.organisationId,
       phoneNumberId: values.phoneNumberId,
       openAiApiKey: values.openAiApiKey,
+      modelId: values.modelId,
     });
 
     if (!response.success) {
@@ -195,6 +201,28 @@ export default function EditAgentForm({
               <FormLabel>OpenAI API Key</FormLabel>
               <FormControl>
                 <Input placeholder="sk-..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="modelId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Model</FormLabel>
+              <FormControl>
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetModelTableData}
+                  label={(record) => `${record.provider} / ${record.model}`}
+                  valueField="id"
+                  sortField="provider"
+                  placeholder="Select a model..."
+                  emptyMessage="No models found"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

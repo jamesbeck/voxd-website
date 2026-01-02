@@ -10,6 +10,7 @@ const saUpdateAgent = async ({
   organisationId,
   phoneNumberId,
   openAiApiKey,
+  modelId,
 }: {
   agentId: string;
   name?: string;
@@ -17,6 +18,7 @@ const saUpdateAgent = async ({
   organisationId?: string;
   phoneNumberId?: string;
   openAiApiKey?: string;
+  modelId?: string;
 }): Promise<ServerActionResponse> => {
   if (!agentId) {
     return {
@@ -47,6 +49,7 @@ const saUpdateAgent = async ({
       organisationId: organisationId || null,
       phoneNumberId: phoneNumberId || null,
       openAiApiKey,
+      modelId: modelId || null,
     });
 
   return { success: true };
