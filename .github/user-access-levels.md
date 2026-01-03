@@ -18,6 +18,7 @@ Admins have full access to all data in the system.
 - All WABAs and phone numbers
 - All admin users
 - All quotes
+- All FAQs (including partners-only FAQs)
 - CMS features (industries, functions, examples)
 
 **Special permissions:**
@@ -25,6 +26,7 @@ Admins have full access to all data in the system.
 - Can view development sessions (non-admins cannot)
 - Can access partner management
 - Can access WABA and phone number management
+- Can create, edit, and delete FAQs
 
 ### 2. Partner Users (`partner: true`, has `partnerId`)
 
@@ -37,6 +39,7 @@ Partners are resellers or agencies that manage multiple client organisations.
 - Sessions from those agents (excluding development sessions)
 - Chat users who have interacted with those agents
 - Quotes for their client organisations
+- All FAQs (including partners-only FAQs) - view only
 
 **Cannot access:**
 
@@ -44,6 +47,7 @@ Partners are resellers or agencies that manage multiple client organisations.
 - WABAs and phone numbers (admin only)
 - Admin user management
 - CMS features
+- FAQ management (create/edit/delete - admin only)
 
 ### 3. Organisation Users (regular users)
 
@@ -56,6 +60,7 @@ Regular users are associated with one or more organisations via the `organisatio
 - Sessions from those agents (excluding development sessions)
 - Chat users who have interacted with those agents
 - Quotes for their organisations
+- Public FAQs only (those not marked as `partnersOnly`) - view only
 
 **Cannot access:**
 
@@ -63,6 +68,8 @@ Regular users are associated with one or more organisations via the `organisatio
 - Partner features
 - WABAs and phone numbers
 - CMS features
+- Partners-only FAQs
+- FAQ management (create/edit/delete - admin only)
 
 ## Data Filtering Implementation
 

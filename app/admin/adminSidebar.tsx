@@ -12,6 +12,8 @@ import {
   User,
   UserCog,
   MessageCircle,
+  HelpCircle,
+  FolderOpen,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -97,6 +99,17 @@ const menuItems: MenuItem[] = [
     title: "Chat Users",
     url: "/admin/chatUsers",
     icon: User,
+  },
+  {
+    title: "FAQ",
+    url: "/admin/faq",
+    icon: HelpCircle,
+  },
+  {
+    roles: ["admin"],
+    title: "FAQ Categories",
+    url: "/admin/faq-categories",
+    icon: FolderOpen,
   },
   {
     title: "Admin Users",
