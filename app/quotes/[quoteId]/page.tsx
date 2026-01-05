@@ -65,7 +65,11 @@ export default async function PublicQuotePage({
       label: "Management Portal",
       icon: "LayoutDashboard" as const,
     },
-    { id: "service", label: "The Voxd Service", icon: "Wrench" as const },
+    {
+      id: "service",
+      label: `The ${quote.partner.name} Service`,
+      icon: "Wrench" as const,
+    },
     ...(quote.exampleConversations.length > 0
       ? [
           {
@@ -231,7 +235,7 @@ export default async function PublicQuotePage({
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  Voxd Management Portal
+                  {quote.partner.name} Management Portal
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
                   Included with every chatbot
@@ -240,9 +244,9 @@ export default async function PublicQuotePage({
             </div>
 
             <p className="text-gray-600">
-              Every chatbot comes with full access to the Voxd management
-              portal, giving you complete visibility and control over your AI
-              assistant.
+              Every chatbot comes with full access to the {quote.partner.name}{" "}
+              management portal, giving you complete visibility and control over
+              your AI assistant.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -412,7 +416,7 @@ export default async function PublicQuotePage({
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  The Voxd Service
+                  The {quote.partner.name} Service
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
                   What we proactively do for you
@@ -421,8 +425,9 @@ export default async function PublicQuotePage({
             </div>
 
             <p className="text-gray-600">
-              Beyond the technology, Voxd provides an ongoing managed service to
-              ensure your chatbot continues to deliver exceptional results.
+              Beyond the technology, {quote.partner.name} provides an ongoing
+              managed service to ensure your chatbot continues to deliver
+              exceptional results.
             </p>
 
             <div className="space-y-4">
@@ -699,14 +704,14 @@ export default async function PublicQuotePage({
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    Add Voxd as a partner on your WABA
+                    Add {quote.partner.name} as a partner on your WABA
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-600">
                     <CheckCircle
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    Share LLM API key with Voxd
+                    Share LLM API key with {quote.partner.name}
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-600">
                     <CheckCircle
@@ -735,7 +740,7 @@ export default async function PublicQuotePage({
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    Voxd builds your custom chatbot
+                    {quote.partner.name} builds your custom chatbot
                   </li>
                 </ul>
               </div>
@@ -866,9 +871,7 @@ export default async function PublicQuotePage({
           <footer className="text-center py-8 text-sm text-gray-500">
             <p>
               Powered by{" "}
-              <Link href="/" className="font-medium hover:underline">
-                Voxd
-              </Link>
+              <span className="font-medium">{quote.partner.name}</span>
             </p>
             <p className="mt-1">
               <Link href="/privacy-policy" className="hover:underline">

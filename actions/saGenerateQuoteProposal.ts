@@ -5,11 +5,11 @@ import { ServerActionResponse } from "@/types/types";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 
-const VOXD_CONTEXT = `## About Voxd
+const getPartnerContext = (partnerName: string) => `## About ${partnerName}
 
-Voxd provides WhatsApp-based AI chatbot services that help businesses automate customer interactions.
+${partnerName} provides WhatsApp-based AI chatbot services that help businesses automate customer interactions.
 
-### How Voxd Works:
+### How ${partnerName} Works:
 1. **WhatsApp Integration**: We use the Meta API to add webhooks to WhatsApp Business Accounts (WABAs)
 2. **Message Processing**: Incoming messages are saved to our database and queued for processing
 3. **AI-Powered Responses**: Each message is sent to an LLM (Large Language Model) along with:
@@ -22,14 +22,14 @@ Voxd provides WhatsApp-based AI chatbot services that help businesses automate c
 4. **Response Delivery**: The AI-generated reply is saved and sent back to the user via the Meta Graph API
 
 ### Workers System:
-Voxd runs "workers" - separate AI-powered scripts that monitor conversations and perform actions outside the message reply mechanism:
+${partnerName} runs "workers" - separate AI-powered scripts that monitor conversations and perform actions outside the message reply mechanism:
 - Monitor conversation sentiment and notify customer service reps if users are unhappy
 - Send user details to sales teams when they show sufficient interest
 - Workers can be scheduled to run at specific times after conversations end
 - Workers can reply to users, useful for continuing quiet conversations or providing order updates
 
 ### Outbound Messaging:
-- Voxd can send outbound messages to users
+- ${partnerName} can send outbound messages to users
 - For first-time contacts: Messages must use Meta-approved templates
 - Within 24-hour reply window: Messages can be free-form
 - Meta charges for "cold" messages, but replies within the window are free
@@ -57,6 +57,7 @@ const saGenerateQuoteProposal = async ({
     .select(
       "quote.*",
       "organisation.name as organisationName",
+      "partner.name as partnerName",
       "partner.openAiApiKey"
     )
     .where({ "quote.id": quoteId })
@@ -73,6 +74,10 @@ const saGenerateQuoteProposal = async ({
       error: "Partner does not have an OpenAI API key configured",
     };
   }
+
+  // Get the partner context with dynamic name
+  const partnerName = quote.partnerName || "Our company";
+  const partnerContext = getPartnerContext(partnerName);
 
   // Check if there's any specification content to work with
   const hasContent =
@@ -117,11 +122,11 @@ ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
     // Generate the introduction
     const { text: introduction } = await generateText({
       model: openai("gpt-5.2"),
-      system: `You are an expert proposal writer for Voxd, a company that provides WhatsApp-based AI chatbot services.
+      system: `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
-${VOXD_CONTEXT}
+${partnerContext}
 
-The above context is for YOUR UNDERSTANDING ONLY of what Voxd does. Do NOT automatically include all Voxd capabilities in the proposal.
+The above context is for YOUR UNDERSTANDING ONLY of what ${partnerName} does. Do NOT automatically include all ${partnerName} capabilities in the proposal.
 
 Your task is to write a compelling, professional INTRODUCTION section for a client proposal. This introduction should:
 - Welcome the client and thank them for their interest
@@ -141,11 +146,11 @@ Write in Markdown format. Use **bold** for emphasis. Do not use headings in this
     // Generate the detailed specification
     const { text: specification } = await generateText({
       model: openai("gpt-5.2"),
-      system: `You are an expert proposal writer for Voxd, a company that provides WhatsApp-based AI chatbot services.
+      system: `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
-${VOXD_CONTEXT}
+${partnerContext}
 
-The above context is for YOUR UNDERSTANDING ONLY of what Voxd does. Do NOT automatically include all Voxd capabilities in the proposal.
+The above context is for YOUR UNDERSTANDING ONLY of what ${partnerName} does. Do NOT automatically include all ${partnerName} capabilities in the proposal.
 
 Your task is to write a detailed, professional SPECIFICATION section for a client proposal. Based on the client's provided information, you should:
 - Rewrite and expand on ONLY what the client has provided, using professional language
