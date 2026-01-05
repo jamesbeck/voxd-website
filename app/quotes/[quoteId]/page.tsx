@@ -33,6 +33,7 @@ import {
   Zap,
   RefreshCw,
   Lock,
+  Gift,
 } from "lucide-react";
 import { getQuoteForPublic } from "@/lib/getQuoteForPublic";
 import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
@@ -679,6 +680,86 @@ export default async function PublicQuotePage({
                     </p>
                   </div>
                 )}
+              </div>
+
+              {/* Payment Terms */}
+              <div className="space-y-3 text-sm text-gray-600">
+                <div className="flex items-start gap-2">
+                  <CheckCircle
+                    className="h-4 w-4 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <span>Setup fee due at project commencement</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle
+                    className="h-4 w-4 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <span>
+                    Monthly fee paid in advance via Direct Debit from the point
+                    your chatbot is ready for use
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle
+                    className="h-4 w-4 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <span>12 month initial contract term, then rolling monthly</span>
+                </div>
+              </div>
+
+              {/* Free Time Highlight */}
+              <div
+                className="flex items-start gap-3 p-4 rounded-lg"
+                style={{ backgroundColor: `${brandColor}10` }}
+              >
+                <Gift
+                  className="h-5 w-5 mt-0.5 flex-shrink-0"
+                  style={{ color: brandColor }}
+                />
+                <div>
+                  <p className="font-medium text-gray-900">
+                    30 minutes FREE each month
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Every month includes half an hour of complimentary time for
+                    tweaks and amendments to keep your chatbot performing at its
+                    best.
+                  </p>
+                </div>
+              </div>
+
+              {/* Additional Changes */}
+              <p className="text-sm text-gray-500">
+                Additional changes and amendments beyond the included free time
+                are charged at £100/hour.
+              </p>
+
+              {/* LLM Costs Sub-section */}
+              <div className="border-t pt-6">
+                <h3 className="font-semibold text-gray-900 mb-2">LLM Costs</h3>
+                <p className="text-sm text-gray-600">
+                  You will be charged directly by your LLM provider for AI
+                  generation. Costs vary depending on many factors including the
+                  size and complexity of each request. However, the average
+                  conversation across our entire network costs less than a tenth
+                  of a penny (£0.001).
+                </p>
+              </div>
+
+              {/* Meta/WhatsApp Costs Sub-section */}
+              <div className="border-t pt-6">
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Meta/WhatsApp Costs
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Only messages sent outside the 24-hour reply window are
+                  chargeable. These messages must be templated and pre-approved
+                  by Meta. Costs vary but are typically around 1.7p for an
+                  admin/transactional message and 3.5p for a marketing message.
+                </p>
               </div>
             </section>
           )}
