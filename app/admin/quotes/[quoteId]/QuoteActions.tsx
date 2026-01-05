@@ -11,13 +11,17 @@ import saSubmitQuoteForCostPricing from "@/actions/saSubmitQuoteForCostPricing";
 export default function QuoteActions({
   quoteId,
   name,
+  status,
 }: {
   quoteId: string;
   name: string;
+  status: string;
 }) {
   const [isSubmittingForPricing, setIsSubmittingForPricing] = useState(false);
 
   const router = useRouter();
+
+  const canSubmitForPricing = status === "Draft";
 
   const submitForPricing = async () => {
     setIsSubmittingForPricing(true);
@@ -40,17 +44,19 @@ export default function QuoteActions({
 
   return (
     <div className="flex items-center gap-2">
-      <Alert
-        title={`Submit ${name} for Pricing`}
-        description="Are you sure you want to submit this quote for cost pricing from Voxd?"
-        actionText="Submit for Pricing"
-        onAction={submitForPricing}
-      >
-        <Button className="cursor-pointer" size="sm">
-          {isSubmittingForPricing ? <Spinner /> : null}
-          Submit for Cost Pricing from Voxd
-        </Button>
-      </Alert>
+      {canSubmitForPricing && (
+        <Alert
+          title={`Submit ${name} for Pricing`}
+          description="Are you sure you want to submit this quote for cost pricing from Voxd?"
+          actionText="Submit for Pricing"
+          onAction={submitForPricing}
+        >
+          <Button className="cursor-pointer" size="sm">
+            {isSubmittingForPricing ? <Spinner /> : null}
+            Submit for Cost Pricing from Voxd
+          </Button>
+        </Alert>
+      )}
     </div>
   );
 }

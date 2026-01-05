@@ -3,18 +3,14 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saUpdateQuote = async ({
+const saUpdateQuoteProposal = async ({
   quoteId,
-  title,
-  customerId,
-  specification,
-  createdByAdminUserId,
+  generatedIntroduction,
+  generatedSpecification,
 }: {
   quoteId: string;
-  title?: string;
-  customerId?: string;
-  specification?: string;
-  createdByAdminUserId?: string;
+  generatedIntroduction?: string;
+  generatedSpecification?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -23,9 +19,8 @@ const saUpdateQuote = async ({
     };
   }
 
-  //find the existing partner
   const existingQuote = await db("quote")
-    .select("*")
+    .select("id")
     .where({ id: quoteId })
     .first();
 
@@ -38,16 +33,18 @@ const saUpdateQuote = async ({
 
   // Build update object with only provided values
   const updateData: Record<string, any> = {};
-  if (title !== undefined) updateData.title = title;
-  if (customerId !== undefined) updateData.customerId = customerId;
-  if (specification !== undefined) updateData.specification = specification;
-  if (createdByAdminUserId !== undefined)
-    updateData.createdByAdminUserId = createdByAdminUserId || null;
+  if (generatedIntroduction !== undefined)
+    updateData.generatedIntroduction = generatedIntroduction;
+  if (generatedSpecification !== undefined)
+    updateData.generatedSpecification = generatedSpecification;
 
-  //update the quote
+  if (Object.keys(updateData).length === 0) {
+    return { success: true }; // Nothing to update
+  }
+
   await db("quote").where({ id: quoteId }).update(updateData);
 
   return { success: true };
 };
 
-export default saUpdateQuote;
+export default saUpdateQuoteProposal;

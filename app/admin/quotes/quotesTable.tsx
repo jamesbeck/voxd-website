@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import { format } from "date-fns";
 
-const QuotesTable = () => {
+const QuotesTable = ({ isAdmin }: { isAdmin?: boolean }) => {
   const columns = [
     {
       label: "Title",
@@ -28,6 +28,17 @@ const QuotesTable = () => {
       linkTo: (row: any) => `/admin/organisations/${row.organisationId}`,
       // format: (value: string) => value || "",}
     },
+    ...(isAdmin
+      ? [
+          {
+            label: "Partner",
+            name: "partnerName",
+            sort: true,
+            linkTo: (row: any) => `/admin/partners/${row.partnerId}`,
+            format: (row: any) => row.partnerName || "-",
+          },
+        ]
+      : []),
   ];
 
   const actions = (row: any) => {

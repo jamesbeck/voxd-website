@@ -52,6 +52,9 @@ export default async function Page({
                 <TabsTrigger value="quotes">Quotes</TabsTrigger>
               ) : null}
             </TabsList>
+
+            <div className="border-b mb-6" />
+
             <TabsContent value="edit">
               <EditOrganisationForm
                 organisationId={organisation.id}

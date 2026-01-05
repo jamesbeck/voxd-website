@@ -1,5 +1,5 @@
 "use client";
-import { AlertCircleIcon } from "lucide-react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -14,71 +14,60 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import saUpdatePartner from "@/actions/saUpdatePartner";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import saUpdateQuote from "@/actions/saUpdateQuote";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
+import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import H2 from "@/components/adminui/H2";
+import { AlertCircleIcon } from "lucide-react";
 
 const formSchema = z.object({
-  name: z.string().nonempty("Name is required"),
-  domain: z.string().nonempty("Domain is required"),
-  colour: z.string().nonempty("Colour is required"),
-  openAiApiKey: z.string().optional(),
+  title: z.string().min(1, "Title is required"),
+  createdByAdminUserId: z.string().optional(),
 });
 
-export default function EditPartnerForm({
-  partnerId,
-  name,
-  domain,
-  colour,
-  openAiApiKey,
+export default function EditQuoteForm({
+  quoteId,
+  title,
+  createdByAdminUserId,
 }: {
-  partnerId: string;
-  name?: string;
-  domain?: string;
-  colour?: string;
-  openAiApiKey?: string;
+  quoteId: string;
+  title: string;
+  createdByAdminUserId: string | null;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: name || "",
-      domain: domain || "",
-      colour: colour || "",
-      openAiApiKey: openAiApiKey || "",
+      title: title || "",
+      createdByAdminUserId: createdByAdminUserId || "",
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdatePartner({
-      partnerId: partnerId,
-      name: values.name,
-      domain: values.domain,
-      colour: values.colour,
-      openAiApiKey: values.openAiApiKey,
+    const response = await saUpdateQuote({
+      quoteId: quoteId,
+      title: values.title,
+      createdByAdminUserId: values.createdByAdminUserId || undefined,
     });
 
     if (!response.success) {
-      // Handle error case
       setLoading(false);
 
-      toast.error("There was an error updating the partner");
       if (response.error) {
+        toast.error("There was an error updating the quote");
+
         form.setError("root", {
           type: "manual",
           message: response.error,
         });
       }
-
       if (response.fieldErrors) {
         for (const key in response.fieldErrors) {
           form.setError(key as keyof typeof values, {
@@ -90,7 +79,7 @@ export default function EditPartnerForm({
     }
 
     if (response.success) {
-      toast.success(`Partner ${values.name} updated`);
+      toast.success(`Quote updated successfully`);
       router.refresh();
     }
 
@@ -99,19 +88,17 @@ export default function EditPartnerForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <H2>Edit Partner</H2>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="name"
+          name="title"
           rules={{ required: true }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder="Partner Ltd" {...field} />
+                <Input placeholder="Quote title" {...field} />
               </FormControl>
-              {/* <FormDescription>Give the user a name</FormDescription> */}
               <FormMessage />
             </FormItem>
           )}
@@ -119,44 +106,22 @@ export default function EditPartnerForm({
 
         <FormField
           control={form.control}
-          name="domain"
-          rules={{ required: true }}
+          name="createdByAdminUserId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Domain</FormLabel>
+              <FormLabel>Owner</FormLabel>
               <FormControl>
-                <Input placeholder="partner.com" {...field} />
-              </FormControl>
-              {/* <FormDescription>Give the user a name</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="colour"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Colour</FormLabel>
-              <FormControl>
-                <Input placeholder="#000000" {...field} />
-              </FormControl>
-              {/* <FormDescription>Give the user a name</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="openAiApiKey"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>OpenAI API Key</FormLabel>
-              <FormControl>
-                <Input placeholder="sk-..." {...field} />
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetAdminUserTableData}
+                  label={(record) =>
+                    `${record.name}${record.email ? ` (${record.email})` : ""}`
+                  }
+                  valueField="id"
+                  sortField="name"
+                  placeholder="Select an owner..."
+                  emptyMessage="No users found"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -177,7 +142,7 @@ export default function EditPartnerForm({
 
         <Button type="submit" disabled={loading}>
           {loading && <Spinner />}
-          Submit
+          Save Changes
         </Button>
       </form>
     </Form>

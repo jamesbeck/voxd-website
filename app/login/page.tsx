@@ -22,6 +22,17 @@ export default async function LoginPage({
 
   const partner = await getPartnerFromHeaders();
 
+  // Only compute devEmail in development mode - never send to client in production
+  let devEmail: string | undefined;
+  if (process.env.NODE_ENV === "development") {
+    const partnerDomain = process.env.DEVELOPTMENT_PARTNER_DOMAIN;
+    if (partnerDomain === "voxd.ai") {
+      devEmail = "james@jamesbeck.co.uk";
+    } else if (partnerDomain === "portal.chatfox.ai") {
+      devEmail = "jamesandrewbrown@gmail.com";
+    }
+  }
+
   return (
     <div
       style={
@@ -33,7 +44,7 @@ export default async function LoginPage({
       }
     >
       <LoginForm
-        email={idToken?.email}
+        email={devEmail || idToken?.email}
         logoUrl={
           partner?.domain
             ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`

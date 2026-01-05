@@ -28,9 +28,46 @@ const saSubmitQuoteForCostPricing = async ({
     };
   }
 
-  //update the quote status to 'pending_cost_pricing'
+  // Only allow submitting for cost pricing if the quote is in Draft status
+  if (existingQuote.status !== "Draft") {
+    return {
+      success: false,
+      error: "Quote has already been submitted for cost pricing",
+    };
+  }
+
+  // Check if the proposal has been generated
+  if (
+    !existingQuote.generatedIntroduction ||
+    !existingQuote.generatedSpecification
+  ) {
+    return {
+      success: false,
+      error:
+        "Please generate the proposal before submitting for cost pricing. Go to the Specification tab and click 'Save & Generate Proposal', then review the generated content in the Proposal tab.",
+    };
+  }
+
+  // Check if at least one example conversation exists
+  const exampleConversationCount = await db("exampleConversation")
+    .where({ quoteId })
+    .count("id as count")
+    .first();
+
+  const conversationCount =
+    parseInt(exampleConversationCount?.count as string) || 0;
+
+  if (conversationCount === 0) {
+    return {
+      success: false,
+      error:
+        "Please generate at least one example conversation before submitting for cost pricing. Go to the Example Conversations tab and generate a conversation.",
+    };
+  }
+
+  //update the quote status to 'Sent to Voxd for Cost Pricing'
   await db("quote").where({ id: quoteId }).update({
-    status: "awaiting cost pricing",
+    status: "Sent to Voxd for Cost Pricing",
   });
 
   return { success: true };

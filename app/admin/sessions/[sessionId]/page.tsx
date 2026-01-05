@@ -120,6 +120,9 @@ export default async function Page({
             />
           </div>
         </div>
+
+        <div className="border-b mb-6" />
+
         <TabsContent value="conversation">
           <Container>
             <Conversation messages={messages} sessionId={sessionId} />

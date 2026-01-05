@@ -22,15 +22,27 @@ import { Textarea } from "@/components/ui/textarea";
 import saUpdateQuoteSpecification from "@/actions/saUpdateQuoteSpecification";
 
 const formSchema = z.object({
-  specification: z.string().optional(),
+  background: z.string().optional(),
+  objectives: z.string().optional(),
+  dataSources: z.string().optional(),
+  integrationRequirements: z.string().optional(),
+  otherNotes: z.string().optional(),
 });
 
 export default function EditSpecificationForm({
   quoteId,
-  specification,
+  background,
+  objectives,
+  dataSources,
+  integrationRequirements,
+  otherNotes,
 }: {
   quoteId: string;
-  specification: string;
+  background: string | null;
+  objectives: string | null;
+  dataSources: string | null;
+  integrationRequirements: string | null;
+  otherNotes: string | null;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -39,7 +51,11 @@ export default function EditSpecificationForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      specification: specification || "",
+      background: background || "",
+      objectives: objectives || "",
+      dataSources: dataSources || "",
+      integrationRequirements: integrationRequirements || "",
+      otherNotes: otherNotes || "",
     },
   });
 
@@ -49,7 +65,11 @@ export default function EditSpecificationForm({
 
     const response = await saUpdateQuoteSpecification({
       quoteId: quoteId,
-      specification: values.specification,
+      background: values.background,
+      objectives: values.objectives,
+      dataSources: values.dataSources,
+      integrationRequirements: values.integrationRequirements,
+      otherNotes: values.otherNotes,
     });
 
     if (!response.success) {
@@ -88,16 +108,86 @@ export default function EditSpecificationForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="specification"
-          rules={{ required: true }}
+          name="background"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Specification</FormLabel>
+              <FormLabel>Background</FormLabel>
               <FormControl>
-                <Textarea placeholder="" {...field} className="h-[300px]" />
+                <Textarea placeholder="" {...field} className="h-[150px]" />
               </FormControl>
               <FormDescription>
-                Put your specification notes here
+                Company background and context for the project
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="objectives"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Objectives</FormLabel>
+              <FormControl>
+                <Textarea placeholder="" {...field} className="h-[150px]" />
+              </FormControl>
+              <FormDescription>
+                What the client wants to achieve with the chatbot
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="dataSources"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Data Sources</FormLabel>
+              <FormControl>
+                <Textarea placeholder="" {...field} className="h-[150px]" />
+              </FormControl>
+              <FormDescription>
+                What data sources will the chatbot need to access? Examples
+                include client-supplied documents, manually created knowledge
+                base, CRM and back office systems.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="integrationRequirements"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Integration Requirements</FormLabel>
+              <FormControl>
+                <Textarea placeholder="" {...field} className="h-[150px]" />
+              </FormControl>
+              <FormDescription>
+                What systems or APIs need to be integrated? Examples include CRM
+                systems, accountancy packages, or bespoke external systems.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="otherNotes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Other Notes</FormLabel>
+              <FormControl>
+                <Textarea placeholder="" {...field} className="h-[150px]" />
+              </FormControl>
+              <FormDescription>
+                Any other relevant information or requirements
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -114,7 +204,7 @@ export default function EditSpecificationForm({
 
         <Button type="submit" disabled={loading}>
           {loading && <Spinner />}
-          Submit
+          Save & Generate Proposal
         </Button>
       </form>
     </Form>

@@ -1,5 +1,18 @@
 import db from "../database/db";
 
+export type QuoteConversation = {
+  id: string;
+  description: string;
+  prompt: string;
+  startTime: string;
+  messages: {
+    role: "user" | "assistant";
+    content: string;
+    annotation: string | null;
+    time: number;
+  }[];
+};
+
 export type Quote = {
   id: string;
   title: string;
@@ -8,7 +21,21 @@ export type Quote = {
   organisationName: string;
   partnerId: string;
   status: string;
-  specification: string;
+  background: string | null;
+  objectives: string | null;
+  dataSources: string | null;
+  integrationRequirements: string | null;
+  otherNotes: string | null;
+  setupFee: number | null;
+  monthlyFee: number | null;
+  setupFeeVoxdCost: number | null;
+  monthlyFeeVoxdCost: number | null;
+  exampleConversations: QuoteConversation[];
+  createdByAdminUserId: string | null;
+  ownerName: string | null;
+  ownerEmail: string | null;
+  generatedIntroduction: string | null;
+  generatedSpecification: string | null;
 };
 
 export const getQuoteById = async ({
@@ -16,13 +43,42 @@ export const getQuoteById = async ({
 }: {
   quoteId: string;
 }): Promise<Quote | null> => {
-  const quote = await db<Quote>("quote")
+  const quote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
+    .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
     .where("quote.id", quoteId)
-    .select("quote.*", "organisation.name as organisationName")
+    .select(
+      "quote.*",
+      "organisation.name as organisationName",
+      "organisation.partnerId",
+      "adminUser.name as ownerName",
+      "adminUser.email as ownerEmail"
+    )
     .first();
 
-  return quote;
+  if (!quote) {
+    return null;
+  }
+
+  // Get example conversations for this quote
+  const conversations = await db("exampleConversation")
+    .where("quoteId", quoteId)
+    .select("id", "description", "prompt", "startTime", "messages")
+    .orderBy("id", "asc");
+
+  // Parse the messages JSON for each conversation
+  const parsedConversations = conversations.map((conv) => ({
+    ...conv,
+    messages:
+      typeof conv.messages === "string"
+        ? JSON.parse(conv.messages)
+        : conv.messages,
+  }));
+
+  return {
+    ...quote,
+    exampleConversations: parsedConversations,
+  };
 };
 
 export default getQuoteById;

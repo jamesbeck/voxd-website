@@ -26,6 +26,24 @@ When working with database-related code in this project:
 - `assistantMessage` - AI-generated responses
 - `toolCall` - Tool/function calls made by the AI
 - `workerRun` - Background worker execution logs
+- `quote` - Quotes for client projects
+
+## Quote Stages
+
+Quotes progress through the following stages (stored as plain English strings in the `quote.status` column):
+
+1. **Draft** - Initial state when a quote is created. The partner is drafting the specification and details.
+2. **Sent to Voxd for Cost Pricing** - The partner has submitted the quote to Voxd for cost pricing review.
+3. **Cost Pricing Received from Voxd** - Voxd has provided cost pricing (setupFeeVoxdCost, monthlyFeeVoxdCost). The partner can now set their client-facing prices.
+4. **Sent to Client** - The quote has been sent to the end client for review.
+5. **Closed** - The quote process is complete (accepted or rejected).
+
+### Quote Pricing Fields
+
+- `setupFee` - One-time setup fee charged to the customer (editable by partner owner or admin)
+- `monthlyFee` - Recurring monthly fee charged to the customer (editable by partner owner or admin)
+- `setupFeeVoxdCost` - Voxd's cost for setup (editable by admin only, visible to partners)
+- `monthlyFeeVoxdCost` - Voxd's monthly cost (editable by admin only, visible to partners)
 
 ## API Structure
 

@@ -9,11 +9,13 @@ const saUpdatePartner = async ({
   name,
   domain,
   colour,
+  openAiApiKey,
 }: {
   partnerId: string;
   name?: string;
   domain?: string;
   colour?: string;
+  openAiApiKey?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -48,6 +50,7 @@ const saUpdatePartner = async ({
     name,
     domain,
     colour,
+    openAiApiKey,
   });
 
   return { success: true };

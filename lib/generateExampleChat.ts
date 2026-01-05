@@ -17,7 +17,7 @@ const generateExampleChat = async ({
   const example = await getExampleById(exampleId);
 
   const { object } = await generateObject({
-    model: openai("gpt-5"),
+    model: openai("gpt-5.2"),
     schema: z.object({
       summary: z
         .string()

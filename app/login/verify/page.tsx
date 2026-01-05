@@ -24,6 +24,12 @@ export default async function VerifyCodePage({
 
   const partner = await getPartnerFromHeaders();
 
+  // Only pass devOtp in development mode - never send to client in production
+  const devOtp =
+    process.env.NODE_ENV === "development"
+      ? process.env.MASTER_OTP_CODE
+      : undefined;
+
   return (
     <div
       style={
@@ -41,6 +47,7 @@ export default async function VerifyCodePage({
             : undefined
         }
         redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
+        devOtp={devOtp}
       />
     </div>
   );

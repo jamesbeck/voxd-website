@@ -39,12 +39,16 @@ export default async function Page({
               <TabsTrigger value="edit">Edit Partner</TabsTrigger>
               {/* <TabsTrigger value="sessions">Sessions</TabsTrigger> */}
             </TabsList>
+
+            <div className="border-b mb-6" />
+
             <TabsContent value="edit">
               <EditPartnerForm
                 partnerId={partnerId}
                 name={partner.name}
                 domain={partner.domain}
                 colour={partner.colour}
+                openAiApiKey={partner.openAiApiKey}
               />
             </TabsContent>
             {/* <TabsContent value="sessions">

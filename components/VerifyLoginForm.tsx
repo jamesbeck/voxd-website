@@ -23,12 +23,14 @@ import Image from "next/image";
 export default function VerifyLoginForm({
   logoUrl,
   redirectTo,
+  devOtp,
 }: {
   logoUrl?: string;
   redirectTo?: string;
+  devOtp?: string;
 }) {
   const form = useForm<{ otp: string }>({
-    defaultValues: { otp: "" },
+    defaultValues: { otp: devOtp || "" },
   });
   const [loading, setLoading] = React.useState(false);
 

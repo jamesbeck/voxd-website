@@ -2,16 +2,22 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
-// import { openai } from "@ai-sdk/openai";
-// import { generateObject } from "ai";
-// import { z } from "zod";
+import saGenerateQuoteProposal from "./saGenerateQuoteProposal";
 
 const saUpdateQuote = async ({
   quoteId,
-  specification,
+  background,
+  objectives,
+  dataSources,
+  integrationRequirements,
+  otherNotes,
 }: {
   quoteId: string;
-  specification?: string;
+  background?: string;
+  objectives?: string;
+  dataSources?: string;
+  integrationRequirements?: string;
+  otherNotes?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -36,46 +42,20 @@ const saUpdateQuote = async ({
 
   //update the quote
   await db("quote").where({ id: quoteId }).update({
-    specification,
+    background,
+    objectives,
+    dataSources,
+    integrationRequirements,
+    otherNotes,
   });
 
-  // //apraise the specification using AI
-  // const { object } = await generateObject({
-  //   model: openai("gpt-5-nano"),
-  //   schema: z.object({
-  //     questions: z
-  //       .string()
-  //       .array()
-  //       .describe("Questions that need answering to provide an accurate quote.")
-  //       .length(5),
-  //   }),
-  //   prompt: `
-  //       Look at the belwow specification for a WhatsApp powered ChatBot. The specification has been written by a customer.
-
-  //       What's missing from the specification that would be needed to provide an accurate quote for the implementation of the chat bot?
-
-  //       Only think of the top 5 most important questions that will help us provide an accurate quote.
-
-  //       This is a high level specification, do not ask for loads of detail.
-
-  //       The bot will be built on a comprehensive platform and you cna assume it has all the standard features you would expect from a WhatsApp chatbot / AI platform.
-
-  //       Do not mention:
-  //       - Human handover or other channels
-  //       - Non price effecting factors, only focus on things that will effect the price
-  //       - SLA's
-  //       - Updates or future changes
-  //       - Analytics / reporting
-  //       - Running costs, hosting, backups, etc.
-
-  //       The quote is titled "${existingQuote.title}", it's for a company called "${existingQuote.organisationName}"
-
-  //       Specification:
-  //       ${specification}
-  //   `,
-  // });
-
-  // console.log(object);
+  // Generate the proposal using AI (don't block on errors)
+  try {
+    await saGenerateQuoteProposal({ quoteId });
+  } catch (error) {
+    console.error("Error generating proposal:", error);
+    // Don't fail the whole operation if AI generation fails
+  }
 
   return { success: true };
 };

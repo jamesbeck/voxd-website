@@ -52,6 +52,9 @@ export default async function Page({ params }: { params: { userId: string } }) {
 
               <UserActions user={user} />
             </div>
+
+            <div className="border-b mb-6" />
+
             <TabsContent value="edit">
               <EditUserForm
                 userId={userId}

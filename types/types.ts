@@ -45,6 +45,7 @@ export interface Partner {
   name: string;
   colour: string;
   domain: string;
+  openAiApiKey?: string;
 }
 
 export interface Example {

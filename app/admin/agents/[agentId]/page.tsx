@@ -111,6 +111,9 @@ export default async function Page({
                 <AgentActions agentId={agentId} name={agent?.name || ""} />
               )}
             </div>
+
+            <div className="border-b mb-6" />
+
             <TabsContent value="info">
               <Container>
                 <DataCard

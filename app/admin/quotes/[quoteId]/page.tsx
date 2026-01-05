@@ -6,18 +6,37 @@ import { notFound } from "next/navigation";
 import getOrganisations from "@/lib/getOrganisations";
 import { getQuoteById, Quote } from "@/lib/getQuoteById";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { format } from "date-fns";
+import { format, formatDistance } from "date-fns";
 import EditSpecificationForm from "./editSpecificationForm";
+import EditPricingForm from "./EditPricingForm";
+import ExampleConversationsTab from "./ExampleConversationsTab";
 import QuoteActions from "./QuoteActions";
+import DataCard from "@/components/adminui/DataCard";
+import {
+  Calendar,
+  FileText,
+  Activity,
+  Building,
+  ExternalLink,
+  User,
+} from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
+import QuoteProgress from "./QuoteProgress";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import EditQuoteForm from "./EditQuoteForm";
+import EditProposalForm from "./EditProposalForm";
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: { quoteId: string };
+  searchParams: { tab?: string };
 }) {
   const quoteId = (await params).quoteId;
+  const activeTab = (await searchParams).tab || "info";
 
   let quote: Quote | null = null;
 
@@ -28,6 +47,12 @@ export default async function Page({
 
   //get organisations for the select
   const organisations = await getOrganisations();
+
+  // Get access token to determine user permissions
+  const accessToken = await verifyAccessToken();
+  const isAdmin = accessToken.admin;
+  const isOwnerPartner =
+    accessToken.partner && quote?.partnerId === accessToken.partnerId;
 
   return (
     <Container>
@@ -44,46 +69,175 @@ export default async function Page({
           { label: quote ? quote.title : "New Quote" },
         ]}
       />
-      <H1>{`${quote?.organisationName} - ${quote?.title}` || "New Quote"}</H1>
+      <H1>
+        {quote ? `${quote.organisationName} - ${quote.title}` : "New Quote"}
+      </H1>
 
       {quote && (
         <>
-          <Card>
-            <CardContent>
-              <div>
-                <b>{quote?.id}</b>
-              </div>
-              <div>
-                <b>Created:</b> {format(quote?.createdAt, "dd/MM/yyyy")}
-              </div>
-              <div>
-                <b>Status:</b>{" "}
-                <Badge variant="secondary" className="mb-4 capitalize">
-                  {quote?.status}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+          <QuoteProgress status={quote.status} />
 
-          <QuoteActions quoteId={quote.id} name={quote.title} />
+          <Tabs value={activeTab} className="space-y-2">
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <TabsList>
+                <TabsTrigger value="info" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=info`}>Info</Link>
+                </TabsTrigger>
+                <TabsTrigger value="edit" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=edit`}>Edit</Link>
+                </TabsTrigger>
+                <TabsTrigger value="specification" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=specification`}>
+                    Specification
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="proposal" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=proposal`}>
+                    Proposal
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="pricing" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=pricing`}>
+                    Pricing
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="exampleConversations" asChild>
+                  <Link
+                    href={`/admin/quotes/${quote.id}?tab=exampleConversations`}
+                  >
+                    Example Conversations
+                  </Link>
+                </TabsTrigger>
+              </TabsList>
 
-          <Tabs defaultValue="agents" className="space-y-2">
-            <TabsList>
-              <TabsTrigger value="edit">Edit Quote</TabsTrigger>
-              <TabsTrigger value="specification">Specification</TabsTrigger>
-              <TabsTrigger value="pricing">Pricing</TabsTrigger>
-              <TabsTrigger value="exampleConversations">
-                Example Conversations
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="edit">Edit quote form here</TabsContent>
+              <div className="flex items-center gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/admin/quotes`}>
+                    <ChevronLeft className="h-4 w-4" />
+                    Back to Quotes
+                  </Link>
+                </Button>
+
+                <QuoteActions
+                  quoteId={quote.id}
+                  name={quote.title}
+                  status={quote.status}
+                />
+              </div>
+            </div>
+
+            <div className="border-b mb-6" />
+
+            <TabsContent value="info">
+              <DataCard
+                items={[
+                  {
+                    label: "Quote ID",
+                    value: quote.id,
+                    icon: <FileText className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Organisation",
+                    value: quote.organisationName,
+                    icon: <Building className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Created",
+                    value: format(quote.createdAt, "dd/MM/yyyy HH:mm"),
+                    description: formatDistance(quote.createdAt, new Date(), {
+                      addSuffix: true,
+                    }),
+                    icon: <Calendar className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Status",
+                    value: <span className="capitalize">{quote.status}</span>,
+                    icon: <Activity className="h-4 w-4" />,
+                    variant:
+                      quote.status === "accepted"
+                        ? "success"
+                        : quote.status === "rejected"
+                        ? "danger"
+                        : "default",
+                  },
+                  {
+                    label: "Owner",
+                    value: quote.ownerName ? (
+                      <div>
+                        <div>{quote.ownerName}</div>
+                        {quote.ownerEmail && (
+                          <div className="text-sm text-muted-foreground">
+                            {quote.ownerEmail}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Not assigned
+                      </span>
+                    ),
+                    icon: <User className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Public Quote Link",
+                    value: (
+                      <a
+                        href={`/quotes/${quote.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-primary hover:underline"
+                      >
+                        View Quote Page
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ),
+                    icon: <ExternalLink className="h-4 w-4" />,
+                  },
+                ]}
+              />
+            </TabsContent>
+            <TabsContent value="edit">
+              <EditQuoteForm
+                quoteId={quote.id}
+                title={quote.title}
+                createdByAdminUserId={quote.createdByAdminUserId}
+              />
+            </TabsContent>
             <TabsContent value="specification">
               <EditSpecificationForm
                 quoteId={quote.id}
-                specification={quote.specification}
+                background={quote.background}
+                objectives={quote.objectives}
+                dataSources={quote.dataSources}
+                integrationRequirements={quote.integrationRequirements}
+                otherNotes={quote.otherNotes}
               />
             </TabsContent>
-            <TabsContent value="pricing">Pricing here</TabsContent>
+            <TabsContent value="proposal">
+              <EditProposalForm
+                quoteId={quote.id}
+                generatedIntroduction={quote.generatedIntroduction}
+                generatedSpecification={quote.generatedSpecification}
+              />
+            </TabsContent>
+            <TabsContent value="pricing">
+              <EditPricingForm
+                quoteId={quote.id}
+                setupFee={quote.setupFee}
+                monthlyFee={quote.monthlyFee}
+                setupFeeVoxdCost={quote.setupFeeVoxdCost}
+                monthlyFeeVoxdCost={quote.monthlyFeeVoxdCost}
+                isAdmin={isAdmin}
+                isOwnerPartner={isOwnerPartner}
+              />
+            </TabsContent>
+            <TabsContent value="exampleConversations">
+              <ExampleConversationsTab
+                quoteId={quote.id}
+                conversations={quote.exampleConversations}
+                organisationName={quote.organisationName}
+              />
+            </TabsContent>
           </Tabs>
         </>
       )}

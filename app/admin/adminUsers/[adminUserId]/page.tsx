@@ -47,6 +47,9 @@ export default async function Page({
             <TabsList>
               <TabsTrigger value="edit">Edit User</TabsTrigger>
             </TabsList>
+
+            <div className="border-b mb-6" />
+
             <TabsContent value="edit">
               <EditAdminUserForm
                 adminUserId={adminUserId}

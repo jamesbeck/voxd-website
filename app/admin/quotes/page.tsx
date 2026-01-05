@@ -13,6 +13,8 @@ export default async function Page() {
 
   if (!accessToken?.partner && !accessToken?.admin) notFound();
 
+  const isAdmin = accessToken?.admin ?? false;
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -26,7 +28,7 @@ export default async function Page() {
         </Button>
       </div>
 
-      <QuotesTable />
+      <QuotesTable isAdmin={isAdmin} />
     </Container>
   );
 }

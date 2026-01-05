@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { z, treeifyError } from "zod";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 // Validation schema for creating a quote
 const createQuoteSchema = z.object({
@@ -26,10 +27,18 @@ const saCreateQuote = async (input: {
 
   const { title, organisationId } = parsed.data;
 
+  // Get logged-in user to set as owner
+  const accessToken = await verifyAccessToken();
+
   // Insert new quote (include organisationId if column exists; adjust as needed)
   try {
     const [newQuote] = await db("quote")
-      .insert({ title, organisationId, status: "draft" })
+      .insert({
+        title,
+        organisationId,
+        status: "Draft",
+        createdByAdminUserId: accessToken.adminUserId,
+      })
       .returning("id");
 
     return { success: true, data: newQuote };

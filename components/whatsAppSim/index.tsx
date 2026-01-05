@@ -25,7 +25,7 @@ export default function WhatsAppSim({
   }[];
   businessName: string;
   startTime: string;
-  exampleId: string;
+  exampleId?: string;
 }) {
   // iphone background image is 1350x2760
   // height is 2.0444444 width
@@ -89,13 +89,19 @@ export default function WhatsAppSim({
           <div className="w-full py-[10px] flex items-center">
             <ChevronLeftIcon className="w-8 h-8" />
             <div className="w-[36px] h-[36px] relative ml-[10px]">
-              <Image
-                src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${exampleId}.png`}
-                alt="Logo"
-                fill
-                style={{ objectFit: "contain" }}
-                className="rounded-full bg-white"
-              />
+              {exampleId ? (
+                <Image
+                  src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${exampleId}.png`}
+                  alt="Logo"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  className="rounded-full bg-white"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
+                  {businessName.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
             <div className="flex flex-col space-y-[-2px] ml-[10px]">
               <div className="text-[14px] font-bold">{businessName}</div>

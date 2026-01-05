@@ -80,6 +80,8 @@ export default async function Page({
           )}
         </div>
 
+        <div className="border-b mb-6" />
+
         <TabsContent value="info">
           <Container>
             <DataCard

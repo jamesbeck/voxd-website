@@ -27,7 +27,8 @@ const saGetQuoteTableData = async ({
 
   const base = db("quote")
     .leftJoin("organisation", "organisation.id", "quote.organisationId")
-    .groupBy("quote.id", "organisation.id")
+    .leftJoin("partner", "partner.id", "organisation.partnerId")
+    .groupBy("quote.id", "organisation.id", "partner.id")
     .where((qb) => {
       if (search) {
         qb.where("organisation.name", "ilike", `%${search}%`);
@@ -38,7 +39,7 @@ const saGetQuoteTableData = async ({
   if (organisationId) base.where("quote.organisationId", organisationId);
 
   //if not admin add where clause to only get the quote for relevant organisations
-  if (accessToken?.partner) {
+  if (accessToken?.partner && !accessToken?.admin) {
     base.where("organisation.partnerId", accessToken.partnerId);
   }
 
@@ -53,7 +54,12 @@ const saGetQuoteTableData = async ({
 
   const quotes = await base
     .clone()
-    .select("quote.*", "organisation.name as organisationName")
+    .select(
+      "quote.*",
+      "organisation.name as organisationName",
+      "partner.name as partnerName",
+      "partner.id as partnerId"
+    )
 
     // .select([db.raw('COUNT("agent"."id")::int as "agentCount"')])
     .orderBy(sortField, sortDirection)
