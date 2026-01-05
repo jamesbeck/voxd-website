@@ -9,6 +9,9 @@ interface MarkdownContentProps {
 }
 
 export function MarkdownContent({ content, className }: MarkdownContentProps) {
+  // Replace em dashes with spaced hyphens for better readability
+  const processedContent = content.replace(/—/g, " - ");
+
   return (
     <div className={cn("prose prose-slate max-w-none", className)}>
       <ReactMarkdown
@@ -98,7 +101,7 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
           hr: () => <hr className="my-6 border-gray-200" />,
         }}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );
