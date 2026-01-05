@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import {
   FileText,
   Calendar,
@@ -37,6 +38,44 @@ import { getQuoteForPublic } from "@/lib/getQuoteForPublic";
 import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
 import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { quoteId: string };
+}): Promise<Metadata> {
+  const quoteId = (await params).quoteId;
+  const quote = await getQuoteForPublic({ quoteId });
+
+  if (!quote) {
+    return {
+      title: "Quote Not Found",
+      description: "The requested quote could not be found.",
+    };
+  }
+
+  const title = `${quote.title} | ${quote.partner.name}`;
+  const description = `AI Chatbot Implementation Proposal for ${quote.organisationName} - prepared by ${quote.partner.name}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
+}
 
 export default async function PublicQuotePage({
   params,
