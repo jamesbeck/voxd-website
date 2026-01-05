@@ -14,13 +14,15 @@ export function proxy(request: NextRequest) {
   // Paths that are always allowed (login and admin)
   const isLoginPath = request.nextUrl.pathname.startsWith("/login");
   const isAdminPath = request.nextUrl.pathname.startsWith("/admin");
+  const isQuotesPath = request.nextUrl.pathname.startsWith("/quotes");
 
   // Only redirect GET requests for tenant domains
   const shouldRedirect =
     !allowedDomains.includes(domain) && // Not an allowed domain
     request.method === "GET" && // Only GET requests
     !isLoginPath && // Not already on login
-    !isAdminPath; // Not on admin
+    !isAdminPath && // Not on admin
+    !isQuotesPath; // Not on quotes (public quote pages)
 
   if (shouldRedirect) {
     const loginUrl = new URL("/login", request.url);
