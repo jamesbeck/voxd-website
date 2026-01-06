@@ -211,6 +211,71 @@ export default async function saSyncWithMeta(): Promise<ServerActionResponse> {
           });
         }
       }
+
+      // Sync message templates for this WABA
+      const templates = await getAll<{
+        id: string;
+        name: string;
+        status: string;
+        category: string;
+        language: string;
+        components?: unknown[];
+        parameter_format?: string;
+        sub_category?: string;
+      }>(`${GRAPH_URL}/${waba.id}/message_templates`, {
+        limit: 100,
+        fields:
+          "id,name,status,category,language,components,parameter_format,sub_category",
+      });
+
+      for (const template of templates) {
+        const templateData = {
+          language: template.language,
+          components: template.components,
+          parameter_format: template.parameter_format,
+          sub_category: template.sub_category,
+        };
+
+        // Do we already have this template?
+        const existingTemplate = await db("waTemplate")
+          .where({ wabaId: dbWabaId, metaId: template.id })
+          .first();
+
+        if (existingTemplate) {
+          // Update
+          await db("waTemplate")
+            .where({ wabaId: dbWabaId, metaId: template.id })
+            .update({
+              name: template.name,
+              status: template.status,
+              category: template.category,
+              data: JSON.stringify(templateData),
+              updatedAt: db.fn.now(),
+            });
+        } else {
+          // Create
+          await db("waTemplate").insert({
+            wabaId: dbWabaId,
+            metaId: template.id,
+            name: template.name,
+            status: template.status,
+            category: template.category,
+            data: JSON.stringify(templateData),
+          });
+        }
+      }
+
+      // Remove templates that no longer exist in Meta
+      const templateMetaIds = templates.map((t) => t.id);
+      if (templateMetaIds.length > 0) {
+        await db("waTemplate")
+          .where({ wabaId: dbWabaId })
+          .whereNotIn("metaId", templateMetaIds)
+          .delete();
+      } else {
+        // If no templates returned, delete all for this WABA
+        await db("waTemplate").where({ wabaId: dbWabaId }).delete();
+      }
     }
   } catch (error) {
     console.error("Error syncing with Meta:", error);

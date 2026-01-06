@@ -4,7 +4,7 @@ const getSessions = async ({ agentId }: { agentId: string }) => {
   const sessions = await db("session")
     .join("user", "session.userId", "user.id")
     .join("userMessage", "session.id", "userMessage.sessionId")
-    .where("session.agentId", agentId)
+    .where("user.agentId", agentId)
     .groupBy("session.id", "user.id")
     .select(
       "session.id",

@@ -24,7 +24,7 @@ const saGetSessionsTableData = async ({
   const base = db("session")
     .join("user", "session.userId", "user.id")
     .join("userMessage", "session.id", "userMessage.sessionId")
-    .join("agent", "session.agentId", "agent.id")
+    .join("agent", "user.agentId", "agent.id")
     .groupBy("session.id", "user.id", "agent.id")
     .where((qb) => {
       if (search) {
@@ -33,7 +33,7 @@ const saGetSessionsTableData = async ({
     });
 
   if (agentId) {
-    base.where("session.agentId", agentId);
+    base.where("user.agentId", agentId);
   }
 
   if (userId) {

@@ -38,6 +38,7 @@ export interface User {
   partnerId?: string;
   testingAgentId?: string;
   organisationIds?: string[];
+  data?: Record<string, unknown>;
 }
 
 export interface Partner {

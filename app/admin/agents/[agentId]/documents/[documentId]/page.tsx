@@ -5,7 +5,6 @@ import Container from "@/components/adminui/Container";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import H2 from "@/components/adminui/H2";
 import { notFound } from "next/navigation";
-import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import Link from "next/link";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
@@ -41,7 +40,6 @@ export default async function Page({
   if (!document) return notFound();
 
   // Verify the user can view this agent
-  const token = await verifyAccessToken();
   if (!(await userCanViewAgent({ agentId }))) {
     return notFound();
   }
@@ -75,15 +73,13 @@ export default async function Page({
                 Info
               </Link>
             </TabsTrigger>
-            {!!token.admin && (
-              <TabsTrigger value="edit" asChild>
-                <Link
-                  href={`/admin/agents/${agentId}/documents/${documentId}?tab=edit`}
-                >
-                  Edit
-                </Link>
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="edit" asChild>
+              <Link
+                href={`/admin/agents/${agentId}/documents/${documentId}?tab=edit`}
+              >
+                Edit
+              </Link>
+            </TabsTrigger>
             <TabsTrigger value="chunks" asChild>
               <Link
                 href={`/admin/agents/${agentId}/documents/${documentId}?tab=chunks`}
@@ -92,13 +88,11 @@ export default async function Page({
               </Link>
             </TabsTrigger>
           </TabsList>
-          {!!token.admin && (
-            <DocumentActions
-              documentId={documentId}
-              documentTitle={document.title}
-              agentId={agentId}
-            />
-          )}
+          <DocumentActions
+            documentId={documentId}
+            documentTitle={document.title}
+            agentId={agentId}
+          />
         </div>
 
         <div className="border-b mb-6" />
@@ -165,22 +159,20 @@ export default async function Page({
           </Container>
         </TabsContent>
 
-        {!!token.admin && (
-          <TabsContent value="edit">
-            <Container>
-              <H2>Edit Document</H2>
-              <EditDocumentForm
-                documentId={documentId}
-                agentId={agentId}
-                title={document.title}
-                description={document.description}
-                sourceUrl={document.sourceUrl}
-                sourceType={document.sourceType}
-                enabled={document.enabled}
-              />
-            </Container>
-          </TabsContent>
-        )}
+        <TabsContent value="edit">
+          <Container>
+            <H2>Edit Document</H2>
+            <EditDocumentForm
+              documentId={documentId}
+              agentId={agentId}
+              title={document.title}
+              description={document.description}
+              sourceUrl={document.sourceUrl}
+              sourceType={document.sourceType}
+              enabled={document.enabled}
+            />
+          </Container>
+        </TabsContent>
 
         <TabsContent value="chunks">
           <Container>

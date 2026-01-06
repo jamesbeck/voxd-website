@@ -20,7 +20,8 @@ const saGetAgentTableData = async ({
   const accessToken = await verifyAccessToken();
 
   const base = db("agent")
-    .leftJoin("session", "agent.id", "session.agentId")
+    .leftJoin("user", "agent.id", "user.agentId")
+    .leftJoin("session", "user.id", "session.userId")
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
     .groupBy("agent.id", "phoneNumber.id")

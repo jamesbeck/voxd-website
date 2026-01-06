@@ -5,6 +5,7 @@ import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { embed } from "ai";
+import userCanViewAgent from "@/lib/userCanViewAgent";
 
 const saUpdateChunk = async ({
   chunkId,
@@ -38,6 +39,11 @@ const saUpdateChunk = async ({
       success: false,
       error: "Chunk not found",
     };
+  }
+
+  // Verify the user can access this agent
+  if (!(await userCanViewAgent({ agentId: chunk.agentId }))) {
+    return { success: false, error: "Unauthorized" };
   }
 
   if (!chunk.openAiApiKey) {

@@ -15,9 +15,9 @@ const saSendMessage = async ({
 
   try {
     const session = await db("session")
-      .leftJoin("agent", "session.agentId", "agent.id")
-      .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
       .leftJoin("user", "session.userId", "user.id")
+      .leftJoin("agent", "user.agentId", "agent.id")
+      .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
       .where({ "session.id": sessionId })
       .select(
         "session.id",

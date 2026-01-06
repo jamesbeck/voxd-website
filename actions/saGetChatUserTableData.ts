@@ -21,10 +21,11 @@ const saGetChatUserTableData = async ({
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Helper to build access-restricted session subquery
-  const buildAccessRestrictedSessionQuery = () => {
-    const subquery = db("session")
-      .leftJoin("agent", "session.agentId", "agent.id")
+  // Helper to build access-restricted user query
+  // Users are now scoped to agents directly (user.agentId)
+  const buildAccessRestrictedUserQuery = () => {
+    const subquery = db("user")
+      .leftJoin("agent", "user.agentId", "agent.id")
       .leftJoin("organisation", "agent.organisationId", "organisation.id");
 
     if (organisationId) {
@@ -44,6 +45,17 @@ const saGetChatUserTableData = async ({
     if (accessToken?.partner && !accessToken.admin) {
       subquery.where("organisation.partnerId", accessToken!.partnerId);
     }
+
+    return subquery;
+  };
+
+  // Helper to build session query for a user (sessions no longer have agentId)
+  const buildSessionQueryForUser = () => {
+    const subquery = db("session")
+      .leftJoin("user as sessionUser", "session.userId", "sessionUser.id")
+      .leftJoin("agent", "sessionUser.agentId", "agent.id")
+      .leftJoin("organisation", "agent.organisationId", "organisation.id");
+
     // Only admin can see development sessions
     if (!accessToken.admin) {
       subquery.where("session.sessionType", "!=", "development");
@@ -53,45 +65,26 @@ const saGetChatUserTableData = async ({
   };
 
   // Session count subquery
-  const sessionCountSubquery = buildAccessRestrictedSessionQuery()
+  const sessionCountSubquery = buildSessionQueryForUser()
     .clone()
     .select(db.raw('COUNT(DISTINCT "session"."id")'))
     .whereRaw('"session"."userId" = "user"."id"');
 
   // Message count subquery
-  const messageCountSubquery = buildAccessRestrictedSessionQuery()
+  const messageCountSubquery = buildSessionQueryForUser()
     .clone()
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .select(db.raw('COUNT("userMessage"."id")'))
     .whereRaw('"session"."userId" = "user"."id"');
 
   // Last message subquery
-  const lastMessageSubquery = buildAccessRestrictedSessionQuery()
+  const lastMessageSubquery = buildSessionQueryForUser()
     .clone()
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .select(db.raw('MAX("userMessage"."createdAt")'))
     .whereRaw('"session"."userId" = "user"."id"');
 
-  // Agents subquery
-  const agentsSubquery = buildAccessRestrictedSessionQuery()
-    .clone()
-    .select(
-      db.raw(`
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', "agent"."id",
-              'name', "agent"."name",
-              'niceName', "agent"."niceName"
-            )
-          ) FILTER (WHERE "agent"."id" IS NOT NULL),
-          '[]'
-        )
-      `)
-    )
-    .whereRaw('"session"."userId" = "user"."id"');
-
-  // Cost subquery
+  // Cost subquery - now uses user.agentId instead of session.agentId
   const costSubquery = db("assistantMessage")
     .select(
       db.raw(
@@ -100,28 +93,31 @@ const saGetChatUserTableData = async ({
     )
     .leftJoin("model", "assistantMessage.modelId", "model.id")
     .leftJoin("session", "assistantMessage.sessionId", "session.id")
-    .leftJoin("agent", "session.agentId", "agent.id")
-    .leftJoin("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("user as costUser", "session.userId", "costUser.id")
+    .leftJoin("agent as costAgent", "costUser.agentId", "costAgent.id")
+    .leftJoin(
+      "organisation as costOrg",
+      "costAgent.organisationId",
+      "costOrg.id"
+    )
     .whereRaw('"session"."userId" = "user"."id"')
     .modify((qb: any) => {
       if (organisationId) {
-        qb.where("organisation.id", organisationId);
+        qb.where("costOrg.id", organisationId);
       }
       if (agentId) {
-        qb.where("agent.id", agentId);
+        qb.where("costAgent.id", agentId);
       }
       if (!accessToken.partner && !accessToken.admin) {
         qb.whereExists(function (this: any) {
           this.select(db.raw(1))
             .from("organisationUser")
-            .whereRaw(
-              '"organisationUser"."organisationId" = "organisation"."id"'
-            )
+            .whereRaw('"organisationUser"."organisationId" = "costOrg"."id"')
             .where("organisationUser.adminUserId", accessToken!.adminUserId);
         });
       }
       if (accessToken?.partner && !accessToken.admin) {
-        qb.where("organisation.partnerId", accessToken!.partnerId);
+        qb.where("costOrg.partnerId", accessToken!.partnerId);
       }
       // Only admin can see development sessions
       if (!accessToken.admin) {
@@ -129,13 +125,8 @@ const saGetChatUserTableData = async ({
       }
     });
 
-  // Base query just for users who have sessions matching access criteria
-  const base = db("user").whereExists(
-    buildAccessRestrictedSessionQuery()
-      .clone()
-      .select(db.raw(1))
-      .whereRaw('"session"."userId" = "user"."id"')
-  );
+  // Base query - filter users by access
+  const base = buildAccessRestrictedUserQuery().clone().select("user.*");
 
   if (search) {
     base.where((qb) => {
@@ -148,23 +139,25 @@ const saGetChatUserTableData = async ({
   }
 
   //count query
-  const countQuery = base.clone().select("user.id");
+  const countQuery = base.clone().clearSelect().select("user.id as userId");
   const countResult = await db
-    .count<{ count: string }>("id")
+    .count<{ count: string }>("userId")
     .from(countQuery)
     .first();
 
   const totalAvailable = countResult ? parseInt(countResult.count) : 0;
 
   // now select and query what we want for the data and apply pagination
+  // User now has a single agent directly via user.agentId
   const dataQuery = base
     .clone()
-    .select("user.*")
     .select([
       db.raw(`(${sessionCountSubquery.toQuery()})::int as "sessionCount"`),
       db.raw(`(${messageCountSubquery.toQuery()})::int as "messageCount"`),
       db.raw(`(${lastMessageSubquery.toQuery()}) as "lastMessageAt"`),
-      db.raw(`(${agentsSubquery.toQuery()}) as "agents"`),
+      db.raw(`"agent"."id" as "agentId"`),
+      db.raw(`"agent"."name" as "agentName"`),
+      db.raw(`"agent"."niceName" as "agentNiceName"`),
       db.raw(
         `CAST(COALESCE((${costSubquery.toQuery()}), 0) AS FLOAT) as "totalCost"`
       ),

@@ -14,6 +14,13 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { saCreateUser } from "@/actions/saCreateUser";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -22,6 +29,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
+  agentId: z.string().nonempty("Agent is required"),
   //only accept number characters including any hidden or RTL characters
   number: z
     .string()
@@ -30,10 +38,13 @@ const formSchema = z.object({
       "Invalid number, it's possible that there are hidden characters, especially if you have copy and pasted this number from a contact record. Manually re-enter the number to fix this issue."
     )
     .or(z.literal("")),
-  email: z.email("Invalid email address").or(z.literal("")),
 });
 
-export default function NewUserForm() {
+export default function NewUserForm({
+  agentOptions,
+}: {
+  agentOptions: { value: string; label: string }[];
+}) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -42,8 +53,8 @@ export default function NewUserForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      agentId: "",
       number: "",
-      email: "",
     },
   });
 
@@ -53,8 +64,8 @@ export default function NewUserForm() {
 
     const response = await saCreateUser({
       name: values.name,
+      agentId: values.agentId,
       number: values.number,
-      email: values.email,
     });
 
     if (!response.success) {
@@ -109,6 +120,32 @@ export default function NewUserForm() {
 
         <FormField
           control={form.control}
+          name="agentId"
+          rules={{ required: true }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Agent</FormLabel>
+              <FormControl>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {agentOptions.map((agent) => (
+                      <SelectItem key={agent.value} value={agent.value}>
+                        {agent.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="number"
           rules={{ required: true }}
           render={({ field }) => (
@@ -132,22 +169,6 @@ export default function NewUserForm() {
                 />
               </FormControl>
               {/* <FormDescription>Put your user number here</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="email"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="john.doe@example.com" {...field} />
-              </FormControl>
-              {/* <FormDescription>Put your user email here</FormDescription> */}
               <FormMessage />
             </FormItem>
           )}

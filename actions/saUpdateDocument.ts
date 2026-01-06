@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import userCanViewAgent from "@/lib/userCanViewAgent";
 
 const saUpdateDocument = async ({
   documentId,
@@ -38,6 +39,11 @@ const saUpdateDocument = async ({
       success: false,
       error: "Document not found",
     };
+  }
+
+  // Verify the user can access this agent
+  if (!(await userCanViewAgent({ agentId: existingDocument.agentId }))) {
+    return { success: false, error: "Unauthorized" };
   }
 
   await db("knowledgeDocument").where({ id: documentId }).update({

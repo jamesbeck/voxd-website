@@ -706,7 +706,9 @@ export default async function PublicQuotePage({
                     className="h-4 w-4 mt-0.5 flex-shrink-0"
                     style={{ color: brandColor }}
                   />
-                  <span>12 month initial contract term, then rolling monthly</span>
+                  <span>
+                    12 month initial contract term, then rolling monthly
+                  </span>
                 </div>
               </div>
 
@@ -803,6 +805,13 @@ export default async function PublicQuotePage({
                       style={{ color: brandColor }}
                     />
                     Sign contract and direct debit mandate
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <CheckCircle
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    Pay setup fee by bank transfer
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-600">
                     <CheckCircle

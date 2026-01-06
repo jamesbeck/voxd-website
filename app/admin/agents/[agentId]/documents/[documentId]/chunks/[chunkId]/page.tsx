@@ -3,7 +3,6 @@ import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
 import { notFound } from "next/navigation";
-import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import EditChunkForm from "./editChunkForm";
 import ChunkActions from "./chunkActions";
@@ -36,7 +35,6 @@ export default async function Page({
   if (!chunk) return notFound();
 
   // Verify the user can view this agent
-  const token = await verifyAccessToken();
   if (!(await userCanViewAgent({ agentId }))) {
     return notFound();
   }
@@ -78,24 +76,20 @@ export default async function Page({
                 Info
               </Link>
             </TabsTrigger>
-            {!!token.admin && (
-              <TabsTrigger value="edit" asChild>
-                <Link
-                  href={`/admin/agents/${agentId}/documents/${documentId}/chunks/${chunkId}?tab=edit`}
-                >
-                  Edit
-                </Link>
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="edit" asChild>
+              <Link
+                href={`/admin/agents/${agentId}/documents/${documentId}/chunks/${chunkId}?tab=edit`}
+              >
+                Edit
+              </Link>
+            </TabsTrigger>
           </TabsList>
-          {!!token.admin && (
-            <ChunkActions
-              chunkId={chunkId}
-              chunkIndex={chunk.chunkIndex}
-              agentId={agentId}
-              documentId={documentId}
-            />
-          )}
+          <ChunkActions
+            chunkId={chunkId}
+            chunkIndex={chunk.chunkIndex}
+            agentId={agentId}
+            documentId={documentId}
+          />
         </div>
 
         <div className="border-b mb-6" />
@@ -151,23 +145,21 @@ export default async function Page({
           </Container>
         </TabsContent>
 
-        {!!token.admin && (
-          <TabsContent value="edit">
-            <Container>
-              <H2>Edit Chunk</H2>
-              <p className="text-muted-foreground mb-4">
-                Editing the content will regenerate the embedding.
-              </p>
-              <EditChunkForm
-                chunkId={chunkId}
-                documentId={documentId}
-                agentId={agentId}
-                content={chunk.content}
-                title={chunk.title}
-              />
-            </Container>
-          </TabsContent>
-        )}
+        <TabsContent value="edit">
+          <Container>
+            <H2>Edit Chunk</H2>
+            <p className="text-muted-foreground mb-4">
+              Editing the content will regenerate the embedding.
+            </p>
+            <EditChunkForm
+              chunkId={chunkId}
+              documentId={documentId}
+              agentId={agentId}
+              content={chunk.content}
+              title={chunk.title}
+            />
+          </Container>
+        </TabsContent>
       </Tabs>
     </Container>
   );

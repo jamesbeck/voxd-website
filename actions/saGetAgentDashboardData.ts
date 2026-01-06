@@ -21,7 +21,8 @@ const saGetAgentDashboardData = async ({
 
   const data = await db("userMessage")
     .join("session", "userMessage.sessionId", "session.id")
-    .where("session.agentId", agentId)
+    .join("user", "session.userId", "user.id")
+    .where("user.agentId", agentId)
     .where("userMessage.createdAt", ">=", thirtyDaysAgo)
     .select(
       db.raw(

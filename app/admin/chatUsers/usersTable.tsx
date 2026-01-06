@@ -25,19 +25,16 @@ const usersTable = () => {
       // format: (value) => value || "",
     },
     {
-      label: "Agents",
-      name: "agents",
+      label: "Agent",
+      name: "agentNiceName",
       format: (row: any) => {
-        const agentLinks = row.agents.map((agent: any) => {
-          return (
-            <Button key={agent.id} asChild size="sm" variant="outline">
-              <Link href={`/admin/agents/${agent.id}`}>{agent.niceName}</Link>
-            </Button>
-          );
-        });
-
+        if (!row.agentId) return null;
         return (
-          <div className="flex flex-col gap-1 items-start">{agentLinks}</div>
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/admin/agents/${row.agentId}`}>
+              {row.agentNiceName}
+            </Link>
+          </Button>
         );
       },
     },

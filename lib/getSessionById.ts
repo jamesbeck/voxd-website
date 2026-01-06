@@ -26,9 +26,12 @@ const getSessionById = async ({
 }): Promise<Session | undefined> => {
   const accessToken = await verifyAccessToken();
 
+  // Join to user to get agentId since sessions no longer have agentId
   const session = await db("session")
+    .leftJoin("user", "session.userId", "user.id")
     .select(
       "session.*",
+      "user.agentId as agentId",
       db.raw(
         '(SELECT MAX("createdAt") FROM "userMessage" WHERE "userMessage"."sessionId" = "session"."id") as "lastUserMessageDate"'
       ),
