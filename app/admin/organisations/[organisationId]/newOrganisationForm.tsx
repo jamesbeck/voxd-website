@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -157,6 +158,10 @@ export default function NewOrganisationForm({
                   searchDebounceMs={300}
                 />
               </FormControl>
+              <FormDescription>
+                These users will be able to log in, view conversation data and
+                manage any agents associated with the organisation.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

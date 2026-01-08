@@ -29,7 +29,7 @@ export default async function LoginPage({
     if (partnerDomain === "voxd.ai") {
       devEmail = "james@jamesbeck.co.uk";
     } else if (partnerDomain === "portal.chatfox.ai") {
-      devEmail = "jamesandrewbrown@gmail.com";
+      devEmail = "james@chatfox.ai";
     }
   }
 

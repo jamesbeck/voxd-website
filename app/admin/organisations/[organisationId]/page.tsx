@@ -12,6 +12,7 @@ import NewOrganisationForm from "./newOrganisationForm";
 import AdminUsersTable from "./adminUsersTable";
 import ChatUsersTable from "./chatUsersTable";
 import QuotesTable from "./quotesTable";
+import OrganisationActions from "./organisationActions";
 
 export default async function Page({
   params,
@@ -43,15 +44,24 @@ export default async function Page({
       {organisation && (
         <>
           <Tabs defaultValue="agents" className="space-y-2">
-            <TabsList>
-              <TabsTrigger value="edit">Edit Organisation</TabsTrigger>
-              <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
-              <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
-              <TabsTrigger value="agents">Agents</TabsTrigger>
-              {token.admin || token.partner ? (
-                <TabsTrigger value="quotes">Quotes</TabsTrigger>
-              ) : null}
-            </TabsList>
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <TabsList>
+                <TabsTrigger value="edit">Edit Organisation</TabsTrigger>
+                <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
+                <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
+                <TabsTrigger value="agents">Agents</TabsTrigger>
+                {token.admin || token.partner ? (
+                  <TabsTrigger value="quotes">Quotes</TabsTrigger>
+                ) : null}
+              </TabsList>
+
+              {(token.admin || token.partner) && (
+                <OrganisationActions
+                  organisationId={organisation.id}
+                  name={organisation.name}
+                />
+              )}
+            </div>
 
             <div className="border-b mb-6" />
 

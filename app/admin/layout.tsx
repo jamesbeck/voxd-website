@@ -29,16 +29,10 @@ export default async function RootLayout({
   return (
     <SidebarProvider>
       <BreadcrumbProvider>
-        <div
-          className="w-full flex overflow-hidden min-h-screen"
-          style={
-            partner?.colour
-              ? ({
-                  "--color-primary": `#${partner?.colour}`,
-                } as React.CSSProperties)
-              : undefined
-          }
-        >
+        {partner?.colour && (
+          <style>{`:root { --color-primary: #${partner.colour}; }`}</style>
+        )}
+        <div className="w-full flex overflow-hidden min-h-screen">
           <AdminSidebar
             email={accessToken?.email}
             admin={accessToken?.admin}

@@ -2,6 +2,7 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 const saCreateOrganisation = async ({
   name,
@@ -12,6 +13,14 @@ const saCreateOrganisation = async ({
   adminUserIds: string[];
   partnerId?: string;
 }): Promise<ServerActionResponse> => {
+  const accessToken = await verifyAccessToken();
+
+  // If user is a partner and no partnerId is explicitly provided, use their partnerId
+  let finalPartnerId = partnerId;
+  if (!finalPartnerId && accessToken.partner && accessToken.partnerId) {
+    finalPartnerId = accessToken.partnerId;
+  }
+
   //check organisation name is unique
   const existingOrganisation = await db("organisation")
     .select("*")
@@ -27,7 +36,7 @@ const saCreateOrganisation = async ({
 
   //create a new organisation
   const [newOrganisation] = await db("organisation")
-    .insert({ name, partnerId: partnerId || null })
+    .insert({ name, partnerId: finalPartnerId || null })
     .returning("id");
 
   //create user_organisation associations

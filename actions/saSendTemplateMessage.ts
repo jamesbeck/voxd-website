@@ -152,10 +152,7 @@ const saSendTemplateMessage = async ({
 
     const payload = {
       messaging_product: "whatsapp",
-      to:
-        process.env.NODE_ENV === "development"
-          ? process.env.DEVELOPMENT_USER_PHONE_NUMBER!
-          : user.number,
+      to: user.number,
       type: "template",
       template: {
         name: template.name,

@@ -122,6 +122,7 @@ export default async function Page({
                   quoteId={quote.id}
                   name={quote.title}
                   status={quote.status}
+                  canDelete={isAdmin || isOwnerPartner}
                 />
               </div>
             </div>
