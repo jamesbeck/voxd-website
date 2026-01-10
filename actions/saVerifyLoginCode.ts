@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { addSeconds } from "date-fns";
 import userCanLogInToThisDomain from "@/lib/userCanLogInToThisDomain";
+import { addLog } from "@/lib/addLog";
 
 const saVerifyLoginCode = async ({
   otp,
@@ -69,6 +70,20 @@ const saVerifyLoginCode = async ({
 
   //if failed
   if (!adminUser || !otpMatch) {
+    // Log failed OTP attempt
+    await addLog({
+      adminUserId: adminUser?.id,
+      event: "OTP Verification Failed",
+      description: `Failed login attempt for ${idToken.email} (attempt ${attempts})`,
+      partnerId: adminUser?.partnerId,
+      organisationId: adminUser?.organisationId,
+      data: {
+        email: idToken.email,
+        attempt: attempts,
+        reason: !adminUser ? "User not found" : "Invalid code",
+      },
+    });
+
     const newIdToken = jwt.sign(
       {
         email: idToken.email,
@@ -90,6 +105,18 @@ const saVerifyLoginCode = async ({
   }
 
   //else we're logging in
+
+  // Log the successful login
+  await addLog({
+    adminUserId: adminUser.id,
+    event: "User Login",
+    description: `User ${idToken.email} logged in successfully`,
+    partnerId: adminUser.partnerId,
+    organisationId: adminUser.organisationId,
+    data: {
+      email: idToken.email,
+    },
+  });
 
   // TODO: Set session/cookie here
   const cookiesStore = await cookies();

@@ -4,6 +4,10 @@
 
 See [user-access-levels.md](.github/user-access-levels.md) for detailed documentation on the three user levels (Admin, Partner, Organisation) and what data each can access.
 
+## Logging
+
+See [logging.md](.github/logging.md) for documentation on how to use the `addLog` function to record audit logs for important events.
+
 ## Database Schema
 
 When working with database-related code in this project:

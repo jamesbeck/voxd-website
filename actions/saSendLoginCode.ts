@@ -12,6 +12,7 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { IdTokenPayload } from "@/types/tokenTypes";
 import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
+import { addLog } from "@/lib/addLog";
 
 const saSendLoginCode = async ({
   email,
@@ -150,6 +151,20 @@ const saSendLoginCode = async ({
         });
 
         console.log("Email sent", emailR);
+
+        // Log OTP email sent
+        await addLog({
+          adminUserId: adminUser.id,
+          event: "OTP Email Sent",
+          description: `Login code sent to ${adminUser.email}`,
+          partnerId: adminUser.partnerId || undefined,
+          organisationId: adminUser.organisationId || undefined,
+          data: {
+            email: adminUser.email,
+            statusCode: emailR[0].statusCode,
+            headers: emailR[0].headers,
+          },
+        });
       } catch (error) {
         console.log(error);
         return {

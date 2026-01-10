@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import AdminUserActions from "./AdminUserActions";
 import EditAdminUserForm from "./editAdminUserForm";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import LogExplorer from "@/components/admin/LogExplorer";
 
 export default async function Page({
   params,
@@ -46,6 +47,7 @@ export default async function Page({
           <Tabs defaultValue="edit" className="space-y-2">
             <TabsList>
               <TabsTrigger value="edit">Edit User</TabsTrigger>
+              <TabsTrigger value="log">Activity Log</TabsTrigger>
             </TabsList>
 
             <div className="border-b mb-6" />
@@ -59,6 +61,14 @@ export default async function Page({
                 organisationId={user.organisationId}
                 canEditOrganisation={token.superAdmin || token.partner}
                 superAdmin={token.superAdmin}
+              />
+            </TabsContent>
+
+            <TabsContent value="log">
+              <LogExplorer
+                filters={{ adminUserId: user.id }}
+                title="User Activity"
+                pageSize={20}
               />
             </TabsContent>
           </Tabs>
