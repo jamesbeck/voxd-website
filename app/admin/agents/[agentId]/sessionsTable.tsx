@@ -126,7 +126,7 @@ const SessionsTable = ({
       actions={(row: any) => {
         return (
           <>
-            {(row.sessionType != "development" || admin) && (
+            {(row.sessionType != "development" || superAdmin) && (
               <Button asChild size={"sm"}>
                 <Link href={`/admin/sessions/${row.id}`}>View</Link>
               </Button>

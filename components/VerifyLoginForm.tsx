@@ -94,7 +94,9 @@ export default function VerifyLoginForm({
               name="otp"
               rules={{
                 required: devOtp ? false : "Code is required",
-                minLength: devOtp ? undefined : { value: 6, message: "Enter 6 digits" },
+                minLength: devOtp
+                  ? undefined
+                  : { value: 6, message: "Enter 6 digits" },
                 maxLength: { value: 6, message: "Enter 6 digits" },
               }}
               render={({ field }) => (

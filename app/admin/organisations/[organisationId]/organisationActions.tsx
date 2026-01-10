@@ -71,7 +71,9 @@ export default function OrganisationActions({
 
     if (!response.success) {
       setIsUpdating(false);
-      toast.error(response.error || "There was an error updating the organisation");
+      toast.error(
+        response.error || "There was an error updating the organisation"
+      );
 
       if (response.error) {
         form.setError("root", {
@@ -148,7 +150,11 @@ export default function OrganisationActions({
                   variant="destructive"
                   onSelect={(e) => e.preventDefault()}
                 >
-                  {isDeleting ? <Spinner /> : <Trash2Icon className="h-4 w-4" />}
+                  {isDeleting ? (
+                    <Spinner />
+                  ) : (
+                    <Trash2Icon className="h-4 w-4" />
+                  )}
                   Delete Organisation
                 </DropdownMenuItem>
               </Alert>
@@ -161,9 +167,7 @@ export default function OrganisationActions({
         <DialogContent className="max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit Organisation</DialogTitle>
-            <DialogDescription>
-              Update the organisation name.
-            </DialogDescription>
+            <DialogDescription>Update the organisation name.</DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
