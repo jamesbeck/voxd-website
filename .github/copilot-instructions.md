@@ -18,7 +18,7 @@ When working with database-related code in this project:
 
 - `agent` - AI agents with phone numbers and configurations
 - `session` - Conversation sessions between users and agents
-- `user` - WhatsApp users (identified by phone number)
+- `chatUser` - WhatsApp users (identified by phone number)
 - `adminUser` - Admin dashboard users
 - `apiKey` - API keys for programmatic access (each belongs to an agent)
 - `manualMessage` - Messages sent manually via API or admin dashboard

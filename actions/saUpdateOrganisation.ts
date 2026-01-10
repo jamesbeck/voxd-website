@@ -2,18 +2,25 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 const saUpdateOrganisation = async ({
   organisationId,
   name,
-  adminUserIds,
-  partnerId,
 }: {
   organisationId: string;
   name: string;
-  adminUserIds: string[];
-  partnerId?: string;
 }): Promise<ServerActionResponse> => {
+  const accessToken = await verifyAccessToken();
+
+  // Only super admin users or users with a partnerId can edit organisations
+  if (!accessToken.superAdmin && !accessToken.partnerId) {
+    return {
+      success: false,
+      error: "You do not have permission to edit organisations",
+    };
+  }
+
   if (!organisationId) {
     return {
       success: false,
@@ -37,19 +44,7 @@ const saUpdateOrganisation = async ({
   //update the organisation
   await db("organisation")
     .where({ id: organisationId })
-    .update({ name, partnerId: partnerId || null });
-
-  //update user associations
-  if (adminUserIds) {
-    //delete existing associations
-    await db("organisationUser").where({ organisationId }).del();
-    //insert new associations
-    const organisationUserData = adminUserIds.map((adminUserId) => ({
-      organisationId,
-      adminUserId,
-    }));
-    await db("organisationUser").insert(organisationUserData);
-  }
+    .update({ name, partnerId: accessToken.partnerId || null });
 
   return { success: true };
 };

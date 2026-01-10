@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import saGetFaqTableData from "@/actions/saGetFaqTableData";
 import { Badge } from "@/components/ui/badge";
 
-const FaqTable = ({ isAdmin }: { isAdmin?: boolean }) => {
+const FaqTable = ({ isSuperAdmin }: { isSuperAdmin?: boolean }) => {
   return (
     <DataTable
       getData={saGetFaqTableData}
@@ -63,7 +63,7 @@ const FaqTable = ({ isAdmin }: { isAdmin?: boolean }) => {
         return (
           <Button className="cursor-pointer" asChild>
             <Link href={`/admin/faq/${row.id}`}>
-              {isAdmin ? "Edit" : "View"}
+              {isSuperAdmin ? "Edit" : "View"}
             </Link>
           </Button>
         );

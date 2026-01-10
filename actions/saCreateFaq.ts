@@ -17,9 +17,9 @@ const saCreateFaq = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Only admins can create FAQs
-  if (!accessToken.admin) {
-    return { success: false, error: "Only admins can create FAQs" };
+  // Only super admins can create FAQs
+  if (!accessToken.superAdmin) {
+    return { success: false, error: "Only super admins can create FAQs" };
   }
 
   const newFaq = await db("faq")

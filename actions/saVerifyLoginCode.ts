@@ -50,7 +50,7 @@ const saVerifyLoginCode = async ({
       "adminUser.otp",
       "adminUser.otpAttempts",
       "adminUser.partnerId",
-      "adminUser.admin"
+      "adminUser.superAdmin"
     )
     .where({ "adminUser.email": idToken.email })
     .first();
@@ -113,9 +113,10 @@ const saVerifyLoginCode = async ({
       adminUserId: adminUser.id,
       email: idToken.email,
       name: adminUser.name,
-      admin: adminUser.admin,
+      superAdmin: adminUser.superAdmin,
       partner: !!adminUser.partnerId,
       partnerId: adminUser.partnerId,
+      organisationId: adminUser.organisationId,
     } as AccessTokenPayload,
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) }

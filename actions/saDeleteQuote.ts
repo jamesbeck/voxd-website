@@ -41,22 +41,22 @@ export default async function saDeleteQuote(
       };
     }
 
-    // Check permissions: admin or owner partner
-    const isAdmin = accessToken.admin;
+    // Check permissions: super admin or owner partner
+    const isSuperAdmin = accessToken.superAdmin;
     const isOwnerPartner =
       accessToken.partner &&
       accessToken.partnerId &&
       quote.partnerId === accessToken.partnerId;
 
     console.log("Delete quote permission check:", {
-      isAdmin,
+      isSuperAdmin,
       isOwnerPartner,
       accessTokenPartnerId: accessToken.partnerId,
       organisationPartnerId: quote.partnerId,
       accessTokenPartner: accessToken.partner,
     });
 
-    if (!isAdmin && !isOwnerPartner) {
+    if (!isSuperAdmin && !isOwnerPartner) {
       return {
         success: false,
         error: "You do not have permission to delete this quote",

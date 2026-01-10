@@ -11,7 +11,7 @@ const saDeleteOrganisation = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken?.admin && !accessToken?.partner) {
+  if (!accessToken?.superAdmin && !accessToken?.partner) {
     return { success: false, error: "Unauthorized" };
   }
 
@@ -27,7 +27,7 @@ const saDeleteOrganisation = async ({
     }
 
     // If user is a partner, verify they own this organisation
-    if (accessToken.partner && !accessToken.admin) {
+    if (accessToken.partner && !accessToken.superAdmin) {
       if (organisation.partnerId !== accessToken.partnerId) {
         return { success: false, error: "Unauthorized" };
       }

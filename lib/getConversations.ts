@@ -2,13 +2,13 @@ import db from "../database/db";
 
 const getConversations = async ({ agentId }: { agentId: string }) => {
   const conversations = await db("userMessage")
-    .join("user", "userMessage.userId", "user.id")
+    .join("chatUser", "userMessage.userId", "chatUser.id")
     .where("userMessage.agentId", agentId)
-    .groupBy("user.id")
+    .groupBy("chatUser.id")
     .select(
-      "user.id as userId",
-      "user.name",
-      "user.number",
+      "chatUser.id as userId",
+      "chatUser.name",
+      "chatUser.number",
       db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
       db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
       db.raw('MIN("userMessage"."createdAt") as "firstMessageAt"')

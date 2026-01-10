@@ -12,8 +12,8 @@ const saCreateUser = async ({
   agentId: string;
   number?: string;
 }): Promise<ServerActionResponse> => {
-  //check user number is unique for this agent
-  const existingUser = await db("user")
+  //check chatUser number is unique for this agent
+  const existingUser = await db("chatUser")
     .select("*")
     .where("agentId", agentId)
     .where("number", number)
@@ -30,8 +30,8 @@ const saCreateUser = async ({
     };
   }
 
-  //create a new user
-  const [newUser] = await db("user")
+  //create a new chatUser
+  const [newUser] = await db("chatUser")
     .insert({ name, agentId, number })
     .returning("id");
 

@@ -35,7 +35,7 @@ export default async function RootLayout({
         <div className="w-full flex overflow-hidden min-h-screen">
           <AdminSidebar
             email={accessToken?.email}
-            admin={accessToken?.admin}
+            superAdmin={accessToken?.superAdmin}
             partner={accessToken?.partner}
             logoUrl={
               partner?.domain

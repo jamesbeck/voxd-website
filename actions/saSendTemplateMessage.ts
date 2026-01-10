@@ -28,15 +28,15 @@ const saSendTemplateMessage = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken?.admin) {
+  if (!accessToken?.superAdmin) {
     return { success: false, error: "Unauthorized" };
   }
 
   try {
-    // Get user with phone number
-    const user = await db("user")
-      .where("user.id", userId)
-      .select("user.number", "user.agentId")
+    // Get chatUser with phone number
+    const user = await db("chatUser")
+      .where("chatUser.id", userId)
+      .select("chatUser.number", "chatUser.agentId")
       .first();
 
     if (!user) {

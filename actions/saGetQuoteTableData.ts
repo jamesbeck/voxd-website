@@ -19,7 +19,7 @@ const saGetQuoteTableData = async ({
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.admin && !accessToken.partner)
+  if (!accessToken.superAdmin && !accessToken.partner)
     return {
       success: false,
       error: "You do not have permission to view organisations.",
@@ -38,8 +38,8 @@ const saGetQuoteTableData = async ({
 
   if (organisationId) base.where("quote.organisationId", organisationId);
 
-  //if not admin add where clause to only get the quote for relevant organisations
-  if (accessToken?.partner && !accessToken?.admin) {
+  //if not super admin add where clause to only get the quote for relevant organisations
+  if (accessToken?.partner && !accessToken?.superAdmin) {
     base.where("organisation.partnerId", accessToken.partnerId);
   }
 

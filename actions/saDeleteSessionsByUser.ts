@@ -10,8 +10,8 @@ const saDeleteSessionsByUser = async ({
   userId: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
-  //only admin can delete users
-  if (!accessToken?.admin) {
+  //only super admin can delete users
+  if (!accessToken?.superAdmin) {
     return { success: false, error: "Unauthorized" };
   }
 

@@ -11,16 +11,12 @@ const getOrganisationById = async ({
   adminUserIds?: string[];
 }> => {
   const organisation = await db("organisation")
-    .leftJoin(
-      "organisationUser",
-      "organisation.id",
-      "organisationUser.organisationId"
-    )
+    .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")
     .groupBy("organisation.id")
     .select("organisation.*")
     .select([
       db.raw(
-        'COALESCE(ARRAY_AGG("organisationUser"."adminUserId") FILTER (WHERE "organisationUser"."adminUserId" IS NOT NULL), ARRAY[]::uuid[]) as "adminUserIds"'
+        'COALESCE(ARRAY_AGG("adminUser"."id") FILTER (WHERE "adminUser"."id" IS NOT NULL), ARRAY[]::uuid[]) as "adminUserIds"'
       ),
     ])
     .where("organisation.id", organisationId)

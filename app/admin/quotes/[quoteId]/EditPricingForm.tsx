@@ -35,7 +35,7 @@ export default function EditPricingForm({
   monthlyFee,
   setupFeeVoxdCost,
   monthlyFeeVoxdCost,
-  isAdmin,
+  isSuperAdmin,
   isOwnerPartner,
 }: {
   quoteId: string;
@@ -43,14 +43,14 @@ export default function EditPricingForm({
   monthlyFee: number | null;
   setupFeeVoxdCost: number | null;
   monthlyFeeVoxdCost: number | null;
-  isAdmin: boolean;
+  isSuperAdmin: boolean;
   isOwnerPartner: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const canEditPartnerFields = isOwnerPartner || isAdmin;
-  const canEditAdminFields = isAdmin;
+  const canEditPartnerFields = isOwnerPartner || isSuperAdmin;
+  const canEditAdminFields = isSuperAdmin;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

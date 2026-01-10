@@ -16,7 +16,7 @@ const saGetPartnerTableData = async ({
 }: ServerActionReadParams): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken?.admin) {
+  if (!accessToken?.superAdmin) {
     return {
       success: false,
       error: "You do not have permission to view partners.",

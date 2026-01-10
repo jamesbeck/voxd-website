@@ -22,18 +22,18 @@ const saGetSessionsTableData = async ({
   const accessToken = await verifyAccessToken();
 
   const base = db("session")
-    .join("user", "session.userId", "user.id")
+    .join("chatUser", "session.userId", "chatUser.id")
     .join("userMessage", "session.id", "userMessage.sessionId")
-    .join("agent", "user.agentId", "agent.id")
-    .groupBy("session.id", "user.id", "agent.id")
+    .join("agent", "chatUser.agentId", "agent.id")
+    .groupBy("session.id", "chatUser.id", "agent.id")
     .where((qb) => {
       if (search) {
-        qb.where("user.name", "ilike", `%${search}%`);
+        qb.where("chatUser.name", "ilike", `%${search}%`);
       }
     });
 
   if (agentId) {
-    base.where("user.agentId", agentId);
+    base.where("chatUser.agentId", agentId);
   }
 
   if (userId) {
@@ -41,26 +41,19 @@ const saGetSessionsTableData = async ({
   }
 
   //if organisation is logging in, restrict to their agents
-  if (!accessToken.partner && !accessToken.admin) {
-    base
-      .leftJoin("organisation", "agent.organisationId", "organisation.id")
-      .leftJoin(
-        "organisationUser",
-        "organisation.id",
-        "organisationUser.organisationId"
-      )
-      .where("organisationUser.adminUserId", accessToken!.adminUserId);
+  if (!accessToken.partner && !accessToken.superAdmin) {
+    base.where("agent.organisationId", accessToken.organisationId);
   }
 
   //if partner is logging in, restrict to their agents
-  if (accessToken?.partner && !accessToken.admin) {
+  if (accessToken?.partner && !accessToken.superAdmin) {
     base
       .leftJoin("organisation", "agent.organisationId", "organisation.id")
       .where("organisation.partnerId", accessToken!.partnerId);
   }
 
-  //only admin users can see development sessions
-  if (!accessToken.admin) {
+  //only super admin users can see development sessions
+  if (!accessToken.superAdmin) {
     base.where("session.sessionType", "!=", "development");
   }
 
@@ -81,9 +74,9 @@ const saGetSessionsTableData = async ({
       "session.closedAt",
       "session.closedReason",
       "session.paused",
-      "user.id as userId",
-      "user.name",
-      "user.number",
+      "chatUser.id as userId",
+      "chatUser.name",
+      "chatUser.number",
       "agent.id as agentId",
       "agent.niceName as agentName"
     )

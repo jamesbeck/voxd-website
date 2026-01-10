@@ -16,9 +16,12 @@ const saGenerateFaqAnswer = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Only admins can generate FAQ answers
-  if (!accessToken.admin) {
-    return { success: false, error: "Only admins can generate FAQ answers" };
+  // Only super admins can generate FAQ answers
+  if (!accessToken.superAdmin) {
+    return {
+      success: false,
+      error: "Only super admins can generate FAQ answers",
+    };
   }
 
   if (!question || question.trim() === "") {

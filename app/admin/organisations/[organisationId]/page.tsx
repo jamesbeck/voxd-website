@@ -5,7 +5,6 @@ import getOrganisationById from "@/lib/getOrganisationById";
 import Container from "@/components/adminui/Container";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import H2 from "@/components/adminui/H2";
-import EditOrganisationForm from "./editOrganisationForm";
 import { notFound } from "next/navigation";
 import AgentsTable from "./agentsTable";
 import NewOrganisationForm from "./newOrganisationForm";
@@ -31,6 +30,18 @@ export default async function Page({
     });
   if (!organisation && organisationId !== "new") return notFound();
 
+  // Authorization check: user must be super admin, partner of this org, or belong to the organisation
+  if (organisation) {
+    const isSuperAdmin = token.superAdmin;
+    const isPartnerOfOrg =
+      token.partnerId && organisation.partnerId === token.partnerId;
+    const isMemberOfOrg = token.organisationId === organisation.id;
+
+    if (!isSuperAdmin && !isPartnerOfOrg && !isMemberOfOrg) {
+      return notFound();
+    }
+  }
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -46,16 +57,15 @@ export default async function Page({
           <Tabs defaultValue="agents" className="space-y-2">
             <div className="flex items-center justify-between gap-4 mb-2">
               <TabsList>
-                <TabsTrigger value="edit">Edit Organisation</TabsTrigger>
                 <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
                 <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
                 <TabsTrigger value="agents">Agents</TabsTrigger>
-                {token.admin || token.partner ? (
+                {token.superAdmin || token.partner ? (
                   <TabsTrigger value="quotes">Quotes</TabsTrigger>
                 ) : null}
               </TabsList>
 
-              {(token.admin || token.partner) && (
+              {(token.superAdmin || token.partner) && (
                 <OrganisationActions
                   organisationId={organisation.id}
                   name={organisation.name}
@@ -65,37 +75,24 @@ export default async function Page({
 
             <div className="border-b mb-6" />
 
-            <TabsContent value="edit">
-              <EditOrganisationForm
-                organisationId={organisation.id}
-                name={organisation.name}
-                partnerId={organisation.partnerId}
-                adminUserIds={organisation.adminUserIds}
-                isAdmin={token.admin}
-              />
-            </TabsContent>
             <TabsContent value="adminUsers">
               <Container>
-                <H2>Admin Users</H2>
                 <AdminUsersTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
             <TabsContent value="chatUsers">
               <Container>
-                <H2>Chat Users</H2>
                 <ChatUsersTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
             <TabsContent value="agents">
               <Container>
-                <H2>Agents</H2>
                 <AgentsTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
-            {token.admin || token.partner ? (
+            {token.superAdmin || token.partner ? (
               <TabsContent value="quotes">
                 <Container>
-                  <H2>Quotes</H2>
                   <QuotesTable organisationId={organisation.id} />
                 </Container>
               </TabsContent>
@@ -103,7 +100,7 @@ export default async function Page({
           </Tabs>
         </>
       )}
-      {!organisation && <NewOrganisationForm isAdmin={token.admin} />}
+      {!organisation && <NewOrganisationForm />}
     </Container>
   );
 }

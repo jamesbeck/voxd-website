@@ -27,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
@@ -38,25 +37,26 @@ const formSchema = z.object({
   email: z.email("Invalid email address").nonempty("Email is required"),
   testingAgentId: z.string().optional(),
   partnerId: z.string().optional(),
-  organisationIds: z
-    .string()
-    .array()
-    .min(1, "At least one organisation must be selected"),
+  organisationId: z.string().nonempty("Organisation is required"),
 });
 
-export default function editAdminUserForm({
+export default function EditAdminUserForm({
   adminUserId,
   name,
   email,
   partnerId,
-  organisationIds,
+  organisationId,
+  canEditOrganisation,
+  superAdmin,
 }: {
   adminUserId: string;
   name?: string;
   number?: string;
   email?: string;
   partnerId?: string;
-  organisationIds?: string[];
+  organisationId?: string;
+  canEditOrganisation: boolean;
+  superAdmin: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -68,7 +68,7 @@ export default function editAdminUserForm({
       name: name || "",
       email: email || "",
       partnerId: partnerId || "",
-      organisationIds: organisationIds || [],
+      organisationId: organisationId || "",
     },
   });
 
@@ -81,7 +81,7 @@ export default function editAdminUserForm({
       name: values.name,
       email: values.email,
       partnerId: values.partnerId,
-      organisationIds: values.organisationIds,
+      organisationId: values.organisationId,
     });
 
     if (!response.success) {
@@ -151,52 +151,81 @@ export default function editAdminUserForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="partnerId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Partner (Optional)</FormLabel>
-              <FormControl>
-                <RemoteSelect
-                  {...field}
-                  serverAction={saGetPartnerTableData}
-                  label={(record) => `${record.name}`}
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Select a partner..."
-                  emptyMessage="No partners found"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {superAdmin && (
+          <FormField
+            control={form.control}
+            name="partnerId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Partner (Optional)</FormLabel>
+                <FormControl>
+                  <RemoteSelect
+                    {...field}
+                    serverAction={saGetPartnerTableData}
+                    label={(record) => `${record.name}`}
+                    valueField="id"
+                    sortField="name"
+                    placeholder="Select a partner..."
+                    emptyMessage="No partners found"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
-        <FormField
-          control={form.control}
-          name="organisationIds"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organisations</FormLabel>
-              <FormControl>
-                <RemoteMultiSelect
-                  {...field}
-                  serverAction={saGetOrganisationTableData}
-                  label={(record) => `${record.name}`}
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Search and select organisations..."
-                  emptyMessage="No organisations found"
-                  pageSize={50}
-                  searchDebounceMs={300}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {canEditOrganisation ? (
+          <FormField
+            control={form.control}
+            name="organisationId"
+            rules={{ required: true }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Organisation</FormLabel>
+                <FormControl>
+                  <RemoteSelect
+                    {...field}
+                    serverAction={saGetOrganisationTableData}
+                    label={(record) => `${record.name}`}
+                    valueField="id"
+                    sortField="name"
+                    placeholder="Select an organisation..."
+                    emptyMessage="No organisations found"
+                    pageSize={50}
+                    searchDebounceMs={300}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : (
+          <FormField
+            control={form.control}
+            name="organisationId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Organisation</FormLabel>
+                <FormControl>
+                  <RemoteSelect
+                    {...field}
+                    serverAction={saGetOrganisationTableData}
+                    label={(record) => `${record.name}`}
+                    valueField="id"
+                    sortField="name"
+                    placeholder="Select an organisation..."
+                    emptyMessage="No organisations found"
+                    pageSize={50}
+                    searchDebounceMs={300}
+                    disabled
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {form.formState.errors.root && (
           <div className="max-w-xl">

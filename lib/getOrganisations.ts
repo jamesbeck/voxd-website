@@ -10,29 +10,18 @@ type Organisations = {
 const getOrganisations = async (): Promise<Organisations> => {
   const accessToken = await verifyAccessToken();
 
-  const organisationsQuery = db<Organisations>("organisation")
-    .leftJoin(
-      "organisationUser",
-      "organisation.id",
-      "organisationUser.organisationId"
-    )
-    .groupBy("organisation.id")
-    .select("organisation.id", "organisation.name");
+  const organisationsQuery = db<Organisations>("organisation").select(
+    "organisation.id",
+    "organisation.name"
+  );
 
-  //if organisation is logged in, restrict to their agents
-  if (!accessToken.partner && !accessToken.admin) {
-    organisationsQuery.where(
-      "organisationUser.adminUserId",
-      accessToken!.adminUserId
-    );
+  // If regular admin user (not super admin, not partner), restrict to their organisation
+  if (!accessToken.partner && !accessToken.superAdmin) {
+    organisationsQuery.where("organisation.id", accessToken.organisationId);
   }
 
-  //if partner is logged in, restrict to their customers
-  if (accessToken?.partner && !accessToken.admin) {
-    organisationsQuery.where("organisation.partnerId", accessToken!.partnerId);
-  }
-
-  if (accessToken?.partner) {
+  // If partner is logged in, restrict to their customers
+  if (accessToken?.partner && !accessToken.superAdmin) {
     organisationsQuery.where("organisation.partnerId", accessToken.partnerId);
   }
 

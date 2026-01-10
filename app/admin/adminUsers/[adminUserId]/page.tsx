@@ -3,7 +3,7 @@ import H1 from "@/components/adminui/H1";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Container from "@/components/adminui/Container";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
-import { User } from "@/types/types";
+import { AdminUser } from "@/types/types";
 import NewAdminUserForm from "./newAdminUserForm";
 import { notFound } from "next/navigation";
 import AdminUserActions from "./AdminUserActions";
@@ -19,7 +19,7 @@ export default async function Page({
 
   const adminUserId = (await params).adminUserId;
 
-  let user: User | null = null;
+  let user: AdminUser | null = null;
 
   if (adminUserId && adminUserId != "new")
     user = await getAdminUserById({ adminUserId });
@@ -40,7 +40,7 @@ export default async function Page({
         <>
           <AdminUserActions
             user={user}
-            admin={token.admin}
+            superAdmin={token.superAdmin}
             partner={token.partner}
           />
           <Tabs defaultValue="edit" className="space-y-2">
@@ -56,7 +56,9 @@ export default async function Page({
                 name={user.name}
                 email={user.email}
                 partnerId={user.partnerId}
-                organisationIds={user.organisationIds}
+                organisationId={user.organisationId}
+                canEditOrganisation={token.superAdmin || token.partner}
+                superAdmin={token.superAdmin}
               />
             </TabsContent>
           </Tabs>

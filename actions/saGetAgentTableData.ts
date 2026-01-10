@@ -20,8 +20,8 @@ const saGetAgentTableData = async ({
   const accessToken = await verifyAccessToken();
 
   const base = db("agent")
-    .leftJoin("user", "agent.id", "user.agentId")
-    .leftJoin("session", "user.id", "session.userId")
+    .leftJoin("chatUser", "agent.id", "chatUser.agentId")
+    .leftJoin("session", "chatUser.id", "session.userId")
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
     .groupBy("agent.id", "phoneNumber.id")
@@ -37,19 +37,12 @@ const saGetAgentTableData = async ({
   }
 
   //if organisation is logging in, restrict to their agents
-  if (!accessToken.partner && !accessToken.admin) {
-    base
-      .leftJoin("organisation", "agent.organisationId", "organisation.id")
-      .leftJoin(
-        "organisationUser",
-        "organisation.id",
-        "organisationUser.organisationId"
-      )
-      .where("organisationUser.adminUserId", accessToken!.adminUserId);
+  if (!accessToken.partner && !accessToken.superAdmin) {
+    base.where("agent.organisationId", accessToken.organisationId);
   }
 
   //if partner is logging in, restrict to their agents
-  if (accessToken?.partner && !accessToken.admin) {
+  if (accessToken?.partner && !accessToken.superAdmin) {
     base
       .leftJoin("organisation", "agent.organisationId", "organisation.id")
       .where("organisation.partnerId", accessToken!.partnerId);

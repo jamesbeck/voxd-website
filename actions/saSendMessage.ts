@@ -15,8 +15,8 @@ const saSendMessage = async ({
 
   try {
     const session = await db("session")
-      .leftJoin("user", "session.userId", "user.id")
-      .leftJoin("agent", "user.agentId", "agent.id")
+      .leftJoin("chatUser", "session.userId", "chatUser.id")
+      .leftJoin("agent", "chatUser.agentId", "agent.id")
       .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
       .where({ "session.id": sessionId })
       .select(
@@ -24,7 +24,7 @@ const saSendMessage = async ({
         "session.sessionType",
         "phoneNumber.metaId as phoneNumberMetaId",
         "agent.id as agentId",
-        "user.number as userPhoneNumber"
+        "chatUser.number as userPhoneNumber"
       )
       .first();
     if (!session) {

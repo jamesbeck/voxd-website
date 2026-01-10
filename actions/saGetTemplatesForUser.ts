@@ -43,14 +43,14 @@ const saGetTemplatesForUser = async ({
   phoneNumberId?: string;
 }> => {
   const accessToken = await verifyAccessToken();
-  if (!accessToken?.admin) {
+  if (!accessToken?.superAdmin) {
     return { success: false, error: "Unauthorized" };
   }
 
-  // Get user with agent and phone number chain
-  const user = await db("user")
-    .where("user.id", userId)
-    .select("user.agentId")
+  // Get chatUser with agent and phone number chain
+  const user = await db("chatUser")
+    .where("chatUser.id", userId)
+    .select("chatUser.agentId")
     .first();
 
   if (!user?.agentId) {

@@ -40,12 +40,12 @@ const saUpdateQuotePricing = async ({
     };
   }
 
-  // Check if user is admin or the partner that owns this quote
-  const isAdmin = accessToken.admin;
+  // Check if user is super admin or the partner that owns this quote
+  const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && accessToken.partnerId === existingQuote.partnerId;
 
-  if (!isAdmin && !isOwnerPartner) {
+  if (!isSuperAdmin && !isOwnerPartner) {
     return {
       success: false,
       error: "You don't have permission to update this quote's pricing",
@@ -56,13 +56,13 @@ const saUpdateQuotePricing = async ({
   const updateData: Record<string, number | null | undefined> = {};
 
   // Partners can update setupFee and monthlyFee
-  if (isOwnerPartner || isAdmin) {
+  if (isOwnerPartner || isSuperAdmin) {
     if (setupFee !== undefined) updateData.setupFee = setupFee;
     if (monthlyFee !== undefined) updateData.monthlyFee = monthlyFee;
   }
 
-  // Only admins can update the Voxd cost fields
-  if (isAdmin) {
+  // Only super admins can update the Voxd cost fields
+  if (isSuperAdmin) {
     if (setupFeeVoxdCost !== undefined)
       updateData.setupFeeVoxdCost = setupFeeVoxdCost;
     if (monthlyFeeVoxdCost !== undefined)

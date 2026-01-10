@@ -1,6 +1,5 @@
 "use client";
 
-import { format, formatDistance } from "date-fns";
 import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
@@ -21,31 +20,19 @@ const adminUsersTable = () => {
       // format: (value) => value || "",
     },
     {
-      label: "Organisations",
-      name: "organisations",
+      label: "Organisation",
+      name: "organisationName",
       format: (row: any) => {
-        const organisationLinks = row.organisations.map(
-          (organisation: any, i: number) => {
-            return (
-              <Button
-                key={i}
-                variant={"outline"}
-                size="sm"
-                className="cursor:pointer"
-                asChild={true}
-              >
-                <Link
-                  key={organisation.id}
-                  href={`/admin/organisations/${organisation.id}`}
-                >
-                  {organisation.name}
-                </Link>
-              </Button>
-            );
-          }
+        if (!row.organisationId) {
+          return <span className="text-muted-foreground">None</span>;
+        }
+        return (
+          <Button variant={"outline"} size="sm" asChild={true}>
+            <Link href={`/admin/organisations/${row.organisationId}`}>
+              {row.organisationName}
+            </Link>
+          </Button>
         );
-
-        return <div className="gap-2 flex">{organisationLinks}</div>;
       },
     },
   ];

@@ -15,10 +15,10 @@ const saCreatePartialPrompt = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.admin) {
+  if (!accessToken.superAdmin) {
     return {
       success: false,
-      error: "Only admin users can create partial prompts.",
+      error: "Only super admin users can create partial prompts.",
     };
   }
 

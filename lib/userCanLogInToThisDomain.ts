@@ -16,8 +16,8 @@ export default async function userCanLogInToThisDomain() {
 
   const partnerFromDomain = await getPartnerFromHeaders();
 
-  //if we're a partner (but not admin), make sure they're logging in to the right domain
-  if (!adminUser.admin && adminUser.partnerId) {
+  //if we're a partner (but not super admin), make sure they're logging in to the right domain
+  if (!adminUser.superAdmin && adminUser.partnerId) {
     const partnerFromToken = await db("partner")
       .select("domain")
       .where({ id: adminUser.partnerId })
@@ -29,18 +29,24 @@ export default async function userCanLogInToThisDomain() {
     }
   }
 
-  //get users organisations
-  const organisations = await db("organisationUser")
-    .leftJoin(
-      "organisation",
-      "organisationUser.organisationId",
-      "organisation.id"
-    )
-    .select("organisationId", "partnerId")
-    .where({ adminUserId: adminUser.id, partnerId: partnerFromDomain?.id });
+  //if user belongs to an organisation, check that organisation belongs to this partner's domain
+  if (adminUser.organisationId) {
+    const organisation = await db("organisation")
+      .select("partnerId")
+      .where({ id: adminUser.organisationId })
+      .first();
 
-  //if no organisations and not a partner (or admin), fail
-  if (!adminUser.admin && !adminUser.partnerId && !organisations.length) {
+    if (organisation?.partnerId !== partnerFromDomain?.id) {
+      return false;
+    }
+  }
+
+  //if no organisation and not a partner (or super admin), fail
+  if (
+    !adminUser.superAdmin &&
+    !adminUser.partnerId &&
+    !adminUser.organisationId
+  ) {
     return false;
   }
 

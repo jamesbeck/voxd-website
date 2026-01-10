@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@/types/types";
+import { AdminUser } from "@/types/types";
 import saDeleteAdminUser from "@/actions/saDeleteAdminUser";
 import saDeleteSessionsByUser from "@/actions/saDeleteSessionsByUser";
 import { toast } from "sonner";
@@ -12,11 +12,11 @@ import { Spinner } from "@/components/ui/spinner";
 
 export default function UserActions({
   user,
-  admin,
+  superAdmin,
   partner,
 }: {
-  user: User;
-  admin: boolean;
+  user: AdminUser;
+  superAdmin: boolean;
   partner: boolean;
 }) {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
@@ -44,7 +44,7 @@ export default function UserActions({
 
   return (
     <div className="flex items-center gap-2">
-      {admin && (
+      {superAdmin && (
         <Alert
           destructive
           title={`Delete ${user.name}`}

@@ -25,7 +25,7 @@ const saGetFaqTableData = async ({
       );
     }
     // Organisation users can only see non-partner-only FAQs
-    if (!accessToken.admin && !accessToken.partner) {
+    if (!accessToken.superAdmin && !accessToken.partner) {
       qb.andWhere("faq.partnersOnly", false);
     }
   });

@@ -13,9 +13,12 @@ const saUpdateFaqCategory = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Only admins can update FAQ categories
-  if (!accessToken.admin) {
-    return { success: false, error: "Only admins can update FAQ categories" };
+  // Only super admins can update FAQ categories
+  if (!accessToken.superAdmin) {
+    return {
+      success: false,
+      error: "Only super admins can update FAQ categories",
+    };
   }
 
   if (!categoryId) {

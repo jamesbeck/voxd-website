@@ -1,10 +1,10 @@
 import db from "../database/db";
 
 const getChatUserById = async ({ userId }: { userId: string }) => {
-  const user = await db("user")
-    .groupBy("user.id")
-    .select("user.*")
-    .where("user.id", userId)
+  const user = await db("chatUser")
+    .groupBy("chatUser.id")
+    .select("chatUser.*")
+    .where("chatUser.id", userId)
     .first();
 
   return user;

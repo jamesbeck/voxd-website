@@ -21,17 +21,7 @@ const saGetAdminUserTableData = async ({
 
   //base query
   const base = db("adminUser")
-    .leftJoin(
-      "organisationUser",
-      "adminUser.id",
-      "organisationUser.adminUserId"
-    )
-    .leftJoin(
-      "organisation",
-      "organisationUser.organisationId",
-      "organisation.id"
-    )
-    .groupBy("adminUser.id")
+    .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
     .where((qb) => {
       if (search) {
         qb.where("adminUser.name", "ilike", `%${search}%`).orWhere(
@@ -44,21 +34,16 @@ const saGetAdminUserTableData = async ({
 
   //filter by organisationId if provided
   if (organisationId) {
-    base.where("organisationUser.organisationId", organisationId);
+    base.where("adminUser.organisationId", organisationId);
   }
 
-  //if organisation is logged in, restrict to their organisations
-  if (!accessToken.partner && !accessToken.admin) {
-    base.whereIn(
-      "organisationUser.organisationId",
-      db("organisationUser")
-        .select("organisationId")
-        .where("adminUserId", accessToken!.adminUserId)
-    );
+  //if organisation is logged in, restrict to their organisation
+  if (!accessToken.partner && !accessToken.superAdmin) {
+    base.where("adminUser.organisationId", accessToken.organisationId);
   }
 
-  //if partner is logged in and not admin, restrict to their organisations
-  if (accessToken?.partner && !accessToken.admin) {
+  //if partner is logged in and not super admin, restrict to their organisations
+  if (accessToken?.partner && !accessToken.superAdmin) {
     base.where("organisation.partnerId", accessToken!.partnerId);
   }
 
@@ -74,20 +59,13 @@ const saGetAdminUserTableData = async ({
   // now select and query what we want for the data and apply pagination
   const dataQuery = base
     .clone()
-    .select("adminUser.id", "adminUser.name", "adminUser.email")
-    .select([
-      db.raw(`
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object(
-              'id', "organisation"."id",
-              'name', "organisation"."name"
-            )
-          ) FILTER (WHERE "organisation"."id" IS NOT NULL),
-          '[]'
-        ) as organisations
-      `),
-    ])
+    .select(
+      "adminUser.id",
+      "adminUser.name",
+      "adminUser.email",
+      "organisation.id as organisationId",
+      "organisation.name as organisationName"
+    )
     .orderBy(sortField, sortDirection)
     .limit(pageSize)
     .offset((page - 1) * pageSize);

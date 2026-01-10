@@ -11,12 +11,12 @@ const saDeleteUser = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  //only admin can delete users
-  if (!accessToken?.admin) {
+  //only super admin can delete users
+  if (!accessToken?.superAdmin) {
     return { success: false, error: "Unauthorized" };
   }
 
-  await db("user").delete().where({ id: userId });
+  await db("chatUser").delete().where({ id: userId });
 
   return { success: true };
 };

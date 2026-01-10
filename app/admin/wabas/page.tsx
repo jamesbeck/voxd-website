@@ -12,7 +12,7 @@ import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 export default async function Page() {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken?.admin) notFound();
+  if (!accessToken?.superAdmin) notFound();
 
   const wabas = await getWabasByBusinessId();
 

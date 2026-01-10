@@ -28,6 +28,29 @@ export type ServerActionReadParams<TExtra = object> = {
 
 export type Roles = "admin" | "organisation" | "partner";
 
+// Admin users - users who log into the admin dashboard
+export interface AdminUser {
+  id: string;
+  name: string;
+  email?: string;
+  partnerId?: string;
+  superAdmin?: boolean;
+  organisationId?: string;
+  createdAt?: Date;
+}
+
+// Chat users - WhatsApp users who interact with agents
+export interface ChatUser {
+  id: string;
+  name?: string;
+  number: string;
+  agentId: string;
+  testingAgentId?: string;
+  data?: Record<string, unknown>;
+}
+
+// Legacy User type - kept for backwards compatibility during migration
+// @deprecated Use AdminUser or ChatUser instead
 export interface User {
   id: string;
   name: string;
@@ -37,7 +60,8 @@ export interface User {
   createdAt: Date;
   partnerId?: string;
   testingAgentId?: string;
-  organisationIds?: string[];
+  organisationId?: string;
+  agentId?: string;
   data?: Record<string, unknown>;
 }
 

@@ -26,12 +26,12 @@ const getSessionById = async ({
 }): Promise<Session | undefined> => {
   const accessToken = await verifyAccessToken();
 
-  // Join to user to get agentId since sessions no longer have agentId
+  // Join to chatUser to get agentId since sessions no longer have agentId
   const session = await db("session")
-    .leftJoin("user", "session.userId", "user.id")
+    .leftJoin("chatUser", "session.userId", "chatUser.id")
     .select(
       "session.*",
-      "user.agentId as agentId",
+      "chatUser.agentId as agentId",
       db.raw(
         '(SELECT MAX("createdAt") FROM "userMessage" WHERE "userMessage"."sessionId" = "session"."id") as "lastUserMessageDate"'
       ),
@@ -57,8 +57,8 @@ const getSessionById = async ({
   // console.log(session);
 
   //does this person have access to this agent?
-  if (accessToken?.admin) {
-    //admins have access to everything
+  if (accessToken?.superAdmin) {
+    //super admins have access to everything
     return session;
   }
   return session;

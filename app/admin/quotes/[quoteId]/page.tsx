@@ -50,7 +50,7 @@ export default async function Page({
 
   // Get access token to determine user permissions
   const accessToken = await verifyAccessToken();
-  const isAdmin = accessToken.admin;
+  const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && quote?.partnerId === accessToken.partnerId;
 
@@ -122,7 +122,7 @@ export default async function Page({
                   quoteId={quote.id}
                   name={quote.title}
                   status={quote.status}
-                  canDelete={isAdmin || isOwnerPartner}
+                  canDelete={isSuperAdmin || isOwnerPartner}
                 />
               </div>
             </div>
@@ -228,7 +228,7 @@ export default async function Page({
                 monthlyFee={quote.monthlyFee}
                 setupFeeVoxdCost={quote.setupFeeVoxdCost}
                 monthlyFeeVoxdCost={quote.monthlyFeeVoxdCost}
-                isAdmin={isAdmin}
+                isSuperAdmin={isSuperAdmin}
                 isOwnerPartner={isOwnerPartner}
               />
             </TabsContent>

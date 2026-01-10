@@ -8,7 +8,8 @@ export interface AccessTokenPayload {
   adminUserId: string;
   email: string;
   name: string;
-  admin: boolean;
+  superAdmin: boolean;
   partner: boolean;
   partnerId?: string;
+  organisationId?: string;
 }

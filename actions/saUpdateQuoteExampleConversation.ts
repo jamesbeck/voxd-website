@@ -53,12 +53,12 @@ const saUpdateQuoteExampleConversation = async ({
     };
   }
 
-  // Check if user is admin or the partner that owns this quote
-  const isAdmin = accessToken.admin;
+  // Check if user is super admin or the partner that owns this quote
+  const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && accessToken.partnerId === conversation.partnerId;
 
-  if (!isAdmin && !isOwnerPartner) {
+  if (!isSuperAdmin && !isOwnerPartner) {
     return {
       success: false,
       error: "You don't have permission to edit this conversation",

@@ -8,8 +8,8 @@ import { notFound } from "next/navigation";
 export default async function Page() {
   const accessToken = await verifyAccessToken();
 
-  // Only admins can create FAQ categories
-  if (!accessToken.admin) {
+  // Only super admins can create FAQ categories
+  if (!accessToken.superAdmin) {
     return notFound();
   }
 

@@ -7,12 +7,12 @@ const saCreateAdminUser = async ({
   name,
   email,
   partnerId,
-  organisationIds,
+  organisationId,
 }: {
   name: string;
   email?: string;
   partnerId?: string;
-  organisationIds: string[];
+  organisationId?: string;
 }): Promise<ServerActionResponse> => {
   //check user number and email is unique
   const existingUser = await db("adminUser")
@@ -31,22 +31,13 @@ const saCreateAdminUser = async ({
 
   //create a new user
   const [newAdminUser] = await db("adminUser")
-    .insert({ name, email: email?.toLowerCase(), partnerId: partnerId || null })
+    .insert({
+      name,
+      email: email?.toLowerCase(),
+      partnerId: partnerId || null,
+      organisationId: organisationId || null,
+    })
     .returning("id");
-
-  if (organisationIds) {
-    //create new associations
-    if (organisationIds.length > 0) {
-      const userOrganisationAssociations = organisationIds.map(
-        (organisationId) => ({
-          adminUserId: newAdminUser.id,
-          organisationId,
-        })
-      );
-
-      await db("organisationUser").insert(userOrganisationAssociations);
-    }
-  }
 
   return { success: true, data: newAdminUser };
 };

@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,23 +18,13 @@ import { saCreateOrganisation } from "@/actions/saCreateOrganisation";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import { RemoteSelect } from "@/components/inputs/RemoteSelect";
-import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
-import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
-  partnerId: z.string().optional(),
-  adminUserIds: z.string().array(),
 });
 
-export default function NewOrganisationForm({
-  isAdmin,
-}: {
-  isAdmin?: boolean;
-}) {
+export default function NewOrganisationForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -44,8 +33,6 @@ export default function NewOrganisationForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      partnerId: "",
-      adminUserIds: [],
     },
   });
 
@@ -55,8 +42,6 @@ export default function NewOrganisationForm({
 
     const response = await saCreateOrganisation({
       name: values.name,
-      partnerId: values.partnerId,
-      adminUserIds: values.adminUserIds,
     });
 
     if (!response.success) {
@@ -105,63 +90,6 @@ export default function NewOrganisationForm({
               <FormControl>
                 <Input placeholder="Joe Bloggs Ltd" {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {isAdmin && (
-          <FormField
-            control={form.control}
-            name="partnerId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Partner (Optional)</FormLabel>
-                <FormControl>
-                  <RemoteSelect
-                    {...field}
-                    serverAction={saGetPartnerTableData}
-                    label={(record) => `${record.name}`}
-                    valueField="id"
-                    sortField="name"
-                    placeholder="Select a partner..."
-                    emptyMessage="No partners found"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        <FormField
-          control={form.control}
-          name="adminUserIds"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Admin Users</FormLabel>
-              <FormControl>
-                <RemoteMultiSelect
-                  {...field}
-                  serverAction={saGetAdminUserTableData}
-                  label={(record) =>
-                    `${record.name} (${[record.number, record.email]
-                      .filter(Boolean)
-                      .join(" / ")})`
-                  }
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Search and select users..."
-                  emptyMessage="No users found"
-                  pageSize={50}
-                  searchDebounceMs={300}
-                />
-              </FormControl>
-              <FormDescription>
-                These users will be able to log in, view conversation data and
-                manage any agents associated with the organisation.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}

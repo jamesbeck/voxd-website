@@ -9,13 +9,13 @@ export default async function Page() {
 
   let adminAreaTitle = "Customer Admin Area";
   if (accessToken.partner) adminAreaTitle = `Partner Admin Area`;
-  if (accessToken.admin) adminAreaTitle = "VOXD Master Admin Area";
+  if (accessToken.superAdmin) adminAreaTitle = "VOXD Master Admin Area";
 
   return (
     <Container>
       <BreadcrumbSetter breadcrumbs={[{ label: "Admin" }]} />
       <H1>{adminAreaTitle}</H1>
-      {!!accessToken.admin && <p>Welcome, Master Admin!</p>}
+      {!!accessToken.superAdmin && <p>Welcome, Master Admin!</p>}
       {!!accessToken.partner && (
         <p>Welcome to the your VOXD partner admin area.</p>
       )}

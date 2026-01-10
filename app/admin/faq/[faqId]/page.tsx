@@ -20,10 +20,10 @@ export default async function Page({ params }: { params: { faqId: string } }) {
   if (!faq) return notFound();
 
   const accessToken = await verifyAccessToken();
-  const isAdmin = accessToken.admin;
+  const isSuperAdmin = accessToken.superAdmin;
 
-  // If user is not admin and not partner and FAQ is partners only, deny access
-  if (!isAdmin && !accessToken.partner && faq.partnersOnly) {
+  // If user is not super admin and not partner and FAQ is partners only, deny access
+  if (!isSuperAdmin && !accessToken.partner && faq.partnersOnly) {
     return notFound();
   }
 
@@ -73,15 +73,15 @@ export default async function Page({ params }: { params: { faqId: string } }) {
       />
       <div className="flex justify-between items-start mb-6">
         <H1>FAQ Details</H1>
-        {isAdmin && <FaqActions faqId={faqId} />}
+        {isSuperAdmin && <FaqActions faqId={faqId} />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Info Card */}
         <DataCard items={dataItems} />
 
-        {/* Edit Form - Only for admins */}
-        {isAdmin && (
+        {/* Edit Form - Only for super admins */}
+        {isSuperAdmin && (
           <div className="bg-white rounded-lg border p-6">
             <h2 className="text-lg font-semibold mb-4">Edit FAQ</h2>
             <EditFaqForm
@@ -96,8 +96,8 @@ export default async function Page({ params }: { params: { faqId: string } }) {
         )}
       </div>
 
-      {/* Question and Answer Display - For non-admins */}
-      {!isAdmin && (
+      {/* Question and Answer Display - For non-super-admins */}
+      {!isSuperAdmin && (
         <div className="mt-6 space-y-6">
           {/* Question */}
           <div className="bg-white rounded-lg border p-6">

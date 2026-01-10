@@ -19,9 +19,9 @@ const saUpdateFaq = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Only admins can update FAQs
-  if (!accessToken.admin) {
-    return { success: false, error: "Only admins can update FAQs" };
+  // Only super admins can update FAQs
+  if (!accessToken.superAdmin) {
+    return { success: false, error: "Only super admins can update FAQs" };
   }
 
   if (!faqId) {

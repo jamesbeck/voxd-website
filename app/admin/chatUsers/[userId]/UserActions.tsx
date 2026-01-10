@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@/types/types";
+import { ChatUser } from "@/types/types";
 import saDeleteUser from "@/actions/saDeleteUser";
 import saDeleteSessionsByUser from "@/actions/saDeleteSessionsByUser";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 
-export default function UserActions({ user }: { user: User }) {
+export default function UserActions({ user }: { user: ChatUser }) {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [isDeletingSessions, setIsDeletingSessions] = useState(false);
 

@@ -8,19 +8,21 @@ const userCanViewAgent = async ({
 }): Promise<boolean> => {
   const token = await verifyAccessToken();
 
-  if (token.admin) return true;
+  if (token.superAdmin) return true;
 
-  const agents = await db("agent")
+  const query = db("agent")
     .leftJoin("organisation", "agent.organisationId", "organisation.id")
-    .leftJoin(
-      "organisationUser",
-      "organisation.id",
-      "organisationUser.organisationId"
-    )
-    .where("organisationUser.adminUserId", token.adminUserId)
-    .orWhere("organisation.partnerId", token.partnerId)
-    .andWhere("agent.id", agentId)
-    .select("agent.id");
+    .where("agent.id", agentId);
+
+  // Partner can view agents in their organisations
+  if (token.partner) {
+    query.where("organisation.partnerId", token.partnerId);
+  } else {
+    // Organisation user can only view agents in their organisation
+    query.where("agent.organisationId", token.organisationId);
+  }
+
+  const agents = await query.select("agent.id");
   return agents.length > 0;
 };
 

@@ -9,7 +9,7 @@ import { Plus } from "lucide-react";
 
 export default async function Page() {
   const accessToken = await verifyAccessToken();
-  const isAdmin = accessToken.admin;
+  const isSuperAdmin = accessToken.superAdmin;
 
   return (
     <Container>
@@ -18,7 +18,7 @@ export default async function Page() {
       />
       <H1>FAQ</H1>
 
-      {isAdmin && (
+      {isSuperAdmin && (
         <div className="flex justify-end">
           <Button asChild>
             <Link href="/admin/faq/new">
@@ -29,7 +29,7 @@ export default async function Page() {
         </div>
       )}
 
-      <FaqTable isAdmin={isAdmin} />
+      <FaqTable isSuperAdmin={isSuperAdmin} />
     </Container>
   );
 }

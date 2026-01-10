@@ -80,7 +80,7 @@ export default async function Page({
                     Dashboard
                   </Link>
                 </TabsTrigger>
-                {!!token.admin && (
+                {!!token.superAdmin && (
                   <TabsTrigger value="edit" asChild>
                     <Link href={`/admin/agents/${agentId}?tab=edit`}>
                       Edit Agent
@@ -107,7 +107,7 @@ export default async function Page({
                 </TabsTrigger>
               </TabsList>
 
-              {!!token.admin && (
+              {!!token.superAdmin && (
                 <AgentActions agentId={agentId} name={agent?.name || ""} />
               )}
             </div>
@@ -175,7 +175,7 @@ export default async function Page({
                 <Dashboard agentId={agentId} />
               </Container>
             </TabsContent>
-            {!!token.admin && (
+            {!!token.superAdmin && (
               <TabsContent value="edit">
                 <Container>
                   <H2>Edit Agent</H2>
@@ -194,7 +194,10 @@ export default async function Page({
             <TabsContent value="sessions">
               <Container>
                 <H2>Sessions</H2>
-                <SessionsTable agentId={agentId} admin={!!token.admin} />
+                <SessionsTable
+                  agentId={agentId}
+                  superAdmin={!!token.superAdmin}
+                />
               </Container>
             </TabsContent>
             <TabsContent value="users">
@@ -246,7 +249,7 @@ export default async function Page({
                       agent&apos;s system prompt.
                     </p>
                   </div>
-                  {!!token.admin && (
+                  {!!token.superAdmin && (
                     <Button asChild>
                       <Link
                         href={`/admin/agents/${agentId}?tab=new-partial-prompt`}
@@ -260,7 +263,7 @@ export default async function Page({
                 <PartialPromptsTable agentId={agentId} />
               </Container>
             </TabsContent>
-            {!!token.admin && (
+            {!!token.superAdmin && (
               <TabsContent value="new-partial-prompt">
                 <Container>
                   <H2>New Partial Prompt</H2>

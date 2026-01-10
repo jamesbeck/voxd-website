@@ -17,9 +17,9 @@ const saGetWabaTemplatesTableData = async ({
 }: ServerActionReadParams & {
   wabaId: string;
 }): Promise<ServerActionReadResponse> => {
-  // Verify admin access
+  // Verify super admin access
   const accessToken = await verifyAccessToken();
-  if (!accessToken?.admin) {
+  if (!accessToken?.superAdmin) {
     return {
       success: false,
       error: "Unauthorized",

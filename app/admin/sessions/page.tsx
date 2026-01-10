@@ -17,7 +17,7 @@ export default async function Page() {
       />
       <H1>All Sessions</H1>
 
-      <SessionsTable admin={!!token.admin} />
+      <SessionsTable superAdmin={!!token.superAdmin} />
     </Container>
   );
 }

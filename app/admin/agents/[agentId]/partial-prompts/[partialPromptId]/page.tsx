@@ -71,7 +71,7 @@ export default async function Page({
               </Link>
             </TabsTrigger>
           </TabsList>
-          {!!token.admin && (
+          {!!token.superAdmin && (
             <PartialPromptActions
               partialPromptId={partialPromptId}
               partialPromptName={partialPrompt.name}

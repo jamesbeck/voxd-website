@@ -19,7 +19,7 @@ const saUpdatePartner = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.admin)
+  if (!accessToken.superAdmin)
     return {
       success: false,
       error: "You do not have permission to update users.",

@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 export default async function Page() {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken?.partner && !accessToken?.admin) notFound();
+  if (!accessToken?.partner && !accessToken?.superAdmin) notFound();
 
-  const isAdmin = accessToken?.admin ?? false;
+  const isSuperAdmin = accessToken?.superAdmin ?? false;
 
   return (
     <Container>
@@ -28,7 +28,7 @@ export default async function Page() {
         </Button>
       </div>
 
-      <QuotesTable isAdmin={isAdmin} />
+      <QuotesTable isSuperAdmin={isSuperAdmin} />
     </Container>
   );
 }

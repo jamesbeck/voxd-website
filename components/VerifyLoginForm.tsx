@@ -30,14 +30,16 @@ export default function VerifyLoginForm({
   devOtp?: string;
 }) {
   const form = useForm<{ otp: string }>({
-    defaultValues: { otp: devOtp || "" },
+    defaultValues: { otp: "" },
   });
   const [loading, setLoading] = React.useState(false);
 
   async function onSubmit(values: { otp: string }) {
     setLoading(true);
+    // In dev mode, use the master OTP if no code was entered
+    const otpToSubmit = values.otp || devOtp || "";
     const result = await saVerifyLoginCode({
-      otp: values.otp,
+      otp: otpToSubmit,
       redirectTo,
     });
 
@@ -91,8 +93,8 @@ export default function VerifyLoginForm({
               control={form.control}
               name="otp"
               rules={{
-                required: "Code is required",
-                minLength: { value: 6, message: "Enter 6 digits" },
+                required: devOtp ? false : "Code is required",
+                minLength: devOtp ? undefined : { value: 6, message: "Enter 6 digits" },
                 maxLength: { value: 6, message: "Enter 6 digits" },
               }}
               render={({ field }) => (

@@ -11,7 +11,6 @@ const saUpdateUser = async ({
   email,
   partnerId,
   testingAgentId,
-  organisationIds,
 }: {
   userId: string;
   name?: string;
@@ -19,11 +18,10 @@ const saUpdateUser = async ({
   email?: string;
   partnerId?: string;
   testingAgentId?: string;
-  organisationIds?: string[];
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.admin)
+  if (!accessToken.superAdmin)
     return {
       success: false,
       error: "You do not have permission to update users.",
@@ -36,8 +34,8 @@ const saUpdateUser = async ({
     };
   }
 
-  //find the existing user
-  const existingUser = await db("user")
+  //find the existing chatUser
+  const existingUser = await db("chatUser")
     .select("*")
     .where({ id: userId })
     .first();
@@ -49,8 +47,8 @@ const saUpdateUser = async ({
     };
   }
 
-  //update the user
-  await db("user")
+  //update the chatUser
+  await db("chatUser")
     .where({ id: userId })
     .update({
       name,
@@ -59,24 +57,6 @@ const saUpdateUser = async ({
       partnerId: partnerId || null,
       testingAgentId: testingAgentId || null,
     });
-
-  //update organisation associations
-  if (organisationIds) {
-    //delete existing associations
-    await db("organisationUser").where({ userId }).del();
-
-    //create new associations
-    if (organisationIds.length > 0) {
-      const userOrganisationAssociations = organisationIds.map(
-        (organisationId) => ({
-          userId: userId,
-          organisationId: organisationId,
-        })
-      );
-
-      await db("organisationUser").insert(userOrganisationAssociations);
-    }
-  }
 
   return { success: true };
 };

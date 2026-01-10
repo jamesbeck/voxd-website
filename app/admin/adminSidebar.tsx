@@ -112,6 +112,7 @@ const menuItems: MenuItem[] = [
     icon: FolderOpen,
   },
   {
+    roles: ["admin", "organisation"],
     title: "Admin Users",
     url: "/admin/adminUsers",
     icon: UserCog,
@@ -120,18 +121,19 @@ const menuItems: MenuItem[] = [
 
 export default function AdminSidebar({
   email,
-  admin,
+  superAdmin,
   partner,
   logoUrl,
 }: {
   email?: string;
-  admin?: boolean;
+  superAdmin?: boolean;
   partner?: boolean;
   logoUrl?: string;
 }) {
   const userRoles: Roles[] = [];
-  if (admin) userRoles.push("admin");
+  if (superAdmin) userRoles.push("admin");
   if (partner) userRoles.push("partner");
+  if (!superAdmin && !partner) userRoles.push("organisation");
 
   return (
     <Sidebar collapsible="icon" className="bg-cream">
@@ -172,7 +174,7 @@ export default function AdminSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {admin && (
+        {superAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel>CMS</SidebarGroupLabel>
             <SidebarGroupContent>

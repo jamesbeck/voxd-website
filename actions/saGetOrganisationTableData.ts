@@ -18,11 +18,7 @@ const saGetOrganisationTableData = async ({
 
   const base = db("organisation")
     .leftJoin("agent", "organisation.id", "agent.organisationId")
-    .leftJoin(
-      "organisationUser",
-      "organisation.id",
-      "organisationUser.organisationId"
-    )
+    .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")
     .groupBy("organisation.id")
     .where((qb) => {
       if (search) {
@@ -31,17 +27,17 @@ const saGetOrganisationTableData = async ({
     });
 
   //if organisation user is logged in, restrict to their organisations only
-  if (!accessToken.admin && !accessToken.partner) {
+  if (!accessToken.superAdmin && !accessToken.partner) {
     base.whereExists(function () {
       this.select("*")
-        .from("organisationUser as ou")
-        .whereRaw('"ou"."organisationId" = "organisation"."id"')
-        .where("ou.adminUserId", accessToken!.adminUserId);
+        .from("adminUser as au")
+        .whereRaw('"au"."organisationId" = "organisation"."id"')
+        .where("au.id", accessToken!.adminUserId);
     });
   }
 
   //if partner is logged in, restrict to their organisations
-  if (accessToken?.partner && !accessToken.admin) {
+  if (accessToken?.partner && !accessToken.superAdmin) {
     base.where("organisation.partnerId", accessToken!.partnerId);
   }
 
@@ -59,7 +55,7 @@ const saGetOrganisationTableData = async ({
     .select("organisation.*")
     .select([db.raw('COUNT(DISTINCT "agent"."id")::int as "agentCount"')])
     .select([
-      db.raw('COUNT(DISTINCT "organisationUser"."id")::int as "userCount"'),
+      db.raw('COUNT(DISTINCT "adminUser"."id")::int as "adminUserCount"'),
     ])
     .orderBy(sortField, sortDirection)
     .limit(pageSize)

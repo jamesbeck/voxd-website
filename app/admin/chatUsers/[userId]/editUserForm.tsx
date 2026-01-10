@@ -27,8 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
-import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -40,32 +38,21 @@ const formSchema = z.object({
       "Invalid number, it's possible that there are hidden characters, especially if you have copy and pasted this number from a contact record. Manually re-enter the number to fix this issue."
     )
     .or(z.literal("")),
-  email: z.email("Invalid email address").or(z.literal("")),
-  partnerId: z.string().optional(),
   testingAgentId: z.string().optional(),
-  organisationIds: z.string().array(),
 });
 
 export default function EditUserForm({
   userId,
   name,
   number,
-  email,
-  partnerId,
   testingAgentId,
-  organisationIds,
   agentOptions,
-  partnerOptions,
 }: {
   userId: string;
   name?: string;
   number?: string;
-  email?: string;
-  partnerId?: string;
   testingAgentId?: string;
-  organisationIds?: string[];
   agentOptions: { value: string; label: string }[];
-  partnerOptions: { value: string; label: string }[];
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -76,10 +63,7 @@ export default function EditUserForm({
     defaultValues: {
       name: name || "",
       number: number || "",
-      email: email || "",
-      partnerId: partnerId || "",
       testingAgentId: testingAgentId || "",
-      organisationIds: organisationIds || [],
     },
   });
 
@@ -91,9 +75,7 @@ export default function EditUserForm({
       userId: userId,
       name: values.name,
       number: values.number,
-      email: values.email,
       testingAgentId: values.testingAgentId,
-      organisationIds: values.organisationIds,
     });
 
     if (!response.success) {
@@ -179,53 +161,6 @@ export default function EditUserForm({
 
         <FormField
           control={form.control}
-          name="email"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="john.doe@example.com" {...field} />
-              </FormControl>
-              {/* <FormDescription>Put your user email here</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="partnerId"
-          // rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Partner</FormLabel>
-              <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Partner" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {partnerOptions.map((partner) => (
-                      <SelectItem key={partner.value} value={partner.value}>
-                        {partner.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="testingAgentId"
           // rules={{ required: true }}
           render={({ field }) => (
@@ -246,30 +181,6 @@ export default function EditUserForm({
                 </Select>
               </FormControl>
               {/* <FormDescription>Put your user email here</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="organisationIds"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organisations</FormLabel>
-              <FormControl>
-                <RemoteMultiSelect
-                  {...field}
-                  serverAction={saGetOrganisationTableData}
-                  label={(record) => `${record.name}`}
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Search and select organisations..."
-                  emptyMessage="No organisations found"
-                  pageSize={50}
-                  searchDebounceMs={300}
-                />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -16,8 +16,8 @@ const saGetFaqCategoryTableData = async ({
 }: ServerActionReadParams): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Only admins can access FAQ categories management
-  if (!accessToken.admin) {
+  // Only super admins can access FAQ categories management
+  if (!accessToken.superAdmin) {
     return { success: false, error: "Access denied" };
   }
 

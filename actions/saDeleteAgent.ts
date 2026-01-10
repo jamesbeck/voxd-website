@@ -11,8 +11,8 @@ const saDeleteAgent = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  //only admin can delete agents
-  if (!accessToken?.admin) {
+  //only super admin can delete agents
+  if (!accessToken?.superAdmin) {
     return { success: false, error: "Unauthorized" };
   }
 

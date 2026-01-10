@@ -11,9 +11,9 @@ const saDeleteFaq = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Only admins can delete FAQs
-  if (!accessToken.admin) {
-    return { success: false, error: "Only admins can delete FAQs" };
+  // Only super admins can delete FAQs
+  if (!accessToken.superAdmin) {
+    return { success: false, error: "Only super admins can delete FAQs" };
   }
 
   try {

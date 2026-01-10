@@ -22,7 +22,7 @@ const OrganisationsTable = () => {
     },
     {
       label: "Admin Users",
-      name: "userCount",
+      name: "adminUserCount",
       sort: true,
       // format: (value: string) => value || "",}
     },

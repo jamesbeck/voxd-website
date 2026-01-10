@@ -9,21 +9,23 @@ const saUpdateAdminUser = async ({
   name,
   email,
   partnerId,
-  organisationIds,
+  organisationId,
 }: {
   adminUserId: string;
   name?: string;
   email?: string;
   partnerId?: string;
-  organisationIds?: string[];
+  organisationId?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.admin)
+  // Only super admins and partners can update admin users
+  if (!accessToken.superAdmin && !accessToken.partner) {
     return {
       success: false,
       error: "You do not have permission to update users.",
     };
+  }
 
   if (!adminUserId) {
     return {
@@ -34,8 +36,9 @@ const saUpdateAdminUser = async ({
 
   //find the existing user
   const existingUser = await db("adminUser")
-    .select("*")
-    .where({ id: adminUserId })
+    .select("adminUser.*", "organisation.partnerId as orgPartnerId")
+    .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
+    .where("adminUser.id", adminUserId)
     .first();
 
   if (!existingUser) {
@@ -45,32 +48,42 @@ const saUpdateAdminUser = async ({
     };
   }
 
+  // Partners can only update users belonging to their organisations
+  if (accessToken.partner && !accessToken.superAdmin) {
+    if (existingUser.orgPartnerId !== accessToken.partnerId) {
+      return {
+        success: false,
+        error: "You do not have permission to update this user.",
+      };
+    }
+
+    // If changing organisation, verify new organisation also belongs to the partner
+    if (organisationId && organisationId !== existingUser.organisationId) {
+      const newOrg = await db("organisation")
+        .where("id", organisationId)
+        .first();
+      if (!newOrg || newOrg.partnerId !== accessToken.partnerId) {
+        return {
+          success: false,
+          error:
+            "You can only assign users to organisations within your partner.",
+        };
+      }
+    }
+
+    // Partners cannot set partnerId on the admin user
+    partnerId = undefined;
+  }
+
   //update the user
   await db("adminUser")
     .where({ id: adminUserId })
     .update({
       name,
       email: email?.toLowerCase(),
-      partnerId: partnerId || null,
+      ...(accessToken.superAdmin && { partnerId: partnerId || null }),
+      organisationId: organisationId || null,
     });
-
-  //update organisation associations
-  if (organisationIds) {
-    //delete existing associations
-    await db("organisationUser").where({ adminUserId }).del();
-
-    //create new associations
-    if (organisationIds.length > 0) {
-      const userOrganisationAssociations = organisationIds.map(
-        (organisationId) => ({
-          adminUserId,
-          organisationId,
-        })
-      );
-
-      await db("organisationUser").insert(userOrganisationAssociations);
-    }
-  }
 
   return { success: true };
 };

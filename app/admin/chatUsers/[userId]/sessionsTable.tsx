@@ -15,10 +15,10 @@ import {
 
 const SessionsTable = ({
   userId,
-  admin,
+  superAdmin,
 }: {
   userId: string;
-  admin: boolean;
+  superAdmin: boolean;
 }) => {
   const columns: Column[] = [
     {

@@ -4,9 +4,9 @@ This document describes the different user access levels in the admin dashboard 
 
 ## Access Level Hierarchy
 
-### 1. Admin Users (`admin: true`)
+### 1. Super Admin Users (`superAdmin: true`)
 
-Admins have full access to all data in the system.
+Super Admins have full access to all data in the system. This differentiates them from regular admin users who may only have administrative access to their own organisation.
 
 **Can access:**
 
@@ -23,7 +23,7 @@ Admins have full access to all data in the system.
 
 **Special permissions:**
 
-- Can view development sessions (non-admins cannot)
+- Can view development sessions (non-super-admins cannot)
 - Can access partner management
 - Can access WABA and phone number management
 - Can create, edit, and delete FAQs
@@ -44,22 +44,22 @@ Partners are resellers or agencies that manage multiple client organisations.
 **Cannot access:**
 
 - Other partners' data
-- WABAs and phone numbers (admin only)
+- WABAs and phone numbers (super admin only)
 - Admin user management
 - CMS features
-- FAQ management (create/edit/delete - admin only)
+- FAQ management (create/edit/delete - super admin only)
 
-### 3. Organisation Users (regular users)
+### 3. Organisation Users (regular admin users)
 
-Regular users are associated with one or more organisations via the `organisationUser` table.
+Regular admin users belong to a single organisation via the `organisationId` column on the `adminUser` table. These are administrative users for specific organisations, not to be confused with Super Admins.
 
 **Can access:**
 
-- Organisations they are associated with (via `organisationUser.adminUserId`)
-- Agents belonging to those organisations
+- The organisation they belong to (via `adminUser.organisationId`)
+- Agents belonging to that organisation
 - Sessions from those agents (excluding development sessions)
 - Chat users who have interacted with those agents
-- Quotes for their organisations
+- Quotes for their organisation
 - Public FAQs only (those not marked as `partnersOnly`) - view only
 
 **Cannot access:**
@@ -69,7 +69,7 @@ Regular users are associated with one or more organisations via the `organisatio
 - WABAs and phone numbers
 - CMS features
 - Partners-only FAQs
-- FAQ management (create/edit/delete - admin only)
+- FAQ management (create/edit/delete - super admin only)
 
 ## Data Filtering Implementation
 
@@ -78,34 +78,28 @@ When implementing data access, use the following pattern:
 ```typescript
 const accessToken = await verifyAccessToken();
 
-// Admin - no filtering needed
-if (accessToken.admin) {
+// Super Admin - no filtering needed
+if (accessToken.superAdmin) {
   // Return all data
 }
 
 // Partner - filter by partnerId
-if (accessToken.partner && !accessToken.admin) {
+if (accessToken.partner && !accessToken.superAdmin) {
   query.where("organisation.partnerId", accessToken.partnerId);
 }
 
-// Regular user - filter by organisationUser association
-if (!accessToken.partner && !accessToken.admin) {
-  query
-    .leftJoin(
-      "organisationUser",
-      "organisation.id",
-      "organisationUser.organisationId"
-    )
-    .where("organisationUser.adminUserId", accessToken.adminUserId);
+// Regular admin user - filter by organisationId
+if (!accessToken.partner && !accessToken.superAdmin) {
+  query.where("organisation.id", accessToken.organisationId);
 }
 ```
 
 ## Development Sessions
 
-Development sessions (`sessionType = 'development'`) are only visible to admin users. Always filter these out for non-admin users:
+Development sessions (`sessionType = 'development'`) are only visible to super admin users. Always filter these out for non-super-admin users:
 
 ```typescript
-if (!accessToken.admin) {
+if (!accessToken.superAdmin) {
   base.where("session.sessionType", "!=", "development");
 }
 ```
@@ -116,8 +110,8 @@ Menu items in the sidebar use a `roles` property to control visibility:
 
 ```typescript
 {
-  roles: ["admin"],        // Admin only
-  roles: ["partner", "admin"],  // Partners and admins
+  roles: ["admin"],        // Super Admin only
+  roles: ["partner", "admin"],  // Partners and super admins
   // No roles property = visible to all authenticated users
 }
 ```

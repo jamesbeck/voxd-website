@@ -20,7 +20,6 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RemoteMultiSelect } from "@/components/inputs/RemoteMultiSelect";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
@@ -30,10 +29,7 @@ const formSchema = z.object({
   //only accept number characters including any hidden or RTL characters
   email: z.email("Invalid email address").nonempty("Email is required"),
   partnerId: z.string().optional(),
-  organisationIds: z
-    .string()
-    .array()
-    .min(1, "At least one organisation must be selected"),
+  organisationId: z.string().nonempty("Organisation is required"),
 });
 
 export default function NewAdminUserForm() {
@@ -47,7 +43,7 @@ export default function NewAdminUserForm() {
       name: "",
       email: "",
       partnerId: "",
-      organisationIds: [],
+      organisationId: "",
     },
   });
 
@@ -60,7 +56,7 @@ export default function NewAdminUserForm() {
       });
 
       if (response.success && response.data.length === 1) {
-        form.setValue("organisationIds", [response.data[0].id]);
+        form.setValue("organisationId", response.data[0].id);
       }
     };
 
@@ -75,7 +71,7 @@ export default function NewAdminUserForm() {
       name: values.name,
       email: values.email,
       partnerId: values.partnerId,
-      organisationIds: values.organisationIds,
+      organisationId: values.organisationId,
     });
 
     if (!response.success) {
@@ -171,23 +167,23 @@ export default function NewAdminUserForm() {
 
         <FormField
           control={form.control}
-          name="organisationIds"
+          name="organisationId"
           rules={{ required: true }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organisations</FormLabel>
+              <FormLabel>Organisation</FormLabel>
               <FormDescription>
                 Which organisation's agents do you want this user to have access
                 to?
               </FormDescription>
               <FormControl>
-                <RemoteMultiSelect
+                <RemoteSelect
                   {...field}
                   serverAction={saGetOrganisationTableData}
                   label={(record) => `${record.name}`}
                   valueField="id"
                   sortField="name"
-                  placeholder="Search and select organisations..."
+                  placeholder="Select an organisation..."
                   emptyMessage="No organisations found"
                   pageSize={50}
                   searchDebounceMs={300}

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import { format } from "date-fns";
 
-const QuotesTable = ({ isAdmin }: { isAdmin?: boolean }) => {
+const QuotesTable = ({ isSuperAdmin }: { isSuperAdmin?: boolean }) => {
   const columns = [
     {
       label: "Title",
@@ -28,7 +28,7 @@ const QuotesTable = ({ isAdmin }: { isAdmin?: boolean }) => {
       linkTo: (row: any) => `/admin/organisations/${row.organisationId}`,
       // format: (value: string) => value || "",}
     },
-    ...(isAdmin
+    ...(isSuperAdmin
       ? [
           {
             label: "Partner",
