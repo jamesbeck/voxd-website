@@ -19,11 +19,14 @@ const saGetAgentTableData = async ({
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
+  console.log(accessToken);
+
   const base = db("agent")
     .leftJoin("chatUser", "agent.id", "chatUser.agentId")
     .leftJoin("session", "chatUser.id", "session.userId")
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
+    .leftJoin("organisation", "agent.organisationId", "organisation.id")
     .groupBy("agent.id", "phoneNumber.id")
     .where((qb) => {
       if (search) {
@@ -32,20 +35,27 @@ const saGetAgentTableData = async ({
       }
     });
 
+  // Apply access control based on user level
+  // Regular organisation users can only see agents from their organisation
+  if (!accessToken.partner && !accessToken.superAdmin) {
+    if (accessToken.organisationId) {
+      base.where("agent.organisationId", accessToken.organisationId);
+    } else {
+      // Regular user without organisationId should see nothing
+      base.whereRaw("1 = 0");
+    }
+  }
+
+  // Partners can only see agents from organisations they manage
+  if (accessToken.partner && !accessToken.superAdmin) {
+    base.where("organisation.partnerId", accessToken.partnerId);
+  }
+
+  // Super admins can see all agents (no filter needed)
+
+  // Additional filter by organisationId if provided (must still respect access control above)
   if (organisationId) {
     base.where("agent.organisationId", organisationId);
-  }
-
-  //if organisation is logging in, restrict to their agents
-  if (!accessToken.partner && !accessToken.superAdmin) {
-    base.where("agent.organisationId", accessToken.organisationId);
-  }
-
-  //if partner is logging in, restrict to their agents
-  if (accessToken?.partner && !accessToken.superAdmin) {
-    base
-      .leftJoin("organisation", "agent.organisationId", "organisation.id")
-      .where("organisation.partnerId", accessToken!.partnerId);
   }
 
   //count query

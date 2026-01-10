@@ -27,8 +27,10 @@ const getSessionById = async ({
   const accessToken = await verifyAccessToken();
 
   // Join to chatUser to get agentId since sessions no longer have agentId
-  const session = await db("session")
+  const query = db("session")
     .leftJoin("chatUser", "session.userId", "chatUser.id")
+    .leftJoin("agent", "chatUser.agentId", "agent.id")
+    .leftJoin("organisation", "agent.organisationId", "organisation.id")
     .select(
       "session.*",
       "chatUser.agentId as agentId",
@@ -51,17 +53,25 @@ const getSessionById = async ({
         'CAST(COALESCE((SELECT SUM("assistantMessage"."promptTokens" * "model"."inputTokenCost" + "assistantMessage"."completionTokens" * "model"."outputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalCost"'
       )
     )
-    .where("session.id", sessionId)
-    .first();
+    .where("session.id", sessionId);
 
-  // console.log(session);
-
-  //does this person have access to this agent?
+  // Super admins have access to everything
   if (accessToken?.superAdmin) {
-    //super admins have access to everything
-    return session;
+    return query.first();
   }
-  return session;
+
+  // Non-super-admins cannot see development sessions
+  query.where("session.sessionType", "!=", "development");
+
+  // Partners can only see sessions from organisations they manage
+  if (accessToken?.partner) {
+    query.where("organisation.partnerId", accessToken.partnerId);
+  } else {
+    // Regular organisation users can only see sessions from their organisation
+    query.where("agent.organisationId", accessToken.organisationId);
+  }
+
+  return query.first();
 };
 
 export default getSessionById;

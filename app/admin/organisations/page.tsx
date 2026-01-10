@@ -1,10 +1,9 @@
-import Link from "next/link";
 import React from "react";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import OrganisationsTable from "./organisationsTable";
-import { Button } from "@/components/ui/button";
+import NewOrganisationButton from "@/components/admin/NewOrganisationButton";
 
 export default async function Page() {
   return (
@@ -17,10 +16,8 @@ export default async function Page() {
       />
       <H1>Organisations</H1>
 
-      <div className="flex justify-end">
-        <Button asChild>
-          <Link href="/admin/organisations/new">New Organisation</Link>
-        </Button>
+      <div className="flex justify-end mb-4">
+        <NewOrganisationButton />
       </div>
 
       <OrganisationsTable />

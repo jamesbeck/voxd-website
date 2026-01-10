@@ -140,6 +140,11 @@ export default function DataTable<TExtra extends object = object>({
         }}
         value={searchValue}
       />
+      {response?.success && (
+        <p className="text-sm text-muted-foreground">
+          Showing {response.data.length} of {response.totalAvailable} records
+        </p>
+      )}
       <div className="overflow-hidden rounded-md border relative">
         {loading && (
           <Spinner className="h-8 w-8 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2" />

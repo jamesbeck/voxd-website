@@ -50,7 +50,8 @@ const saVerifyLoginCode = async ({
       "adminUser.otp",
       "adminUser.otpAttempts",
       "adminUser.partnerId",
-      "adminUser.superAdmin"
+      "adminUser.superAdmin",
+      "adminUser.organisationId"
     )
     .where({ "adminUser.email": idToken.email })
     .first();

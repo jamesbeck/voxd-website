@@ -4,14 +4,14 @@ import H1 from "@/components/adminui/H1";
 import getOrganisationById from "@/lib/getOrganisationById";
 import Container from "@/components/adminui/Container";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import H2 from "@/components/adminui/H2";
 import { notFound } from "next/navigation";
 import AgentsTable from "./agentsTable";
 import NewOrganisationForm from "./newOrganisationForm";
 import AdminUsersTable from "./adminUsersTable";
 import ChatUsersTable from "./chatUsersTable";
-import QuotesTable from "./quotesTable";
+import QuotesTable from "@/components/admin/QuotesTable";
 import OrganisationActions from "./organisationActions";
+import NewQuoteButton from "@/components/admin/NewQuoteButton";
 
 export default async function Page({
   params,
@@ -93,6 +93,9 @@ export default async function Page({
             {token.superAdmin || token.partner ? (
               <TabsContent value="quotes">
                 <Container>
+                  <div className="flex justify-end mb-4">
+                    <NewQuoteButton organisationId={organisation.id} />
+                  </div>
                   <QuotesTable organisationId={organisation.id} />
                 </Container>
               </TabsContent>

@@ -69,6 +69,7 @@ const menuItems: MenuItem[] = [
     icon: Phone,
   },
   {
+    roles: ["admin", "partner"],
     title: "Organisations",
     url: "/admin/organisations",
     icon: Building,
