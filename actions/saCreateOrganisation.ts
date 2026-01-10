@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { addLog } from "@/lib/addLog";
 
 const saCreateOrganisation = async ({
   name,
@@ -39,6 +40,18 @@ const saCreateOrganisation = async ({
   const [newOrganisation] = await db("organisation")
     .insert({ name, partnerId: partnerId || null })
     .returning("id");
+
+  // Log organisation creation
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    event: "Organisation Created",
+    description: `Organisation "${name}" created`,
+    organisationId: newOrganisation.id,
+    partnerId: partnerId,
+    data: {
+      name,
+    },
+  });
 
   return { success: true, data: newOrganisation };
 };

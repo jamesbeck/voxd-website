@@ -19,9 +19,18 @@ const saGetAdminUserTableData = async ({
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
+  // Subquery for last login
+  const lastLoginSubquery = db("log")
+    .select("adminUserId")
+    .max("createdAt as lastLogin")
+    .where("event", "User Login")
+    .groupBy("adminUserId")
+    .as("lastLoginQuery");
+
   //base query
   const base = db("adminUser")
     .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
+    .leftJoin(lastLoginSubquery, "adminUser.id", "lastLoginQuery.adminUserId")
     .where((qb) => {
       if (search) {
         qb.where("adminUser.name", "ilike", `%${search}%`).orWhere(
@@ -64,7 +73,8 @@ const saGetAdminUserTableData = async ({
       "adminUser.name",
       "adminUser.email",
       "organisation.id as organisationId",
-      "organisation.name as organisationName"
+      "organisation.name as organisationName",
+      "lastLoginQuery.lastLogin"
     )
     .orderBy(sortField, sortDirection)
     .limit(pageSize)

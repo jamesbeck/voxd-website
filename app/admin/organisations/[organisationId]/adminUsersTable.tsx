@@ -28,6 +28,7 @@ import {
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -86,6 +87,17 @@ const AdminUsersTable = ({ organisationId }: { organisationId: string }) => {
       label: "Email",
       name: "email",
       sort: true,
+    },
+    {
+      label: "Last Login",
+      name: "lastLogin",
+      sort: true,
+      format: (row: any) => {
+        if (!row.lastLogin) {
+          return <span className="text-muted-foreground">Never</span>;
+        }
+        return formatDistanceToNow(new Date(row.lastLogin), { addSuffix: true });
+      },
     },
   ];
 

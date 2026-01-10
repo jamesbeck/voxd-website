@@ -4,6 +4,7 @@ import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 const adminUsersTable = () => {
   const columns = [
@@ -33,6 +34,17 @@ const adminUsersTable = () => {
             </Link>
           </Button>
         );
+      },
+    },
+    {
+      label: "Last Login",
+      name: "lastLogin",
+      sort: true,
+      format: (row: any) => {
+        if (!row.lastLogin) {
+          return <span className="text-muted-foreground">Never</span>;
+        }
+        return formatDistanceToNow(new Date(row.lastLogin), { addSuffix: true });
       },
     },
   ];

@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { addLog } from "@/lib/addLog";
 
 const saUpdateOrganisation = async ({
   organisationId,
@@ -45,6 +46,19 @@ const saUpdateOrganisation = async ({
   await db("organisation")
     .where({ id: organisationId })
     .update({ name, partnerId: accessToken.partnerId || null });
+
+  // Log organisation update
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    event: "Organisation Updated",
+    description: `Organisation "${name}" updated`,
+    organisationId,
+    partnerId: accessToken.partnerId,
+    data: {
+      previousName: existingOrganisation.name,
+      newName: name,
+    },
+  });
 
   return { success: true };
 };

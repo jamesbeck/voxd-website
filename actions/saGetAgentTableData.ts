@@ -19,8 +19,6 @@ const saGetAgentTableData = async ({
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
-  console.log(accessToken);
-
   const base = db("agent")
     .leftJoin("chatUser", "agent.id", "chatUser.agentId")
     .leftJoin("session", "chatUser.id", "session.userId")

@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { addLog } from "@/lib/addLog";
 
 const saDeleteOrganisation = async ({
   organisationId,
@@ -19,7 +20,7 @@ const saDeleteOrganisation = async ({
     // Get the organisation
     const organisation = await db("organisation")
       .where({ id: organisationId })
-      .select("partnerId")
+      .select("partnerId", "name")
       .first();
 
     if (!organisation) {
@@ -46,6 +47,18 @@ const saDeleteOrganisation = async ({
           "Cannot delete organisation with associated agents. Please delete all agents first.",
       };
     }
+
+    // Log organisation deletion before deleting (to avoid FK constraint issues)
+    await addLog({
+      adminUserId: accessToken.adminUserId,
+      event: "Organisation Deleted",
+      description: `Organisation "${organisation.name}" deleted`,
+      organisationId,
+      partnerId: accessToken.partnerId,
+      data: {
+        name: organisation.name,
+      },
+    });
 
     // Delete organisation (cascade will handle related records)
     await db("organisation").where({ id: organisationId }).delete();
