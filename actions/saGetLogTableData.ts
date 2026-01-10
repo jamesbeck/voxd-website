@@ -31,7 +31,15 @@ const saGetLogTableData = async ({
   agentId,
   chatUserId,
 }: ServerActionReadParams<LogFilters>): Promise<ServerActionReadResponse> => {
-  await verifyAccessToken();
+  const token = await verifyAccessToken();
+
+  // Only super admins can access log data
+  if (!token.superAdmin) {
+    return {
+      success: false,
+      error: "Unauthorized",
+    };
+  }
 
   const base = db("log")
     .leftJoin("adminUser", "log.adminUserId", "adminUser.id")

@@ -47,7 +47,9 @@ export default async function Page({
           <Tabs defaultValue="edit" className="space-y-2">
             <TabsList>
               <TabsTrigger value="edit">Edit User</TabsTrigger>
-              <TabsTrigger value="log">Activity Log</TabsTrigger>
+              {token.superAdmin && (
+                <TabsTrigger value="log">Activity Log</TabsTrigger>
+              )}
             </TabsList>
 
             <div className="border-b mb-6" />
@@ -64,13 +66,15 @@ export default async function Page({
               />
             </TabsContent>
 
-            <TabsContent value="log">
-              <LogExplorer
-                filters={{ adminUserId: user.id }}
-                title="User Activity"
-                pageSize={20}
-              />
-            </TabsContent>
+            {token.superAdmin && (
+              <TabsContent value="log">
+                <LogExplorer
+                  filters={{ adminUserId: user.id }}
+                  title="User Activity"
+                  pageSize={20}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </>
       )}

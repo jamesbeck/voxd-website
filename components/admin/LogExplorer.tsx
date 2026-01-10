@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -271,7 +271,7 @@ function LogEntryCard({ log }: { log: LogEntry }) {
 }
 
 export default function LogExplorer({
-  filters = {},
+  filters,
   title = "Activity Log",
   showSearch = true,
   pageSize = 20,
@@ -283,6 +283,20 @@ export default function LogExplorer({
   const [totalAvailable, setTotalAvailable] = useState(0);
   const debouncedSearchTerm = useDebounce(searchValue, 300);
   const currentRequestRef = useRef<symbol | null>(null);
+
+  // Memoize filters to prevent infinite re-renders
+  const stableFilters = useMemo(
+    () => filters ?? {},
+    [
+      filters?.adminUserId,
+      filters?.apiKeyId,
+      filters?.organisationId,
+      filters?.partnerId,
+      filters?.sessionId,
+      filters?.agentId,
+      filters?.chatUserId,
+    ]
+  );
 
   const totalPages = Math.max(1, Math.ceil(totalAvailable / pageSize));
   const hasMore = page < totalPages;
@@ -299,7 +313,7 @@ export default function LogExplorer({
       pageSize,
       sortField: "createdAt",
       sortDirection: "desc",
-      ...filters,
+      ...stableFilters,
     });
 
     if (currentRequestRef.current === requestId) {
@@ -309,7 +323,7 @@ export default function LogExplorer({
       }
       setLoading(false);
     }
-  }, [debouncedSearchTerm, page, pageSize, filters]);
+  }, [debouncedSearchTerm, page, pageSize, stableFilters]);
 
   useEffect(() => {
     fetchLogs();

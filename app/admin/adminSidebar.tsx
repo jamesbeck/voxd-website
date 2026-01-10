@@ -14,6 +14,7 @@ import {
   MessageCircle,
   HelpCircle,
   FolderOpen,
+  ScrollText,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -117,6 +118,12 @@ const menuItems: MenuItem[] = [
     title: "Admin Users",
     url: "/admin/adminUsers",
     icon: UserCog,
+  },
+  {
+    roles: ["admin"],
+    title: "Activity Log",
+    url: "/admin/log",
+    icon: ScrollText,
   },
 ];
 

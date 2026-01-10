@@ -173,6 +173,15 @@ const saSendLoginCode = async ({
         };
       }
     }
+  } else if (!adminUser) {
+    // Log login attempt for non-existent user
+    await addLog({
+      event: "Login Attempt - Unknown Email",
+      description: `Login attempted with unknown email: ${email}`,
+      data: {
+        email,
+      },
+    });
   }
 
   //send a cookie regardless so we dont't reveal if the email exists
