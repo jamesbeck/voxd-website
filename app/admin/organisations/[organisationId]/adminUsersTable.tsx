@@ -96,7 +96,9 @@ const AdminUsersTable = ({ organisationId }: { organisationId: string }) => {
         if (!row.lastLogin) {
           return <span className="text-muted-foreground">Never</span>;
         }
-        return formatDistanceToNow(new Date(row.lastLogin), { addSuffix: true });
+        return formatDistanceToNow(new Date(row.lastLogin), {
+          addSuffix: true,
+        });
       },
     },
   ];

@@ -163,6 +163,7 @@ const saSendLoginCode = async ({
             email: adminUser.email,
             statusCode: emailR[0].statusCode,
             headers: emailR[0].headers,
+            body: emailR[0].body,
           },
         });
       } catch (error) {
