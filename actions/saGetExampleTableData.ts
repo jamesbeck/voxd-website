@@ -16,13 +16,27 @@ const saGetExampleTableData = async ({
 }: ServerActionReadParams & {
   organisationId?: string;
 }): Promise<ServerActionReadResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
-  const base = db("example").where((qb) => {
-    if (search) {
-      qb.where("example.title", "ilike", `%${search}%`);
-    }
-  });
+  // Only partners and super admins can view examples
+  if (!accessToken.superAdmin && !accessToken.partner) {
+    return {
+      success: false,
+      error: "You do not have permission to view examples.",
+    };
+  }
+
+  const base = db("example")
+    .leftJoin("partner", "partner.id", "example.partnerId")
+    .where((qb) => {
+      if (search) {
+        qb.where("example.title", "ilike", `%${search}%`);
+      }
+      // Partners can only see their own examples
+      if (accessToken.partner && !accessToken.superAdmin) {
+        qb.where("example.partnerId", accessToken.partnerId);
+      }
+    });
 
   //count query
   const countQuery = base.clone().select("example.id");
@@ -36,6 +50,7 @@ const saGetExampleTableData = async ({
   const examples = await base
     .clone()
     .select("example.*")
+    .select("partner.name as partnerName")
     // .select(
     //   db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
     //   db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),

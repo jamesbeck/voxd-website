@@ -75,6 +75,7 @@ export interface Partner {
 
 export interface Example {
   id: string;
+  partnerId: string;
   title: string;
   slug: string;
   short: string;

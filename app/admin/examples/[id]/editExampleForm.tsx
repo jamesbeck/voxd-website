@@ -19,6 +19,10 @@ import { Input } from "@/components/ui/input";
 import saUpdateExample from "@/actions/saUpdateExample";
 import { useRouter } from "next/navigation";
 import { FormMultiSelect } from "@/components/inputs/MultiSelect";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
+import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
+
+const VOXD_PARTNER_ID = "019a6ec7-43b1-7da4-a2d8-8c84acb387b4";
 
 const formSchema = z.object({
   title: z.string(),
@@ -26,6 +30,7 @@ const formSchema = z.object({
   functions: z.array(z.string()),
   short: z.string(),
   body: z.string(),
+  partnerId: z.string().min(1, "Partner is required"),
 });
 
 export default function EditExampleForm({
@@ -37,6 +42,8 @@ export default function EditExampleForm({
   industriesOptions,
   functions,
   functionsOptions,
+  partnerId,
+  superAdmin,
 }: {
   id: string;
   title: string;
@@ -46,6 +53,8 @@ export default function EditExampleForm({
   industriesOptions: { label: string; value: string }[];
   functions: string[];
   functionsOptions: { label: string; value: string }[];
+  partnerId?: string;
+  superAdmin: boolean;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -59,6 +68,7 @@ export default function EditExampleForm({
       functions: functions,
       short: short,
       body: body,
+      partnerId: partnerId || VOXD_PARTNER_ID,
     },
   });
 
@@ -72,6 +82,7 @@ export default function EditExampleForm({
       body: values.body,
       industries: values.industries,
       functions: values.functions,
+      partnerId: values.partnerId,
     });
 
     setLoading(false);
@@ -81,6 +92,33 @@ export default function EditExampleForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {superAdmin && (
+          <FormField
+            control={form.control}
+            name="partnerId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Partner</FormLabel>
+                <FormControl>
+                  <RemoteSelect
+                    {...field}
+                    serverAction={saGetPartnerTableData}
+                    label={(record) => `${record.name}`}
+                    valueField="id"
+                    sortField="name"
+                    placeholder="Select a partner..."
+                    emptyMessage="No partners found"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Assign this example to a partner.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <FormField
           control={form.control}
           name="title"

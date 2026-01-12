@@ -54,14 +54,14 @@ const saVerifyLoginCode = async ({
       "adminUser.superAdmin",
       "adminUser.organisationId"
     )
-    .where({ "adminUser.email": idToken.email })
+    .whereRaw('LOWER("adminUser".email) = LOWER(?)', [idToken.email])
     .first();
 
   const attempts = (adminUser?.otpAttempts || 0) + 1;
 
   //increment otpAttempts
   await db("adminUser")
-    .where({ email: idToken.email })
+    .whereRaw("LOWER(email) = LOWER(?)", [idToken.email])
     .update({ otpAttempts: attempts });
 
   const otpMatch =

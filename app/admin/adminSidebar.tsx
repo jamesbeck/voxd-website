@@ -182,6 +182,24 @@ export default function AdminSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {(superAdmin || partner) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Examples</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/examples">
+                      <Inbox />
+                      <span>Examples</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {superAdmin && (
           <SidebarGroup>
             <SidebarGroupLabel>CMS</SidebarGroupLabel>
@@ -203,24 +221,6 @@ export default function AdminSidebar({
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <Collapsible defaultOpen className="group/collapsible">
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/admin/examples">
-                        <Inbox />
-                        <span>Examples</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    <SidebarMenuSub>
-                      <SidebarMenuButton asChild>
-                        <Link href="/admin/examples/generate">
-                          <Inbox />
-                          <span>Generate Example</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuSub>
-                  </SidebarMenuItem>
-                </Collapsible>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -9,7 +9,7 @@ export default async function userCanLogInToThisDomain() {
 
   const adminUser = await db("adminUser")
     .select("*")
-    .where({ email: idToken.email })
+    .whereRaw("LOWER(email) = LOWER(?)", [idToken.email])
     .first();
 
   if (!adminUser) return false;

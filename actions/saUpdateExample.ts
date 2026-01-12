@@ -2,6 +2,7 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 const saUpdateExample = async ({
   id,
@@ -10,6 +11,7 @@ const saUpdateExample = async ({
   body,
   industries,
   functions,
+  partnerId,
 }: {
   id: string;
   title: string;
@@ -17,8 +19,56 @@ const saUpdateExample = async ({
   body: string;
   industries: string[];
   functions: string[];
+  partnerId?: string;
 }): Promise<ServerActionResponse> => {
-  await db("example").where("id", id).update({ title, short, body });
+  const accessToken = await verifyAccessToken();
+
+  // Only partners and super admins can edit examples
+  if (!accessToken.superAdmin && !accessToken.partner) {
+    return {
+      success: false,
+      error: "You do not have permission to edit examples.",
+    };
+  }
+
+  // Get the existing example to check ownership
+  const existingExample = await db("example").where("id", id).first();
+
+  if (!existingExample) {
+    return {
+      success: false,
+      error: "Example not found.",
+    };
+  }
+
+  // Partners can only edit their own examples
+  if (accessToken.partner && !accessToken.superAdmin) {
+    if (existingExample.partnerId !== accessToken.partnerId) {
+      return {
+        success: false,
+        error: "You can only edit your own examples.",
+      };
+    }
+  }
+
+  // Build the update object
+  const updateData: {
+    title: string;
+    short: string;
+    body: string;
+    partnerId?: string | null;
+  } = {
+    title,
+    short,
+    body,
+  };
+
+  // Only super admins can change the partnerId
+  if (accessToken.superAdmin && partnerId !== undefined) {
+    updateData.partnerId = partnerId || null;
+  }
+
+  await db("example").where("id", id).update(updateData);
 
   console.log("adding", industries.length, "industries");
 

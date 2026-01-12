@@ -1,6 +1,6 @@
 "use server";
 
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import {
   generateObject,
   experimental_generateImage as generateImage,
@@ -11,12 +11,68 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import generateExampleChat from "./generateExampleChat";
 import AWS from "aws-sdk";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { addLog } from "@/lib/addLog";
 
 const generateExample = async ({
   prompt,
+  partnerId,
 }: {
   prompt: string;
+  partnerId?: string;
 }): Promise<ServerActionResponse> => {
+  const accessToken = await verifyAccessToken();
+
+  // Only partners and super admins can create examples
+  if (!accessToken.superAdmin && !accessToken.partner) {
+    return {
+      success: false,
+      error: "You do not have permission to create examples.",
+    };
+  }
+
+  // Determine the partnerId to use
+  let effectivePartnerId: string | undefined;
+  if (accessToken.superAdmin) {
+    // Super admin can specify any partnerId (or none)
+    effectivePartnerId = partnerId || undefined;
+  } else if (accessToken.partner) {
+    // Partners can only create examples for themselves
+    effectivePartnerId = accessToken.partnerId;
+  }
+
+  // Get the partner's OpenAI API key
+  // For super admins creating examples without a partner, use the effectivePartnerId if specified
+  // Otherwise use the logged-in user's partnerId
+  const partnerIdForApiKey = effectivePartnerId || accessToken.partnerId;
+
+  if (!partnerIdForApiKey) {
+    return {
+      success: false,
+      error: "A partner must be selected to generate examples.",
+    };
+  }
+
+  const partner = await db("partner")
+    .where("id", partnerIdForApiKey)
+    .select("openAiApiKey", "name")
+    .first();
+
+  if (!partner?.openAiApiKey) {
+    return {
+      success: false,
+      error:
+        "The selected partner does not have an OpenAI API key configured. Please contact an administrator.",
+    };
+  }
+
+  const openAiApiKey = partner.openAiApiKey;
+
+  // Create OpenAI client with partner's API key
+  const openai = createOpenAI({
+    apiKey: openAiApiKey,
+  });
+
   const industries = (await db("industry").select("name")).map(
     (industry: { name: string }) => industry.name
   );
@@ -25,7 +81,7 @@ const generateExample = async ({
   );
 
   const { object } = await generateObject({
-    model: openai("gpt-5"),
+    model: openai("gpt-5.2"),
     schema: z.object({
       example: z.object({
         title: z
@@ -39,14 +95,13 @@ const generateExample = async ({
             "A short description should be a concise description of the case study, around 20 words."
           ),
         body: z.string().describe(`
-          The main body of the case study. It should be written for a non technical audience. It should focus on the benefits of the chatbot to the business but not the technical details of how it works or was technically deployed. Do not include the title in the body. It should be written in HTML and must only include the following tags:
-            <h2> - Heading 2
-            <h3> - Heading 3
-            <p> - Paragraph
-            <b> - Bold
-            <i> - Italic
-            <ul>/<li> - Bulleted list
-            <ol>/<li> - Numbered list
+          The main body of the case study. It should be written for a non technical audience. It should focus on the benefits of the chatbot to the business but not the technical details of how it works or was technically deployed. Do not include the title in the body. It should be written in Markdown format using:
+            ## - Heading 2
+            ### - Heading 3
+            **text** - Bold
+            *text* - Italic
+            - item - Bulleted list
+            1. item - Numbered list
         `),
         companyName: z
           .string()
@@ -62,8 +117,9 @@ const generateExample = async ({
           ),
         chatScenarios: z
           .array(z.string())
+          .default([])
           .describe(
-            "A list of 5 detailed scenarios that the chatbot should be able to handle. The scenarios should be realistic and demonstrate a broad range of capabilities of the chatbot. They should include both simple, positive interactions as well as at least one example where the chat bot had to hand a more difficuly organisation/scenario. "
+            "REQUIRED: A list of exactly 5 detailed scenarios that the chatbot should be able to handle. Each scenario should be a string describing a realistic user interaction. Include both simple, positive interactions as well as at least one example where the chatbot had to handle a more difficult situation."
           ),
       }),
     }),
@@ -77,7 +133,7 @@ const generateExample = async ({
 
         The industries and functions should be selected from the following lists:
 
-        Do not include example conversations.
+        IMPORTANT: You MUST include the chatScenarios field with exactly 5 scenario descriptions.
 
         Write a case study for:
 
@@ -106,6 +162,7 @@ const generateExample = async ({
       prompt: prompt,
       chatScenarioPrompts: JSON.stringify(object.example.chatScenarios),
       businessName: object.example.companyName,
+      partnerId: effectivePartnerId,
     })
     .returning("id");
 
@@ -125,7 +182,7 @@ const generateExample = async ({
 
   //generate image
   const { image } = await generateImage({
-    model: openai.imageModel("gpt-image-1"),
+    model: openai.image("gpt-image-1"),
     prompt: object.example.imageGenerationPrompt,
     maxImagesPerCall: 1,
     size: "1536x1024",
@@ -161,7 +218,7 @@ const generateExample = async ({
 
   //generate logo
   const { image: logo } = await generateImage({
-    model: openai.imageModel("dall-e-3"),
+    model: openai.image("dall-e-3"),
     prompt: `Generate a logo for the business ${object.example.companyName}`,
     maxImagesPerCall: 1,
     size: "1024x1024",
@@ -194,6 +251,38 @@ const generateExample = async ({
       exampleId: newExample[0].id,
     });
   }
+
+  // Create a partial API key for logging (show first 4 and last 4 characters)
+  const partialApiKey =
+    openAiApiKey.length > 12
+      ? `${openAiApiKey.slice(0, 4)}...${openAiApiKey.slice(-4)}`
+      : "****";
+
+  // Log the example creation
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    partnerId: effectivePartnerId,
+    event: "Example Created",
+    description: `Generated example "${object.example.title}" for ${
+      partner.name || "partner"
+    }`,
+    data: {
+      exampleId: newExample[0].id,
+      title: object.example.title,
+      businessName: object.example.companyName,
+      prompt: prompt,
+      generatedOutput: {
+        title: object.example.title,
+        short: object.example.short,
+        companyName: object.example.companyName,
+        industries: object.example.industries,
+        functions: object.example.functions,
+        chatScenarios: object.example.chatScenarios,
+      },
+      partialApiKey: partialApiKey,
+      model: "gpt-5.2",
+    },
+  });
 
   return { success: true, data: newExample[0] };
 };

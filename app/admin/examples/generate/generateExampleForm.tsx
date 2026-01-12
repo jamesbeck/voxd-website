@@ -16,12 +16,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import generateExample from "@/lib/generateExample";
 import { useState } from "react";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
+import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 
 const formSchema = z.object({
   prompt: z.string(),
+  partnerId: z.string().optional(),
 });
 
-export default function GenereateExampleForm() {
+export default function GenerateExampleForm({
+  superAdmin,
+}: {
+  superAdmin: boolean;
+}) {
   const [loading, setLoading] = useState(false);
 
   // 1. Define your form.
@@ -29,13 +36,17 @@ export default function GenereateExampleForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: "",
+      partnerId: "",
     },
   });
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    await generateExample({ prompt: values.prompt });
+    await generateExample({
+      prompt: values.prompt,
+      partnerId: values.partnerId,
+    });
     console.log(values);
     setLoading(false);
   }
@@ -43,6 +54,34 @@ export default function GenereateExampleForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {superAdmin && (
+          <FormField
+            control={form.control}
+            name="partnerId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Partner (Optional)</FormLabel>
+                <FormControl>
+                  <RemoteSelect
+                    {...field}
+                    serverAction={saGetPartnerTableData}
+                    label={(record) => `${record.name}`}
+                    valueField="id"
+                    sortField="name"
+                    placeholder="Select a partner..."
+                    emptyMessage="No partners found"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Assign this example to a partner. Leave empty for a public
+                  example.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <FormField
           control={form.control}
           name="prompt"

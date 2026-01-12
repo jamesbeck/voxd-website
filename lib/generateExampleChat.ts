@@ -1,6 +1,6 @@
 "use server";
 
-import { openai } from "@ai-sdk/openai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 import db from "../database/db";
@@ -15,6 +15,35 @@ const generateExampleChat = async ({
   exampleId: string;
 }): Promise<ServerActionResponse> => {
   const example = await getExampleById(exampleId);
+
+  if (!example) {
+    return { success: false, error: "Example not found" };
+  }
+
+  // Get the partner's OpenAI API key
+  if (!example.partnerId) {
+    return {
+      success: false,
+      error: "Example does not have a partner associated.",
+    };
+  }
+
+  const partner = await db("partner")
+    .where("id", example.partnerId)
+    .select("openAiApiKey")
+    .first();
+
+  if (!partner?.openAiApiKey) {
+    return {
+      success: false,
+      error: "The partner does not have an OpenAI API key configured.",
+    };
+  }
+
+  // Create OpenAI client with partner's API key
+  const openai = createOpenAI({
+    apiKey: partner.openAiApiKey,
+  });
 
   const { object } = await generateObject({
     model: openai("gpt-5.2"),

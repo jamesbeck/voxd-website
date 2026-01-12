@@ -6,6 +6,7 @@ import Container from "@/components/websiteui/container";
 import H2 from "@/components/websiteui/h2";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@heroicons/react/24/outline";
+import { MarkdownContent } from "@/components/MarkdownContent";
 
 export default async function ExamplesPage({
   params,
@@ -18,38 +19,6 @@ export default async function ExamplesPage({
 
   return (
     <div>
-      <style>
-        {`
-          #example-body h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-top: 30px;
-            margin-bottom: 10px;
-          }
-
-          #example-body h3 {
-            font-size: 1rem;
-            font-weight: 600;
-          }
-
-          #example-body p {
-            margin-bottom: 30px;
-          }
-
-          #example-body ul {
-            list-style-type: disc;
-            margin-left: 40px;
-            margin-bottom: 30px;
-          }
-
-          #example-body ol {
-            list-style-type: decimal;
-            margin-left: 40px;
-            margin-bottom: 30px;
-          }
-        `}
-      </style>
-
       <div className="relative w-full h-[300px]">
         <Image
           src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}.png`}
@@ -80,10 +49,9 @@ export default async function ExamplesPage({
           />
 
           <H1 className="text-center">{example.title}</H1>
-          <div
-            id="example-body"
-            dangerouslySetInnerHTML={{ __html: example.body }}
-          />
+          <div className="max-w-3xl w-full">
+            <MarkdownContent content={example.body} />
+          </div>
         </div>
       </Container>
 
