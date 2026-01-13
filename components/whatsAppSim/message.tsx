@@ -13,7 +13,7 @@ const InnerMessage = ({ text, time }: { text: string; time: string }) => {
     <>
       <div
         dangerouslySetInnerHTML={{ __html: text }}
-        className="flex flex-col gap-2 text-left"
+        className="flex flex-col gap-2 text-left [word-break:break-word] [overflow-wrap:anywhere]"
       />
       <div className="text-[#777] text-[10px] flex justify-end">
         {time}{" "}
@@ -50,6 +50,7 @@ export default function Message({
           #message a {
             color: blue;
             text-decoration: underline;
+            word-break: break-all;
           }
             
 
@@ -67,12 +68,12 @@ export default function Message({
       <div
         className={cn(
           role === "user" ? "flex justify-end" : "flex justify-start",
-          "relative"
+          "relative w-full"
         )}
       >
         <div
           className={cn(
-            "relative max-w-4/5 px-[10px] py-[6px] text-[13px] rounded-[14px] border-[1px] after:content-[''] after:absolute after:bottom-0  after:w-0 after:h-0 after:border-[12px] after:border-transparent  after:border-b-0 after:border-l-0  after:rotate-60",
+            "relative max-w-[80%] min-w-0 px-[10px] py-[6px] text-[13px] rounded-[14px] border-[1px] after:content-[''] after:absolute after:bottom-0  after:w-0 after:h-0 after:border-[12px] after:border-transparent  after:border-b-0 after:border-l-0  after:rotate-60",
             role === "user"
               ? "bg-wauserbg after:border-t-wauserbg after:left-full after:-ml-[10px] after:-mb-[4px]"
               : "bg-waagentbg after:border-t-waagentbg after:scale-x-[-1] after:left-0 after:-ml-[6px] after:-mb-[0px]"
