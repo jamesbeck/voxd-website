@@ -15,7 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2, UserCog } from "lucide-react";
+import {
+  MoreVertical,
+  Trash2,
+  UserCog,
+  ExternalLink,
+  Copy,
+} from "lucide-react";
 import ChangeOwnerDialog from "./ChangeOwnerDialog";
 
 export default function QuoteActions({
@@ -88,48 +94,96 @@ export default function QuoteActions({
         >
           <Button className="cursor-pointer" size="sm">
             {isSubmittingForPricing ? <Spinner /> : null}
-            Submit for Cost Pricing from Voxd
+            Submit to Voxd
           </Button>
         </Alert>
       )}
-      {canDelete && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onSelect={() => setChangeOwnerOpen(true)}
-              className="cursor-pointer"
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <a
+              href={`/pitches/${quoteId}`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <UserCog className="h-4 w-4 mr-2" />
-              Change Owner
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <Alert
-              title={`Delete ${name}`}
-              description="Are you sure you want to delete this quote? This action cannot be undone."
-              actionText="Delete Quote"
-              onAction={deleteQuote}
-              destructive={true}
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Pitch
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              navigator.clipboard.writeText(
+                `${window.location.origin}/pitches/${quoteId}`
+              );
+              toast.success("Pitch link copied to clipboard");
+            }}
+            className="cursor-pointer"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            Copy Pitch Link
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <a
+              href={`/quotes/${quoteId}`}
+              target="_blank"
+              rel="noopener noreferrer"
             >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Proposal
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              navigator.clipboard.writeText(
+                `${window.location.origin}/quotes/${quoteId}`
+              );
+              toast.success("Proposal link copied to clipboard");
+            }}
+            className="cursor-pointer"
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            Copy Proposal Link
+          </DropdownMenuItem>
+          {canDelete && (
+            <>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
-                onSelect={(e) => e.preventDefault()}
-                className="cursor-pointer text-destructive"
+                onSelect={() => setChangeOwnerOpen(true)}
+                className="cursor-pointer"
               >
-                {isDeleting ? (
-                  <Spinner />
-                ) : (
-                  <Trash2 className="h-4 w-4 mr-2 text-destructive" />
-                )}
-                Delete Quote
+                <UserCog className="h-4 w-4 mr-2" />
+                Change Owner
               </DropdownMenuItem>
-            </Alert>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+              <DropdownMenuSeparator />
+              <Alert
+                title={`Delete ${name}`}
+                description="Are you sure you want to delete this quote? This action cannot be undone."
+                actionText="Delete Quote"
+                onAction={deleteQuote}
+                destructive={true}
+              >
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="cursor-pointer text-destructive"
+                >
+                  {isDeleting ? (
+                    <Spinner />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2 text-destructive" />
+                  )}
+                  Delete Quote
+                </DropdownMenuItem>
+              </Alert>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <ChangeOwnerDialog
         quoteId={quoteId}

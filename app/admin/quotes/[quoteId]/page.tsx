@@ -88,7 +88,7 @@ export default async function Page({
           <QuoteProgress status={quote.status} />
 
           <Tabs value={activeTab} className="space-y-2">
-            <div className="flex items-center justify-between gap-4 mb-2">
+            <div className="flex flex-wrap items-center gap-4 mb-2">
               <TabsList>
                 <TabsTrigger value="info" asChild>
                   <Link href={`/admin/quotes/${quote.id}?tab=info`}>Info</Link>
@@ -132,11 +132,11 @@ export default async function Page({
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 ml-auto">
                 <Button asChild variant="outline" size="sm">
                   <Link href={`/admin/quotes`}>
                     <ChevronLeft className="h-4 w-4" />
-                    Back to Quotes
+                    Back
                   </Link>
                 </Button>
 
@@ -203,7 +203,22 @@ export default async function Page({
                     icon: <User className="h-4 w-4" />,
                   },
                   {
-                    label: "Public Quote Link",
+                    label: "Public Pitch Link",
+                    value: (
+                      <a
+                        href={`/pitches/${quote.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-primary hover:underline"
+                      >
+                        View Pitch Page
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ),
+                    icon: <ExternalLink className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Public Proposal Link",
                     value: (
                       <a
                         href={`/quotes/${quote.id}`}
@@ -211,7 +226,7 @@ export default async function Page({
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-primary hover:underline"
                       >
-                        View Quote Page
+                        View Proposal Page
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     ),
