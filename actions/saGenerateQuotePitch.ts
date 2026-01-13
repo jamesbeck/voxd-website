@@ -5,9 +5,9 @@ import { ServerActionResponse } from "@/types/types";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 
-const VOXD_CONTEXT = `## What is Voxd?
+const getPartnerContext = (partnerName: string) => `## What is ${partnerName}?
 
-Voxd provides a powerful, enterprise-ready platform for delivering intelligent, automated conversations through WhatsApp. By combining WhatsApp Business integration, large language models (LLMs), and deep system integrations, Voxd enables organisations to communicate with customers in a natural, personal, and highly effective way—without requiring users to download apps, create accounts, or learn new interfaces.
+${partnerName} provides a powerful, enterprise-ready platform for delivering intelligent, automated conversations through WhatsApp. By combining WhatsApp Business integration, large language models (LLMs), and deep system integrations, ${partnerName} enables organisations to communicate with customers in a natural, personal, and highly effective way—without requiring users to download apps, create accounts, or learn new interfaces.
 
 ### Key Platform Capabilities
 
@@ -133,12 +133,15 @@ ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 `.trim();
 
   try {
+    // Get the partner context with dynamic name
+    const partnerContext = getPartnerContext(partnerName);
+
     // Generate the pitch introduction
     const { text: pitchIntro } = await generateText({
       model: openai("gpt-5.2"),
-      system: `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services powered by the Voxd platform.
+      system: `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
-${VOXD_CONTEXT}
+${partnerContext}
 
 Your task is to write a warm, engaging INTRODUCTION for a pitch to a potential client. This introduction should:
 - Be friendly and welcoming, addressing the client by their organisation name
@@ -166,9 +169,9 @@ Write in Markdown format. Use **bold** for emphasis where appropriate. Do not us
     // Generate the main pitch
     const { text: pitch } = await generateText({
       model: openai("gpt-5.2"),
-      system: `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services powered by the Voxd platform.
+      system: `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
-${VOXD_CONTEXT}
+${partnerContext}
 
 Your task is to write a compelling, persuasive PITCH that helps the client understand how a WhatsApp AI chatbot could transform their business. Based on their background and industry, you should cover the following areas:
 
