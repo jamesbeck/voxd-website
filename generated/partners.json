@@ -24,5 +24,18 @@
     "billingEmails": null,
     "domain": "voxd.ai",
     "colour": "00a9ff"
+  },
+  {
+    "id": "019bb1f6-dbc5-7266-bd2c-57aa890d776e",
+    "name": "The Growth Architect",
+    "billingAddressLine1": null,
+    "billingAddressLine2": null,
+    "billingCity": null,
+    "billingState": null,
+    "billingPostcode": null,
+    "billingCountry": null,
+    "billingEmails": null,
+    "domain": null,
+    "colour": null
   }
 ]

@@ -14,8 +14,10 @@ import {
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import generateExampleChat from "@/lib/generateExampleChat";
+import saGenerateExampleConversation from "@/actions/saGenerateExampleConversation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -27,6 +29,7 @@ export default function GenereateExampleForm({
   exampleId: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,10 +42,17 @@ export default function GenereateExampleForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    await generateExampleChat({
+    const response = await saGenerateExampleConversation({
       prompt: values.prompt,
       exampleId: exampleId,
     });
+
+    if (response.success) {
+      toast.success("Conversation generated successfully");
+      router.push(`/admin/examples/${exampleId}`);
+    } else {
+      toast.error(response.error || "Failed to generate conversation");
+    }
 
     setLoading(false);
   }

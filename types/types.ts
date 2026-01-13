@@ -84,6 +84,7 @@ export interface Example {
   prompt: string;
   chatScenarioPrompts: string[];
   imageGenerationPrompt: string;
+  logoFileExtension: string | null;
   industries: { id: string; name: string; slug: string }[];
   functions: { id: string; name: string; slug: string }[];
   exampleConversations: {

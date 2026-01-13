@@ -21,6 +21,8 @@ import { useRouter } from "next/navigation";
 import { FormMultiSelect } from "@/components/inputs/MultiSelect";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
+import { Eye, EyeOff } from "lucide-react";
+import { MarkdownContent } from "@/components/MarkdownContent";
 
 const VOXD_PARTNER_ID = "019a6ec7-43b1-7da4-a2d8-8c84acb387b4";
 
@@ -57,6 +59,7 @@ export default function EditExampleForm({
   superAdmin: boolean;
 }) {
   const [loading, setLoading] = useState(false);
+  const [showBodyPreview, setShowBodyPreview] = useState(true);
 
   const router = useRouter();
   // 1. Define your form.
@@ -196,14 +199,41 @@ export default function EditExampleForm({
           name="body"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Body</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Body"
-                  {...field}
-                  className="min-h-[400px]"
-                />
-              </FormControl>
+              <div className="flex items-center justify-between">
+                <FormLabel>Body (Markdown)</FormLabel>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBodyPreview(!showBodyPreview)}
+                >
+                  {showBodyPreview ? (
+                    <EyeOff className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Eye className="mr-2 h-4 w-4" />
+                  )}
+                  {showBodyPreview ? "Edit" : "Preview"}
+                </Button>
+              </div>
+              {showBodyPreview ? (
+                <div className="min-h-[400px] rounded-md border bg-muted/30 p-4">
+                  {field.value ? (
+                    <MarkdownContent content={field.value} />
+                  ) : (
+                    <p className="text-muted-foreground text-sm italic">
+                      No body content yet.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <FormControl>
+                  <Textarea
+                    placeholder="Body"
+                    {...field}
+                    className="min-h-[400px] font-mono text-sm"
+                  />
+                </FormControl>
+              )}
               <FormDescription>The body of the example.</FormDescription>
               <FormMessage />
             </FormItem>

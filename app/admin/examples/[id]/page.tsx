@@ -9,6 +9,8 @@ import Container from "@/components/adminui/Container";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ExampleConversationsTab from "./ExampleConversationsTab";
+import ExampleLogoTab from "./ExampleLogoTab";
+import ExampleInfoTab from "./ExampleInfoTab";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import ExampleActions from "./exampleActions";
 
@@ -21,7 +23,7 @@ export default async function ExamplesPage({
 }) {
   const { id } = await params;
   const { tab } = await searchParams;
-  const activeTab = tab || "edit";
+  const activeTab = tab || "info";
 
   const accessToken = await verifyAccessToken();
   const superAdmin = accessToken.superAdmin;
@@ -76,8 +78,14 @@ export default async function ExamplesPage({
       <Tabs value={activeTab} className="space-y-2">
         <div className="flex items-center justify-between gap-4 mb-2">
           <TabsList>
+            <TabsTrigger value="info" asChild>
+              <Link href={`/admin/examples/${example.id}?tab=info`}>Info</Link>
+            </TabsTrigger>
             <TabsTrigger value="edit" asChild>
               <Link href={`/admin/examples/${example.id}?tab=edit`}>Edit</Link>
+            </TabsTrigger>
+            <TabsTrigger value="logo" asChild>
+              <Link href={`/admin/examples/${example.id}?tab=logo`}>Logo</Link>
             </TabsTrigger>
             <TabsTrigger value="exampleConversations" asChild>
               <Link
@@ -93,6 +101,16 @@ export default async function ExamplesPage({
 
         <div className="border-b mb-6" />
 
+        <TabsContent value="info">
+          <ExampleInfoTab
+            id={example.id}
+            title={example.title}
+            businessName={example.businessName}
+            slug={example.slug}
+            industries={example.industries}
+            functions={example.functions}
+          />
+        </TabsContent>
         <TabsContent value="edit">
           <EditExampleForm
             id={example.id}
@@ -111,6 +129,12 @@ export default async function ExamplesPage({
             }))}
             partnerId={example.partnerId}
             superAdmin={superAdmin}
+          />
+        </TabsContent>
+        <TabsContent value="logo">
+          <ExampleLogoTab
+            exampleId={example.id}
+            logoFileExtension={example.logoFileExtension}
           />
         </TabsContent>
         <TabsContent value="exampleConversations">

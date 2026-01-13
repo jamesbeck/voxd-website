@@ -13,7 +13,6 @@ import {
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -24,17 +23,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 
 const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
   createdByAdminUserId: z.string().optional(),
 });
 
 export default function EditQuoteForm({
   quoteId,
-  title,
   createdByAdminUserId,
 }: {
   quoteId: string;
-  title: string;
   createdByAdminUserId: string | null;
 }) {
   const [loading, setLoading] = useState(false);
@@ -43,7 +39,6 @@ export default function EditQuoteForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: title || "",
       createdByAdminUserId: createdByAdminUserId || "",
     },
   });
@@ -53,7 +48,6 @@ export default function EditQuoteForm({
 
     const response = await saUpdateQuote({
       quoteId: quoteId,
-      title: values.title,
       createdByAdminUserId: values.createdByAdminUserId || undefined,
     });
 
@@ -89,21 +83,6 @@ export default function EditQuoteForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="title"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Quote title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <FormField
           control={form.control}
           name="createdByAdminUserId"

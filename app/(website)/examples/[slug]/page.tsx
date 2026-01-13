@@ -39,14 +39,15 @@ export default async function ExamplesPage({
 
       <Container>
         <div className="flex flex-col gap-4 items-center justify-center">
-          <Image
-            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.png`}
-            alt={`${example?.businessName} Logo` || ""}
-            width={150}
-            height={150}
-            // className="w-full h-full"
-            className="rounded-3xl"
-          />
+          {example.logoFileExtension && (
+            <Image
+              src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`}
+              alt={`${example?.businessName} Logo` || ""}
+              width={250}
+              height={250}
+              className="object-contain mb-4"
+            />
+          )}
 
           <H1 className="text-center">{example.title}</H1>
           <div className="max-w-3xl w-full">

@@ -12,23 +12,28 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, UserCog } from "lucide-react";
+import ChangeOwnerDialog from "./ChangeOwnerDialog";
 
 export default function QuoteActions({
   quoteId,
   name,
   status,
   canDelete,
+  createdByAdminUserId,
 }: {
   quoteId: string;
   name: string;
   status: string;
   canDelete: boolean;
+  createdByAdminUserId: string | null;
 }) {
   const [isSubmittingForPricing, setIsSubmittingForPricing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [changeOwnerOpen, setChangeOwnerOpen] = useState(false);
 
   const router = useRouter();
 
@@ -95,6 +100,14 @@ export default function QuoteActions({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onSelect={() => setChangeOwnerOpen(true)}
+              className="cursor-pointer"
+            >
+              <UserCog className="h-4 w-4 mr-2" />
+              Change Owner
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <Alert
               title={`Delete ${name}`}
               description="Are you sure you want to delete this quote? This action cannot be undone."
@@ -117,6 +130,13 @@ export default function QuoteActions({
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+
+      <ChangeOwnerDialog
+        quoteId={quoteId}
+        createdByAdminUserId={createdByAdminUserId}
+        open={changeOwnerOpen}
+        onOpenChange={setChangeOwnerOpen}
+      />
     </div>
   );
 }

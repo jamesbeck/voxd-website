@@ -51,9 +51,9 @@ const saGetAdminUserTableData = async ({
     base.where("adminUser.organisationId", accessToken.organisationId);
   }
 
-  //if partner is logged in and not super admin, restrict to their organisations
+  //if partner is logged in and not super admin, restrict to partner-level admin users only
   if (accessToken?.partner && !accessToken.superAdmin) {
-    base.where("organisation.partnerId", accessToken!.partnerId);
+    base.where("adminUser.partnerId", accessToken!.partnerId);
   }
 
   //count query

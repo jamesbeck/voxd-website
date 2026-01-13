@@ -25,8 +25,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import QuoteProgress from "./QuoteProgress";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import EditQuoteForm from "./EditQuoteForm";
 import EditProposalForm from "./EditProposalForm";
+import EditQuoteTitleDialog from "./EditQuoteTitleDialog";
 
 export default async function Page({
   params,
@@ -70,7 +70,14 @@ export default async function Page({
         ]}
       />
       <H1>
-        {quote ? `${quote.organisationName} - ${quote.title}` : "New Quote"}
+        {quote ? (
+          <span className="inline-flex items-center gap-2">
+            {quote.organisationName} - {quote.title}
+            <EditQuoteTitleDialog quoteId={quote.id} title={quote.title} />
+          </span>
+        ) : (
+          "New Quote"
+        )}
       </H1>
 
       {quote && (
@@ -82,9 +89,6 @@ export default async function Page({
               <TabsList>
                 <TabsTrigger value="info" asChild>
                   <Link href={`/admin/quotes/${quote.id}?tab=info`}>Info</Link>
-                </TabsTrigger>
-                <TabsTrigger value="edit" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=edit`}>Edit</Link>
                 </TabsTrigger>
                 <TabsTrigger value="specification" asChild>
                   <Link href={`/admin/quotes/${quote.id}?tab=specification`}>
@@ -123,6 +127,7 @@ export default async function Page({
                   name={quote.title}
                   status={quote.status}
                   canDelete={isSuperAdmin || isOwnerPartner}
+                  createdByAdminUserId={quote.createdByAdminUserId}
                 />
               </div>
             </div>
@@ -195,13 +200,6 @@ export default async function Page({
                     icon: <ExternalLink className="h-4 w-4" />,
                   },
                 ]}
-              />
-            </TabsContent>
-            <TabsContent value="edit">
-              <EditQuoteForm
-                quoteId={quote.id}
-                title={quote.title}
-                createdByAdminUserId={quote.createdByAdminUserId}
               />
             </TabsContent>
             <TabsContent value="specification">
