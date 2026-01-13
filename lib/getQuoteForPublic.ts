@@ -17,13 +17,17 @@ export type PublicQuote = {
   title: string;
   createdAt: string;
   organisationName: string;
+  organisationId: string;
+  organisationLogoFileExtension: string | null;
+  organisationLogoDarkBackground: boolean;
   status: string;
   background: string | null;
   objectives: string | null;
   dataSources: string | null;
   integrationRequirements: string | null;
   otherNotes: string | null;
-  generatedIntroduction: string | null;
+  proposalPersonalMessage: string | null;
+  generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
@@ -59,11 +63,15 @@ export const getQuoteForPublic = async ({
       "quote.dataSources",
       "quote.integrationRequirements",
       "quote.otherNotes",
-      "quote.generatedIntroduction",
+      "quote.proposalPersonalMessage",
+      "quote.generatedProposalIntroduction",
       "quote.generatedSpecification",
       "quote.setupFee",
       "quote.monthlyFee",
+      "organisation.id as organisationId",
       "organisation.name as organisationName",
+      "organisation.logoFileExtension as organisationLogoFileExtension",
+      "organisation.logoDarkBackground as organisationLogoDarkBackground",
       "partner.name as partnerName",
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
@@ -110,13 +118,18 @@ export const getQuoteForPublic = async ({
     title: quote.title,
     createdAt: quote.createdAt,
     organisationName: quote.organisationName,
+    organisationId: quote.organisationId,
+    organisationLogoFileExtension: quote.organisationLogoFileExtension,
+    organisationLogoDarkBackground:
+      quote.organisationLogoDarkBackground ?? false,
     status: quote.status,
     background: quote.background,
     objectives: quote.objectives,
     dataSources: quote.dataSources,
     integrationRequirements: quote.integrationRequirements,
     otherNotes: quote.otherNotes,
-    generatedIntroduction: quote.generatedIntroduction,
+    proposalPersonalMessage: quote.proposalPersonalMessage,
+    generatedProposalIntroduction: quote.generatedProposalIntroduction,
     generatedSpecification: quote.generatedSpecification,
     setupFee: quote.setupFee,
     monthlyFee: quote.monthlyFee,

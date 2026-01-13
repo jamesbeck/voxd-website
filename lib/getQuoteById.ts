@@ -34,8 +34,12 @@ export type Quote = {
   createdByAdminUserId: string | null;
   ownerName: string | null;
   ownerEmail: string | null;
-  generatedIntroduction: string | null;
+  generatedPitchIntroduction: string | null;
+  generatedPitch: string | null;
+  pitchPersonalMessage: string | null;
+  generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
+  proposalPersonalMessage: string | null;
 };
 
 export const getQuoteById = async ({

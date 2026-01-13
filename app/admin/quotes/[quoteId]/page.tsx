@@ -27,6 +27,9 @@ import QuoteProgress from "./QuoteProgress";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import EditProposalForm from "./EditProposalForm";
 import EditQuoteTitleDialog from "./EditQuoteTitleDialog";
+import EditBackgroundForm from "./EditBackgroundForm";
+import EditPitchForm from "./EditPitchForm";
+import QuoteViewsTable from "./QuoteViewsTable";
 
 export default async function Page({
   params,
@@ -90,9 +93,19 @@ export default async function Page({
                 <TabsTrigger value="info" asChild>
                   <Link href={`/admin/quotes/${quote.id}?tab=info`}>Info</Link>
                 </TabsTrigger>
+                <TabsTrigger value="background" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=background`}>
+                    Background
+                  </Link>
+                </TabsTrigger>
                 <TabsTrigger value="specification" asChild>
                   <Link href={`/admin/quotes/${quote.id}?tab=specification`}>
                     Specification
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="pitch" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=pitch`}>
+                    Pitch
                   </Link>
                 </TabsTrigger>
                 <TabsTrigger value="proposal" asChild>
@@ -110,6 +123,11 @@ export default async function Page({
                     href={`/admin/quotes/${quote.id}?tab=exampleConversations`}
                   >
                     Example Conversations
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="views" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=views`}>
+                    Views
                   </Link>
                 </TabsTrigger>
               </TabsList>
@@ -202,20 +220,36 @@ export default async function Page({
                 ]}
               />
             </TabsContent>
+            <TabsContent value="background">
+              <EditBackgroundForm
+                quoteId={quote.id}
+                background={quote.background}
+              />
+            </TabsContent>
             <TabsContent value="specification">
               <EditSpecificationForm
                 quoteId={quote.id}
-                background={quote.background}
                 objectives={quote.objectives}
                 dataSources={quote.dataSources}
                 integrationRequirements={quote.integrationRequirements}
                 otherNotes={quote.otherNotes}
               />
             </TabsContent>
+            <TabsContent value="pitch">
+              <EditPitchForm
+                quoteId={quote.id}
+                pitchPersonalMessage={quote.pitchPersonalMessage}
+                generatedPitchIntroduction={quote.generatedPitchIntroduction}
+                generatedPitch={quote.generatedPitch}
+              />
+            </TabsContent>
             <TabsContent value="proposal">
               <EditProposalForm
                 quoteId={quote.id}
-                generatedIntroduction={quote.generatedIntroduction}
+                proposalPersonalMessage={quote.proposalPersonalMessage}
+                generatedProposalIntroduction={
+                  quote.generatedProposalIntroduction
+                }
                 generatedSpecification={quote.generatedSpecification}
               />
             </TabsContent>
@@ -236,6 +270,9 @@ export default async function Page({
                 conversations={quote.exampleConversations}
                 organisationName={quote.organisationName}
               />
+            </TabsContent>
+            <TabsContent value="views">
+              <QuoteViewsTable quoteId={quote.id} />
             </TabsContent>
           </Tabs>
         </>

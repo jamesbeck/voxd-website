@@ -9,6 +9,7 @@ import Alert from "@/components/admin/Alert";
 import { Spinner } from "@/components/ui/spinner";
 import saDeleteOrganisation from "@/actions/saDeleteOrganisation";
 import { saUpdateOrganisation } from "@/actions/saUpdateOrganisation";
+import { saSyncOrganisationFromWebsite } from "@/actions/saSyncOrganisationFromWebsite";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +34,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import {
+  MoreHorizontalIcon,
+  PencilIcon,
+  RefreshCwIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -54,7 +60,10 @@ export default function OrganisationActions({
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -123,6 +132,31 @@ export default function OrganisationActions({
     router.push("/admin/organisations");
   };
 
+  const syncFromWebsite = async () => {
+    if (!webAddress) {
+      toast.error("No web address configured for this organisation");
+      return;
+    }
+
+    setSyncError(null);
+    setSyncDialogOpen(true);
+    setIsSyncing(true);
+    const response = await saSyncOrganisationFromWebsite({ organisationId });
+
+    if (!response.success) {
+      setSyncError(
+        response.error || "There was an error syncing from the website"
+      );
+      setIsSyncing(false);
+      return;
+    }
+
+    toast.success("Organisation info synced from website");
+    setIsSyncing(false);
+    setSyncDialogOpen(false);
+    router.refresh();
+  };
+
   return (
     <>
       <ButtonGroup>
@@ -142,6 +176,17 @@ export default function OrganisationActions({
               <DropdownMenuItem onSelect={() => setEditDialogOpen(true)}>
                 <PencilIcon className="h-4 w-4" />
                 Edit Organisation
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={syncFromWebsite}
+                disabled={isSyncing || !webAddress}
+              >
+                {isSyncing ? (
+                  <Spinner className="h-4 w-4" />
+                ) : (
+                  <RefreshCwIcon className="h-4 w-4" />
+                )}
+                Re-sync from Website
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <Alert
@@ -224,6 +269,44 @@ export default function OrganisationActions({
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={syncDialogOpen}
+        onOpenChange={(open) => !isSyncing && setSyncDialogOpen(open)}
+      >
+        <DialogContent className="max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {isSyncing
+                ? "Analysing Website"
+                : syncError
+                ? "Sync Failed"
+                : "Sync Complete"}
+            </DialogTitle>
+            <DialogDescription>
+              {isSyncing
+                ? "Analysing the organisation's website to gather information..."
+                : syncError
+                ? syncError
+                : "Website analysis complete."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-center py-4">
+            {isSyncing ? (
+              <Spinner className="h-8 w-8" />
+            ) : syncError ? (
+              <div className="flex justify-end w-full">
+                <Button
+                  variant="outline"
+                  onClick={() => setSyncDialogOpen(false)}
+                >
+                  Close
+                </Button>
+              </div>
+            ) : null}
+          </div>
         </DialogContent>
       </Dialog>
     </>

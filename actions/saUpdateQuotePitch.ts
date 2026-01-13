@@ -3,16 +3,16 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saUpdateQuoteProposal = async ({
+const saUpdateQuotePitch = async ({
   quoteId,
-  proposalPersonalMessage,
-  generatedProposalIntroduction,
-  generatedSpecification,
+  pitchPersonalMessage,
+  generatedPitchIntroduction,
+  generatedPitch,
 }: {
   quoteId: string;
-  proposalPersonalMessage?: string;
-  generatedProposalIntroduction?: string;
-  generatedSpecification?: string;
+  pitchPersonalMessage?: string;
+  generatedPitchIntroduction?: string;
+  generatedPitch?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -35,12 +35,11 @@ const saUpdateQuoteProposal = async ({
 
   // Build update object with only provided values
   const updateData: Record<string, any> = {};
-  if (proposalPersonalMessage !== undefined)
-    updateData.proposalPersonalMessage = proposalPersonalMessage;
-  if (generatedProposalIntroduction !== undefined)
-    updateData.generatedProposalIntroduction = generatedProposalIntroduction;
-  if (generatedSpecification !== undefined)
-    updateData.generatedSpecification = generatedSpecification;
+  if (pitchPersonalMessage !== undefined)
+    updateData.pitchPersonalMessage = pitchPersonalMessage;
+  if (generatedPitchIntroduction !== undefined)
+    updateData.generatedPitchIntroduction = generatedPitchIntroduction;
+  if (generatedPitch !== undefined) updateData.generatedPitch = generatedPitch;
 
   if (Object.keys(updateData).length === 0) {
     return { success: true }; // Nothing to update
@@ -51,4 +50,4 @@ const saUpdateQuoteProposal = async ({
   return { success: true };
 };
 
-export default saUpdateQuoteProposal;
+export default saUpdateQuotePitch;

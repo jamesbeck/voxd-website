@@ -18,8 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import saUpdateQuoteProposal from "@/actions/saUpdateQuoteProposal";
-import saGenerateQuoteProposal from "@/actions/saGenerateQuoteProposal";
+import saUpdateQuotePitch from "@/actions/saUpdateQuotePitch";
+import saGenerateQuotePitch from "@/actions/saGenerateQuotePitch";
 import { Eye, EyeOff, Sparkles, AlertCircle } from "lucide-react";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -43,55 +43,55 @@ import {
 } from "@/components/ui/dialog";
 
 const formSchema = z.object({
-  proposalPersonalMessage: z.string().optional(),
-  generatedProposalIntroduction: z.string().optional(),
-  generatedSpecification: z.string().optional(),
+  pitchPersonalMessage: z.string().optional(),
+  generatedPitchIntroduction: z.string().optional(),
+  generatedPitch: z.string().optional(),
 });
 
-export default function EditProposalForm({
+export default function EditPitchForm({
   quoteId,
-  proposalPersonalMessage,
-  generatedProposalIntroduction,
-  generatedSpecification,
+  pitchPersonalMessage,
+  generatedPitchIntroduction,
+  generatedPitch,
 }: {
   quoteId: string;
-  proposalPersonalMessage: string | null;
-  generatedProposalIntroduction: string | null;
-  generatedSpecification: string | null;
+  pitchPersonalMessage: string | null;
+  generatedPitchIntroduction: string | null;
+  generatedPitch: string | null;
 }) {
   const [loading, setLoading] = useState(false);
-  const [regenerating, setRegenerating] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPromptDialog, setShowPromptDialog] = useState(false);
   const [extraPrompt, setExtraPrompt] = useState("");
   const [showIntroPreview, setShowIntroPreview] = useState(true);
-  const [showSpecPreview, setShowSpecPreview] = useState(true);
+  const [showPitchPreview, setShowPitchPreview] = useState(true);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      proposalPersonalMessage: proposalPersonalMessage || "",
-      generatedProposalIntroduction: generatedProposalIntroduction || "",
-      generatedSpecification: generatedSpecification || "",
+      pitchPersonalMessage: pitchPersonalMessage || "",
+      generatedPitchIntroduction: generatedPitchIntroduction || "",
+      generatedPitch: generatedPitch || "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdateQuoteProposal({
+    const response = await saUpdateQuotePitch({
       quoteId: quoteId,
-      proposalPersonalMessage: values.proposalPersonalMessage,
-      generatedProposalIntroduction: values.generatedProposalIntroduction,
-      generatedSpecification: values.generatedSpecification,
+      pitchPersonalMessage: values.pitchPersonalMessage,
+      generatedPitchIntroduction: values.generatedPitchIntroduction,
+      generatedPitch: values.generatedPitch,
     });
 
     if (!response.success) {
       setLoading(false);
 
       if (response.error) {
-        toast.error("There was an error updating the proposal");
+        toast.error("There was an error updating the pitch");
 
         form.setError("root", {
           type: "manual",
@@ -101,46 +101,43 @@ export default function EditProposalForm({
     }
 
     if (response.success) {
-      toast.success("Proposal updated successfully");
+      toast.success("Pitch updated successfully");
       router.refresh();
     }
 
     setLoading(false);
   }
 
-  async function regenerateProposal() {
-    setShowPromptDialog(false);
-    setRegenerating(true);
+  const hasContent =
+    form.getValues("generatedPitchIntroduction") ||
+    form.getValues("generatedPitch");
 
-    const response = await saGenerateQuoteProposal({
+  async function generatePitch() {
+    setShowPromptDialog(false);
+    setGenerating(true);
+
+    const response = await saGenerateQuotePitch({
       quoteId,
       extraPrompt: extraPrompt.trim() || undefined,
     });
 
     if (!response.success) {
-      toast.error(response.error || "Failed to regenerate proposal");
-      setRegenerating(false);
+      toast.error(response.error || "Failed to generate pitch");
+      setGenerating(false);
       return;
     }
 
     // Update form values with new content
     form.setValue(
-      "generatedProposalIntroduction",
-      response.data.generatedProposalIntroduction || ""
+      "generatedPitchIntroduction",
+      response.data.generatedPitchIntroduction || ""
     );
-    form.setValue(
-      "generatedSpecification",
-      response.data.generatedSpecification || ""
-    );
+    form.setValue("generatedPitch", response.data.generatedPitch || "");
 
-    toast.success("Proposal regenerated! Review and save when ready.");
-    setRegenerating(false);
+    toast.success("Pitch generated! Review and save when ready.");
+    setGenerating(false);
     router.refresh();
   }
-
-  const hasContent =
-    form.getValues("generatedProposalIntroduction") ||
-    form.getValues("generatedSpecification");
 
   function handleGenerateClick() {
     if (hasContent) {
@@ -157,17 +154,17 @@ export default function EditProposalForm({
 
   return (
     <>
-      <Dialog open={regenerating} onOpenChange={() => {}}>
+      <Dialog open={generating} onOpenChange={() => {}}>
         <DialogContent
           className="max-w-sm"
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
-            <DialogTitle>Generating Proposal</DialogTitle>
+            <DialogTitle>Generating Pitch</DialogTitle>
             <DialogDescription>
-              Please wait while we generate your proposal. This may take a
-              minute or two...
+              Please wait while we generate your pitch. This may take a minute
+              or two...
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-center py-8">
@@ -181,7 +178,7 @@ export default function EditProposalForm({
           <AlertDialogHeader>
             <AlertDialogTitle>Replace existing content?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will replace your existing introduction and specification
+              This will replace your existing pitch introduction and pitch
               content with newly generated content. This action cannot be
               undone.
             </AlertDialogDescription>
@@ -198,15 +195,14 @@ export default function EditProposalForm({
       <Dialog open={showPromptDialog} onOpenChange={setShowPromptDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Generate Proposal</DialogTitle>
+            <DialogTitle>Generate Pitch</DialogTitle>
             <DialogDescription>
-              Add optional instructions to customise how the proposal is
-              generated.
+              Add optional instructions to customise how the pitch is generated.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             <Textarea
-              placeholder="e.g. write the proposal for a non-technical layman"
+              placeholder="e.g. write the pitch for a non-technical layman"
               value={extraPrompt}
               onChange={(e) => setExtraPrompt(e.target.value)}
               rows={3}
@@ -226,7 +222,7 @@ export default function EditProposalForm({
             >
               Cancel
             </Button>
-            <Button type="button" onClick={regenerateProposal}>
+            <Button type="button" onClick={generatePitch}>
               <Sparkles className="h-4 w-4 mr-2" />
               Generate
             </Button>
@@ -238,19 +234,19 @@ export default function EditProposalForm({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
             control={form.control}
-            name="proposalPersonalMessage"
+            name="pitchPersonalMessage"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Personal Message</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Enter a personal message to include at the top of the proposal..."
+                    placeholder="Enter a personal message to include at the top of the pitch..."
                     {...field}
                     rows={4}
                   />
                 </FormControl>
                 <FormDescription>
-                  Optionally, add a personal message to the proposal.
+                  Optionally, add a personal message to the pitch.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -260,11 +256,10 @@ export default function EditProposalForm({
           {!hasContent && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No proposal generated yet</AlertTitle>
+              <AlertTitle>No pitch content yet</AlertTitle>
               <AlertDescription>
-                The proposal will be automatically generated when you save the
-                specification. You can also click the button below to generate
-                it now.
+                Click the button below to generate a pitch using AI, or add
+                content manually.
               </AlertDescription>
             </Alert>
           )}
@@ -274,9 +269,9 @@ export default function EditProposalForm({
               type="button"
               variant="outline"
               onClick={handleGenerateClick}
-              disabled={regenerating}
+              disabled={generating}
             >
-              {regenerating ? (
+              {generating ? (
                 <Spinner className="mr-2 h-4 w-4" />
               ) : (
                 <Sparkles className="mr-2 h-4 w-4" />
@@ -287,11 +282,11 @@ export default function EditProposalForm({
 
           <FormField
             control={form.control}
-            name="generatedProposalIntroduction"
+            name="generatedPitchIntroduction"
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center justify-between">
-                  <FormLabel>Introduction (Markdown)</FormLabel>
+                  <FormLabel>Pitch Introduction (Markdown)</FormLabel>
                   <Button
                     type="button"
                     variant="outline"
@@ -312,14 +307,14 @@ export default function EditProposalForm({
                       <MarkdownContent content={field.value} />
                     ) : (
                       <p className="text-muted-foreground text-sm italic">
-                        No introduction content yet. Generate or add one above.
+                        No pitch introduction yet. Click Edit to add one.
                       </p>
                     )}
                   </div>
                 ) : (
                   <FormControl>
                     <Textarea
-                      placeholder="Enter the introduction using Markdown formatting..."
+                      placeholder="Enter the pitch introduction using Markdown formatting..."
                       {...field}
                       rows={8}
                       className="font-mono text-sm"
@@ -327,8 +322,7 @@ export default function EditProposalForm({
                   </FormControl>
                 )}
                 <FormDescription>
-                  A warm, professional introduction that welcomes the client and
-                  sets the stage for the proposal.
+                  A brief introduction that sets the stage for the pitch.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -337,39 +331,39 @@ export default function EditProposalForm({
 
           <FormField
             control={form.control}
-            name="generatedSpecification"
+            name="generatedPitch"
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center justify-between">
-                  <FormLabel>Detailed Specification (Markdown)</FormLabel>
+                  <FormLabel>Pitch (Markdown)</FormLabel>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowSpecPreview(!showSpecPreview)}
+                    onClick={() => setShowPitchPreview(!showPitchPreview)}
                   >
-                    {showSpecPreview ? (
+                    {showPitchPreview ? (
                       <EyeOff className="mr-2 h-4 w-4" />
                     ) : (
                       <Eye className="mr-2 h-4 w-4" />
                     )}
-                    {showSpecPreview ? "Edit" : "Preview"}
+                    {showPitchPreview ? "Edit" : "Preview"}
                   </Button>
                 </div>
-                {showSpecPreview ? (
+                {showPitchPreview ? (
                   <div className="min-h-[300px] rounded-md border bg-muted/30 p-4">
                     {field.value ? (
                       <MarkdownContent content={field.value} />
                     ) : (
                       <p className="text-muted-foreground text-sm italic">
-                        No specification content yet. Generate or add one above.
+                        No pitch content yet. Click Edit to add one.
                       </p>
                     )}
                   </div>
                 ) : (
                   <FormControl>
                     <Textarea
-                      placeholder="Enter the detailed specification using Markdown formatting..."
+                      placeholder="Enter the pitch using Markdown formatting..."
                       {...field}
                       rows={15}
                       className="font-mono text-sm"
@@ -377,8 +371,7 @@ export default function EditProposalForm({
                   </FormControl>
                 )}
                 <FormDescription>
-                  A comprehensive, professional specification that expands on
-                  the client's requirements.
+                  The main pitch content that sells the project to the client.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

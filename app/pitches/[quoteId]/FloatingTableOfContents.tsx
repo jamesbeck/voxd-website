@@ -5,26 +5,24 @@ import {
   List,
   X,
   FileText,
-  BookOpen,
+  Lightbulb,
   LayoutDashboard,
   Wrench,
-  MessageSquare,
   FileCheck,
   Rocket,
-  HelpCircle,
   Mail,
+  BookOpen,
 } from "lucide-react";
 
 const iconMap = {
   FileText,
-  BookOpen,
+  Lightbulb,
   LayoutDashboard,
   Wrench,
-  MessageSquare,
   FileCheck,
   Rocket,
-  HelpCircle,
   Mail,
+  BookOpen,
 } as const;
 
 type IconName = keyof typeof iconMap;

@@ -10,6 +10,9 @@ const getOrganisationById = async ({
   partnerId?: string;
   adminUserIds?: string[];
   webAddress?: string;
+  about?: string;
+  logoFileExtension?: string;
+  logoDarkBackground?: boolean;
 }> => {
   const organisation = await db("organisation")
     .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")
@@ -22,8 +25,6 @@ const getOrganisationById = async ({
     ])
     .where("organisation.id", organisationId)
     .first();
-
-  console.log(organisation);
 
   return organisation;
 };

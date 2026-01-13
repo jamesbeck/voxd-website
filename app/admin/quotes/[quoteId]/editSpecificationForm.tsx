@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 
 const formSchema = z.object({
-  background: z.string().optional(),
   objectives: z.string().optional(),
   dataSources: z.string().optional(),
   integrationRequirements: z.string().optional(),
@@ -38,14 +37,12 @@ const formSchema = z.object({
 
 export default function EditSpecificationForm({
   quoteId,
-  background,
   objectives,
   dataSources,
   integrationRequirements,
   otherNotes,
 }: {
   quoteId: string;
-  background: string | null;
   objectives: string | null;
   dataSources: string | null;
   integrationRequirements: string | null;
@@ -58,7 +55,6 @@ export default function EditSpecificationForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      background: background || "",
       objectives: objectives || "",
       dataSources: dataSources || "",
       integrationRequirements: integrationRequirements || "",
@@ -72,7 +68,6 @@ export default function EditSpecificationForm({
 
     const response = await saUpdateQuoteSpecification({
       quoteId: quoteId,
-      background: values.background,
       objectives: values.objectives,
       dataSources: values.dataSources,
       integrationRequirements: values.integrationRequirements,
@@ -133,23 +128,6 @@ export default function EditSpecificationForm({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="background"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Background</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="" {...field} className="h-[150px]" />
-                </FormControl>
-                <FormDescription>
-                  Company background and context for the project
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <FormField
             control={form.control}
             name="objectives"
@@ -232,7 +210,7 @@ export default function EditSpecificationForm({
 
           <Button type="submit" disabled={loading}>
             {loading && <Spinner />}
-            Save & Generate Proposal
+            Save Changes
           </Button>
         </form>
       </Form>

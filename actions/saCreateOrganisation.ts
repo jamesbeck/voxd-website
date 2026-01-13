@@ -64,7 +64,13 @@ const saCreateOrganisation = async ({
     },
   });
 
-  return { success: true, data: newOrganisation };
+  return {
+    success: true,
+    data: {
+      ...newOrganisation,
+      webAddress: cleanWebAddress,
+    },
+  };
 };
 
 export { saCreateOrganisation };

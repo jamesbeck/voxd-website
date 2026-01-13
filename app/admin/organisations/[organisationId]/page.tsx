@@ -12,6 +12,8 @@ import ChatUsersTable from "./chatUsersTable";
 import QuotesTable from "@/components/admin/QuotesTable";
 import OrganisationActions from "./organisationActions";
 import NewQuoteButton from "@/components/admin/NewQuoteButton";
+import AboutTab from "./aboutTab";
+import LogoTab from "./logoTab";
 
 export default async function Page({
   params,
@@ -57,6 +59,8 @@ export default async function Page({
           <Tabs defaultValue="agents" className="space-y-2">
             <div className="flex items-center justify-between gap-4 mb-2">
               <TabsList>
+                <TabsTrigger value="about">About</TabsTrigger>
+                <TabsTrigger value="logo">Logo</TabsTrigger>
                 <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
                 <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
                 <TabsTrigger value="agents">Agents</TabsTrigger>
@@ -76,6 +80,23 @@ export default async function Page({
 
             <div className="border-b mb-6" />
 
+            <TabsContent value="about">
+              <Container>
+                <AboutTab
+                  organisationId={organisation.id}
+                  about={organisation.about ?? null}
+                />
+              </Container>
+            </TabsContent>
+            <TabsContent value="logo">
+              <Container>
+                <LogoTab
+                  organisationId={organisation.id}
+                  logoFileExtension={organisation.logoFileExtension ?? null}
+                  logoDarkBackground={organisation.logoDarkBackground ?? false}
+                />
+              </Container>
+            </TabsContent>
             <TabsContent value="adminUsers">
               <Container>
                 <AdminUsersTable organisationId={organisation.id} />

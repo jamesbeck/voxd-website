@@ -9,36 +9,34 @@ import {
   Calendar,
   Building,
   User,
-  CheckCircle,
-  Clock,
-  Rocket,
+  Lightbulb,
   BookOpen,
-  HelpCircle,
-  FileCheck,
-  ArrowRight,
-  MessageSquare,
   LayoutDashboard,
+  Wrench,
   Smartphone,
   Users,
   PauseCircle,
   Send,
   BarChart3,
   Eye,
+  MessageSquare,
   Bot,
   Download,
   ThumbsUp,
-  Wrench,
   Sparkles,
   Shield,
   Headphones,
   Zap,
   RefreshCw,
   Lock,
-  Gift,
+  FileCheck,
+  Clock,
+  Rocket,
+  CheckCircle,
   Mail,
+  ArrowRight,
 } from "lucide-react";
-import { getQuoteForPublic } from "@/lib/getQuoteForPublic";
-import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
+import { getPitchForPublic } from "@/lib/getPitchForPublic";
 import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
@@ -49,17 +47,17 @@ export async function generateMetadata({
   params: { quoteId: string };
 }): Promise<Metadata> {
   const quoteId = (await params).quoteId;
-  const quote = await getQuoteForPublic({ quoteId });
+  const pitch = await getPitchForPublic({ quoteId });
 
-  if (!quote) {
+  if (!pitch) {
     return {
-      title: "Quote Not Found",
-      description: "The requested quote could not be found.",
+      title: "Pitch Not Found",
+      description: "The requested pitch could not be found.",
     };
   }
 
-  const title = `${quote.title} | ${quote.partner.name}`;
-  const description = `AI Chatbot Implementation Proposal for ${quote.organisationName} - prepared by ${quote.partner.name}`;
+  const title = `${pitch.title} | ${pitch.partner.name}`;
+  const description = `AI Chatbot Concept for ${pitch.organisationName} - prepared by ${pitch.partner.name}`;
 
   return {
     title,
@@ -81,15 +79,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function PublicQuotePage({
+export default async function PublicPitchPage({
   params,
 }: {
   params: { quoteId: string };
 }) {
   const quoteId = (await params).quoteId;
-  const quote = await getQuoteForPublic({ quoteId });
+  const pitch = await getPitchForPublic({ quoteId });
 
-  if (!quote) {
+  if (!pitch) {
     return notFound();
   }
 
@@ -104,36 +102,36 @@ export default async function PublicQuotePage({
   // Fire and forget - don't block page render
   saRecordQuoteView({
     quoteId,
-    documentViewed: "quote",
+    documentViewed: "pitch",
     ipAddress,
     userAgent,
   }).catch(() => {
     // Silently ignore errors
   });
 
-  const brandColor = quote.partner.colour
-    ? `#${quote.partner.colour}`
+  const brandColor = pitch.partner.colour
+    ? `#${pitch.partner.colour}`
     : "#6366f1";
-  const logoUrl = quote.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}`
+  const logoUrl = pitch.partner.domain
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}`
     : "/logo.svg";
 
-  const organisationLogoUrl = quote.organisationLogoFileExtension
+  const organisationLogoUrl = pitch.organisationLogoFileExtension
     ? `https://s3.${
         process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
       }.wasabisys.com/${
         process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-      }/organisationLogos/${quote.organisationId}.${
-        quote.organisationLogoFileExtension
+      }/organisationLogos/${pitch.organisationId}.${
+        pitch.organisationLogoFileExtension
       }`
     : null;
 
   const sections = [
-    ...(quote.proposalPersonalMessage
+    ...(pitch.pitchPersonalMessage
       ? [{ id: "welcome", label: "Welcome", icon: "Mail" as const }]
       : []),
     { id: "introduction", label: "Introduction", icon: "FileText" as const },
-    { id: "specification", label: "Specification", icon: "BookOpen" as const },
+    { id: "pitch", label: "The Concept", icon: "Lightbulb" as const },
     {
       id: "portal",
       label: "Management Portal",
@@ -141,24 +139,15 @@ export default async function PublicQuotePage({
     },
     {
       id: "service",
-      label: `The ${quote.partner.name} Service`,
+      label: `The ${pitch.partner.name} Service`,
       icon: "Wrench" as const,
     },
-    ...(quote.exampleConversations.length > 0
-      ? [
-          {
-            id: "examples",
-            label: "Examples",
-            icon: "MessageSquare" as const,
-          },
-        ]
-      : []),
-    ...(quote.setupFee !== null || quote.monthlyFee !== null
-      ? [{ id: "pricing", label: "Investment", icon: "FileCheck" as const }]
-      : []),
+    {
+      id: "pricing",
+      label: "Investment & Timescales",
+      icon: "FileCheck" as const,
+    },
     { id: "next-steps", label: "Next Steps", icon: "Rocket" as const },
-    { id: "resources", label: "Resources", icon: "HelpCircle" as const },
-    { id: "sign-contract", label: "Sign Contract", icon: "FileCheck" as const },
   ];
 
   return (
@@ -168,7 +157,7 @@ export default async function PublicQuotePage({
         <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center gap-6 xl:justify-start xl:pl-[290px]">
           <Image
             src={logoUrl}
-            alt={quote.partner.name}
+            alt={pitch.partner.name}
             width={180}
             height={60}
             unoptimized
@@ -177,11 +166,11 @@ export default async function PublicQuotePage({
           {organisationLogoUrl && (
             <>
               <div className="h-12 w-px bg-gray-200" />
-              {quote.organisationLogoDarkBackground ? (
+              {pitch.organisationLogoDarkBackground ? (
                 <div className="bg-gray-700 rounded-lg p-3">
                   <Image
                     src={organisationLogoUrl}
-                    alt={quote.organisationName}
+                    alt={pitch.organisationName}
                     width={180}
                     height={60}
                     unoptimized
@@ -191,7 +180,7 @@ export default async function PublicQuotePage({
               ) : (
                 <Image
                   src={organisationLogoUrl}
-                  alt={quote.organisationName}
+                  alt={pitch.organisationName}
                   width={180}
                   height={60}
                   unoptimized
@@ -211,7 +200,7 @@ export default async function PublicQuotePage({
         {/* Main content */}
         <main className="flex-1 max-w-3xl space-y-8">
           {/* Welcome Section (if personal message exists) */}
-          {quote.proposalPersonalMessage && (
+          {pitch.pitchPersonalMessage && (
             <section
               id="welcome"
               className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
@@ -225,10 +214,10 @@ export default async function PublicQuotePage({
                 </div>
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                    {quote.title}
+                    {pitch.title}
                   </h2>
                   <p className="text-gray-500 text-sm mt-1">
-                    AI Chatbot Implementation Proposal
+                    AI Chatbot Concept
                   </p>
                 </div>
               </div>
@@ -239,7 +228,7 @@ export default async function PublicQuotePage({
                   <div>
                     <p className="text-gray-500">Date Created</p>
                     <p className="font-medium text-gray-900">
-                      {format(new Date(quote.createdAt), "dd MMMM yyyy")}
+                      {format(new Date(pitch.createdAt), "dd MMMM yyyy")}
                     </p>
                   </div>
                 </div>
@@ -249,7 +238,7 @@ export default async function PublicQuotePage({
                   <div>
                     <p className="text-gray-500">Prepared For</p>
                     <p className="font-medium text-gray-900">
-                      {quote.organisationName}
+                      {pitch.organisationName}
                     </p>
                   </div>
                 </div>
@@ -259,11 +248,11 @@ export default async function PublicQuotePage({
                   <div>
                     <p className="text-gray-500">Prepared By</p>
                     <p className="font-medium text-gray-900">
-                      {quote.createdBy?.name || quote.partner.name}
+                      {pitch.createdBy?.name || pitch.partner.name}
                     </p>
-                    {quote.createdBy?.email && (
+                    {pitch.createdBy?.email && (
                       <p className="text-gray-500 text-xs">
-                        {quote.createdBy.email}
+                        {pitch.createdBy.email}
                       </p>
                     )}
                   </div>
@@ -272,11 +261,11 @@ export default async function PublicQuotePage({
 
               <div className="border-t pt-6">
                 <div className="prose prose-gray max-w-none">
-                  <MarkdownContent content={quote.proposalPersonalMessage} />
+                  <MarkdownContent content={pitch.pitchPersonalMessage} />
                 </div>
-                {quote.createdBy?.name && (
+                {pitch.createdBy?.name && (
                   <p className="mt-6 text-gray-700 font-medium">
-                    — {quote.createdBy.name}
+                    — {pitch.createdBy.name}
                   </p>
                 )}
               </div>
@@ -296,22 +285,22 @@ export default async function PublicQuotePage({
                 <FileText className="h-6 w-6" style={{ color: brandColor }} />
               </div>
               <div>
-                {quote.proposalPersonalMessage ? (
+                {pitch.pitchPersonalMessage ? (
                   <>
                     <h2 className="text-xl font-bold text-gray-900">
                       Introduction
                     </h2>
                     <p className="text-gray-500 text-sm mt-1">
-                      Overview of the AI chatbot proposal
+                      Overview of the AI chatbot concept
                     </p>
                   </>
                 ) : (
                   <>
                     <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                      {quote.title}
+                      {pitch.title}
                     </h2>
                     <p className="text-gray-500 text-sm mt-1">
-                      AI Chatbot Implementation Proposal
+                      AI Chatbot Concept
                     </p>
                   </>
                 )}
@@ -319,14 +308,14 @@ export default async function PublicQuotePage({
             </div>
 
             {/* Only show metadata grid if there's no personal message section */}
-            {!quote.proposalPersonalMessage && (
+            {!pitch.pitchPersonalMessage && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-gray-400" />
                   <div>
                     <p className="text-gray-500">Date Created</p>
                     <p className="font-medium text-gray-900">
-                      {format(new Date(quote.createdAt), "dd MMMM yyyy")}
+                      {format(new Date(pitch.createdAt), "dd MMMM yyyy")}
                     </p>
                   </div>
                 </div>
@@ -336,7 +325,7 @@ export default async function PublicQuotePage({
                   <div>
                     <p className="text-gray-500">Prepared For</p>
                     <p className="font-medium text-gray-900">
-                      {quote.organisationName}
+                      {pitch.organisationName}
                     </p>
                   </div>
                 </div>
@@ -346,11 +335,11 @@ export default async function PublicQuotePage({
                   <div>
                     <p className="text-gray-500">Prepared By</p>
                     <p className="font-medium text-gray-900">
-                      {quote.createdBy?.name || quote.partner.name}
+                      {pitch.createdBy?.name || pitch.partner.name}
                     </p>
-                    {quote.createdBy?.email && (
+                    {pitch.createdBy?.email && (
                       <p className="text-gray-500 text-xs">
-                        {quote.createdBy.email}
+                        {pitch.createdBy.email}
                       </p>
                     )}
                   </div>
@@ -358,14 +347,10 @@ export default async function PublicQuotePage({
               </div>
             )}
 
-            <div
-              className={quote.proposalPersonalMessage ? "" : "border-t pt-6"}
-            >
-              {quote.generatedProposalIntroduction ? (
+            <div className={pitch.pitchPersonalMessage ? "" : "border-t pt-6"}>
+              {pitch.generatedPitchIntroduction ? (
                 <div className="prose prose-gray max-w-none">
-                  <MarkdownContent
-                    content={quote.generatedProposalIntroduction}
-                  />
+                  <MarkdownContent content={pitch.generatedPitchIntroduction} />
                 </div>
               ) : (
                 <p className="text-gray-500 italic">
@@ -375,9 +360,9 @@ export default async function PublicQuotePage({
             </div>
           </section>
 
-          {/* Specification Section */}
+          {/* Pitch Section */}
           <section
-            id="specification"
+            id="pitch"
             className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
           >
             <div className="flex items-start gap-3">
@@ -385,33 +370,30 @@ export default async function PublicQuotePage({
                 className="p-2 rounded-lg"
                 style={{ backgroundColor: `${brandColor}15` }}
               >
-                <BookOpen className="h-6 w-6" style={{ color: brandColor }} />
+                <Lightbulb className="h-6 w-6" style={{ color: brandColor }} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Specification
-                </h2>
+                <h2 className="text-xl font-bold text-gray-900">The Concept</h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  Details of your custom chatbot
+                  How AI can transform your customer communications
                 </p>
               </div>
             </div>
 
             <div className="space-y-6">
-              {quote.generatedSpecification ? (
+              {pitch.generatedPitch ? (
                 <div className="prose prose-gray max-w-none">
-                  <MarkdownContent content={quote.generatedSpecification} />
+                  <MarkdownContent content={pitch.generatedPitch} />
                 </div>
               ) : (
                 <p className="text-gray-500 italic">
-                  Specification details are being finalised. Please check back
-                  soon.
+                  Pitch details are being finalised. Please check back soon.
                 </p>
               )}
             </div>
           </section>
 
-          {/* Voxd Portal Section */}
+          {/* Management Portal Section */}
           <section
             id="portal"
             className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
@@ -428,7 +410,7 @@ export default async function PublicQuotePage({
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {quote.partner.name} Management Portal
+                  {pitch.partner.name} Management Portal
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
                   Included with every chatbot
@@ -437,7 +419,7 @@ export default async function PublicQuotePage({
             </div>
 
             <p className="text-gray-600">
-              Every chatbot comes with full access to the {quote.partner.name}{" "}
+              Every chatbot comes with full access to the {pitch.partner.name}{" "}
               management portal, giving you complete visibility and control over
               your AI assistant.
             </p>
@@ -595,7 +577,7 @@ export default async function PublicQuotePage({
             </div>
           </section>
 
-          {/* The Voxd Service Section */}
+          {/* The Service Section */}
           <section
             id="service"
             className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
@@ -609,7 +591,7 @@ export default async function PublicQuotePage({
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  The {quote.partner.name} Service
+                  The {pitch.partner.name} Service
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
                   What we proactively do for you
@@ -618,7 +600,7 @@ export default async function PublicQuotePage({
             </div>
 
             <p className="text-gray-600">
-              Beyond the technology, {quote.partner.name} provides an ongoing
+              Beyond the technology, {pitch.partner.name} provides an ongoing
               managed service to ensure your chatbot continues to deliver
               exceptional results.
             </p>
@@ -740,118 +722,85 @@ export default async function PublicQuotePage({
             </div>
           </section>
 
-          {/* Example Conversations Section */}
-          {quote.exampleConversations.length > 0 && (
-            <section
-              id="examples"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="p-2 rounded-lg"
-                  style={{ backgroundColor: `${brandColor}15` }}
-                >
-                  <MessageSquare
-                    className="h-6 w-6"
-                    style={{ color: brandColor }}
-                  />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Example Conversations
-                  </h2>
-                  <p className="text-gray-500 text-sm mt-1">
-                    See how your chatbot could interact with customers
-                  </p>
-                </div>
+          {/* Investment & Timescales Section */}
+          <section
+            id="pricing"
+            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="p-2 rounded-lg"
+                style={{ backgroundColor: `${brandColor}15` }}
+              >
+                <FileCheck className="h-6 w-6" style={{ color: brandColor }} />
               </div>
-
-              <ExampleConversationsAccordion
-                conversations={quote.exampleConversations}
-                organisationName={quote.organisationName}
-                brandColor={brandColor}
-              />
-            </section>
-          )}
-
-          {/* Pricing Section */}
-          {(quote.setupFee !== null || quote.monthlyFee !== null) && (
-            <section
-              id="pricing"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="p-2 rounded-lg"
-                  style={{ backgroundColor: `${brandColor}15` }}
-                >
-                  <FileCheck
-                    className="h-6 w-6"
-                    style={{ color: brandColor }}
-                  />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Investment
-                  </h2>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Your chatbot pricing
-                  </p>
-                </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Investment & Timescales
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  Simple, transparent pricing
+                </p>
               </div>
+            </div>
 
+            <p className="text-gray-600">
+              We believe AI chatbots should be accessible to businesses of all
+              sizes. Our pricing is designed to be straightforward and
+              affordable—you might be surprised at just how cost-effective a
+              custom AI solution can be.
+            </p>
+
+            {/* Pricing Structure */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-900">How Pricing Works</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {quote.setupFee !== null && (
-                  <div
-                    className="p-4 rounded-lg border"
-                    style={{ borderColor: `${brandColor}30` }}
-                  >
-                    <p className="text-sm text-gray-500">One-time Setup Fee</p>
-                    <p
-                      className="text-2xl font-bold"
-                      style={{ color: brandColor }}
-                    >
-                      £{quote.setupFee.toLocaleString()}
-                    </p>
+                <div
+                  className="p-4 rounded-lg border"
+                  style={{ borderColor: `${brandColor}30` }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Rocket className="h-5 w-5" style={{ color: brandColor }} />
+                    <p className="font-medium text-gray-900">Setup Fee</p>
                   </div>
-                )}
+                  <p className="text-sm text-gray-600">
+                    A one-time fee covering the initial build, configuration,
+                    and training of your custom AI chatbot.
+                  </p>
+                </div>
 
-                {quote.monthlyFee !== null && (
-                  <div
-                    className="p-4 rounded-lg border"
-                    style={{ borderColor: `${brandColor}30` }}
-                  >
-                    <p className="text-sm text-gray-500">Monthly Fee</p>
-                    <p
-                      className="text-2xl font-bold"
+                <div
+                  className="p-4 rounded-lg border"
+                  style={{ borderColor: `${brandColor}30` }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <RefreshCw
+                      className="h-5 w-5"
                       style={{ color: brandColor }}
-                    >
-                      £{quote.monthlyFee.toLocaleString()}
-                      <span className="text-sm font-normal text-gray-500">
-                        /month
-                      </span>
-                    </p>
+                    />
+                    <p className="font-medium text-gray-900">Monthly Fee</p>
                   </div>
-                )}
+                  <p className="text-sm text-gray-600">
+                    An ongoing fee covering hosting, maintenance, support, and
+                    continuous improvements to your chatbot.
+                  </p>
+                </div>
               </div>
+            </div>
 
-              {/* Payment Terms */}
+            {/* Additional Costs */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900">Other Costs</h3>
               <div className="space-y-3 text-sm text-gray-600">
                 <div className="flex items-start gap-2">
                   <CheckCircle
                     className="h-4 w-4 mt-0.5 flex-shrink-0"
                     style={{ color: brandColor }}
                   />
-                  <span>Setup fee due at project commencement</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle
-                    className="h-4 w-4 mt-0.5 flex-shrink-0"
-                    style={{ color: brandColor }}
-                  />
                   <span>
-                    Monthly fee paid in advance via Direct Debit from the point
-                    your chatbot is ready for use
+                    <strong>LLM costs</strong> – You pay your AI provider
+                    directly for message processing (typically fractions of a
+                    penny per conversation)
                   </span>
                 </div>
                 <div className="flex items-start gap-2">
@@ -860,64 +809,54 @@ export default async function PublicQuotePage({
                     style={{ color: brandColor }}
                   />
                   <span>
-                    12 month initial contract term, then rolling monthly
+                    <strong>WhatsApp costs</strong> – Meta charges for outbound
+                    messages sent outside the 24-hour reply window (replies are
+                    free)
+                  </span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle
+                    className="h-4 w-4 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <span>
+                    <strong>Additional development</strong> – Major new features
+                    beyond the initial scope are quoted separately
                   </span>
                 </div>
               </div>
+            </div>
 
-              {/* Free Time Highlight */}
-              <div
-                className="flex items-start gap-3 p-4 rounded-lg"
-                style={{ backgroundColor: `${brandColor}10` }}
-              >
-                <Gift
+            {/* Timescales */}
+            <div
+              className="p-4 rounded-lg"
+              style={{ backgroundColor: `${brandColor}10` }}
+            >
+              <div className="flex items-start gap-3">
+                <Clock
                   className="h-5 w-5 mt-0.5 flex-shrink-0"
                   style={{ color: brandColor }}
                 />
                 <div>
-                  <p className="font-medium text-gray-900">
-                    30 minutes FREE each month
-                  </p>
+                  <p className="font-medium text-gray-900">Fast Turnaround</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    Every month includes half an hour of complimentary time for
-                    tweaks and amendments to keep your chatbot performing at its
-                    best.
+                    Unlike traditional software projects that take months to
+                    deliver, AI chatbots can be up and running in{" "}
+                    <strong>days, not weeks or months</strong>. Our streamlined
+                    process means you&apos;ll see results quickly, with your bot
+                    ready to start helping customers sooner than you might
+                    expect.
                   </p>
                 </div>
               </div>
+            </div>
 
-              {/* Additional Changes */}
-              <p className="text-sm text-gray-500">
-                Additional changes and amendments beyond the included free time
-                are charged at £100/hour.
-              </p>
-
-              {/* LLM Costs Sub-section */}
-              <div className="border-t pt-6">
-                <h3 className="font-semibold text-gray-900 mb-2">LLM Costs</h3>
-                <p className="text-sm text-gray-600">
-                  You will be charged directly by your LLM provider for AI
-                  generation. Costs vary depending on many factors including the
-                  size and complexity of each request. However, the average
-                  conversation across our entire network costs less than a tenth
-                  of a penny (£0.001).
-                </p>
-              </div>
-
-              {/* Meta/WhatsApp Costs Sub-section */}
-              <div className="border-t pt-6">
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  Meta/WhatsApp Costs
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Only messages sent outside the 24-hour reply window are
-                  chargeable. These messages must be templated and pre-approved
-                  by Meta. Costs vary but are typically around 1.7p for an
-                  admin/transactional message and 3.5p for a marketing message.
-                </p>
-              </div>
-            </section>
-          )}
+            <p className="text-sm text-gray-500 italic">
+              We&apos;ll provide a detailed quote tailored to your specific
+              requirements. Most businesses are pleasantly surprised by how
+              affordable a custom AI chatbot solution can be.
+            </p>
+          </section>
 
           {/* Next Steps Section */}
           <section
@@ -934,218 +873,79 @@ export default async function PublicQuotePage({
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Next Steps</h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  Your path to launch
+                  Let&apos;s explore what&apos;s possible
                 </p>
               </div>
             </div>
 
-            <div className="space-y-6 ml-3">
-              {/* Day 1 */}
-              <div className="relative pl-8 pb-6 border-l-2 border-gray-200">
-                <div
-                  className="absolute -left-3 top-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  1
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  Day 1 – Getting Started
-                </h3>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Sign contract and direct debit mandate
-                  </li>
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Pay setup fee by bank transfer
-                  </li>
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Assign admin user(s) to manage your chatbot
-                  </li>
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Setup and verify Meta Business Profile & WhatsApp Business
-                    Account (we can help with this)
-                  </li>
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Add {quote.partner.name} as a partner on your WABA
-                  </li>
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Share LLM API key with {quote.partner.name}
-                  </li>
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <CheckCircle
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Share external systems access details or data
-                  </li>
-                </ul>
-              </div>
-
-              {/* Day 2 */}
-              <div className="relative pl-8 pb-6 border-l-2 border-gray-200">
-                <div
-                  className="absolute -left-3 top-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  2
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  Day 2 – Build
-                </h3>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <Clock
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    {quote.partner.name} builds your custom chatbot
-                  </li>
-                </ul>
-              </div>
-
-              {/* Day 3 */}
-              <div className="relative pl-8 pb-6 border-l-2 border-gray-200">
-                <div
-                  className="absolute -left-3 top-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  3
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  Day 3 – Test
-                </h3>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <Clock
-                      className="h-4 w-4 mt-0.5 flex-shrink-0"
-                      style={{ color: brandColor }}
-                    />
-                    Test your chatbot and provide feedback
-                  </li>
-                </ul>
-              </div>
-
-              {/* Launch */}
-              <div className="relative pl-8">
-                <div
-                  className="absolute -left-3 top-0 w-6 h-6 rounded-full flex items-center justify-center text-white"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  <Rocket className="h-3 w-3" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">🚀 Launch!</h3>
-                <p className="text-sm text-gray-600">
-                  Your AI chatbot goes live and starts helping your customers.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Resources Section */}
-          <section
-            id="resources"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <HelpCircle className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Resources</h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  Learn more about our platform
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link
-                href="/"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">How It Works</span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
-
-              <Link
-                href="/faq"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">FAQ</span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
-
-              <Link
-                href="/terms"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">
-                  Terms & Conditions
-                </span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
-
-              <Link
-                href="/privacy-policy"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">
-                  Privacy Policy
-                </span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
-            </div>
-          </section>
-
-          {/* CTA Section */}
-          <section
-            id="sign-contract"
-            className="rounded-xl p-6 text-center space-y-4 scroll-mt-8"
-            style={{ backgroundColor: `${brandColor}10` }}
-          >
-            <h2 className="text-xl font-bold text-gray-900">
-              Ready to proceed?
-            </h2>
             <p className="text-gray-600">
-              Click below to sign the contract and set up your direct debit
-              mandate.
+              If this sounds interesting and you&apos;d like to explore how an
+              AI chatbot could work for {pitch.organisationName}, we&apos;d love
+              the opportunity to learn more about your business and understand
+              your specific needs.
             </p>
-            <button
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-semibold transition-opacity hover:opacity-90"
-              style={{ backgroundColor: brandColor }}
+
+            <div
+              className="p-4 rounded-lg"
+              style={{ backgroundColor: `${brandColor}10` }}
             >
-              <FileCheck className="h-5 w-5" />
-              Sign Contract & Setup Payment
-            </button>
-            <p className="text-xs text-gray-500">
-              You&apos;ll be redirected to our secure signing portal.
+              <p className="text-gray-700">
+                Following a conversation, we can put together a{" "}
+                <strong>formal proposal</strong> tailored specifically to your
+                requirements, including:
+              </p>
+              <ul className="mt-3 space-y-2">
+                <li className="flex items-start gap-2 text-sm text-gray-600">
+                  <ArrowRight
+                    className="h-4 w-4 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  A detailed specification of what your chatbot will do
+                </li>
+                <li className="flex items-start gap-2 text-sm text-gray-600">
+                  <ArrowRight
+                    className="h-4 w-4 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  Clear, transparent pricing
+                </li>
+                <li className="flex items-start gap-2 text-sm text-gray-600">
+                  <ArrowRight
+                    className="h-4 w-4 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  Realistic timescales for delivery
+                </li>
+              </ul>
+            </div>
+
+            <div className="border-t pt-6">
+              <p className="font-medium text-gray-900 mb-3">Get in touch</p>
+              <div
+                className="flex items-center gap-3 p-4 rounded-lg border"
+                style={{ borderColor: `${brandColor}30` }}
+              >
+                <Mail className="h-5 w-5" style={{ color: brandColor }} />
+                <div>
+                  <p className="font-medium text-gray-900">
+                    {pitch.createdBy?.name || pitch.partner.name}
+                  </p>
+                  {pitch.createdBy?.email && (
+                    <a
+                      href={`mailto:${pitch.createdBy.email}`}
+                      className="text-sm hover:underline"
+                      style={{ color: brandColor }}
+                    >
+                      {pitch.createdBy.email}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-500">
+              We look forward to hearing from you and discussing how we can help
+              transform your customer communications.
             </p>
           </section>
 
@@ -1153,7 +953,7 @@ export default async function PublicQuotePage({
           <footer className="text-center py-8 text-sm text-gray-500">
             <p>
               Powered by{" "}
-              <span className="font-medium">{quote.partner.name}</span>
+              <span className="font-medium">{pitch.partner.name}</span>
             </p>
             <p className="mt-1">
               <Link href="/privacy-policy" className="hover:underline">

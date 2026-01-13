@@ -43,8 +43,10 @@ ${partnerName} runs "workers" - separate AI-powered scripts that monitor convers
 
 const saGenerateQuoteProposal = async ({
   quoteId,
+  extraPrompt,
 }: {
   quoteId: string;
+  extraPrompt?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return { success: false, error: "Quote ID is required" };
@@ -138,7 +140,11 @@ Your task is to write a compelling, professional INTRODUCTION section for a clie
 
 IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for.
 
-Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.`,
+Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.${
+        extraPrompt
+          ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
+          : ""
+      }`,
       prompt: `Please write an introduction for the following proposal:\n\n${specificationContext}`,
       temperature: 0.7,
     });
@@ -164,7 +170,11 @@ Your task is to write a detailed, professional SPECIFICATION section for a clien
 
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 
-Write in Markdown format. Use appropriate headings (## for main sections, ### for subsections), **bold** for emphasis, bullet points for lists.`,
+Write in Markdown format. Use appropriate headings (## for main sections, ### for subsections), **bold** for emphasis, bullet points for lists.${
+        extraPrompt
+          ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
+          : ""
+      }`,
       prompt: `Please write a detailed specification based on the following information:\n\n${specificationContext}`,
       temperature: 0.7,
     });
@@ -175,14 +185,14 @@ Write in Markdown format. Use appropriate headings (## for main sections, ### fo
 
     // Save the generated content to the database
     await db("quote").where({ id: quoteId }).update({
-      generatedIntroduction: introduction,
+      generatedProposalIntroduction: introduction,
       generatedSpecification: specification,
     });
 
     return {
       success: true,
       data: {
-        generatedIntroduction: introduction,
+        generatedProposalIntroduction: introduction,
         generatedSpecification: specification,
       },
     };

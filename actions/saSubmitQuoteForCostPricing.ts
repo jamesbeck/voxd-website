@@ -38,13 +38,13 @@ const saSubmitQuoteForCostPricing = async ({
 
   // Check if the proposal has been generated
   if (
-    !existingQuote.generatedIntroduction ||
+    !existingQuote.generatedProposalIntroduction ||
     !existingQuote.generatedSpecification
   ) {
     return {
       success: false,
       error:
-        "Please generate the proposal before submitting for cost pricing. Go to the Specification tab and click 'Save & Generate Proposal', then review the generated content in the Proposal tab.",
+        "Please generate the proposal before submitting for cost pricing. Go to the Proposal tab and click 'Generate with AI' to create the proposal content.",
     };
   }
 

@@ -30,6 +30,12 @@ const saCreateQuote = async (input: {
   // Get logged-in user to set as owner
   const accessToken = await verifyAccessToken();
 
+  // Get the organisation's about field to use as background
+  const organisation = await db("organisation")
+    .where({ id: organisationId })
+    .select("about")
+    .first();
+
   // Insert new quote (include organisationId if column exists; adjust as needed)
   try {
     const [newQuote] = await db("quote")
@@ -38,6 +44,7 @@ const saCreateQuote = async (input: {
         organisationId,
         status: "Draft",
         createdByAdminUserId: accessToken.adminUserId,
+        background: organisation?.about || null,
       })
       .returning("id");
 
