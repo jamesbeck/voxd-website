@@ -15,6 +15,7 @@ export function proxy(request: NextRequest) {
   const isLoginPath = request.nextUrl.pathname.startsWith("/login");
   const isAdminPath = request.nextUrl.pathname.startsWith("/admin");
   const isQuotesPath = request.nextUrl.pathname.startsWith("/quotes");
+  const isPitchesPath = request.nextUrl.pathname.startsWith("/pitches");
 
   // Only redirect GET requests for tenant domains
   const shouldRedirect =
@@ -22,7 +23,8 @@ export function proxy(request: NextRequest) {
     request.method === "GET" && // Only GET requests
     !isLoginPath && // Not already on login
     !isAdminPath && // Not on admin
-    !isQuotesPath; // Not on quotes (public quote pages)
+    !isQuotesPath && // Not on quotes (public quote pages)
+    !isPitchesPath; // Not on pitches (public pitch pages)
 
   if (shouldRedirect) {
     const loginUrl = new URL("/login", request.url);
