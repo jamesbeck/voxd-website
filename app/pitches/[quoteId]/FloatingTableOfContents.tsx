@@ -12,12 +12,14 @@ import {
   Rocket,
   Mail,
   BookOpen,
+  MessageSquare,
 } from "lucide-react";
 
 const iconMap = {
   FileText,
   Lightbulb,
   LayoutDashboard,
+  MessageSquare,
   Wrench,
   FileCheck,
   Rocket,

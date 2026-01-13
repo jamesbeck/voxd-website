@@ -40,6 +40,7 @@ import { getPitchForPublic } from "@/lib/getPitchForPublic";
 import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
+import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
 
 export async function generateMetadata({
   params,
@@ -132,6 +133,9 @@ export default async function PublicPitchPage({
       : []),
     { id: "introduction", label: "Introduction", icon: "FileText" as const },
     { id: "pitch", label: "The Concept", icon: "Lightbulb" as const },
+    ...(pitch.exampleConversations.length > 0
+      ? [{ id: "examples", label: "Examples", icon: "MessageSquare" as const }]
+      : []),
     {
       id: "portal",
       label: "Management Portal",
@@ -392,6 +396,40 @@ export default async function PublicPitchPage({
               )}
             </div>
           </section>
+
+          {/* Example Conversations Section */}
+          {pitch.exampleConversations.length > 0 && (
+            <section
+              id="examples"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${brandColor}15` }}
+                >
+                  <MessageSquare
+                    className="h-6 w-6"
+                    style={{ color: brandColor }}
+                  />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Example Conversations
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    See how your chatbot could interact with customers
+                  </p>
+                </div>
+              </div>
+
+              <ExampleConversationsAccordion
+                conversations={pitch.exampleConversations}
+                organisationName={pitch.organisationName}
+                brandColor={brandColor}
+              />
+            </section>
+          )}
 
           {/* Management Portal Section */}
           <section

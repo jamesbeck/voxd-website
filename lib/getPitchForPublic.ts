@@ -1,5 +1,17 @@
 import db from "../database/db";
 
+export type PublicPitchConversation = {
+  id: string;
+  description: string;
+  startTime: string;
+  messages: {
+    role: "user" | "assistant";
+    content: string;
+    time: number;
+    annotation: string | null;
+  }[];
+};
+
 export type PublicPitch = {
   id: string;
   title: string;
@@ -21,6 +33,7 @@ export type PublicPitch = {
     name: string | null;
     email: string | null;
   } | null;
+  exampleConversations: PublicPitchConversation[];
 };
 
 export const getPitchForPublic = async ({
@@ -57,6 +70,35 @@ export const getPitchForPublic = async ({
     return null;
   }
 
+  // Get example conversations for this quote
+  const conversations = await db("exampleConversation")
+    .where("quoteId", quoteId)
+    .select("id", "description", "startTime", "messages")
+    .orderBy("id", "asc");
+
+  // Parse the messages JSON for each conversation
+  const parsedConversations = conversations.map((conv) => ({
+    id: conv.id,
+    description: conv.description,
+    startTime: conv.startTime,
+    messages: (typeof conv.messages === "string"
+      ? JSON.parse(conv.messages)
+      : conv.messages
+    ).map(
+      (m: {
+        role: string;
+        content: string;
+        time: number;
+        annotation?: string | null;
+      }) => ({
+        role: m.role,
+        content: m.content,
+        time: m.time,
+        annotation: m.annotation || null,
+      })
+    ),
+  }));
+
   return {
     id: quote.id,
     title: quote.title,
@@ -82,6 +124,7 @@ export const getPitchForPublic = async ({
             email: quote.createdByEmail,
           }
         : null,
+    exampleConversations: parsedConversations,
   };
 };
 
