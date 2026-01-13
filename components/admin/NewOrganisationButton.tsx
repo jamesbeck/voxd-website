@@ -30,6 +30,7 @@ import { PlusIcon } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  webAddress: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -43,6 +44,7 @@ export default function NewOrganisationButton() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      webAddress: "",
     },
   });
 
@@ -51,6 +53,7 @@ export default function NewOrganisationButton() {
 
     const response = await saCreateOrganisation({
       name: values.name,
+      webAddress: values.webAddress,
     });
 
     if (!response.success) {
@@ -113,6 +116,19 @@ export default function NewOrganisationButton() {
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Joe Bloggs Ltd" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="webAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Web Address</FormLabel>
+                  <FormControl>
+                    <Input placeholder="www.example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

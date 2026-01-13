@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
+  webAddress: z.string().optional(),
 });
 
 export default function NewOrganisationForm() {
@@ -33,6 +34,7 @@ export default function NewOrganisationForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      webAddress: "",
     },
   });
 
@@ -42,6 +44,7 @@ export default function NewOrganisationForm() {
 
     const response = await saCreateOrganisation({
       name: values.name,
+      webAddress: values.webAddress,
     });
 
     if (!response.success) {
@@ -89,6 +92,20 @@ export default function NewOrganisationForm() {
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input placeholder="Joe Bloggs Ltd" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="webAddress"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Web Address</FormLabel>
+              <FormControl>
+                <Input placeholder="www.example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

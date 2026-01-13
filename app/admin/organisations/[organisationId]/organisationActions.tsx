@@ -40,14 +40,17 @@ import { z } from "zod";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  webAddress: z.string().optional(),
 });
 
 export default function OrganisationActions({
   organisationId,
   name,
+  webAddress,
 }: {
   organisationId: string;
   name: string;
+  webAddress?: string;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -58,6 +61,7 @@ export default function OrganisationActions({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: name || "",
+      webAddress: webAddress || "",
     },
   });
 
@@ -67,6 +71,7 @@ export default function OrganisationActions({
     const response = await saUpdateOrganisation({
       organisationId: organisationId,
       name: values.name,
+      webAddress: values.webAddress,
     });
 
     if (!response.success) {
@@ -167,7 +172,9 @@ export default function OrganisationActions({
         <DialogContent className="max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit Organisation</DialogTitle>
-            <DialogDescription>Update the organisation name.</DialogDescription>
+            <DialogDescription>
+              Update the organisation details.
+            </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -179,6 +186,19 @@ export default function OrganisationActions({
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Joe Bloggs Ltd" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="webAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Web Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="www.example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

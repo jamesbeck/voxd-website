@@ -10,11 +10,15 @@ See [logging.md](.github/logging.md) for documentation on how to use the `addLog
 
 ## Database Schema
 
+The database for this project and it's migrations is managed by another project. You can't create or run migrations or modify the database schema directly in this project.
+
+If the schema doesn't show the fields you are expecing, update the schema by running `npm run dump-schema` to get the latest structure.
+
 When working with database-related code in this project:
 
 1. **Always check the current schema** - Read `.copilot/schema.sql` to understand the current database structure before making changes or writing queries. This file contains the authoritative PostgreSQL schema dump.
 
-2. **After running migrations** - Run `npm run dump-schema` to update the schema.sql file with the latest database structure.
+2. **To update the schema** - Run `npm run dump-schema` to update the schema.sql file with the latest database structure.
 
 3. **Schema file location**: `.copilot/schema.sql`
 

@@ -69,6 +69,7 @@ export default async function Page({
                 <OrganisationActions
                   organisationId={organisation.id}
                   name={organisation.name}
+                  webAddress={organisation.webAddress}
                 />
               )}
             </div>

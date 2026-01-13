@@ -5,10 +5,17 @@ import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { addLog } from "@/lib/addLog";
 
+// Helper to strip protocol from URL
+const stripProtocol = (url: string): string => {
+  return url.replace(/^(https?:\/\/)/i, "");
+};
+
 const saCreateOrganisation = async ({
   name,
+  webAddress,
 }: {
   name: string;
+  webAddress?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -36,9 +43,12 @@ const saCreateOrganisation = async ({
     };
   }
 
+  // Strip protocol from web address if provided
+  const cleanWebAddress = webAddress ? stripProtocol(webAddress) : null;
+
   //create a new organisation
   const [newOrganisation] = await db("organisation")
-    .insert({ name, partnerId: partnerId || null })
+    .insert({ name, partnerId: partnerId || null, webAddress: cleanWebAddress })
     .returning("id");
 
   // Log organisation creation
@@ -50,6 +60,7 @@ const saCreateOrganisation = async ({
     partnerId: partnerId,
     data: {
       name,
+      webAddress: cleanWebAddress,
     },
   });
 

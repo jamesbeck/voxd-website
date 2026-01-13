@@ -9,6 +9,7 @@ const getOrganisationById = async ({
   name: string;
   partnerId?: string;
   adminUserIds?: string[];
+  webAddress?: string;
 }> => {
   const organisation = await db("organisation")
     .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")
