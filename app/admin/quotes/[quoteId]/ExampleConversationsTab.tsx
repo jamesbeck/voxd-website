@@ -245,7 +245,7 @@ export default function ExampleConversationsTab({
       ) : (
         <div className="flex gap-6">
           {/* Left side - conversation list */}
-          <div className="w-[350px] space-y-2 flex-shrink-0">
+          <div className="flex-1 space-y-2 min-w-0">
             {conversations.map((conversation) => (
               <div
                 key={conversation.id}
@@ -298,7 +298,7 @@ export default function ExampleConversationsTab({
           </div>
 
           {/* Right side - WhatsApp simulator */}
-          <div className="flex-1 flex justify-center">
+          <div className="flex-shrink-0">
             {selectedConversation && (
               <WhatsAppSim
                 messages={selectedConversation.messages.map((m) => ({
