@@ -785,7 +785,7 @@ export default async function PublicPitchPage({
             <p className="text-gray-600">
               We believe AI chatbots should be accessible to businesses of all
               sizes. Our pricing is designed to be straightforward and
-              affordable—you might be surprised at just how cost-effective a
+              affordable - you might be surprised at just how cost-effective a
               custom AI solution can be.
             </p>
 
