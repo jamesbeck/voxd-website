@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import TicketComments from "./ticketComments";
 import TicketStatusDropdown from "./ticketStatusDropdown";
+import TicketActions from "./ticketActions";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page({
@@ -101,6 +102,12 @@ export default async function Page({
                 Back to Tickets
               </Link>
             </Button>
+            {token.superAdmin && (
+              <TicketActions
+                ticketId={ticketId}
+                ticketNumber={ticket.ticketNumber}
+              />
+            )}
           </div>
         </div>
 
