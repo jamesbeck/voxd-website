@@ -175,14 +175,16 @@ export default async function Home() {
         </div>
       </Container>
 
-      <div className="w-full h-[400px] relative">
-        <Image
-          src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${eg1.id}.png`}
-          alt="Hero Image"
-          fill
-          className="object-cover"
-        />
-      </div>
+      {eg1 && (
+        <div className="w-full h-[400px] relative">
+          <Image
+            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${eg1.id}.png`}
+            alt="Hero Image"
+            fill
+            className="object-cover"
+          />
+        </div>
+      )}
 
       {/* Features Section */}
 

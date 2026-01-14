@@ -173,7 +173,9 @@ Write in Markdown format. Use **bold** for emphasis where appropriate. Do not us
 
 ${partnerContext}
 
-Your task is to write a compelling, persuasive PITCH that helps the client understand how a WhatsApp AI chatbot could transform their business. Based on their background and industry, you should cover the following areas:
+Your task is to write a compelling, persuasive PITCH that helps the client understand how a WhatsApp AI chatbot could transform their business. Based on their background and industry, you should cover the key themes below. However, you have creative freedom to choose appropriate section headings that fit the specific context and industry of this client. Don't feel constrained to use the exact headings below - adapt them to sound natural and relevant for this particular business.
+
+**Key themes to address (use appropriate headings for the context):**
 
 1. **What a chatbot could do for their business**
    - Focus on logical, specific features relevant to their sector
@@ -223,10 +225,11 @@ Your task is to write a compelling, persuasive PITCH that helps the client under
    - Keep suggestions grounded and achievable, but show the exciting growth potential
    - Frame this as a journey - starting with solid foundations and growing into more sophisticated capabilities
 
-9. **Closing**
+9. **Summary / Conclusion**
    - End with a sincere, heartfelt message about how genuinely excited we would be to work on building a chatbot for their business
    - Express enthusiasm for the potential partnership
    - Keep it warm and authentic, not salesy
+   - Do NOT use "Closing" as a heading - use "Summary", "Conclusion", "In Summary", "Looking Forward", or similar
 
 IMPORTANT RULES:
 - Do NOT thank them for their time or for meeting with us - we have never met them

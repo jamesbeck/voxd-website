@@ -15,6 +15,7 @@ import {
   HelpCircle,
   FolderOpen,
   ScrollText,
+  Ticket,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -225,6 +226,22 @@ export default function AdminSidebar({
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/admin/support-tickets">
+                    <Ticket />
+                    <span>Support Tickets</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

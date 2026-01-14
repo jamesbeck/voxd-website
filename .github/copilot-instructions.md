@@ -7,6 +7,11 @@ When contributing to this project, please adhere to the following principles:
 - Always create shared components where possible to promote code reuse. If you spot an opportunity to create a shared component, take it.
 - Use server actions for any functionality that involves data fetching or mutations, all server action files should be in the `actions/` folder and prefixed with "sa", e.g. `saCreateUser.ts`.
 
+##AI Architecture Overview
+
+Always use the ai sdk from Vercel.
+Use the open ai key of the relevant partner, either logged in OR the partner that owns the relevant organisation.
+
 ## User Access Levels
 
 See [user-access-levels.md](.github/user-access-levels.md) for detailed documentation on the three user levels (Admin, Partner, Organisation) and what data each can access.

@@ -1,6 +1,7 @@
 import getMessages from "@/lib/getMessagesBySession";
 import getAgentById from "@/lib/getAgentById";
 import getUserById from "@/lib/getChatUserById";
+import saGetTicketsByMessageIds from "@/actions/saGetTicketsByMessageIds";
 import {
   differenceInMilliseconds,
   differenceInSeconds,
@@ -69,6 +70,20 @@ export default async function Page({
 
   const messages = await getMessages({ sessionId: sessionId });
 
+  // Fetch open/in-progress tickets for messages
+  const userMessageIds = messages
+    .filter((m: any) => m.role === "user")
+    .map((m: any) => m.id);
+  const assistantMessageIds = messages
+    .filter((m: any) => m.role === "assistant")
+    .map((m: any) => m.id);
+
+  const ticketsResult = await saGetTicketsByMessageIds({
+    userMessageIds,
+    assistantMessageIds,
+  });
+  const ticketsByMessage = ticketsResult.success ? ticketsResult.data : {};
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -125,7 +140,12 @@ export default async function Page({
 
         <TabsContent value="conversation">
           <Container>
-            <Conversation messages={messages} sessionId={sessionId} />
+            <Conversation
+              messages={messages}
+              sessionId={sessionId}
+              agentId={agent.id}
+              ticketsByMessage={ticketsByMessage || {}}
+            />
           </Container>
         </TabsContent>
         <TabsContent value="info">

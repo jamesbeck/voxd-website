@@ -1,14 +1,10 @@
 import { Spinner } from "@/components/ui/spinner";
-import { Button } from "@/components/ui/button";
 import {
   differenceInMilliseconds,
   differenceInSeconds,
   format,
-  formatDistance,
-  addSeconds,
 } from "date-fns";
 import SendMessageForm from "./sendMessageForm";
-import Link from "next/link";
 import {
   Tooltip,
   TooltipContent,
@@ -16,13 +12,32 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Bot, Clock, Cog, Coins, Type, Wrench } from "lucide-react";
+import MessageActions from "./MessageActions";
+import MessageTicketBadge from "./MessageTicketBadge";
+
+type Ticket = {
+  id: string;
+  ticketNumber: number;
+  title: string;
+  status: string;
+  createdByName: string | null;
+  createdAt: Date;
+};
+
+type TicketsByMessage = {
+  [messageId: string]: Ticket[];
+};
 
 export default function Conversation({
   messages,
   sessionId,
+  agentId,
+  ticketsByMessage,
 }: {
   messages: any[];
   sessionId: string;
+  agentId: string;
+  ticketsByMessage: TicketsByMessage;
 }) {
   const lastMessageFromUser = messages
     .slice()
@@ -184,19 +199,16 @@ export default function Conversation({
                       </Tooltip>
                     </TooltipProvider>
 
-                    <div className="ml-auto">
-                      <Button
-                        asChild
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 text-[11px] px-2"
-                      >
-                        <Link
-                          href={`/admin/messages/${message.id}?type=${message.role}`}
-                        >
-                          View
-                        </Link>
-                      </Button>
+                    <div className="ml-auto flex items-center gap-2">
+                      <MessageActions
+                        messageId={message.id}
+                        messageType={message.role}
+                        agentId={agentId}
+                        variant="outline"
+                      />
+                      <MessageTicketBadge
+                        tickets={ticketsByMessage[message.id] || []}
+                      />
                     </div>
                   </div>
                 )}
@@ -239,18 +251,12 @@ export default function Conversation({
                     </TooltipProvider>
 
                     <div className="ml-auto">
-                      <Button
-                        asChild
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 text-[11px] px-2"
-                      >
-                        <Link
-                          href={`/admin/messages/${message.id}?type=${message.role}`}
-                        >
-                          View
-                        </Link>
-                      </Button>
+                      <MessageActions
+                        messageId={message.id}
+                        messageType={message.role}
+                        agentId={agentId}
+                        variant="outline"
+                      />
                     </div>
                   </div>
                 )}
@@ -305,19 +311,16 @@ export default function Conversation({
                       </Tooltip>
                     </TooltipProvider>
 
-                    <div className="ml-auto">
-                      <Button
-                        asChild
-                        size="sm"
+                    <div className="ml-auto flex items-center gap-2">
+                      <MessageActions
+                        messageId={message.id}
+                        messageType={message.role}
+                        agentId={agentId}
                         variant="secondary"
-                        className="h-6 text-[11px] px-2"
-                      >
-                        <Link
-                          href={`/admin/messages/${message.id}?type=${message.role}`}
-                        >
-                          View
-                        </Link>
-                      </Button>
+                      />
+                      <MessageTicketBadge
+                        tickets={ticketsByMessage[message.id] || []}
+                      />
                     </div>
                   </div>
                 )}
