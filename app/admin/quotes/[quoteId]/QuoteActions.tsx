@@ -130,7 +130,7 @@ export default function QuoteActions({
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild className="cursor-pointer">
             <a
-              href={`/quotes/${quoteId}`}
+              href={`/proposals/${quoteId}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -141,7 +141,7 @@ export default function QuoteActions({
           <DropdownMenuItem
             onSelect={() => {
               navigator.clipboard.writeText(
-                `${window.location.origin}/quotes/${quoteId}`
+                `${window.location.origin}/proposals/${quoteId}`
               );
               toast.success("Proposal link copied to clipboard");
             }}

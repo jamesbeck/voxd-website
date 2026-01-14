@@ -157,28 +157,28 @@ export default async function PublicPitchPage({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with partner logo and organisation logo */}
-      <header className="py-8 px-4 bg-white border-b">
-        <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center gap-6 xl:justify-start xl:pl-[290px]">
+      <header className="py-3 px-4 bg-white border-b fixed top-0 left-0 right-0 z-50">
+        <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center gap-4 md:gap-6 xl:justify-start xl:pl-[290px]">
           <Image
             src={logoUrl}
             alt={pitch.partner.name}
             width={180}
             height={60}
             unoptimized
-            className="h-12 w-auto object-contain"
+            className="h-8 md:h-12 w-auto object-contain"
           />
           {organisationLogoUrl && (
             <>
-              <div className="h-12 w-px bg-gray-200" />
+              <div className="h-8 md:h-12 w-px bg-gray-200" />
               {pitch.organisationLogoDarkBackground ? (
-                <div className="bg-gray-700 rounded-lg p-3">
+                <div className="bg-gray-700 rounded-lg p-2 md:p-3">
                   <Image
                     src={organisationLogoUrl}
                     alt={pitch.organisationName}
                     width={180}
                     height={60}
                     unoptimized
-                    className="h-10 w-auto object-contain"
+                    className="h-6 md:h-10 w-auto object-contain"
                   />
                 </div>
               ) : (
@@ -188,13 +188,16 @@ export default async function PublicPitchPage({
                   width={180}
                   height={60}
                   unoptimized
-                  className="h-12 w-auto object-contain"
+                  className="h-8 md:h-12 w-auto object-contain"
                 />
               )}
             </>
           )}
         </div>
       </header>
+
+      {/* Spacer for fixed header */}
+      <div className="h-14 md:h-[72px]" />
 
       {/* Content wrapper with sidebar on desktop */}
       <div className="max-w-3xl xl:max-w-6xl mx-auto px-4 py-8 xl:flex xl:gap-8">

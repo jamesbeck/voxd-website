@@ -221,7 +221,7 @@ export default async function Page({
                     label: "Public Proposal Link",
                     value: (
                       <a
-                        href={`/quotes/${quote.id}`}
+                        href={`/proposals/${quote.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-primary hover:underline"
