@@ -9,6 +9,7 @@ import {
 
 export interface QuoteViewFilters {
   quoteId?: string;
+  excludeIpAddress?: string | null;
 }
 
 const saGetQuoteViewTableData = async ({
@@ -18,6 +19,7 @@ const saGetQuoteViewTableData = async ({
   sortField = "datetime",
   sortDirection = "desc",
   quoteId,
+  excludeIpAddress,
 }: ServerActionReadParams<QuoteViewFilters>): Promise<ServerActionReadResponse> => {
   const token = await verifyAccessToken();
 
@@ -37,6 +39,16 @@ const saGetQuoteViewTableData = async ({
   // Filter by quoteId if provided
   if (quoteId) {
     base.where("quoteView.quoteId", quoteId);
+  }
+
+  // Exclude specific IP address if provided (used to hide current user's views)
+  if (excludeIpAddress) {
+    base.whereNot("quoteView.ipAddress", excludeIpAddress);
+  }
+
+  // Always exclude localhost IPs in production
+  if (process.env.NODE_ENV === "production") {
+    base.whereNotIn("quoteView.ipAddress", ["::1", "127.0.0.1", "localhost"]);
   }
 
   // For non-super admins, restrict to their partner's quotes
