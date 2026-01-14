@@ -46,7 +46,7 @@ const saDeleteKnowledgeBlock = async ({
     await addLog({
       adminUserId: accessToken.adminUserId,
       event: "Knowledge Block Deleted",
-      description: `Knowledge block "${block.title || 'Untitled'}" deleted`,
+      description: `Knowledge block "${block.title || "Untitled"}" deleted`,
       agentId: block.agentId,
       data: {
         blockId,

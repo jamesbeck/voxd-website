@@ -99,7 +99,7 @@ const saUpdateKnowledgeBlock = async ({
   await addLog({
     adminUserId: accessToken.adminUserId,
     event: "Knowledge Block Updated",
-    description: `Knowledge block "${title || 'Untitled'}" updated`,
+    description: `Knowledge block "${title || "Untitled"}" updated`,
     agentId: block.agentId,
     data: {
       blockId,

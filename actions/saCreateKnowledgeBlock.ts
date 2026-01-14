@@ -93,7 +93,7 @@ const saCreateKnowledgeBlock = async ({
   await addLog({
     adminUserId: accessToken.adminUserId,
     event: "Knowledge Block Created",
-    description: `Knowledge block "${title || 'Untitled'}" created`,
+    description: `Knowledge block "${title || "Untitled"}" created`,
     agentId: document.agentId,
     data: {
       blockId: newBlock.id,

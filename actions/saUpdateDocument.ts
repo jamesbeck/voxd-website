@@ -60,7 +60,9 @@ const saUpdateDocument = async ({
   await addLog({
     adminUserId: accessToken.adminUserId,
     event: "Document Updated",
-    description: `Knowledge document "${title || existingDocument.title}" updated`,
+    description: `Knowledge document "${
+      title || existingDocument.title
+    }" updated`,
     agentId: existingDocument.agentId,
     data: {
       documentId,

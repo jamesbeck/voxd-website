@@ -168,7 +168,10 @@ ${text}`,
       documentId,
       inputText: text,
       blocksCreated: blocks.length,
-      generatedBlocks: blocks.map((b) => ({ title: b.title, content: b.content })),
+      generatedBlocks: blocks.map((b) => ({
+        title: b.title,
+        content: b.content,
+      })),
     },
   });
 
