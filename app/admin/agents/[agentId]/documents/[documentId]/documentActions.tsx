@@ -44,7 +44,7 @@ export default function DocumentActions({
     <Alert
       destructive
       title={`Delete ${documentTitle}`}
-      description="This action cannot be undone. This document and all its chunks will be permanently deleted."
+      description="This action cannot be undone. This document and all its knowledge blocks will be permanently deleted."
       actionText="Delete"
       onAction={deleteDocument}
     >

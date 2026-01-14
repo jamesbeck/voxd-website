@@ -7,11 +7,11 @@ import {
   ServerActionReadParams,
 } from "@/types/types";
 
-const saGetChunkTableData = async ({
+const saGetKnowledgeBlockTableData = async ({
   search,
   page = 1,
   pageSize = 100,
-  sortField = "chunkIndex",
+  sortField = "blockIndex",
   sortDirection = "asc",
   documentId,
 }: ServerActionReadParams<{
@@ -19,7 +19,7 @@ const saGetChunkTableData = async ({
 }>): Promise<ServerActionReadResponse> => {
   await verifyAccessToken();
 
-  const base = db("knowledgeChunk")
+  const base = db("knowledgeBlock")
     .where("documentId", documentId)
     .where((qb) => {
       if (search) {
@@ -37,17 +37,17 @@ const saGetChunkTableData = async ({
     ? parseInt(countResult.count as string)
     : 0;
 
-  const chunks = await base
+  const blocks = await base
     .clone()
     .select(
-      "knowledgeChunk.id",
-      "knowledgeChunk.content",
-      "knowledgeChunk.title",
-      "knowledgeChunk.chunkIndex",
-      "knowledgeChunk.tokenCount",
-      "knowledgeChunk.createdAt",
+      "knowledgeBlock.id",
+      "knowledgeBlock.content",
+      "knowledgeBlock.title",
+      "knowledgeBlock.blockIndex",
+      "knowledgeBlock.tokenCount",
+      "knowledgeBlock.createdAt",
       db.raw(
-        'CASE WHEN "knowledgeChunk"."embedding" IS NOT NULL THEN true ELSE false END as "hasEmbedding"'
+        'CASE WHEN "knowledgeBlock"."embedding" IS NOT NULL THEN true ELSE false END as "hasEmbedding"'
       )
     )
     .orderBy(sortField, sortDirection)
@@ -56,11 +56,11 @@ const saGetChunkTableData = async ({
 
   return {
     success: true,
-    data: chunks,
+    data: blocks,
     totalAvailable,
     page,
     pageSize,
   };
 };
 
-export default saGetChunkTableData;
+export default saGetKnowledgeBlockTableData;

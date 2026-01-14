@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { saCreateChunk } from "@/actions/saCreateChunk";
+import { saCreateKnowledgeBlock } from "@/actions/saCreateKnowledgeBlock";
 import { Textarea } from "@/components/ui/textarea";
 
 const MAX_CONTENT_LENGTH = 2000;
@@ -37,7 +37,7 @@ const formSchema = z.object({
   title: z.string().optional(),
 });
 
-export default function NewChunkForm({
+export default function NewKnowledgeBlockForm({
   documentId,
   agentId,
 }: {
@@ -58,7 +58,7 @@ export default function NewChunkForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saCreateChunk({
+    const response = await saCreateKnowledgeBlock({
       documentId,
       content: values.content,
       title: values.title,
@@ -67,7 +67,7 @@ export default function NewChunkForm({
     if (!response.success) {
       setLoading(false);
 
-      toast.error("There was an error creating the chunk");
+      toast.error("There was an error creating the knowledge block");
 
       if (response.error) {
         form.setError("root", {
@@ -87,9 +87,9 @@ export default function NewChunkForm({
     }
 
     if (response.success) {
-      toast.success("Chunk created with embedding");
+      toast.success("Knowledge block created with embedding");
       router.push(
-        `/admin/agents/${agentId}/documents/${documentId}?tab=chunks`
+        `/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`
       );
       return;
     }
@@ -146,7 +146,7 @@ export default function NewChunkForm({
               </div>
               <FormControl>
                 <Textarea
-                  placeholder="Enter the knowledge content for this chunk..."
+                  placeholder="Enter the knowledge content for this block..."
                   className="min-h-[200px]"
                   maxLength={MAX_CONTENT_LENGTH}
                   {...field}
@@ -154,7 +154,8 @@ export default function NewChunkForm({
               </FormControl>
               <FormDescription>
                 The text content that will be embedded and used for semantic
-                search. Keep chunks focused on a single topic for best results.
+                search. Keep knowledge blocks focused on a single topic for best
+                results.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -176,14 +177,14 @@ export default function NewChunkForm({
         <div className="flex gap-4">
           <Button type="submit" disabled={loading}>
             {loading && <Spinner />}
-            Create Chunk
+            Create Knowledge Block
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() =>
               router.push(
-                `/admin/agents/${agentId}/documents/${documentId}?tab=chunks`
+                `/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`
               )
             }
           >

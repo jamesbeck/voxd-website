@@ -32,8 +32,8 @@ const DocumentsTable = ({ agentId }: { agentId: string }) => {
       format: (row: any) => row.sourceType || "-",
     },
     {
-      label: "Chunks",
-      name: "chunkCount",
+      label: "Blocks",
+      name: "blockCount",
       sort: true,
     },
     {

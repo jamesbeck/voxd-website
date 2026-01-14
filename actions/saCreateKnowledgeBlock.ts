@@ -5,61 +5,54 @@ import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { embed } from "ai";
-import userCanViewAgent from "@/lib/userCanViewAgent";
 
-const saUpdateChunk = async ({
-  chunkId,
+const saCreateKnowledgeBlock = async ({
+  documentId,
   content,
   title,
 }: {
-  chunkId: string;
+  documentId: string;
   content: string;
   title?: string;
 }): Promise<ServerActionResponse> => {
   await verifyAccessToken();
 
-  // Get the existing chunk with document and agent info
-  const chunk = await db("knowledgeChunk")
-    .join(
-      "knowledgeDocument",
-      "knowledgeChunk.documentId",
-      "knowledgeDocument.id"
-    )
+  // Get the document and its associated agent's OpenAI API key
+  const document = await db("knowledgeDocument")
     .join("agent", "knowledgeDocument.agentId", "agent.id")
-    .where("knowledgeChunk.id", chunkId)
-    .select(
-      "knowledgeChunk.*",
-      "knowledgeDocument.agentId",
-      "agent.openAiApiKey"
-    )
+    .where("knowledgeDocument.id", documentId)
+    .select("knowledgeDocument.*", "agent.openAiApiKey")
     .first();
 
-  if (!chunk) {
+  if (!document) {
     return {
       success: false,
-      error: "Chunk not found",
+      error: "Document not found",
     };
   }
 
-  // Verify the user can access this agent
-  if (!(await userCanViewAgent({ agentId: chunk.agentId }))) {
-    return { success: false, error: "Unauthorized" };
-  }
-
-  if (!chunk.openAiApiKey) {
+  if (!document.openAiApiKey) {
     return {
       success: false,
       error: "Agent does not have an OpenAI API key configured",
     };
   }
 
-  // Generate new embedding using the agent's OpenAI API key
+  // Get the next block index
+  const lastBlock = await db("knowledgeBlock")
+    .where("documentId", documentId)
+    .orderBy("blockIndex", "desc")
+    .first();
+
+  const blockIndex = lastBlock ? lastBlock.blockIndex + 1 : 0;
+
+  // Generate embedding using the agent's OpenAI API key
   // Include title in the embedding text if provided
   const embeddingText = title ? `${title}\n\n${content}` : content;
   let embeddingVector: number[] | null = null;
   let tokenCount: number | null = null;
   try {
-    const openai = createOpenAI({ apiKey: chunk.openAiApiKey });
+    const openai = createOpenAI({ apiKey: document.openAiApiKey });
     const { embedding, usage } = await embed({
       model: openai.embedding("text-embedding-3-small"),
       value: embeddingText,
@@ -76,12 +69,13 @@ const saUpdateChunk = async ({
     };
   }
 
-  // Update the chunk with new content and embedding
-  const [updatedChunk] = await db("knowledgeChunk")
-    .where({ id: chunkId })
-    .update({
+  // Create the knowledge block with embedding
+  const [newBlock] = await db("knowledgeBlock")
+    .insert({
+      documentId,
       content,
       title,
+      blockIndex,
       tokenCount,
       embedding: embeddingVector ? `[${embeddingVector.join(",")}]` : null,
     })
@@ -89,15 +83,15 @@ const saUpdateChunk = async ({
       "id",
       "content",
       "title",
-      "chunkIndex",
+      "blockIndex",
       "tokenCount",
       "createdAt",
     ]);
 
   return {
     success: true,
-    data: updatedChunk,
+    data: newBlock,
   };
 };
 
-export { saUpdateChunk };
+export { saCreateKnowledgeBlock };

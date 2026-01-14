@@ -20,10 +20,9 @@ import {
 import { format } from "date-fns";
 import EditDocumentForm from "./editDocumentForm";
 import DocumentActions from "./documentActions";
-import ChunksTable from "./chunksTable";
-import NewChunkForm from "./newChunkForm";
-import BulkImportForm from "./bulkImportForm";
-import SmartImportForm from "./smartImportForm";
+import KnowledgeBlocksTable from "./knowledgeBlocksTable";
+import NewKnowledgeBlockForm from "./newKnowledgeBlockForm";
+import SmartImportForm from "./smartImportKnowledgeBlocksForm";
 
 export default async function Page({
   params,
@@ -80,11 +79,11 @@ export default async function Page({
                 Edit
               </Link>
             </TabsTrigger>
-            <TabsTrigger value="chunks" asChild>
+            <TabsTrigger value="knowledge-blocks" asChild>
               <Link
-                href={`/admin/agents/${agentId}/documents/${documentId}?tab=chunks`}
+                href={`/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`}
               >
-                Chunks
+                Knowledge Blocks
               </Link>
             </TabsTrigger>
           </TabsList>
@@ -174,13 +173,13 @@ export default async function Page({
           </Container>
         </TabsContent>
 
-        <TabsContent value="chunks">
+        <TabsContent value="knowledge-blocks">
           <Container>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <H2>Chunks</H2>
+                <H2>Knowledge Blocks</H2>
                 <p className="text-muted-foreground">
-                  Knowledge chunks are segments of the document used for
+                  Knowledge blocks are segments of the document used for
                   semantic search.
                 </p>
               </div>
@@ -195,45 +194,26 @@ export default async function Page({
                 </Button>
                 <Button asChild variant="outline">
                   <Link
-                    href={`/admin/agents/${agentId}/documents/${documentId}?tab=bulk-import`}
+                    href={`/admin/agents/${agentId}/documents/${documentId}?tab=new-block`}
                   >
                     <Layers className="h-4 w-4 mr-2" />
-                    Bulk Import
-                  </Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link
-                    href={`/admin/agents/${agentId}/documents/${documentId}?tab=new-chunk`}
-                  >
-                    <Layers className="h-4 w-4 mr-2" />
-                    New Chunk
+                    New Block
                   </Link>
                 </Button>
               </div>
             </div>
-            <ChunksTable documentId={documentId} agentId={agentId} />
+            <KnowledgeBlocksTable documentId={documentId} agentId={agentId} />
           </Container>
         </TabsContent>
 
-        <TabsContent value="new-chunk">
+        <TabsContent value="new-block">
           <Container>
-            <H2>New Chunk</H2>
+            <H2>New Knowledge Block</H2>
             <p className="text-muted-foreground mb-4">
-              Create a new knowledge chunk. The embedding will be generated
+              Create a new knowledge block. The embedding will be generated
               automatically.
             </p>
-            <NewChunkForm documentId={documentId} agentId={agentId} />
-          </Container>
-        </TabsContent>
-
-        <TabsContent value="bulk-import">
-          <Container>
-            <H2>Bulk Import</H2>
-            <p className="text-muted-foreground mb-4">
-              Paste a large amount of text and it will be automatically split
-              into chunks with embeddings generated.
-            </p>
-            <BulkImportForm documentId={documentId} agentId={agentId} />
+            <NewKnowledgeBlockForm documentId={documentId} agentId={agentId} />
           </Container>
         </TabsContent>
 
@@ -242,7 +222,7 @@ export default async function Page({
             <H2>Smart Import (AI)</H2>
             <p className="text-muted-foreground mb-4">
               Paste text and the agent&apos;s AI model will intelligently split
-              it into semantic chunks with auto-generated titles.
+              it into semantic knowledge blocks with auto-generated titles.
             </p>
             <SmartImportForm documentId={documentId} agentId={agentId} />
           </Container>

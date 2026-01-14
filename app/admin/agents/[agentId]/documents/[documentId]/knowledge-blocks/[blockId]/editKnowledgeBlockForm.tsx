@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { saUpdateChunk } from "@/actions/saUpdateChunk";
+import { saUpdateKnowledgeBlock } from "@/actions/saUpdateKnowledgeBlock";
 import { Textarea } from "@/components/ui/textarea";
 
 const MAX_CONTENT_LENGTH = 2000;
@@ -37,14 +37,14 @@ const formSchema = z.object({
   title: z.string().optional(),
 });
 
-export default function EditChunkForm({
-  chunkId,
+export default function EditKnowledgeBlockForm({
+  blockId,
   documentId,
   agentId,
   content,
   title,
 }: {
-  chunkId: string;
+  blockId: string;
   documentId: string;
   agentId: string;
   content?: string;
@@ -64,8 +64,8 @@ export default function EditChunkForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdateChunk({
-      chunkId,
+    const response = await saUpdateKnowledgeBlock({
+      blockId,
       content: values.content,
       title: values.title,
     });
@@ -73,7 +73,7 @@ export default function EditChunkForm({
     if (!response.success) {
       setLoading(false);
 
-      toast.error("There was an error updating the chunk");
+      toast.error("There was an error updating the knowledge block");
 
       if (response.error) {
         form.setError("root", {
@@ -93,7 +93,7 @@ export default function EditChunkForm({
     }
 
     if (response.success) {
-      toast.success("Chunk updated with new embedding");
+      toast.success("Knowledge block updated with new embedding");
       router.refresh();
     }
 
@@ -149,7 +149,7 @@ export default function EditChunkForm({
               </div>
               <FormControl>
                 <Textarea
-                  placeholder="Enter the knowledge content for this chunk..."
+                  placeholder="Enter the knowledge content for this block..."
                   className="min-h-[200px]"
                   maxLength={MAX_CONTENT_LENGTH}
                   {...field}
@@ -186,7 +186,7 @@ export default function EditChunkForm({
             variant="outline"
             onClick={() =>
               router.push(
-                `/admin/agents/${agentId}/documents/${documentId}?tab=chunks`
+                `/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`
               )
             }
           >

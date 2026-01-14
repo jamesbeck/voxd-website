@@ -3,11 +3,11 @@
 import DataTable from "@/components/adminui/Table";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import saGetChunkTableData from "@/actions/saGetChunkTableData";
+import saGetKnowledgeBlockTableData from "@/actions/saGetKnowledgeBlockTableData";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
-const ChunksTable = ({
+const KnowledgeBlocksTable = ({
   documentId,
   agentId,
 }: {
@@ -17,7 +17,7 @@ const ChunksTable = ({
   const columns = [
     {
       label: "Index",
-      name: "chunkIndex",
+      name: "blockIndex",
       sort: true,
     },
     {
@@ -73,17 +73,17 @@ const ChunksTable = ({
   return (
     <DataTable
       defaultSort={{
-        name: "chunkIndex",
+        name: "blockIndex",
         direction: "asc",
       }}
-      getData={saGetChunkTableData}
+      getData={saGetKnowledgeBlockTableData}
       getDataParams={{ documentId }}
       columns={columns}
       actions={(row: any) => {
         return (
           <Button asChild size={"sm"}>
             <Link
-              href={`/admin/agents/${agentId}/documents/${documentId}/chunks/${row.id}`}
+              href={`/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${row.id}`}
             >
               View
             </Link>
@@ -94,4 +94,4 @@ const ChunksTable = ({
   );
 };
 
-export default ChunksTable;
+export default KnowledgeBlocksTable;

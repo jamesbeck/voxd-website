@@ -6,53 +6,55 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Alert from "@/components/admin/Alert";
 import { Spinner } from "@/components/ui/spinner";
-import saDeleteChunk from "@/actions/saDeleteChunk";
+import saDeleteKnowledgeBlock from "@/actions/saDeleteKnowledgeBlock";
 import { Trash2Icon } from "lucide-react";
 
-export default function ChunkActions({
-  chunkId,
-  chunkIndex,
+export default function KnowledgeBlockActions({
+  blockId,
+  blockIndex,
   agentId,
   documentId,
 }: {
-  chunkId: string;
-  chunkIndex: number;
+  blockId: string;
+  blockIndex: number;
   agentId: string;
   documentId: string;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
-  const deleteChunk = async () => {
+  const deleteBlock = async () => {
     setIsDeleting(true);
-    const saResponse = await saDeleteChunk({ chunkId });
+    const saResponse = await saDeleteKnowledgeBlock({ blockId });
 
     if (!saResponse.success) {
       toast.error(
-        `Error Deleting Chunk: ${
-          saResponse.error || "There was an error deleting the chunk"
+        `Error Deleting Knowledge Block: ${
+          saResponse.error || "There was an error deleting the knowledge block"
         }`
       );
       setIsDeleting(false);
       return;
     }
     // If successful
-    toast.success(`Successfully deleted Chunk ${chunkIndex}`);
+    toast.success(`Successfully deleted Knowledge Block ${blockIndex}`);
     setIsDeleting(false);
-    router.push(`/admin/agents/${agentId}/documents/${documentId}?tab=chunks`);
+    router.push(
+      `/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`
+    );
   };
 
   return (
     <Alert
       destructive
-      title={`Delete Chunk ${chunkIndex}`}
-      description="This action cannot be undone. This chunk and its embedding will be permanently deleted."
+      title={`Delete Knowledge Block ${blockIndex}`}
+      description="This action cannot be undone. This knowledge block and its embedding will be permanently deleted."
       actionText="Delete"
-      onAction={deleteChunk}
+      onAction={deleteBlock}
     >
       <Button variant="destructive" size="sm" className="cursor-pointer">
         {isDeleting ? <Spinner /> : <Trash2Icon className="h-4 w-4" />}
-        Delete Chunk
+        Delete
       </Button>
     </Alert>
   );

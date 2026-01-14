@@ -51,7 +51,7 @@ const saGetDocumentTableData = async ({
     )
     .select(
       db.raw(
-        '(SELECT COUNT(*) FROM "knowledgeChunk" WHERE "knowledgeChunk"."documentId" = "knowledgeDocument"."id")::int as "chunkCount"'
+        '(SELECT COUNT(*) FROM "knowledgeBlock" WHERE "knowledgeBlock"."documentId" = "knowledgeDocument"."id")::int as "blockCount"'
       )
     )
     .orderBy(sortField, sortDirection)

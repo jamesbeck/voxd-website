@@ -28,7 +28,7 @@ const saDeleteDocument = async ({
       return { success: false, error: "Unauthorized" };
     }
 
-    // The CASCADE on the foreign key will automatically delete all chunks
+    // The CASCADE on the foreign key will automatically delete all knowledge blocks
     await db("knowledgeDocument").delete().where({ id: documentId });
   } catch (error) {
     console.error("Error deleting document:", error);

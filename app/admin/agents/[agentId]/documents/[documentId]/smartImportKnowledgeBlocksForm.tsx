@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import saSmartChunkDocument from "@/actions/saSmartChunkDocument";
+import saSmartImportKnowledgeBlocks from "@/actions/saSmartImportKnowledgeBlocks";
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
@@ -39,7 +39,7 @@ export default function SmartImportForm({
   agentId: string;
 }) {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ chunksCreated: number } | null>(null);
+  const [result, setResult] = useState<{ blocksCreated: number } | null>(null);
   const router = useRouter();
 
   const form = useForm<FormValues>({
@@ -53,7 +53,7 @@ export default function SmartImportForm({
     setLoading(true);
     setResult(null);
 
-    const response = await saSmartChunkDocument({
+    const response = await saSmartImportKnowledgeBlocks({
       documentId,
       text: values.text,
     });
@@ -61,7 +61,7 @@ export default function SmartImportForm({
     if (!response.success) {
       setLoading(false);
 
-      toast.error("There was an error creating the chunks");
+      toast.error("There was an error creating the knowledge blocks");
 
       if (response.error) {
         form.setError("root", {
@@ -77,7 +77,7 @@ export default function SmartImportForm({
     setLoading(false);
     setResult(response.data || null);
     toast.success(
-      `Successfully created ${response.data?.chunksCreated} chunks with AI`
+      `Successfully created ${response.data?.blocksCreated} knowledge blocks with AI`
     );
     form.reset();
     router.refresh();
@@ -92,8 +92,8 @@ export default function SmartImportForm({
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-800">Success!</AlertTitle>
           <AlertDescription className="text-green-700">
-            AI created {result.chunksCreated} semantic chunks with titles and
-            embeddings. View them in the Chunks tab.
+            AI created {result.blocksCreated} semantic knowledge blocks with
+            titles and embeddings. View them in the Knowledge Blocks tab.
           </AlertDescription>
         </Alert>
       )}
@@ -112,16 +112,17 @@ export default function SmartImportForm({
               </div>
               <FormControl>
                 <Textarea
-                  placeholder="Paste your text here. The AI will analyze and split it into semantically meaningful chunks..."
+                  placeholder="Paste your text here. The AI will analyze and split it into semantically meaningful knowledge blocks..."
                   className="min-h-[300px] font-mono text-sm"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
                 The agent&apos;s configured model will intelligently split your
-                text into self-contained chunks at logical topic boundaries, and
-                automatically generate descriptive titles for each chunk. This
-                produces higher quality chunks than rule-based splitting.
+                text into self-contained knowledge blocks at logical topic
+                boundaries, and automatically generate descriptive titles for
+                each block. This produces higher quality results than rule-based
+                splitting.
               </FormDescription>
               <FormMessage />
             </FormItem>

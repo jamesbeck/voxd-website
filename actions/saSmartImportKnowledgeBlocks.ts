@@ -7,22 +7,24 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject, embedMany } from "ai";
 import { z } from "zod";
 
-const chunkSchema = z.object({
-  chunks: z.array(
+const blockSchema = z.object({
+  blocks: z.array(
     z.object({
       title: z
         .string()
-        .describe("A short descriptive title for this chunk (max 100 chars)"),
+        .describe(
+          "A short descriptive title for this knowledge block (max 100 chars)"
+        ),
       content: z
         .string()
         .describe(
-          "The chunk content. Should be 300-1500 characters, self-contained and coherent"
+          "The knowledge block content. Should be 300-1500 characters, self-contained and coherent"
         ),
     })
   ),
 });
 
-const saSmartChunkDocument = async ({
+const saSmartImportKnowledgeBlocks = async ({
   documentId,
   text,
 }: {
@@ -62,67 +64,67 @@ const saSmartChunkDocument = async ({
 
   const openai = createOpenAI({ apiKey: document.openAiApiKey });
 
-  // Get the next chunk index
-  const lastChunk = await db("knowledgeChunk")
+  // Get the next block index
+  const lastBlock = await db("knowledgeBlock")
     .where("documentId", documentId)
-    .orderBy("chunkIndex", "desc")
+    .orderBy("blockIndex", "desc")
     .first();
 
-  const startIndex = lastChunk ? lastChunk.chunkIndex + 1 : 0;
+  const startIndex = lastBlock ? lastBlock.blockIndex + 1 : 0;
 
-  // Use LLM to intelligently chunk the text
-  let chunks: { title: string; content: string }[];
+  // Use LLM to intelligently split the text into knowledge blocks
+  let blocks: { title: string; content: string }[];
   try {
     const { object } = await generateObject({
       model: openai(modelName),
-      schema: chunkSchema,
-      prompt: `You are a knowledge base chunking assistant. Split the following text into semantic chunks for a RAG (Retrieval Augmented Generation) system.
+      schema: blockSchema,
+      prompt: `You are a knowledge base assistant. Split the following text into semantic knowledge blocks for a RAG (Retrieval Augmented Generation) system.
 
-Each chunk should:
+Each knowledge block should:
 - Be a self-contained piece of information (ideally 300-1500 characters)
 - Have a short, descriptive title that summarizes its content
 - Preserve complete thoughts and context
 - Not split mid-sentence or mid-idea
 - Be useful as a standalone piece of knowledge that can answer questions
 
-Create chunks that would be helpful when retrieved to answer user questions about this content.
+Create knowledge blocks that would be helpful when retrieved to answer user questions about this content.
 
-Text to chunk:
+Text to process:
 ${text}`,
     });
 
-    chunks = object.chunks;
+    blocks = object.blocks;
   } catch (error) {
-    console.error("Error generating chunks with LLM:", error);
+    console.error("Error generating knowledge blocks with LLM:", error);
     return {
       success: false,
-      error: `Failed to generate chunks: ${
+      error: `Failed to generate knowledge blocks: ${
         error instanceof Error ? error.message : "Unknown error"
       }`,
     };
   }
 
-  if (!chunks.length) {
+  if (!blocks.length) {
     return {
       success: false,
-      error: "No chunks were generated from the text",
+      error: "No knowledge blocks were generated from the text",
     };
   }
 
-  // Generate embeddings for all chunks (include title in embedding text)
+  // Generate embeddings for all blocks (include title in embedding text)
   let embeddings: number[][] = [];
   let tokenCounts: number[] = [];
   try {
     const result = await embedMany({
       model: openai.embedding("text-embedding-3-small"),
-      values: chunks.map((c) =>
-        c.title ? `${c.title}\n\n${c.content}` : c.content
+      values: blocks.map((b) =>
+        b.title ? `${b.title}\n\n${b.content}` : b.content
       ),
     });
     embeddings = result.embeddings;
-    // Estimate token counts per chunk (including title)
-    tokenCounts = chunks.map((c) => {
-      const embeddingText = c.title ? `${c.title}\n\n${c.content}` : c.content;
+    // Estimate token counts per block (including title)
+    tokenCounts = blocks.map((b) => {
+      const embeddingText = b.title ? `${b.title}\n\n${b.content}` : b.content;
       return Math.ceil(embeddingText.length / 4);
     });
   } catch (error) {
@@ -135,30 +137,30 @@ ${text}`,
     };
   }
 
-  // Insert all chunks
-  const chunkRecords = chunks.map((chunk, index) => ({
+  // Insert all knowledge blocks
+  const blockRecords = blocks.map((block, index) => ({
     documentId,
-    content: chunk.content,
-    title: chunk.title,
-    chunkIndex: startIndex + index,
+    content: block.content,
+    title: block.title,
+    blockIndex: startIndex + index,
     tokenCount: tokenCounts[index],
     embedding: embeddings[index] ? `[${embeddings[index].join(",")}]` : null,
   }));
 
   try {
-    await db("knowledgeChunk").insert(chunkRecords);
+    await db("knowledgeBlock").insert(blockRecords);
   } catch (error) {
-    console.error("Error inserting chunks:", error);
+    console.error("Error inserting knowledge blocks:", error);
     return {
       success: false,
-      error: "Failed to save chunks to database",
+      error: "Failed to save knowledge blocks to database",
     };
   }
 
   return {
     success: true,
-    data: { chunksCreated: chunks.length },
+    data: { blocksCreated: blocks.length },
   };
 };
 
-export default saSmartChunkDocument;
+export default saSmartImportKnowledgeBlocks;

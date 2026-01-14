@@ -1,11 +1,11 @@
-import getChunkById from "@/lib/getChunkById";
+import getKnowledgeBlockById from "@/lib/getKnowledgeBlockById";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
 import { notFound } from "next/navigation";
 import userCanViewAgent from "@/lib/userCanViewAgent";
-import EditChunkForm from "./editChunkForm";
-import ChunkActions from "./chunkActions";
+import EditKnowledgeBlockForm from "./editKnowledgeBlockForm";
+import KnowledgeBlockActions from "./knowledgeBlockActions";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
 import {
   FileText,
@@ -24,15 +24,15 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: { agentId: string; documentId: string; chunkId: string };
+  params: { agentId: string; documentId: string; blockId: string };
   searchParams: { tab?: string };
 }) {
-  const { agentId, documentId, chunkId } = await params;
+  const { agentId, documentId, blockId } = await params;
   const activeTab = (await searchParams).tab || "info";
 
-  const chunk = await getChunkById({ chunkId });
+  const block = await getKnowledgeBlockById({ blockId });
 
-  if (!chunk) return notFound();
+  if (!block) return notFound();
 
   // Verify the user can view this agent
   if (!(await userCanViewAgent({ agentId }))) {
@@ -46,7 +46,7 @@ export default async function Page({
           { label: "Admin", href: "/admin" },
           { label: "Agents", href: "/admin/agents" },
           {
-            label: chunk.agentNiceName || "Agent",
+            label: block.agentNiceName || "Agent",
             href: `/admin/agents/${agentId}`,
           },
           {
@@ -54,39 +54,39 @@ export default async function Page({
             href: `/admin/agents/${agentId}?tab=knowledge`,
           },
           {
-            label: chunk.documentTitle || "Document",
+            label: block.documentTitle || "Document",
             href: `/admin/agents/${agentId}/documents/${documentId}`,
           },
           {
-            label: "Chunks",
-            href: `/admin/agents/${agentId}/documents/${documentId}?tab=chunks`,
+            label: "Knowledge Blocks",
+            href: `/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`,
           },
-          { label: `Chunk ${chunk.chunkIndex}` },
+          { label: `Block ${block.blockIndex}` },
         ]}
       />
-      <H1>Chunk {chunk.chunkIndex}</H1>
+      <H1>Knowledge Block {block.blockIndex}</H1>
 
       <Tabs value={activeTab} className="space-y-2">
         <div className="flex items-center justify-between gap-4 mb-2">
           <TabsList>
             <TabsTrigger value="info" asChild>
               <Link
-                href={`/admin/agents/${agentId}/documents/${documentId}/chunks/${chunkId}?tab=info`}
+                href={`/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=info`}
               >
                 Info
               </Link>
             </TabsTrigger>
             <TabsTrigger value="edit" asChild>
               <Link
-                href={`/admin/agents/${agentId}/documents/${documentId}/chunks/${chunkId}?tab=edit`}
+                href={`/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=edit`}
               >
                 Edit
               </Link>
             </TabsTrigger>
           </TabsList>
-          <ChunkActions
-            chunkId={chunkId}
-            chunkIndex={chunk.chunkIndex}
+          <KnowledgeBlockActions
+            blockId={blockId}
+            blockIndex={block.blockIndex}
             agentId={agentId}
             documentId={documentId}
           />
@@ -100,26 +100,26 @@ export default async function Page({
               items={
                 [
                   {
-                    label: "Chunk Index",
-                    value: chunk.chunkIndex,
+                    label: "Block Index",
+                    value: block.blockIndex,
                     icon: <Hash className="h-4 w-4" />,
                   },
-                  chunk.title
+                  block.title
                     ? {
                         label: "Title",
-                        value: chunk.title,
+                        value: block.title,
                         icon: <Layers className="h-4 w-4" />,
                       }
                     : null,
                   {
                     label: "Token Count",
-                    value: chunk.tokenCount || "N/A",
+                    value: block.tokenCount || "N/A",
                     icon: <FileText className="h-4 w-4" />,
                   },
                   {
                     label: "Has Embedding",
-                    value: chunk.hasEmbedding ? "Yes" : "No",
-                    icon: chunk.hasEmbedding ? (
+                    value: block.hasEmbedding ? "Yes" : "No",
+                    icon: block.hasEmbedding ? (
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     ) : (
                       <XCircle className="h-4 w-4 text-red-500" />
@@ -128,7 +128,7 @@ export default async function Page({
                   {
                     label: "Created",
                     value: format(
-                      new Date(chunk.createdAt),
+                      new Date(block.createdAt),
                       "dd/MM/yyyy HH:mm"
                     ),
                     icon: <Calendar className="h-4 w-4" />,
@@ -139,7 +139,7 @@ export default async function Page({
             <div className="mt-6">
               <H2>Content</H2>
               <div className="mt-2 p-4 bg-muted rounded-lg whitespace-pre-wrap font-mono text-sm">
-                {chunk.content}
+                {block.content}
               </div>
             </div>
           </Container>
@@ -147,16 +147,16 @@ export default async function Page({
 
         <TabsContent value="edit">
           <Container>
-            <H2>Edit Chunk</H2>
+            <H2>Edit Knowledge Block</H2>
             <p className="text-muted-foreground mb-4">
               Editing the content will regenerate the embedding.
             </p>
-            <EditChunkForm
-              chunkId={chunkId}
+            <EditKnowledgeBlockForm
+              blockId={blockId}
               documentId={documentId}
               agentId={agentId}
-              content={chunk.content}
-              title={chunk.title}
+              content={block.content}
+              title={block.title}
             />
           </Container>
         </TabsContent>
