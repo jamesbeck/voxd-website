@@ -3,6 +3,24 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import sendgrid from "@sendgrid/mail";
+
+// Extract mentioned user IDs from comment text
+// Mentions are stored as @[Display Name](userId)
+function extractMentionedUserIds(comment: string): string[] {
+  const mentionRegex = /@\[([^\]]+)\]\(([^)]+)\)/g;
+  const userIds: string[] = [];
+  let match;
+  while ((match = mentionRegex.exec(comment)) !== null) {
+    userIds.push(match[2]);
+  }
+  return userIds;
+}
+
+// Convert mention format to readable text for emails
+function formatCommentForEmail(comment: string): string {
+  return comment.replace(/@\[([^\]]+)\]\(([^)]+)\)/g, "@$1");
+}
 
 const saAddSupportTicketComment = async ({
   ticketId,
@@ -17,15 +35,22 @@ const saAddSupportTicketComment = async ({
     return { success: false, error: "Comment is required" };
   }
 
-  // First verify access to the ticket
+  // First verify access to the ticket and get full details
   const ticket = await db("supportTicket")
     .join("agent", "supportTicket.agentId", "agent.id")
     .join("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .where("supportTicket.id", ticketId)
     .select(
       "supportTicket.id",
+      "supportTicket.ticketNumber",
+      "supportTicket.title",
       "organisation.partnerId",
-      "organisation.id as organisationId"
+      "organisation.id as organisationId",
+      "partner.domain as partnerDomain",
+      "partner.name as partnerName",
+      "partner.sendEmailFromDomain",
+      "agent.niceName as agentName"
     )
     .first();
 
@@ -60,6 +85,117 @@ const saAddSupportTicketComment = async ({
         comment: comment.trim(),
       })
       .returning(["id", "createdAt"]);
+
+    // Get commenter name for email
+    const commenter = await db("adminUser")
+      .where("id", accessToken.adminUserId)
+      .select("name", "email")
+      .first();
+    const commenterName = commenter?.name || commenter?.email || "Unknown";
+
+    // Send notification email
+    try {
+      sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
+
+      const isDevelopment = process.env.NODE_ENV === "development";
+      const partnerDomain = ticket.partnerDomain || "voxd.ai";
+      const partnerName = ticket.partnerName || "Voxd";
+      const emailFromDomain = ticket.sendEmailFromDomain || "voxd.ai";
+      const ticketUrl = `https://${partnerDomain}/admin/support-tickets/${ticket.id}`;
+
+      // Build recipient list
+      const recipients: string[] = ["james.beck@voxd.ai"];
+
+      if (!isDevelopment) {
+        // In production, also send to mentioned users
+        const mentionedUserIds = extractMentionedUserIds(comment);
+        if (mentionedUserIds.length > 0) {
+          const mentionedUsers = await db("adminUser")
+            .whereIn("id", mentionedUserIds)
+            .select("email");
+          mentionedUsers.forEach((user) => {
+            if (user.email && !recipients.includes(user.email)) {
+              recipients.push(user.email);
+            }
+          });
+        }
+      }
+
+      const formattedComment = formatCommentForEmail(comment.trim());
+
+      await sendgrid.send({
+        from: `${partnerName} Support <support@${emailFromDomain}>`,
+        to: recipients,
+        subject: `New Comment on Ticket #${ticket.ticketNumber}: ${ticket.title}`,
+        html: `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>New Comment on Support Ticket</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+            <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+              <tr>
+                <td align="center" style="padding: 40px 0;">
+                  <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                      <td style="padding: 40px 40px 20px 40px; text-align: center;">
+                        <h1 style="margin: 0; color: #333333; font-size: 24px; font-weight: 600;">New Comment on Support Ticket</h1>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 0 40px 20px 40px;">
+                        <p style="margin: 0 0 20px 0; color: #555555; font-size: 16px; line-height: 1.5;">${commenterName} added a new comment:</p>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                          <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px; width: 120px;">Ticket #</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px; font-weight: 600;">${ticket.ticketNumber}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Title</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${ticket.title}</td>
+                          </tr>
+                          <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Agent</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${ticket.agentName}</td>
+                          </tr>
+                        </table>
+
+                        <p style="margin: 0 0 10px 0; color: #888888; font-size: 14px;">Comment:</p>
+                        <div style="background-color: #f8f9fa; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+                          <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${formattedComment}</p>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="center" style="padding: 0 40px 30px 40px;">
+                        <a href="${ticketUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: 600;">View Ticket</a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 20px 40px 40px 40px; border-top: 1px solid #eeeeee;">
+                        <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">This is an automated message from ${partnerName} Support.</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
+        `,
+        text: `New Comment on Support Ticket #${ticket.ticketNumber}\n\n${commenterName} added a new comment:\n\nTicket #: ${ticket.ticketNumber}\nTitle: ${ticket.title}\nAgent: ${ticket.agentName}\n\nComment:\n${formattedComment}\n\nView ticket: ${ticketUrl}`,
+      });
+    } catch (emailError) {
+      // Log but don't fail the comment creation if email fails
+      console.error(
+        "Failed to send support ticket comment notification email:",
+        emailError
+      );
+    }
 
     return {
       success: true,

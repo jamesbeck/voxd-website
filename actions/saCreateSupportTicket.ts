@@ -30,12 +30,16 @@ const saCreateSupportTicket = async (
   // Verify user has access to this agent
   const agent = await db("agent")
     .leftJoin("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .where("agent.id", agentId)
     .select(
       "agent.id",
       "agent.niceName",
       "organisation.partnerId",
-      "organisation.id as organisationId"
+      "organisation.id as organisationId",
+      "partner.domain as partnerDomain",
+      "partner.name as partnerName",
+      "partner.sendEmailFromDomain"
     )
     .first();
 
@@ -90,10 +94,13 @@ const saCreateSupportTicket = async (
     try {
       sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
-      const ticketUrl = `${process.env.NEXT_PUBLIC_APP_URL}/admin/support-tickets/${newTicket.id}`;
+      const partnerDomain = agent.partnerDomain || "voxd.ai";
+      const partnerName = agent.partnerName || "Voxd";
+      const emailFromDomain = agent.sendEmailFromDomain || "voxd.ai";
+      const ticketUrl = `https://${partnerDomain}/admin/support-tickets/${newTicket.id}`;
 
       await sendgrid.send({
-        from: "Voxd Support <support@voxd.ai>",
+        from: `${partnerName} Support <support@${emailFromDomain}>`,
         to: ["james.beck@voxd.ai"],
         subject: `New Support Ticket #${newTicket.ticketNumber}: ${newTicket.title}`,
         html: `
@@ -156,7 +163,7 @@ const saCreateSupportTicket = async (
                     </tr>
                     <tr>
                       <td style="padding: 20px 40px 40px 40px; border-top: 1px solid #eeeeee;">
-                        <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">This is an automated message from Voxd Support.</p>
+                        <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">This is an automated message from ${partnerName} Support.</p>
                       </td>
                     </tr>
                   </table>

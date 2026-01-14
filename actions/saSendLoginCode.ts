@@ -78,8 +78,12 @@ const saSendLoginCode = async ({
 
     if (process.env.NODE_ENV !== "development") {
       try {
+        const partnerDomain = partner?.domain || "voxd.ai";
+        const partnerName = partner?.name || "Voxd";
+        const emailFromDomain = partner?.sendEmailFromDomain || "voxd.ai";
         const emailR = await sendgrid.send({
-          from: `${partner?.name || "Voxd"} Login <login@voxd.ai>`,
+          from: `${partnerName} Login <login@${emailFromDomain}>`,
+          replyTo: `support@${emailFromDomain}`,
           to:
             // always send to me if staging
             process.env.NODE_ENV === "production"

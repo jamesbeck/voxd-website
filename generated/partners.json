@@ -1,7 +1,7 @@
 [
   {
-    "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
-    "name": "ChatFox",
+    "id": "019bb1f6-dbc5-7266-bd2c-57aa890d776e",
+    "name": "The Growth Architect",
     "billingAddressLine1": null,
     "billingAddressLine2": null,
     "billingCity": null,
@@ -9,8 +9,9 @@
     "billingPostcode": null,
     "billingCountry": null,
     "billingEmails": null,
-    "domain": "portal.chatfox.ai",
-    "colour": "081d35"
+    "domain": null,
+    "colour": null,
+    "sendEmailFromDomain": null
   },
   {
     "id": "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
@@ -23,11 +24,12 @@
     "billingCountry": null,
     "billingEmails": null,
     "domain": "voxd.ai",
-    "colour": "00a9ff"
+    "colour": "00a9ff",
+    "sendEmailFromDomain": "voxd.ai"
   },
   {
-    "id": "019bb1f6-dbc5-7266-bd2c-57aa890d776e",
-    "name": "The Growth Architect",
+    "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
+    "name": "ChatFox",
     "billingAddressLine1": null,
     "billingAddressLine2": null,
     "billingCity": null,
@@ -35,7 +37,8 @@
     "billingPostcode": null,
     "billingCountry": null,
     "billingEmails": null,
-    "domain": null,
-    "colour": null
+    "domain": "portal.chatfox.ai",
+    "colour": "081d35",
+    "sendEmailFromDomain": "chatfox.ai"
   }
 ]

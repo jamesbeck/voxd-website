@@ -6,7 +6,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -19,6 +18,9 @@ import { toast } from "sonner";
 import { Send, User } from "lucide-react";
 import saGetSupportTicketComments from "@/actions/saGetSupportTicketComments";
 import saAddSupportTicketComment from "@/actions/saAddSupportTicketComment";
+import MentionTextarea, {
+  renderCommentWithMentions,
+} from "@/components/inputs/MentionTextarea";
 
 type Comment = {
   id: string;
@@ -116,7 +118,7 @@ export default function TicketComments({ ticketId }: { ticketId: string }) {
                 </div>
                 <div className="rounded-lg bg-muted/50 px-3 py-2">
                   <p className="text-sm whitespace-pre-wrap">
-                    {comment.comment}
+                    {renderCommentWithMentions(comment.comment)}
                   </p>
                 </div>
               </div>
@@ -135,10 +137,11 @@ export default function TicketComments({ ticketId }: { ticketId: string }) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Textarea
-                      placeholder="Add a comment..."
-                      className="min-h-[100px] resize-none"
-                      {...field}
+                    <MentionTextarea
+                      ticketId={ticketId}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Add a comment... Use @ to mention users"
                     />
                   </FormControl>
                   <FormMessage />

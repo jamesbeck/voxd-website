@@ -22,6 +22,7 @@ import {
 import TicketComments from "./ticketComments";
 import TicketStatusDropdown from "./ticketStatusDropdown";
 import TicketActions from "./ticketActions";
+import CopyTicketLinkButton from "./copyTicketLinkButton";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page({
@@ -96,6 +97,10 @@ export default async function Page({
                 currentStatus={ticket.status}
               />
             )}
+            <CopyTicketLinkButton
+              ticketId={ticketId}
+              partnerDomain={ticket.partnerDomain}
+            />
             <Button asChild variant="outline" size="sm">
               <Link href="/admin/support-tickets">
                 <ChevronLeft className="h-4 w-4" />

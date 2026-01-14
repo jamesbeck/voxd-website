@@ -22,6 +22,7 @@ type SupportTicketDetail = {
   userMessageText: string | null;
   assistantMessageText: string | null;
   sessionId: string | null;
+  partnerDomain: string | null;
 };
 
 const saGetSupportTicketById = async ({
@@ -37,6 +38,7 @@ const saGetSupportTicketById = async ({
   const ticket = await db("supportTicket")
     .join("agent", "supportTicket.agentId", "agent.id")
     .join("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .leftJoin(
       "adminUser as createdBy",
       "supportTicket.adminUserId",
@@ -63,6 +65,7 @@ const saGetSupportTicketById = async ({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.partnerId",
+      "partner.domain as partnerDomain",
       "createdBy.id as createdById",
       "createdBy.name as createdByName",
       "createdBy.email as createdByEmail",
