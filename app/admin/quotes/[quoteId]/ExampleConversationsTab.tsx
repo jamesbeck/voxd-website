@@ -21,7 +21,7 @@ import { Plus, Trash2, Pencil, GripVertical } from "lucide-react";
 import saGenerateQuoteExampleConversation from "@/actions/saGenerateQuoteExampleConversation";
 import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
 import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConversation";
-import saReorderQuoteExampleConversations from "@/actions/saReorderQuoteExampleConversations";
+import saReorderExampleConversations from "@/actions/saReorderExampleConversations";
 import WhatsAppSim from "@/components/whatsAppSim";
 import {
   DndContext,
@@ -190,7 +190,7 @@ export default function ExampleConversationsTab({
       setConversations(newConversations);
 
       // Save the new order to the database
-      const response = await saReorderQuoteExampleConversations({
+      const response = await saReorderExampleConversations({
         quoteId,
         conversationIds: newConversations.map((c) => c.id),
       });
