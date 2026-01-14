@@ -19,8 +19,10 @@ export default async function Page() {
         <Info className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
         <div className="text-sm text-blue-700 dark:text-blue-300">
           <p>
-            To create a new support ticket, navigate to the session containing the problematic message 
-            and click the <Flag className="h-3.5 w-3.5 inline text-red-500 mx-1" /> flag icon next to the message to report the issue.
+            To create a new support ticket, navigate to the session containing
+            the problematic message and click the{" "}
+            <Flag className="h-3.5 w-3.5 inline text-red-500 mx-1" /> flag icon
+            next to the message to report the issue.
           </p>
         </div>
       </div>
