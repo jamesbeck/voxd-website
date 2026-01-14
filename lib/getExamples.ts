@@ -30,7 +30,7 @@ const query = (db: Knex) =>
     .leftJoin(
       db.raw(`(
       SELECT ec."exampleId",
-             jsonb_agg(to_jsonb(ec) ORDER BY ec.id) AS "exampleConversations"
+             jsonb_agg(to_jsonb(ec) ORDER BY ec."order" NULLS LAST, ec.id) AS "exampleConversations"
       FROM "exampleConversation" ec
       GROUP BY ec."exampleId"
     ) ec`),

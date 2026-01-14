@@ -65,10 +65,11 @@ export const getQuoteById = async ({
   }
 
   // Get example conversations for this quote
+  // Order by "order" field first (nulls last), then by id for consistent ordering
   const conversations = await db("exampleConversation")
     .where("quoteId", quoteId)
-    .select("id", "description", "prompt", "startTime", "messages")
-    .orderBy("id", "asc");
+    .select("id", "description", "prompt", "startTime", "messages", "order")
+    .orderByRaw('"order" IS NULL, "order" ASC, id ASC');
 
   // Parse the messages JSON for each conversation
   const parsedConversations = conversations.map((conv) => ({

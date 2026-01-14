@@ -8,7 +8,7 @@ import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import ExampleConversationsTab from "./ExampleConversationsTab";
+import ExampleConversationsTab from "@/components/admin/ExampleConversationsTab";
 import ExampleLogoTab from "./ExampleLogoTab";
 import ExampleInfoTab from "./ExampleInfoTab";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";

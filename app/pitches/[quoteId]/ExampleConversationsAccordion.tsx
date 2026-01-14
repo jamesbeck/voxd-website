@@ -36,7 +36,10 @@ export default function ExampleConversationsAccordion({
   );
 
   const toggleItem = (id: string) => {
-    setOpenId((prev) => (prev === id ? null : id));
+    // Always keep at least one item open - only switch, never close
+    if (id !== openId) {
+      setOpenId(id);
+    }
   };
 
   return (

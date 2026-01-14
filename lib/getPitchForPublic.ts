@@ -71,10 +71,11 @@ export const getPitchForPublic = async ({
   }
 
   // Get example conversations for this quote
+  // Order by "order" field first (nulls last), then by id for consistent ordering
   const conversations = await db("exampleConversation")
     .where("quoteId", quoteId)
     .select("id", "description", "startTime", "messages")
-    .orderBy("id", "asc");
+    .orderByRaw('"order" IS NULL, "order" ASC, id ASC');
 
   // Parse the messages JSON for each conversation
   const parsedConversations = conversations.map((conv) => ({

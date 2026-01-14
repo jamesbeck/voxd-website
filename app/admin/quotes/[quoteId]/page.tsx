@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format, formatDistance } from "date-fns";
 import EditSpecificationForm from "./editSpecificationForm";
 import EditPricingForm from "./EditPricingForm";
-import ExampleConversationsTab from "./ExampleConversationsTab";
+import ExampleConversationsTab from "@/components/admin/ExampleConversationsTab";
 import QuoteActions from "./QuoteActions";
 import DataCard from "@/components/adminui/DataCard";
 import {
@@ -283,7 +283,7 @@ export default async function Page({
               <ExampleConversationsTab
                 quoteId={quote.id}
                 conversations={quote.exampleConversations}
-                organisationName={quote.organisationName}
+                businessName={quote.organisationName}
               />
             </TabsContent>
             <TabsContent value="views">

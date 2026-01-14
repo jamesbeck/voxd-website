@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,10 +18,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2, Pencil, GripVertical } from "lucide-react";
+import saGenerateQuoteExampleConversation from "@/actions/saGenerateQuoteExampleConversation";
 import saGenerateExampleConversation from "@/actions/saGenerateExampleConversation";
+import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
 import saDeleteExampleConversation from "@/actions/saDeleteExampleConversation";
+import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConversation";
 import saUpdateExampleConversation from "@/actions/saUpdateExampleConversation";
+import saReorderExampleConversations from "@/actions/saReorderExampleConversations";
 import WhatsAppSim from "@/components/whatsAppSim";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import { cn } from "@/lib/utils";
 
@@ -38,21 +59,110 @@ type ExampleConversation = {
   }[];
 };
 
-export default function ExampleConversationsTab({
-  exampleId,
-  conversations,
-  businessName,
+function SortableConversationItem({
+  conversation,
+  isSelected,
+  onSelect,
+  onEdit,
+  onDelete,
 }: {
-  exampleId: string;
+  conversation: ExampleConversation;
+  isSelected: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: conversation.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex rounded-lg border transition-colors",
+        isSelected
+          ? "border-primary bg-primary/5"
+          : "border-border hover:border-primary/50 hover:bg-muted/50",
+        isDragging && "opacity-50 shadow-lg"
+      )}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="flex items-center px-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+      >
+        <GripVertical className="h-4 w-4" />
+      </div>
+      <button onClick={onSelect} className="flex-1 text-left p-4">
+        <p className="font-medium text-sm">{conversation.description}</p>
+        <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
+          {conversation.prompt}
+        </p>
+        <p className="text-muted-foreground text-xs mt-2">
+          {conversation.messages.length} messages • Starts at{" "}
+          {conversation.startTime}
+        </p>
+      </button>
+      <div className="flex flex-col gap-1 p-2 border-l">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+          title="Edit conversation"
+        >
+          <Pencil className="h-4 w-4" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+          title="Delete conversation"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type ExampleConversationsTabProps = {
   conversations: ExampleConversation[];
   businessName: string;
-}) {
+} & (
+  | { quoteId: string; exampleId?: never }
+  | { exampleId: string; quoteId?: never }
+);
+
+export default function ExampleConversationsTab({
+  quoteId,
+  exampleId,
+  conversations: initialConversations,
+  businessName,
+}: ExampleConversationsTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
+  const [conversations, setConversations] =
+    useState<ExampleConversation[]>(initialConversations);
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
-  >(conversations.length > 0 ? conversations[0].id : null);
+  >(initialConversations.length > 0 ? initialConversations[0].id : null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [editConversation, setEditConversation] =
@@ -64,6 +174,43 @@ export default function ExampleConversationsTab({
   const [editStartTime, setEditStartTime] = useState("");
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+
+  // Sync local state with props when they change
+  useEffect(() => {
+    setConversations(initialConversations);
+  }, [initialConversations]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = conversations.findIndex((c) => c.id === active.id);
+      const newIndex = conversations.findIndex((c) => c.id === over.id);
+
+      const newConversations = arrayMove(conversations, oldIndex, newIndex);
+      setConversations(newConversations);
+
+      // Save the new order to the database
+      const response = await saReorderExampleConversations({
+        quoteId,
+        exampleId,
+        conversationIds: newConversations.map((c) => c.id),
+      });
+
+      if (!response.success) {
+        toast.error(response.error || "Failed to save order");
+        // Revert to original order
+        setConversations(conversations);
+      }
+    }
+  };
 
   const selectedConversation = conversations.find(
     (c) => c.id === selectedConversationId
@@ -77,10 +224,9 @@ export default function ExampleConversationsTab({
 
     setLoading(true);
 
-    const response = await saGenerateExampleConversation({
-      exampleId,
-      prompt,
-    });
+    const response = quoteId
+      ? await saGenerateQuoteExampleConversation({ quoteId, prompt })
+      : await saGenerateExampleConversation({ exampleId: exampleId!, prompt });
 
     if (!response.success) {
       toast.error(response.error || "Failed to generate conversation");
@@ -100,9 +246,9 @@ export default function ExampleConversationsTab({
 
     setDeleting(true);
 
-    const response = await saDeleteExampleConversation({
-      conversationId: deleteId,
-    });
+    const response = quoteId
+      ? await saDeleteQuoteExampleConversation({ conversationId: deleteId })
+      : await saDeleteExampleConversation({ conversationId: deleteId });
 
     if (!response.success) {
       toast.error(response.error || "Failed to delete conversation");
@@ -142,12 +288,19 @@ export default function ExampleConversationsTab({
 
     setSaving(true);
 
-    const response = await saUpdateExampleConversation({
-      conversationId: editConversation.id,
-      messages: editMessages,
-      description: editDescription,
-      startTime: editStartTime,
-    });
+    const response = quoteId
+      ? await saUpdateQuoteExampleConversation({
+          conversationId: editConversation.id,
+          messages: editMessages,
+          description: editDescription,
+          startTime: editStartTime,
+        })
+      : await saUpdateExampleConversation({
+          conversationId: editConversation.id,
+          messages: editMessages,
+          description: editDescription,
+          startTime: editStartTime,
+        });
 
     if (!response.success) {
       toast.error(response.error || "Failed to save conversation");
@@ -203,7 +356,7 @@ export default function ExampleConversationsTab({
               <DialogDescription>
                 Describe the scenario you want the conversation to demonstrate.
                 The AI will generate a realistic chat between a user and the
-                chatbot based on the example specification.
+                chatbot based on your specification.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -245,60 +398,32 @@ export default function ExampleConversationsTab({
       ) : (
         <div className="flex gap-6">
           {/* Left side - conversation list */}
-          <div className="w-[350px] space-y-2 flex-shrink-0">
-            {conversations.map((conversation) => (
-              <div
-                key={conversation.id}
-                className={cn(
-                  "flex rounded-lg border transition-colors",
-                  selectedConversationId === conversation.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50 hover:bg-muted/50"
-                )}
+          <div className="flex-1 space-y-2 min-w-0">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={conversations.map((c) => c.id)}
+                strategy={verticalListSortingStrategy}
               >
-                <button
-                  onClick={() => setSelectedConversationId(conversation.id)}
-                  className="flex-1 text-left p-4"
-                >
-                  <p className="font-medium text-sm">
-                    {conversation.description}
-                  </p>
-                  <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
-                    {conversation.prompt}
-                  </p>
-                  <p className="text-muted-foreground text-xs mt-2">
-                    {conversation.messages.length} messages • Starts at{" "}
-                    {conversation.startTime}
-                  </p>
-                </button>
-                <div className="flex flex-col gap-1 p-2 border-l">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openEditDialog(conversation);
-                    }}
-                    className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
-                    title="Edit conversation"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteId(conversation.id);
-                    }}
-                    className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                    title="Delete conversation"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+                {conversations.map((conversation) => (
+                  <SortableConversationItem
+                    key={conversation.id}
+                    conversation={conversation}
+                    isSelected={selectedConversationId === conversation.id}
+                    onSelect={() => setSelectedConversationId(conversation.id)}
+                    onEdit={() => openEditDialog(conversation)}
+                    onDelete={() => setDeleteId(conversation.id)}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
 
           {/* Right side - WhatsApp simulator */}
-          <div className="flex-1 flex justify-center">
+          <div className="flex-shrink-0">
             {selectedConversation && (
               <WhatsAppSim
                 messages={selectedConversation.messages.map((m) => ({

@@ -85,6 +85,17 @@ const generateConversation = async ({
     `,
   });
 
+  // Get the max order for this example/quote to add the new conversation at the end
+  const maxOrderResult = await db("exampleConversation")
+    .where((builder) => {
+      if (exampleId) builder.where("exampleId", exampleId);
+      if (quoteId) builder.where("quoteId", quoteId);
+    })
+    .max("order as maxOrder")
+    .first();
+
+  const nextOrder = (maxOrderResult?.maxOrder ?? 0) + 1;
+
   await db("exampleConversation").insert({
     exampleId: exampleId || null,
     quoteId: quoteId || null,
@@ -92,6 +103,7 @@ const generateConversation = async ({
     prompt: prompt,
     description: object.summary,
     startTime: object.startTime,
+    order: nextOrder,
   });
 
   return { success: true };
