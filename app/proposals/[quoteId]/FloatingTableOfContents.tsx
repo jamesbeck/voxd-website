@@ -75,7 +75,15 @@ export default function FloatingTableOfContents({
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Account for fixed header height plus spacing to show section top edge
+      const headerOffset = window.innerWidth >= 768 ? 104 : 88;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
       setIsOpen(false);
     }
   };

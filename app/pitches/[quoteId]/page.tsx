@@ -41,6 +41,7 @@ import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
 import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
+import DataFlowDiagram from "@/components/websiteui/DataFlowDiagram";
 
 export async function generateMetadata({
   params,
@@ -136,6 +137,7 @@ export default async function PublicPitchPage({
     ...(pitch.exampleConversations.length > 0
       ? [{ id: "examples", label: "Examples", icon: "MessageSquare" as const }]
       : []),
+    { id: "how-it-works", label: "How It Works", icon: "Zap" as const },
     {
       id: "portal",
       label: "Management Portal",
@@ -433,6 +435,31 @@ export default async function PublicPitchPage({
               />
             </section>
           )}
+
+          {/* How It Works Section */}
+          <section
+            id="how-it-works"
+            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="p-2 rounded-lg"
+                style={{ backgroundColor: `${brandColor}15` }}
+              >
+                <Zap className="h-6 w-6" style={{ color: brandColor }} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  How It Works
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  See how messages flow from your customers through WhatsApp
+                </p>
+              </div>
+            </div>
+
+            <DataFlowDiagram businessName={pitch.partner.name} />
+          </section>
 
           {/* Management Portal Section */}
           <section
