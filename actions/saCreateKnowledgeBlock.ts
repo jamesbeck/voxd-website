@@ -5,6 +5,7 @@ import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { embed } from "ai";
+import { addLog } from "@/lib/addLog";
 
 const saCreateKnowledgeBlock = async ({
   documentId,
@@ -15,7 +16,7 @@ const saCreateKnowledgeBlock = async ({
   content: string;
   title?: string;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
   // Get the document and its associated agent's OpenAI API key
   const document = await db("knowledgeDocument")
@@ -87,6 +88,22 @@ const saCreateKnowledgeBlock = async ({
       "tokenCount",
       "createdAt",
     ]);
+
+  // Log knowledge block creation
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    event: "Knowledge Block Created",
+    description: `Knowledge block "${title || 'Untitled'}" created`,
+    agentId: document.agentId,
+    data: {
+      blockId: newBlock.id,
+      documentId,
+      title,
+      content,
+      blockIndex,
+      tokenCount,
+    },
+  });
 
   return {
     success: true,

@@ -4,16 +4,17 @@ import { ServerActionResponse } from "@/types/types";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
+import { addLog } from "@/lib/addLog";
 
 const saDeleteKnowledgeBlock = async ({
   blockId,
 }: {
   blockId: string;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
   try {
-    // Get the block with document and agent info to check ownership
+    // Get the block with document and agent info to check ownership and for logging
     const block = await db("knowledgeBlock")
       .join(
         "knowledgeDocument",
@@ -21,7 +22,15 @@ const saDeleteKnowledgeBlock = async ({
         "knowledgeDocument.id"
       )
       .where("knowledgeBlock.id", blockId)
-      .select("knowledgeDocument.agentId")
+      .select(
+        "knowledgeBlock.id",
+        "knowledgeBlock.title",
+        "knowledgeBlock.content",
+        "knowledgeBlock.blockIndex",
+        "knowledgeBlock.tokenCount",
+        "knowledgeBlock.documentId",
+        "knowledgeDocument.agentId"
+      )
       .first();
 
     if (!block) {
@@ -32,6 +41,24 @@ const saDeleteKnowledgeBlock = async ({
     if (!(await userCanViewAgent({ agentId: block.agentId }))) {
       return { success: false, error: "Unauthorized" };
     }
+
+    // Log knowledge block deletion before deleting
+    await addLog({
+      adminUserId: accessToken.adminUserId,
+      event: "Knowledge Block Deleted",
+      description: `Knowledge block "${block.title || 'Untitled'}" deleted`,
+      agentId: block.agentId,
+      data: {
+        blockId,
+        deletedBlock: {
+          title: block.title,
+          content: block.content,
+          blockIndex: block.blockIndex,
+          tokenCount: block.tokenCount,
+          documentId: block.documentId,
+        },
+      },
+    });
 
     await db("knowledgeBlock").delete().where({ id: blockId });
   } catch (error) {

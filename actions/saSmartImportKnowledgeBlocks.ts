@@ -6,6 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject, embedMany } from "ai";
 import { z } from "zod";
+import { addLog } from "@/lib/addLog";
 
 const blockSchema = z.object({
   blocks: z.array(
@@ -31,7 +32,7 @@ const saSmartImportKnowledgeBlocks = async ({
   documentId: string;
   text: string;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
   // Get the document and its associated agent's OpenAI API key and model
   const document = await db("knowledgeDocument")
@@ -156,6 +157,20 @@ ${text}`,
       error: "Failed to save knowledge blocks to database",
     };
   }
+
+  // Log Smart AI Import usage
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    event: "Smart AI Import",
+    description: `Smart AI Import created ${blocks.length} knowledge blocks`,
+    agentId: document.agentId,
+    data: {
+      documentId,
+      inputText: text,
+      blocksCreated: blocks.length,
+      generatedBlocks: blocks.map((b) => ({ title: b.title, content: b.content })),
+    },
+  });
 
   return {
     success: true,

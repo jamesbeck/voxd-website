@@ -78,7 +78,7 @@ export default async function Page({
           </Tabs>
         </>
       )}
-      {!user && <NewAdminUserForm />}
+      {!user && <NewAdminUserForm isSuperAdmin={token.superAdmin} />}
     </Container>
   );
 }

@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const AgentsTable = () => {
+const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [selectedWhatsAppUrl, setSelectedWhatsAppUrl] = useState("");
   const [selectedAgentName, setSelectedAgentName] = useState("");
@@ -53,16 +53,20 @@ const AgentsTable = () => {
   };
 
   const columns = [
-    {
-      label: "Name",
-      name: "name",
-      sort: true,
-      format: (row: any) => (
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/admin/agents/${row.id}`}>{row.name}</Link>
-        </Button>
-      ),
-    },
+    ...(isSuperAdmin
+      ? [
+          {
+            label: "Name",
+            name: "name",
+            sort: true,
+            format: (row: any) => (
+              <Button asChild size="sm" variant="outline">
+                <Link href={`/admin/agents/${row.id}`}>{row.name}</Link>
+              </Button>
+            ),
+          },
+        ]
+      : []),
     {
       label: "Nice Name",
       name: "niceName",

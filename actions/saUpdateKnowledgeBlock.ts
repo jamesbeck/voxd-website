@@ -6,6 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { embed } from "ai";
 import userCanViewAgent from "@/lib/userCanViewAgent";
+import { addLog } from "@/lib/addLog";
 
 const saUpdateKnowledgeBlock = async ({
   blockId,
@@ -16,7 +17,7 @@ const saUpdateKnowledgeBlock = async ({
   content: string;
   title?: string;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
   // Get the existing block with document and agent info
   const block = await db("knowledgeBlock")
@@ -93,6 +94,27 @@ const saUpdateKnowledgeBlock = async ({
       "tokenCount",
       "createdAt",
     ]);
+
+  // Log knowledge block update
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    event: "Knowledge Block Updated",
+    description: `Knowledge block "${title || 'Untitled'}" updated`,
+    agentId: block.agentId,
+    data: {
+      blockId,
+      before: {
+        title: block.title,
+        content: block.content,
+        tokenCount: block.tokenCount,
+      },
+      after: {
+        title,
+        content,
+        tokenCount,
+      },
+    },
+  });
 
   return {
     success: true,

@@ -4,6 +4,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
+import { addLog } from "@/lib/addLog";
 
 const saUpdateDocument = async ({
   documentId,
@@ -20,7 +21,7 @@ const saUpdateDocument = async ({
   sourceType?: string;
   enabled?: boolean;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
   if (!documentId) {
     return {
@@ -53,6 +54,31 @@ const saUpdateDocument = async ({
     sourceType,
     enabled,
     updatedAt: db.fn.now(),
+  });
+
+  // Log document update
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    event: "Document Updated",
+    description: `Knowledge document "${title || existingDocument.title}" updated`,
+    agentId: existingDocument.agentId,
+    data: {
+      documentId,
+      before: {
+        title: existingDocument.title,
+        description: existingDocument.description,
+        sourceUrl: existingDocument.sourceUrl,
+        sourceType: existingDocument.sourceType,
+        enabled: existingDocument.enabled,
+      },
+      after: {
+        title,
+        description,
+        sourceUrl,
+        sourceType,
+        enabled,
+      },
+    },
   });
 
   return { success: true };

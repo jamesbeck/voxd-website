@@ -24,17 +24,28 @@ import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 
-const formSchema = z.object({
-  name: z.string().nonempty("Name is required"),
-  //only accept number characters including any hidden or RTL characters
-  email: z.email("Invalid email address").nonempty("Email is required"),
-  partnerId: z.string().optional(),
-  organisationId: z.string().nonempty("Organisation is required"),
-});
+const getFormSchema = (isSuperAdmin: boolean) =>
+  z.object({
+    name: z.string().nonempty("Name is required"),
+    //only accept number characters including any hidden or RTL characters
+    email: z.email("Invalid email address").nonempty("Email is required"),
+    partnerId: z.string().optional(),
+    organisationId: isSuperAdmin
+      ? z.string().optional()
+      : z.string().nonempty("Organisation is required"),
+  });
 
-export default function NewAdminUserForm() {
+interface NewAdminUserFormProps {
+  isSuperAdmin: boolean;
+}
+
+export default function NewAdminUserForm({
+  isSuperAdmin,
+}: NewAdminUserFormProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const formSchema = getFormSchema(isSuperAdmin);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -168,10 +179,12 @@ export default function NewAdminUserForm() {
         <FormField
           control={form.control}
           name="organisationId"
-          rules={{ required: true }}
+          rules={{ required: !isSuperAdmin }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organisation</FormLabel>
+              <FormLabel>
+                Organisation{isSuperAdmin ? " (Optional)" : ""}
+              </FormLabel>
               <FormDescription>
                 Which organisation's agents do you want this user to have access
                 to?
