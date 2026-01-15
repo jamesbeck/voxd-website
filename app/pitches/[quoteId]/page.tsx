@@ -61,6 +61,25 @@ export async function generateMetadata({
   const title = `${pitch.title} | ${pitch.partner.name}`;
   const description = `AI Chatbot Concept for ${pitch.organisationName} - prepared by ${pitch.partner.name}`;
 
+  // Use organisation logo as OG image if available, otherwise use partner logo
+  const ogImage = pitch.organisationLogoFileExtension
+    ? `https://s3.${
+        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
+      }.wasabisys.com/${
+        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
+      }/organisationLogos/${pitch.organisationId}.${
+        pitch.organisationLogoFileExtension
+      }`
+    : pitch.partner.domain
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}`
+    : null;
+
+  // Get current host from request headers
+  const headersList = await headers();
+  const host = headersList.get("host") || "voxd.io";
+  const protocol = host.includes("localhost") ? "http" : "https";
+  const pageUrl = `${protocol}://${host}/pitches/${quoteId}`;
+
   return {
     title,
     description,
@@ -68,11 +87,26 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
+      url: pageUrl,
+      siteName: pitch.partner.name,
+      ...(ogImage && {
+        images: [
+          {
+            url: ogImage,
+            width: 1200,
+            height: 630,
+            alt: `${pitch.organisationName} Logo`,
+          },
+        ],
+      }),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      ...(ogImage && {
+        images: [ogImage],
+      }),
     },
     robots: {
       index: false,

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { FileText, MessageSquare } from "lucide-react";
@@ -23,7 +24,22 @@ export async function generateMetadata({
   }
 
   const title = `${example.title} | ${example.partner.name}`;
-  const description = example.short;
+  const description =
+    example.short ||
+    `See how ${example.businessName} uses AI chatbots on WhatsApp`;
+
+  // Use example logo as OG image if available, otherwise use partner logo
+  const ogImage = example.logoFileExtension
+    ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`
+    : example.partner.domain
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}`
+    : null;
+
+  // Get current host from request headers
+  const headersList = await headers();
+  const host = headersList.get("host") || "voxd.io";
+  const protocol = host.includes("localhost") ? "http" : "https";
+  const pageUrl = `${protocol}://${host}/examples/${slug}`;
 
   return {
     title,
@@ -32,11 +48,26 @@ export async function generateMetadata({
       title,
       description,
       type: "website",
+      url: pageUrl,
+      siteName: example.partner.name,
+      ...(ogImage && {
+        images: [
+          {
+            url: ogImage,
+            width: 1200,
+            height: 630,
+            alt: `${example.businessName} Logo`,
+          },
+        ],
+      }),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      ...(ogImage && {
+        images: [ogImage],
+      }),
     },
     robots: {
       index: false,
