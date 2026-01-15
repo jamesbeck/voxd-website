@@ -108,7 +108,12 @@ export default async function Page({
               </TabsList>
 
               {!!token.superAdmin && (
-                <AgentActions agentId={agentId} name={agent?.name || ""} />
+                <AgentActions
+                  agentId={agentId}
+                  name={agent?.name || ""}
+                  niceName={agent?.niceName || ""}
+                  phoneNumber={agent?.phoneNumber || ""}
+                />
               )}
             </div>
 

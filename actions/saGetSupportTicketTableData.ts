@@ -7,13 +7,18 @@ import {
   ServerActionReadParams,
 } from "@/types/types";
 
+type SupportTicketParams = {
+  statusFilter?: "open" | "closed";
+};
+
 const saGetSupportTicketTableData = async ({
   search,
   page = 1,
   pageSize = 100,
   sortField = "createdAt",
   sortDirection = "desc",
-}: ServerActionReadParams): Promise<ServerActionReadResponse> => {
+  statusFilter = "open",
+}: ServerActionReadParams<SupportTicketParams>): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
   const base = db("supportTicket")
@@ -34,6 +39,13 @@ const saGetSupportTicketTableData = async ({
         );
       }
     });
+
+  // Filter by status
+  if (statusFilter === "open") {
+    base.whereNot("supportTicket.status", "Closed");
+  } else if (statusFilter === "closed") {
+    base.where("supportTicket.status", "Closed");
+  }
 
   // Regular organisation users can only see tickets for agents their organisation owns
   if (!accessToken.partner && !accessToken.superAdmin) {

@@ -3,8 +3,16 @@ import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import SupportTicketsTable from "./supportTicketsTable";
 import { Flag, Info } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
+  const activeTab = (await searchParams).tab || "open";
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -27,7 +35,24 @@ export default async function Page() {
         </div>
       </div>
 
-      <SupportTicketsTable />
+      <Tabs value={activeTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="open" asChild>
+            <Link href="/admin/support-tickets?tab=open">Open Tickets</Link>
+          </TabsTrigger>
+          <TabsTrigger value="closed" asChild>
+            <Link href="/admin/support-tickets?tab=closed">Closed Tickets</Link>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="open">
+          <SupportTicketsTable statusFilter="open" />
+        </TabsContent>
+
+        <TabsContent value="closed">
+          <SupportTicketsTable statusFilter="closed" />
+        </TabsContent>
+      </Tabs>
     </Container>
   );
 }

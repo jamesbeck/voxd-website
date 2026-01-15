@@ -8,7 +8,13 @@ import saGetSupportTicketTableData from "@/actions/saGetSupportTicketTableData";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const SupportTicketsTable = () => {
+interface SupportTicketsTableProps {
+  statusFilter?: "open" | "closed";
+}
+
+const SupportTicketsTable = ({
+  statusFilter = "open",
+}: SupportTicketsTableProps) => {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case "open":
@@ -80,7 +86,7 @@ const SupportTicketsTable = () => {
         direction: "desc",
       }}
       getData={saGetSupportTicketTableData}
-      getDataParams={{}}
+      getDataParams={{ statusFilter }}
       columns={columns}
       actions={(row: any) => {
         return (

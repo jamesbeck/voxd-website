@@ -11,6 +11,7 @@ const getAgentById = async ({ agentId }: { agentId: string }) => {
       "model.model",
       "model.provider",
       "phoneNumber.displayPhoneNumber",
+      "phoneNumber.displayPhoneNumber as phoneNumber",
       "organisation.name as organisationName"
     )
     .first();
