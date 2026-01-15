@@ -20,12 +20,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  FlagIcon,
   MoreHorizontalIcon,
   PauseIcon,
   PlayIcon,
   Trash2Icon,
   XCircleIcon,
 } from "lucide-react";
+import ReportSessionDialog from "./ReportSessionDialog";
+import SessionTicketBadge from "./SessionTicketBadge";
+
+type Ticket = {
+  id: string;
+  ticketNumber: number;
+  title: string;
+  status: string;
+  createdByName: string | null;
+  createdAt: Date;
+};
 
 export default function SessionActions({
   sessionId,
@@ -33,17 +51,20 @@ export default function SessionActions({
   name,
   paused,
   closed,
+  tickets = [],
 }: {
   sessionId: string;
   agentId: string;
   name: string;
   paused: boolean;
   closed: boolean;
+  tickets?: Ticket[];
 }) {
   const [isDeletingSession, setIsDeleteingSession] = useState(false);
   const [isPausingSession, setIsPausingSession] = useState(false);
   const [isResumingSession, setIsResumingSession] = useState(false);
   const [isEndingSession, setIsEndingSession] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const router = useRouter();
 
   const deleteSession = async () => {
@@ -123,93 +144,132 @@ export default function SessionActions({
   };
 
   return (
-    <ButtonGroup>
-      {!paused && !closed && (
-        <Alert
-          destructive
-          title={`Pause ${name}`}
-          description="Are you sure you want to pause this chat session? Whilst paused the AI agent will not reply to the user."
-          actionText="Pause"
-          onAction={pauseSession}
-        >
-          <Button className="cursor-pointer" variant="outline" size="sm">
-            {isPausingSession ? <Spinner /> : <PauseIcon className="h-4 w-4" />}
-            Pause
-          </Button>
-        </Alert>
-      )}
+    <>
+      <ReportSessionDialog
+        open={reportDialogOpen}
+        onOpenChange={setReportDialogOpen}
+        agentId={agentId}
+        sessionId={sessionId}
+      />
 
-      {paused && !closed && (
-        <Alert
-          destructive
-          title={`Resume ${name}`}
-          description="Are you sure you want to resume this chat session? The AI agent will start replying to the user again."
-          actionText="Resume"
-          onAction={resumeSession}
-        >
-          <Button className="cursor-pointer" variant="outline" size="sm">
-            {isResumingSession ? <Spinner /> : <PlayIcon className="h-4 w-4" />}
-            Resume
-          </Button>
-        </Alert>
-      )}
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="More Options"
-            className="h-8 w-8"
+      <ButtonGroup>
+        {!paused && !closed && (
+          <Alert
+            destructive
+            title={`Pause ${name}`}
+            description="Are you sure you want to pause this chat session? Whilst paused the AI agent will not reply to the user."
+            actionText="Pause"
+            onAction={pauseSession}
           >
-            <MoreHorizontalIcon className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuGroup>
-            {!closed && (
+            <Button className="cursor-pointer" variant="outline" size="sm">
+              {isPausingSession ? (
+                <Spinner />
+              ) : (
+                <PauseIcon className="h-4 w-4" />
+              )}
+              Pause
+            </Button>
+          </Alert>
+        )}
+
+        {paused && !closed && (
+          <Alert
+            destructive
+            title={`Resume ${name}`}
+            description="Are you sure you want to resume this chat session? The AI agent will start replying to the user again."
+            actionText="Resume"
+            onAction={resumeSession}
+          >
+            <Button className="cursor-pointer" variant="outline" size="sm">
+              {isResumingSession ? (
+                <Spinner />
+              ) : (
+                <PlayIcon className="h-4 w-4" />
+              )}
+              Resume
+            </Button>
+          </Alert>
+        )}
+
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={() => setReportDialogOpen(true)}
+              >
+                <FlagIcon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Report issue for this session</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {tickets.length > 0 && (
+          <SessionTicketBadge tickets={tickets} variant="button" />
+        )}
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label="More Options"
+              className="h-8 w-8"
+            >
+              <MoreHorizontalIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuGroup>
+              {!closed && (
+                <Alert
+                  destructive
+                  title={`End ${name}`}
+                  description="Are you sure you want to end this session? The session will be marked as closed and any further messages from the user will start a brand new session."
+                  actionText="End Session"
+                  onAction={endSession}
+                >
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    {isEndingSession ? (
+                      <Spinner />
+                    ) : (
+                      <XCircleIcon className="h-4 w-4" />
+                    )}
+                    End Session
+                  </DropdownMenuItem>
+                </Alert>
+              )}
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
               <Alert
                 destructive
-                title={`End ${name}`}
-                description="Are you sure you want to end this session? The session will be marked as closed and any further messages from the user will start a brand new session."
-                actionText="End Session"
-                onAction={endSession}
+                title={`Delete ${name}`}
+                description="This action cannot be undone. All messages and data associated with this session will be permanently deleted."
+                actionText="Delete"
+                onAction={deleteSession}
               >
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  {isEndingSession ? (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {isDeletingSession ? (
                     <Spinner />
                   ) : (
-                    <XCircleIcon className="h-4 w-4" />
+                    <Trash2Icon className="h-4 w-4" />
                   )}
-                  End Session
+                  Delete Session
                 </DropdownMenuItem>
               </Alert>
-            )}
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <Alert
-              destructive
-              title={`Delete ${name}`}
-              description="This action cannot be undone. All messages and data associated with this session will be permanently deleted."
-              actionText="Delete"
-              onAction={deleteSession}
-            >
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={(e) => e.preventDefault()}
-              >
-                {isDeletingSession ? (
-                  <Spinner />
-                ) : (
-                  <Trash2Icon className="h-4 w-4" />
-                )}
-                Delete Session
-              </DropdownMenuItem>
-            </Alert>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </ButtonGroup>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </ButtonGroup>
+    </>
   );
 }

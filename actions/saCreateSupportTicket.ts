@@ -11,6 +11,7 @@ type CreateSupportTicketInput = {
   description: string;
   messageId?: string;
   messageType?: "user" | "assistant";
+  sessionId?: string;
 };
 
 const saCreateSupportTicket = async (
@@ -18,7 +19,8 @@ const saCreateSupportTicket = async (
 ): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  const { agentId, title, description, messageId, messageType } = input;
+  const { agentId, title, description, messageId, messageType, sessionId } =
+    input;
 
   if (!agentId || !title?.trim() || !description?.trim()) {
     return {
@@ -70,12 +72,37 @@ const saCreateSupportTicket = async (
       status: "Open",
     };
 
-    // Add message reference if provided
+    // Add sessionId if provided directly
+    if (sessionId) {
+      insertData.sessionId = sessionId;
+    }
+
+    // Add message reference and sessionId if provided
     if (messageId && messageType) {
       if (messageType === "user") {
         insertData.userMessageId = messageId;
+        // Get sessionId from userMessage if not already set
+        if (!sessionId) {
+          const message = await db("userMessage")
+            .where("id", messageId)
+            .select("sessionId")
+            .first();
+          if (message?.sessionId) {
+            insertData.sessionId = message.sessionId;
+          }
+        }
       } else if (messageType === "assistant") {
         insertData.assistantMessageId = messageId;
+        // Get sessionId from assistantMessage if not already set
+        if (!sessionId) {
+          const message = await db("assistantMessage")
+            .where("id", messageId)
+            .select("sessionId")
+            .first();
+          if (message?.sessionId) {
+            insertData.sessionId = message.sessionId;
+          }
+        }
       }
     }
 

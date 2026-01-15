@@ -36,14 +36,6 @@ const formSchema = z.object({
     .min(10, "Please provide a description (at least 10 characters)"),
 });
 
-type ReportMessageDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  agentId: string;
-  messageId: string;
-  messageType: "user" | "assistant";
-};
-
 type CreatedTicket = {
   id: string;
   ticketNumber: number;
@@ -52,13 +44,19 @@ type CreatedTicket = {
   createdAt: string;
 };
 
-export default function ReportMessageDialog({
+type ReportSessionDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  agentId: string;
+  sessionId: string;
+};
+
+export default function ReportSessionDialog({
   open,
   onOpenChange,
   agentId,
-  messageId,
-  messageType,
-}: ReportMessageDialogProps) {
+  sessionId,
+}: ReportSessionDialogProps) {
   const [loading, setLoading] = useState(false);
   const [createdTicket, setCreatedTicket] = useState<CreatedTicket | null>(
     null
@@ -77,11 +75,8 @@ export default function ReportMessageDialog({
     if (!isOpen) {
       // If we're closing after creating a ticket, refresh the page
       const hadTicket = !!createdTicket;
-      // Reset state when closing
-      setTimeout(() => {
-        form.reset();
-        setCreatedTicket(null);
-      }, 200);
+      form.reset();
+      setCreatedTicket(null);
       if (hadTicket) {
         router.refresh();
       }
@@ -96,8 +91,7 @@ export default function ReportMessageDialog({
       agentId,
       title: values.title,
       description: values.description,
-      messageId,
-      messageType,
+      sessionId,
     });
 
     setLoading(false);
@@ -125,9 +119,9 @@ export default function ReportMessageDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
-              <div className="flex justify-between items-start">
+          <div className="space-y-4">
+            <div className="bg-muted rounded-lg p-4 space-y-2">
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">
                   Ticket Number
                 </span>
@@ -135,20 +129,32 @@ export default function ReportMessageDialog({
                   #{createdTicket.ticketNumber}
                 </span>
               </div>
-              <div className="space-y-1">
+              <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Title</span>
-                <p className="text-sm font-medium">{createdTicket.title}</p>
+                <span className="text-sm font-medium">
+                  {createdTicket.title}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <span className="text-sm bg-red-500 text-white px-2 py-0.5 rounded">
+                  {createdTicket.status}
+                </span>
               </div>
             </div>
 
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => handleClose(false)}>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => handleClose(false)}
+                variant="outline"
+                className="flex-1"
+              >
                 Close
               </Button>
-              <Button asChild>
+              <Button asChild className="flex-1">
                 <Link href={`/admin/support-tickets/${createdTicket.id}`}>
-                  <ExternalLink className="h-4 w-4 mr-2" />
                   View Ticket
+                  <ExternalLink className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -158,15 +164,15 @@ export default function ReportMessageDialog({
     );
   }
 
-  // Show form state
+  // Show form
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Report an Issue</DialogTitle>
+          <DialogTitle>Report Session</DialogTitle>
           <DialogDescription>
-            Create a support ticket for this message. Describe the issue
-            you&apos;ve encountered.
+            Create a support ticket for this entire session. Provide a title and
+            description of the issue.
           </DialogDescription>
         </DialogHeader>
 
@@ -180,7 +186,7 @@ export default function ReportMessageDialog({
                   <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Brief summary of the issue..."
+                      placeholder="Brief description of the issue..."
                       {...field}
                     />
                   </FormControl>
@@ -197,8 +203,8 @@ export default function ReportMessageDialog({
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe the issue in more detail..."
-                      className="min-h-[100px] resize-none"
+                      placeholder="Provide more details about the issue with this session..."
+                      className="min-h-[120px]"
                       {...field}
                     />
                   </FormControl>
@@ -217,14 +223,8 @@ export default function ReportMessageDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Spinner className="h-4 w-4 mr-2" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create Ticket"
-                )}
+                {loading && <Spinner className="mr-2" />}
+                Create Ticket
               </Button>
             </div>
           </form>

@@ -58,6 +58,7 @@ const saGetSupportTicketById = async ({
       "supportTicket.description",
       "supportTicket.status",
       "supportTicket.createdAt",
+      "supportTicket.sessionId",
       "supportTicket.userMessageId",
       "supportTicket.assistantMessageId",
       "agent.id as agentId",
@@ -70,10 +71,7 @@ const saGetSupportTicketById = async ({
       "createdBy.name as createdByName",
       "createdBy.email as createdByEmail",
       "userMessage.text as userMessageText",
-      "assistantMessage.text as assistantMessageText",
-      db.raw(
-        'COALESCE("userMessage"."sessionId", "assistantMessage"."sessionId") as "sessionId"'
-      )
+      "assistantMessage.text as assistantMessageText"
     )
     .first();
 

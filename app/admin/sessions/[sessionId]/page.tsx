@@ -2,6 +2,7 @@ import getMessages from "@/lib/getMessagesBySession";
 import getAgentById from "@/lib/getAgentById";
 import getUserById from "@/lib/getChatUserById";
 import saGetTicketsByMessageIds from "@/actions/saGetTicketsByMessageIds";
+import saGetTicketsBySessionId from "@/actions/saGetTicketsBySessionId";
 import {
   differenceInMilliseconds,
   differenceInSeconds,
@@ -84,6 +85,12 @@ export default async function Page({
   });
   const ticketsByMessage = ticketsResult.success ? ticketsResult.data : {};
 
+  // Fetch tickets for this session
+  const sessionTicketsResult = await saGetTicketsBySessionId({ sessionId });
+  const sessionTickets = sessionTicketsResult.success
+    ? sessionTicketsResult.data
+    : [];
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -132,6 +139,7 @@ export default async function Page({
               agentId={agent.id}
               paused={session.paused}
               closed={!!session.closedAt}
+              tickets={sessionTickets}
             />
           </div>
         </div>

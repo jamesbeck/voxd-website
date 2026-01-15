@@ -196,27 +196,35 @@ export default async function Page({
               </div>
             )}
 
-            {(ticket.userMessageText || ticket.assistantMessageText) && (
+            {ticket.sessionId && (
               <div className="mt-6">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
-                    Reported Message
+                    {ticket.userMessageText || ticket.assistantMessageText
+                      ? "Reported Message"
+                      : "Related Session"}
                   </h3>
-                  {ticket.sessionId && (
-                    <Link
-                      href={`/admin/sessions/${ticket.sessionId}`}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      View Session →
-                    </Link>
-                  )}
+                  <Link
+                    href={`/admin/sessions/${ticket.sessionId}`}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    View Session →
+                  </Link>
                 </div>
-                <div className="rounded-lg border bg-muted/30 p-4">
-                  <p className="text-sm whitespace-pre-wrap">
-                    {ticket.userMessageText || ticket.assistantMessageText}
-                  </p>
-                </div>
+                {ticket.userMessageText || ticket.assistantMessageText ? (
+                  <div className="rounded-lg border bg-muted/30 p-4">
+                    <p className="text-sm whitespace-pre-wrap">
+                      {ticket.userMessageText || ticket.assistantMessageText}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border bg-muted/30 p-4">
+                    <p className="text-sm text-muted-foreground">
+                      This ticket was created for the entire session.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </Container>

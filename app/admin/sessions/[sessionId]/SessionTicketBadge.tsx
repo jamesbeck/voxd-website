@@ -29,15 +29,15 @@ type Ticket = {
   createdAt: Date;
 };
 
-type MessageTicketBadgeProps = {
+type SessionTicketBadgeProps = {
   tickets: Ticket[];
   variant?: "button" | "badge";
 };
 
-export default function MessageTicketBadge({
+export default function SessionTicketBadge({
   tickets,
   variant = "badge",
-}: MessageTicketBadgeProps) {
+}: SessionTicketBadgeProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   if (tickets.length === 0) {
@@ -68,7 +68,7 @@ export default function MessageTicketBadge({
               <Button
                 size="sm"
                 variant="destructive"
-                className="h-6 w-6 p-0 cursor-pointer text-[11px]"
+                className="h-8 w-8 p-0 cursor-pointer"
                 onClick={() => setDialogOpen(true)}
               >
                 {tickets.length}
@@ -97,7 +97,7 @@ export default function MessageTicketBadge({
             <DialogTitle>Open Tickets</DialogTitle>
             <DialogDescription>
               {tickets.length} open or in-progress ticket
-              {tickets.length !== 1 ? "s" : ""} for this message
+              {tickets.length !== 1 ? "s" : ""} for this session
             </DialogDescription>
           </DialogHeader>
 
@@ -116,18 +116,21 @@ export default function MessageTicketBadge({
                       {ticket.status}
                     </Badge>
                   </div>
-                  <p className="text-sm truncate">{ticket.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {ticket.createdByName
-                      ? `Reported by ${ticket.createdByName} • `
-                      : ""}
-                    {format(new Date(ticket.createdAt), "dd/MM/yyyy HH:mm")}
-                  </p>
+                  <p className="text-sm font-medium mb-1">{ticket.title}</p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>{format(ticket.createdAt, "dd/MM/yyyy HH:mm")}</span>
+                    {ticket.createdByName && (
+                      <>
+                        <span>•</span>
+                        <span>{ticket.createdByName}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <Button asChild size="sm" variant="outline">
+                <Button size="sm" variant="outline" asChild>
                   <Link href={`/admin/support-tickets/${ticket.id}`}>
-                    <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
                     View
+                    <ExternalLink className="ml-2 h-3 w-3" />
                   </Link>
                 </Button>
               </div>

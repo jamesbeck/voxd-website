@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/tooltip";
 import { Bot, Clock, Cog, Coins, Type, Wrench } from "lucide-react";
 import MessageActions from "./MessageActions";
-import MessageTicketBadge from "./MessageTicketBadge";
 
 type Ticket = {
   id: string;
@@ -205,8 +204,6 @@ export default function Conversation({
                         messageType={message.role}
                         agentId={agentId}
                         variant="outline"
-                      />
-                      <MessageTicketBadge
                         tickets={ticketsByMessage[message.id] || []}
                       />
                     </div>
@@ -317,8 +314,6 @@ export default function Conversation({
                         messageType={message.role}
                         agentId={agentId}
                         variant="secondary"
-                      />
-                      <MessageTicketBadge
                         tickets={ticketsByMessage[message.id] || []}
                       />
                     </div>
