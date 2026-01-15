@@ -1,0 +1,196 @@
+"use server";
+
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateText } from "ai";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import db from "../database/db";
+import { ServerActionResponse } from "@/types/types";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { addLog } from "@/lib/addLog";
+
+const saGenerateExampleLogo = async ({
+  exampleId,
+  userPrompt,
+}: {
+  exampleId: string;
+  userPrompt?: string;
+}): Promise<ServerActionResponse> => {
+  if (!exampleId) {
+    return {
+      success: false,
+      error: "Example ID is required",
+    };
+  }
+
+  const accessToken = await verifyAccessToken();
+
+  // Only partners and super admins can generate logos
+  if (!accessToken.superAdmin && !accessToken.partner) {
+    return {
+      success: false,
+      error: "Only partners and super admins can generate logos",
+    };
+  }
+
+  // Get the example
+  const example = await db("example").where("id", exampleId).first();
+
+  if (!example) {
+    return {
+      success: false,
+      error: "Example not found",
+    };
+  }
+
+  // Partners can only generate logos for their own examples
+  if (accessToken.partner && !accessToken.superAdmin) {
+    if (example.partnerId !== accessToken.partnerId) {
+      return {
+        success: false,
+        error: "You can only generate logos for your own examples",
+      };
+    }
+  }
+
+  // Get the partner's OpenAI API key
+  let openAiApiKey: string | null = null;
+
+  if (accessToken.partnerId) {
+    const partner = await db("partner")
+      .where("id", accessToken.partnerId)
+      .select("openAiApiKey")
+      .first();
+    openAiApiKey = partner?.openAiApiKey || null;
+  }
+
+  if (!openAiApiKey) {
+    return {
+      success: false,
+      error:
+        "Your partner account does not have an OpenAI API key configured. Please contact an administrator.",
+    };
+  }
+
+  try {
+    // Create OpenAI client with partner's API key
+    const openai = createOpenAI({
+      apiKey: openAiApiKey,
+    });
+
+    // Step 1: Generate logo prompt using gpt-5-nano
+    const promptGenerationResult = await generateText({
+      model: openai("gpt-5-nano"),
+      prompt: `Create a short prompt for a logo generator.
+
+Company: ${example.businessName || "the business"}
+About: ${example.body?.substring(0, 200) || "No description"}
+${userPrompt ? `Style: ${userPrompt}` : ""}
+
+Write a brief logo prompt (max 2 sentences). Include company name and key visual elements only.`,
+    });
+
+    const logoPrompt = promptGenerationResult.text.trim();
+
+    // Add white background requirement
+    const finalPrompt = `Simple professional logo for ${example.businessName || "the business"}. ${logoPrompt}. Plain white background, minimal padding, centered.`;
+
+    console.log("Generated logo prompt:", finalPrompt);
+
+    // Step 2: Generate the logo image using image generation tool
+    const result = await generateText({
+      model: openai("gpt-5.2"),
+      prompt: finalPrompt,
+      tools: {
+        image_generation: openai.tools.imageGeneration({
+          outputFormat: "webp",
+        }),
+      },
+    });
+
+    // Extract the base64 image from tool results
+    let imageBase64: string | null = null;
+    for (const toolResult of result.staticToolResults) {
+      if (toolResult.toolName === "image_generation") {
+        imageBase64 = toolResult.output.result;
+        break;
+      }
+    }
+
+    if (!imageBase64) {
+      return {
+        success: false,
+        error: "No image data received from image generation tool",
+      };
+    }
+
+    // Step 3: Upload to Wasabi
+    const buffer = Buffer.from(imageBase64, "base64");
+    const bucketName = process.env.WASABI_BUCKET_NAME || "voxd";
+    const fileExtension = "webp";
+
+    // Initialize S3 client for Wasabi
+    const s3Client = new S3Client({
+      region: process.env.WASABI_REGION || "eu-west-1",
+      endpoint: `https://s3.${
+        process.env.WASABI_REGION || "eu-west-1"
+      }.wasabisys.com`,
+      credentials: {
+        accessKeyId: process.env.WASABI_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY!,
+      },
+      forcePathStyle: true,
+    });
+
+    // Upload to Wasabi
+    const key = `exampleLogos/${exampleId}.${fileExtension}`;
+
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: buffer,
+      ContentType: "image/webp",
+      ACL: "public-read",
+    });
+
+    await s3Client.send(command);
+
+    // Step 4: Update database
+    await db("example").where("id", exampleId).update({
+      logoFileExtension: fileExtension,
+    });
+
+    // Step 5: Log the action
+    await addLog({
+      adminUserId: accessToken.adminUserId,
+      partnerId: example.partnerId,
+      event: "Logo Generated",
+      description: `Generated logo for example "${example.title}"`,
+      data: {
+        exampleId,
+        businessName: example.businessName,
+        generatedPrompt: finalPrompt,
+        userPrompt: userPrompt || null,
+        model: "gpt-5-image-generation",
+      },
+    });
+
+    return {
+      success: true,
+      data: {
+        url: `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/${bucketName}/${key}`,
+        prompt: finalPrompt,
+      },
+    };
+  } catch (error) {
+    console.error("Error generating logo:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred while generating the logo",
+    };
+  }
+};
+
+export default saGenerateExampleLogo;

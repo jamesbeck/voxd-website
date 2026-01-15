@@ -135,6 +135,8 @@ export default async function ExamplesPage({
           <ExampleLogoTab
             exampleId={example.id}
             logoFileExtension={example.logoFileExtension}
+            businessName={example.businessName}
+            body={example.body}
           />
         </TabsContent>
         <TabsContent value="exampleConversations">

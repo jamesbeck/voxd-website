@@ -30,12 +30,26 @@ export type PublicExample = {
 
 export const getExampleForPublic = async ({
   exampleId,
+  slug,
 }: {
-  exampleId: string;
+  exampleId?: string;
+  slug?: string;
 }): Promise<PublicExample | null> => {
-  const example = await db("example")
-    .leftJoin("partner", "example.partnerId", "partner.id")
-    .where("example.id", exampleId)
+  let query = db("example").leftJoin(
+    "partner",
+    "example.partnerId",
+    "partner.id"
+  );
+
+  if (exampleId) {
+    query = query.where("example.id", exampleId);
+  } else if (slug) {
+    query = query.where("example.slug", slug);
+  } else {
+    return null;
+  }
+
+  const example = await query
     .select(
       "example.id",
       "example.title",
@@ -56,7 +70,7 @@ export const getExampleForPublic = async ({
 
   // Get example conversations for this example
   const conversations = await db("exampleConversation")
-    .where("exampleId", exampleId)
+    .where("exampleId", example.id)
     .select("id", "description", "startTime", "messages")
     .orderBy("id", "asc");
 

@@ -113,6 +113,8 @@ export default async function Page({
               <TicketActions
                 ticketId={ticketId}
                 ticketNumber={ticket.ticketNumber}
+                title={ticket.title}
+                description={ticket.description || undefined}
               />
             )}
           </div>

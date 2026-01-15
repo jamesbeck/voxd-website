@@ -20,7 +20,7 @@ export default function ExampleInfoTab({
   industries,
   functions,
 }: ExampleInfoTabProps) {
-  const previewUrl = `/previews/${id}`;
+  const previewUrl = `/examples/${slug}`;
 
   return (
     <DataCard

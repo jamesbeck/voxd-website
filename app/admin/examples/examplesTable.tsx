@@ -44,7 +44,6 @@ import {
 const VOXD_PARTNER_ID = "019a6ec7-43b1-7da4-a2d8-8c84acb387b4";
 
 const formSchema = z.object({
-  generationType: z.enum(["case-study", "concept-pitch"]),
   prompt: z.string().min(1, "Prompt is required"),
   partnerId: z.string().optional(),
 });
@@ -57,7 +56,6 @@ const ExamplesTable = ({ superAdmin }: { superAdmin: boolean }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      generationType: "case-study",
       prompt: "",
       partnerId: superAdmin ? VOXD_PARTNER_ID : "",
     },
@@ -69,7 +67,6 @@ const ExamplesTable = ({ superAdmin }: { superAdmin: boolean }) => {
       const result = await generateExample({
         prompt: values.prompt,
         partnerId: values.partnerId,
-        generationType: values.generationType,
       });
       if (result.success && result.data?.id) {
         toast.success("Example generated successfully");
@@ -136,37 +133,6 @@ const ExamplesTable = ({ superAdmin }: { superAdmin: boolean }) => {
                     )}
                   />
                 )}
-
-                <FormField
-                  control={form.control}
-                  name="generationType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Generation Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a generation type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="case-study">Case Study</SelectItem>
-                          <SelectItem value="concept-pitch">
-                            Concept Pitch / Proposal
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Choose whether to generate a case study or a concept
-                        pitch.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
@@ -246,7 +212,7 @@ const ExamplesTable = ({ superAdmin }: { superAdmin: boolean }) => {
                 </Link>
               </Button>
               <Button className="cursor-pointer" variant="outline" asChild>
-                <Link href={`/previews/${row.id}`} target="_blank">
+                <Link href={`/examples/${row.slug}`} target="_blank">
                   Preview on website
                 </Link>
               </Button>

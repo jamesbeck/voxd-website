@@ -12,11 +12,9 @@ import { addLog } from "@/lib/addLog";
 const generateExample = async ({
   prompt,
   partnerId,
-  generationType = "case-study",
 }: {
   prompt: string;
   partnerId?: string;
-  generationType?: "case-study" | "concept-pitch";
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -77,8 +75,6 @@ const generateExample = async ({
     (func: { name: string }) => func.name
   );
 
-  const isCaseStudy = generationType === "case-study";
-
   const { object } = await generateObject({
     model: openai("gpt-5.2"),
     schema: z.object({
@@ -86,20 +82,14 @@ const generateExample = async ({
         title: z
           .string()
           .describe(
-            isCaseStudy
-              ? "The title should be a short, concise, SEO friendly description of the case study."
-              : "The title should be a short, concise, SEO friendly description of the concept pitch or proposal."
+            "The title should be a short, concise, SEO friendly description of the case study."
           ),
         short: z
           .string()
           .describe(
-            isCaseStudy
-              ? "A short description should be a concise description of the case study, around 20 words."
-              : "A short description should be a concise summary of the proposed solution, around 20 words."
+            "A short description should be a concise description of the case study, around 20 words."
           ),
-        body: z.string().describe(
-          isCaseStudy
-            ? `
+        body: z.string().describe(`
           The main body of the case study. It should be written for a non technical audience. It should focus on the benefits of the chatbot to the business but not the technical details of how it works or was technically deployed. Do not include the title in the body. It should be written in Markdown format using:
             ## - Heading 2
             ### - Heading 3
@@ -107,17 +97,7 @@ const generateExample = async ({
             *text* - Italic
             - item - Bulleted list
             1. item - Numbered list
-        `
-            : `
-          The main body of the concept pitch/proposal. It should be written for a non technical audience, aimed at a potential client. It should focus on the potential benefits and value proposition of implementing an AI WhatsApp chatbot for their business. It should be persuasive and highlight the opportunities and ROI. Do not include the title in the body. It should be written in Markdown format using:
-            ## - Heading 2
-            ### - Heading 3
-            **text** - Bold
-            *text* - Italic
-            - item - Bulleted list
-            1. item - Numbered list
-        `
-        ),
+        `),
         companyName: z
           .string()
           .describe(
@@ -133,8 +113,7 @@ const generateExample = async ({
           .describe(`Select functions from this list: ${functions.join(", ")}`),
       }),
     }),
-    prompt: isCaseStudy
-      ? `
+    prompt: `
         You are an expert in writing comprehensive case studies for AI powered WhatsApp Chatbots.
 
         The benefits of WhatsApp include:
@@ -149,25 +128,6 @@ const generateExample = async ({
         * Specific examples of how the chatbot improved customer engagement and operations
 
         Write a case study for:
-
-        ${prompt}
-
-    `
-      : `
-        You are an expert in writing compelling concept pitches and proposals for AI powered WhatsApp Chatbots.
-
-        The benefits of WhatsApp include:
-        * No apps to download
-        * No new logins or passwords
-        * Personal familiar experience
-
-        Write a persuasive concept pitch/proposal that could be presented to a potential client. Focus on:
-        * The business opportunity and problem being solved
-        * The potential benefits and ROI
-        * How the WhatsApp chatbot would work from the user's perspective
-        * Why this solution is better than alternatives
-        
-        At the end, include a call to action, saying if they're interested we can put together a specification along with some pricing and timings.
 
         ${prompt}
 
@@ -221,14 +181,13 @@ const generateExample = async ({
     adminUserId: accessToken.adminUserId,
     partnerId: effectivePartnerId,
     event: "Example Created",
-    description: `Generated ${isCaseStudy ? "case study" : "concept pitch"} "${
-      object.example.title
-    }" for ${partner.name || "partner"}`,
+    description: `Generated case study "${object.example.title}" for ${
+      partner.name || "partner"
+    }`,
     data: {
       exampleId: newExample[0].id,
       title: object.example.title,
       businessName: object.example.companyName,
-      generationType: generationType,
       prompt: prompt,
       generatedOutput: {
         title: object.example.title,
