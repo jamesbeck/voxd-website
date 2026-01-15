@@ -28,8 +28,10 @@ export async function generateMetadata({
     example.short ||
     `See how ${example.businessName} uses AI chatbots on WhatsApp`;
 
-  // Use example logo as OG image if available, otherwise use partner logo
-  const ogImage = example.logoFileExtension
+  // Use hero image as OG image (best for social sharing), fall back to logo, then partner logo
+  const ogImage = example.heroImageFileExtension
+    ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}.${example.heroImageFileExtension}`
+    : example.logoFileExtension
     ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`
     : example.partner.domain
     ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}`
