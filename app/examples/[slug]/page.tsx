@@ -28,9 +28,9 @@ export async function generateMetadata({
     example.short ||
     `See how ${example.businessName} uses AI chatbots on WhatsApp`;
 
-  // Use hero image as OG image (best for social sharing), fall back to logo, then partner logo
+  // Use optimized OG version of hero image (1200x630, <600KB for WhatsApp compatibility)
   const ogImage = example.heroImageFileExtension
-    ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}.${example.heroImageFileExtension}`
+    ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}_og.${example.heroImageFileExtension}`
     : example.logoFileExtension
     ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`
     : example.partner.domain

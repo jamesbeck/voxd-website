@@ -1,6 +1,7 @@
 "use server";
 
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import sharp from "sharp";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
@@ -118,6 +119,27 @@ const saUploadExampleHeroImage = async ({
     });
 
     await s3Client.send(command);
+
+    // Create optimized OG version (1200x630, <600KB for WhatsApp)
+    const ogBuffer = await sharp(buffer)
+      .resize(1200, 630, {
+        fit: "cover",
+        position: "center",
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const ogKey = `exampleImages/${exampleId}_og.${ext}`;
+
+    const ogCommand = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: ogKey,
+      Body: ogBuffer,
+      ContentType: "image/webp",
+      ACL: "public-read",
+    });
+
+    await s3Client.send(ogCommand);
 
     // Update database with file extension
     await db("example").where("id", exampleId).update({

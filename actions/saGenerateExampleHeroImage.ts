@@ -3,6 +3,7 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import sharp from "sharp";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
@@ -155,6 +156,27 @@ Write a brief hero image prompt (max 2 sentences) for a professional website ban
     });
 
     await s3Client.send(command);
+
+    // Step 3b: Create optimized OG version (1200x630, <600KB for WhatsApp)
+    const ogBuffer = await sharp(buffer)
+      .resize(1200, 630, {
+        fit: "cover",
+        position: "center",
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const ogKey = `exampleImages/${exampleId}_og.${fileExtension}`;
+
+    const ogCommand = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: ogKey,
+      Body: ogBuffer,
+      ContentType: "image/webp",
+      ACL: "public-read",
+    });
+
+    await s3Client.send(ogCommand);
 
     // Step 4: Update database
     await db("example").where("id", exampleId).update({
