@@ -132,7 +132,7 @@ export default function MentionTextarea({
 
     const newSegments: Segment[] = [];
 
-    const walk = (node: Node) => {
+    const walk = (node: Node, isFirstRootElement = false) => {
       if (node.nodeType === Node.TEXT_NODE) {
         const text = node.textContent || "";
         if (text) {
@@ -148,13 +148,35 @@ export default function MentionTextarea({
           });
         } else if (el.tagName === "BR") {
           newSegments.push({ type: "text", content: "\n" });
+        } else if (el.tagName === "DIV") {
+          // DIV elements represent new lines/paragraphs in contentEditable
+          // Add newline before this DIV's content (unless it's the first element)
+          if (!isFirstRootElement) {
+            newSegments.push({ type: "text", content: "\n" });
+          }
+
+          // Check if this DIV only contains a BR or is empty (represents an empty line)
+          const hasOnlyBr =
+            el.childNodes.length === 1 &&
+            (el.childNodes[0] as HTMLElement).tagName === "BR";
+          const isEmpty = el.childNodes.length === 0;
+
+          if (hasOnlyBr || isEmpty) {
+            // This DIV represents an empty line
+            // The newline was already added above, don't process the BR child
+          } else {
+            // Process the actual content (text, mentions, etc.)
+            el.childNodes.forEach((child) => walk(child, false));
+          }
         } else {
-          el.childNodes.forEach(walk);
+          el.childNodes.forEach((child) => walk(child, false));
         }
       }
     };
 
-    editorRef.current.childNodes.forEach(walk);
+    editorRef.current.childNodes.forEach((node, index) =>
+      walk(node, index === 0)
+    );
 
     const newValue = segmentsToValue(newSegments);
     if (newValue !== value) {
@@ -413,20 +435,30 @@ export default function MentionTextarea({
 
     // Build expected HTML from segments
     const buildHTML = () => {
-      return segments
-        .map((seg, i) => {
-          if (seg.type === "text") {
-            // Escape HTML and preserve newlines
-            return seg.content
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;")
-              .replace(/\n/g, "<br>");
-          } else {
-            return `<span class="bg-primary/20 text-primary font-medium px-1 rounded inline-block" contenteditable="false" data-mention-id="${seg.userId}" data-mention-name="${seg.displayName}">@${seg.displayName}</span>`;
-          }
-        })
-        .join("");
+      let html = "";
+      segments.forEach((seg, i) => {
+        if (seg.type === "text") {
+          // Escape HTML
+          let escaped = seg.content
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+          // Handle newlines - split and join with <br>
+          // For empty lines (consecutive newlines), we need to ensure they render
+          const lines = escaped.split("\n");
+          lines.forEach((line, lineIndex) => {
+            if (lineIndex > 0) {
+              html += "<br>";
+            }
+            // Add content (even if empty, to preserve the line)
+            html += line;
+          });
+        } else {
+          html += `<span class="bg-primary/20 text-primary font-medium px-1 rounded inline-block" contenteditable="false" data-mention-id="${seg.userId}" data-mention-name="${seg.displayName}">@${seg.displayName}</span>`;
+        }
+      });
+      return html;
     };
 
     const expectedHTML = buildHTML();
