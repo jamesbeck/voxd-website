@@ -19,6 +19,7 @@ export type PublicExample = {
   short: string;
   body: string;
   logoFileExtension: string | null;
+  heroImageFileExtension: string | null;
   createdAt: string;
   partner: {
     name: string;
@@ -57,6 +58,7 @@ export const getExampleForPublic = async ({
       "example.short",
       "example.body",
       "example.logoFileExtension",
+      "example.heroImageFileExtension",
       "example.createdAt",
       "partner.name as partnerName",
       "partner.colour as partnerColour",
@@ -104,6 +106,7 @@ export const getExampleForPublic = async ({
     short: example.short,
     body: example.body,
     logoFileExtension: example.logoFileExtension,
+    heroImageFileExtension: example.heroImageFileExtension,
     createdAt: example.createdAt,
     partner: {
       name: example.partnerName || "Voxd",

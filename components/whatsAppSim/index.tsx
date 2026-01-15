@@ -16,6 +16,10 @@ export default function WhatsAppSim({
   businessName,
   startTime,
   exampleId,
+  logoFileExtension,
+  organizationId,
+  organizationLogoFileExtension,
+  organizationLogoDarkBackground,
 }: {
   messages: {
     role: string;
@@ -26,6 +30,10 @@ export default function WhatsAppSim({
   businessName: string;
   startTime: string;
   exampleId?: string;
+  logoFileExtension?: string | null;
+  organizationId?: string;
+  organizationLogoFileExtension?: string | null;
+  organizationLogoDarkBackground?: boolean;
 }) {
   // iphone background image is 1350x2760
   // height is 2.0444444 width
@@ -89,11 +97,24 @@ export default function WhatsAppSim({
           <div className="w-full py-[10px] flex items-center">
             <ChevronLeftIcon className="w-8 h-8" />
             <div className="w-[36px] h-[36px] relative ml-[10px]">
-              {exampleId ? (
+              {organizationId && organizationLogoFileExtension ? (
                 <Image
-                  src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${exampleId}.png`}
+                  src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/organisationLogos/${organizationId}.${organizationLogoFileExtension}`}
                   alt="Logo"
                   fill
+                  unoptimized
+                  style={{ objectFit: "contain" }}
+                  className={cn(
+                    "rounded-full",
+                    organizationLogoDarkBackground ? "bg-gray-800" : "bg-white"
+                  )}
+                />
+              ) : exampleId && logoFileExtension ? (
+                <Image
+                  src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${exampleId}.${logoFileExtension}`}
+                  alt="Logo"
+                  fill
+                  unoptimized
                   style={{ objectFit: "contain" }}
                   className="rounded-full bg-white"
                 />

@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { FileText, MessageSquare } from "lucide-react";
 import { getExampleForPublic } from "@/lib/getExampleForPublic";
-import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
+import ExampleConversationsAccordion from "@/components/ExampleConversationsAccordion";
 import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 

@@ -10,6 +10,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import ExampleConversationsTab from "@/components/admin/ExampleConversationsTab";
 import ExampleLogoTab from "./ExampleLogoTab";
+import ExampleHeroImageTab from "./ExampleHeroImageTab";
 import ExampleInfoTab from "./ExampleInfoTab";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import ExampleActions from "./exampleActions";
@@ -87,6 +88,11 @@ export default async function ExamplesPage({
             <TabsTrigger value="logo" asChild>
               <Link href={`/admin/examples/${example.id}?tab=logo`}>Logo</Link>
             </TabsTrigger>
+            <TabsTrigger value="heroImage" asChild>
+              <Link href={`/admin/examples/${example.id}?tab=heroImage`}>
+                Hero Image
+              </Link>
+            </TabsTrigger>
             <TabsTrigger value="exampleConversations" asChild>
               <Link
                 href={`/admin/examples/${example.id}?tab=exampleConversations`}
@@ -96,7 +102,11 @@ export default async function ExamplesPage({
             </TabsTrigger>
           </TabsList>
 
-          <ExampleActions exampleId={example.id} title={example.title} />
+          <ExampleActions
+            exampleId={example.id}
+            title={example.title}
+            slug={example.slug}
+          />
         </div>
 
         <div className="border-b mb-6" />
@@ -135,6 +145,14 @@ export default async function ExamplesPage({
           <ExampleLogoTab
             exampleId={example.id}
             logoFileExtension={example.logoFileExtension}
+            businessName={example.businessName}
+            body={example.body}
+          />
+        </TabsContent>
+        <TabsContent value="heroImage">
+          <ExampleHeroImageTab
+            exampleId={example.id}
+            heroImageFileExtension={example.heroImageFileExtension}
             businessName={example.businessName}
             body={example.body}
           />

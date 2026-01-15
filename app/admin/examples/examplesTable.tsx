@@ -206,11 +206,6 @@ const ExamplesTable = ({ superAdmin }: { superAdmin: boolean }) => {
               <Button className="cursor-pointer" asChild>
                 <Link href={`/admin/examples/${row.id}`}>View</Link>
               </Button>
-              <Button className="cursor-pointer" asChild>
-                <Link href={`/admin/examples/${row.id}/generate-chat`}>
-                  Generate Chat
-                </Link>
-              </Button>
               <Button className="cursor-pointer" variant="outline" asChild>
                 <Link href={`/examples/${row.slug}`} target="_blank">
                   Preview on website

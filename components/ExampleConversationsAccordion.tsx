@@ -24,12 +24,22 @@ type Conversation = {
 
 export default function ExampleConversationsAccordion({
   conversations,
-  organisationName,
+  businessName,
   brandColor,
+  exampleId,
+  logoFileExtension,
+  organizationId,
+  organizationLogoFileExtension,
+  organizationLogoDarkBackground,
 }: {
   conversations: Conversation[];
-  organisationName: string;
+  businessName: string;
   brandColor: string;
+  exampleId?: string;
+  logoFileExtension?: string | null;
+  organizationId?: string;
+  organizationLogoFileExtension?: string | null;
+  organizationLogoDarkBackground?: boolean;
 }) {
   const [openId, setOpenId] = useState<string | null>(
     conversations.length > 0 ? conversations[0].id : null
@@ -79,8 +89,13 @@ export default function ExampleConversationsAccordion({
                   time: m.time,
                   annotation: m.annotation || "",
                 }))}
-                businessName={organisationName}
+                businessName={businessName}
                 startTime={conversation.startTime}
+                exampleId={exampleId}
+                logoFileExtension={logoFileExtension}
+                organizationId={organizationId}
+                organizationLogoFileExtension={organizationLogoFileExtension}
+                organizationLogoDarkBackground={organizationLogoDarkBackground}
               />
             </div>
           </CollapsibleContent>

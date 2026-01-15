@@ -40,7 +40,7 @@ import { getPitchForPublic } from "@/lib/getPitchForPublic";
 import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
-import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
+import ExampleConversationsAccordion from "@/components/ExampleConversationsAccordion";
 import DataFlowDiagram from "@/components/websiteui/DataFlowDiagram";
 
 export async function generateMetadata({
@@ -430,8 +430,15 @@ export default async function PublicPitchPage({
 
               <ExampleConversationsAccordion
                 conversations={pitch.exampleConversations}
-                organisationName={pitch.organisationName}
+                businessName={pitch.organisationName}
                 brandColor={brandColor}
+                organizationId={pitch.organisationId}
+                organizationLogoFileExtension={
+                  pitch.organisationLogoFileExtension
+                }
+                organizationLogoDarkBackground={
+                  pitch.organisationLogoDarkBackground
+                }
               />
             </section>
           )}

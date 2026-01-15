@@ -127,6 +127,10 @@ const generateExample = async ({
         * The benefits and results achieved by the business
         * Specific examples of how the chatbot improved customer engagement and operations
 
+        IMPORTANT RULES:
+        - Do NOT include example conversations or WhatsApp message flows (these will be handled separately)
+        - Do NOT include mock-ups or sample dialogues
+
         Write a case study for:
 
         ${prompt}

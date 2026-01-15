@@ -38,7 +38,7 @@ import {
   Mail,
 } from "lucide-react";
 import { getQuoteForPublic } from "@/lib/getQuoteForPublic";
-import ExampleConversationsAccordion from "./ExampleConversationsAccordion";
+import ExampleConversationsAccordion from "@/components/ExampleConversationsAccordion";
 import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
@@ -771,8 +771,15 @@ export default async function PublicQuotePage({
 
               <ExampleConversationsAccordion
                 conversations={quote.exampleConversations}
-                organisationName={quote.organisationName}
+                businessName={quote.organisationName}
                 brandColor={brandColor}
+                organizationId={quote.organisationId}
+                organizationLogoFileExtension={
+                  quote.organisationLogoFileExtension
+                }
+                organizationLogoDarkBackground={
+                  quote.organisationLogoDarkBackground
+                }
               />
             </section>
           )}

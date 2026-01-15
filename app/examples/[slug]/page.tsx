@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { FileText, MessageSquare } from "lucide-react";
 import { getExampleForPublic } from "@/lib/getExampleForPublic";
-import ExampleConversationsAccordion from "../../previews/[exampleId]/ExampleConversationsAccordion";
+import ExampleConversationsAccordion from "@/components/ExampleConversationsAccordion";
 import FloatingTableOfContents from "../../previews/[exampleId]/FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
@@ -75,7 +75,7 @@ export default async function ExamplesPage({
       ? [
           {
             id: "examples",
-            label: "Example Conversations",
+            label: "Examples",
             icon: "MessageSquare" as const,
           },
         ]
@@ -84,9 +84,9 @@ export default async function ExamplesPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with partner logo and example logo */}
+      {/* Header with partner logo */}
       <header className="py-8 px-4 bg-white border-b">
-        <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center gap-6 xl:justify-start xl:pl-[290px]">
+        <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center">
           <Image
             src={partnerLogoUrl}
             alt={example.partner.name}
@@ -95,21 +95,34 @@ export default async function ExamplesPage({
             unoptimized
             className="h-12 w-auto object-contain"
           />
+        </div>
+      </header>
+
+      {/* Hero Image */}
+      {example.heroImageFileExtension && (
+        <div className="relative w-full">
+          <Image
+            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}.${example.heroImageFileExtension}`}
+            alt={example.title}
+            width={1920}
+            height={600}
+            unoptimized
+            className="w-full h-[300px] md:h-[400px] object-cover"
+          />
           {exampleLogoUrl && (
-            <>
-              <div className="h-12 w-px bg-gray-200" />
+            <div className="absolute inset-0 flex items-center justify-center">
               <Image
                 src={exampleLogoUrl}
                 alt={`${example.businessName} Logo`}
-                width={180}
-                height={60}
+                width={300}
+                height={300}
                 unoptimized
-                className="h-12 w-auto object-contain"
+                className="w-auto h-40 object-contain drop-shadow-2xl"
               />
-            </>
+            </div>
           )}
         </div>
-      </header>
+      )}
 
       {/* Content wrapper with sidebar on desktop */}
       <div className="max-w-3xl xl:max-w-6xl mx-auto px-4 py-8 xl:flex xl:gap-8">
@@ -184,6 +197,7 @@ export default async function ExamplesPage({
                 businessName={example.businessName}
                 brandColor={brandColor}
                 exampleId={example.id}
+                logoFileExtension={example.logoFileExtension}
               />
             </section>
           )}
