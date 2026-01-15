@@ -54,11 +54,14 @@ const SupportTicketsTable = ({
       label: "Agent",
       name: "agentName",
       sort: true,
-      format: (row: any) => (
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/admin/agents/${row.agentId}`}>{row.agentName}</Link>
-        </Button>
-      ),
+      format: (row: any) =>
+        row.agentId && row.agentName ? (
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/admin/agents/${row.agentId}`}>{row.agentName}</Link>
+          </Button>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        ),
     },
     {
       label: "Created By",

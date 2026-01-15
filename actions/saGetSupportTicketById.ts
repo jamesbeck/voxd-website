@@ -10,8 +10,8 @@ type SupportTicketDetail = {
   description: string | null;
   status: string;
   createdAt: Date;
-  agentId: string;
-  agentName: string;
+  agentId: string | null;
+  agentName: string | null;
   organisationId: string;
   organisationName: string;
   createdById: string;
@@ -36,8 +36,8 @@ const saGetSupportTicketById = async ({
   const accessToken = await verifyAccessToken();
 
   const ticket = await db("supportTicket")
-    .join("agent", "supportTicket.agentId", "agent.id")
-    .join("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("agent", "supportTicket.agentId", "agent.id")
+    .join("organisation", "supportTicket.organisationId", "organisation.id")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
     .leftJoin(
       "adminUser as createdBy",

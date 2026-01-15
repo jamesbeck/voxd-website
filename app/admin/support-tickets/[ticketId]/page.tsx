@@ -155,18 +155,20 @@ export default async function Page({
                       "Unknown",
                     icon: <User className="h-4 w-4" />,
                   },
-                  {
-                    label: "Agent",
-                    value: (
-                      <Link
-                        href={`/admin/agents/${ticket.agentId}`}
-                        className="text-primary hover:underline"
-                      >
-                        {ticket.agentName}
-                      </Link>
-                    ),
-                    icon: <Bot className="h-4 w-4" />,
-                  },
+                  ticket.agentId && ticket.agentName
+                    ? {
+                        label: "Agent",
+                        value: (
+                          <Link
+                            href={`/admin/agents/${ticket.agentId}`}
+                            className="text-primary hover:underline"
+                          >
+                            {ticket.agentName}
+                          </Link>
+                        ),
+                        icon: <Bot className="h-4 w-4" />,
+                      }
+                    : null,
                   {
                     label: "Organisation",
                     value: (

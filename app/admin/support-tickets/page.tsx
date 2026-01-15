@@ -6,6 +6,7 @@ import { Flag, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import SupportTicketsActions from "./supportTicketsActions";
 
 export default async function Page({
   searchParams,
@@ -33,32 +34,26 @@ export default async function Page({
       />
       <H1>Support Tickets</H1>
 
-      <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-900 p-4 mb-6 flex items-start gap-3">
-        <Info className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-        <div className="text-sm text-blue-700 dark:text-blue-300">
-          <p>
-            To create a new support ticket, navigate to the session containing
-            the problematic message and click the{" "}
-            <Flag className="h-3.5 w-3.5 inline text-red-500 mx-1" /> flag icon
-            next to the message to report the issue.
-          </p>
-        </div>
-      </div>
-
       <Tabs value={activeTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="open" asChild>
-            <Link href="/admin/support-tickets?tab=open">Open Tickets</Link>
-          </TabsTrigger>
-          <TabsTrigger value="awaiting" asChild>
-            <Link href="/admin/support-tickets?tab=awaiting">
-              {awaitingLabel}
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="closed" asChild>
-            <Link href="/admin/support-tickets?tab=closed">Closed Tickets</Link>
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between gap-4 mb-2">
+          <TabsList>
+            <TabsTrigger value="open" asChild>
+              <Link href="/admin/support-tickets?tab=open">Open Tickets</Link>
+            </TabsTrigger>
+            <TabsTrigger value="awaiting" asChild>
+              <Link href="/admin/support-tickets?tab=awaiting">
+                {awaitingLabel}
+              </Link>
+            </TabsTrigger>
+            <TabsTrigger value="closed" asChild>
+              <Link href="/admin/support-tickets?tab=closed">
+                Closed Tickets
+              </Link>
+            </TabsTrigger>
+          </TabsList>
+
+          <SupportTicketsActions />
+        </div>
 
         <TabsContent value="open">
           <SupportTicketsTable statusFilter="open" />

@@ -6,7 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import sendgrid from "@sendgrid/mail";
 
 type CreateSupportTicketInput = {
-  agentId: string;
+  agentId?: string;
   title: string;
   description: string;
   messageId?: string;
@@ -22,55 +22,83 @@ const saCreateSupportTicket = async (
   const { agentId, title, description, messageId, messageType, sessionId } =
     input;
 
-  if (!agentId || !title?.trim() || !description?.trim()) {
+  if (!title?.trim() || !description?.trim()) {
     return {
       success: false,
-      error: "Agent ID, title, and description are required",
+      error: "Title and description are required",
     };
   }
 
-  // Verify user has access to this agent
-  const agent = await db("agent")
-    .leftJoin("organisation", "agent.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .where("agent.id", agentId)
-    .select(
-      "agent.id",
-      "agent.niceName",
-      "organisation.partnerId",
-      "organisation.id as organisationId",
-      "partner.domain as partnerDomain",
-      "partner.name as partnerName",
-      "partner.sendEmailFromDomain"
-    )
-    .first();
+  let organisationId: string;
+  let agent: any = null;
 
-  if (!agent) {
-    return { success: false, error: "Agent not found" };
-  }
+  // If agentId is provided, fetch agent and organisation info
+  if (agentId) {
+    // Verify user has access to this agent
+    agent = await db("agent")
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .where("agent.id", agentId)
+      .select(
+        "agent.id",
+        "agent.niceName",
+        "organisation.partnerId",
+        "organisation.id as organisationId",
+        "partner.domain as partnerDomain",
+        "partner.name as partnerName",
+        "partner.sendEmailFromDomain"
+      )
+      .first();
 
-  // Check access control
-  if (!accessToken.superAdmin) {
-    if (accessToken.partner) {
-      if (agent.partnerId !== accessToken.partnerId) {
-        return { success: false, error: "You don't have access to this agent" };
-      }
-    } else {
-      if (agent.organisationId !== accessToken.organisationId) {
-        return { success: false, error: "You don't have access to this agent" };
+    if (!agent) {
+      return { success: false, error: "Agent not found" };
+    }
+
+    // Check access control
+    if (!accessToken.superAdmin) {
+      if (accessToken.partner) {
+        if (agent.partnerId !== accessToken.partnerId) {
+          return {
+            success: false,
+            error: "You don't have access to this agent",
+          };
+        }
+      } else {
+        if (agent.organisationId !== accessToken.organisationId) {
+          return {
+            success: false,
+            error: "You don't have access to this agent",
+          };
+        }
       }
     }
+
+    organisationId = agent.organisationId;
+  } else {
+    // No agentId - use organisationId from access token
+    if (!accessToken.organisationId) {
+      return {
+        success: false,
+        error: "Organisation ID is required",
+      };
+    }
+    organisationId = accessToken.organisationId;
   }
 
   // Create the support ticket
   try {
     const insertData: Record<string, any> = {
-      agentId,
+      organisationId,
       adminUserId: accessToken.adminUserId,
       title: title.trim(),
       description,
       status: "Open",
     };
+
+    // Add agentId if provided
+    if (agentId) {
+      insertData.agentId = agentId;
+    }
 
     // Add sessionId if provided directly
     if (sessionId) {
@@ -117,14 +145,48 @@ const saCreateSupportTicket = async (
       .first();
     const reporterName = reporter?.name || reporter?.email || "Unknown";
 
+    // Get partner/organisation info for email if no agent
+    let partnerDomain = "voxd.ai";
+    let partnerName = "Voxd";
+    let emailFromDomain = "voxd.ai";
+
+    if (agent) {
+      partnerDomain = agent.partnerDomain || "voxd.ai";
+      partnerName = agent.partnerName || "Voxd";
+      emailFromDomain = agent.sendEmailFromDomain || "voxd.ai";
+    } else {
+      // Fetch organisation/partner info if no agent
+      const orgInfo = await db("organisation")
+        .leftJoin("partner", "organisation.partnerId", "partner.id")
+        .where("organisation.id", organisationId)
+        .select(
+          "partner.domain as partnerDomain",
+          "partner.name as partnerName",
+          "partner.sendEmailFromDomain"
+        )
+        .first();
+
+      if (orgInfo) {
+        partnerDomain = orgInfo.partnerDomain || "voxd.ai";
+        partnerName = orgInfo.partnerName || "Voxd";
+        emailFromDomain = orgInfo.sendEmailFromDomain || "voxd.ai";
+      }
+    }
+
     // Send notification email
     try {
       sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
-      const partnerDomain = agent.partnerDomain || "voxd.ai";
-      const partnerName = agent.partnerName || "Voxd";
-      const emailFromDomain = agent.sendEmailFromDomain || "voxd.ai";
       const ticketUrl = `https://${partnerDomain}/admin/support-tickets/${newTicket.id}`;
+
+      const agentRow = agent
+        ? `<tr>
+            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Agent</td>
+            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${agent.niceName}</td>
+          </tr>`
+        : "";
+
+      const agentTextLine = agent ? `\nAgent: ${agent.niceName}` : "";
 
       await sendgrid.send({
         from: `${partnerName} Support <support@${emailFromDomain}>`,
@@ -161,10 +223,7 @@ const saCreateSupportTicket = async (
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Title</td>
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${newTicket.title}</td>
                           </tr>
-                          <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Agent</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${agent.niceName}</td>
-                          </tr>
+                          ${agentRow}
                           <tr>
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Reported By</td>
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${reporterName}</td>
@@ -200,7 +259,7 @@ const saCreateSupportTicket = async (
           </body>
           </html>
         `,
-        text: `New Support Ticket #${newTicket.ticketNumber}\n\nTitle: ${newTicket.title}\nAgent: ${agent.niceName}\nReported By: ${reporterName}\nStatus: Open\n\nDescription:\n${description}\n\nView ticket: ${ticketUrl}`,
+        text: `New Support Ticket #${newTicket.ticketNumber}\n\nTitle: ${newTicket.title}${agentTextLine}\nReported By: ${reporterName}\nStatus: Open\n\nDescription:\n${description}\n\nView ticket: ${ticketUrl}`,
       });
     } catch (emailError) {
       // Log but don't fail the ticket creation if email fails

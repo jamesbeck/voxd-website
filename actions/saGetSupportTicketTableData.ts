@@ -22,8 +22,8 @@ const saGetSupportTicketTableData = async ({
   const accessToken = await verifyAccessToken();
 
   const base = db("supportTicket")
-    .join("agent", "supportTicket.agentId", "agent.id")
-    .join("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("agent", "supportTicket.agentId", "agent.id")
+    .join("organisation", "supportTicket.organisationId", "organisation.id")
     .leftJoin(
       "adminUser as createdBy",
       "supportTicket.adminUserId",
@@ -49,17 +49,17 @@ const saGetSupportTicketTableData = async ({
     base.where("supportTicket.status", "Awaiting Client");
   }
 
-  // Regular organisation users can only see tickets for agents their organisation owns
+  // Regular organisation users can only see tickets for their organisation
   if (!accessToken.partner && !accessToken.superAdmin) {
     if (accessToken.organisationId) {
-      base.where("agent.organisationId", accessToken.organisationId);
+      base.where("supportTicket.organisationId", accessToken.organisationId);
     } else {
       // Regular user without organisationId should see nothing
       base.whereRaw("1 = 0");
     }
   }
 
-  // Partners can see tickets for agents belonging to organisations they own
+  // Partners can see tickets for organisations they own
   if (accessToken.partner && !accessToken.superAdmin) {
     base.where("organisation.partnerId", accessToken.partnerId);
   }
