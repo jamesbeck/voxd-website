@@ -20,6 +20,7 @@ import NewDocumentForm from "./newDocumentForm";
 import PartialPromptsTable from "./partialPromptsTable";
 import NewPartialPromptForm from "./newPartialPromptForm";
 import { Button } from "@/components/ui/button";
+import saGetTicketsByAgentId from "@/actions/saGetTicketsByAgentId";
 import {
   Bot,
   Cpu,
@@ -56,6 +57,10 @@ export default async function Page({
   if (!(await userCanViewAgent({ agentId: agentId! }))) {
     return notFound();
   }
+
+  // Fetch tickets for this agent
+  const ticketsResponse = await saGetTicketsByAgentId({ agentId });
+  const tickets = ticketsResponse.success ? ticketsResponse.data : [];
 
   return (
     <Container>
@@ -113,6 +118,7 @@ export default async function Page({
                   name={agent?.name || ""}
                   niceName={agent?.niceName || ""}
                   phoneNumber={agent?.phoneNumber || ""}
+                  tickets={tickets || []}
                 />
               )}
             </div>

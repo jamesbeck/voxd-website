@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import { FlagIcon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -25,20 +25,40 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import ReportAgentDialog from "./ReportAgentDialog";
+import AgentTicketBadge from "./AgentTicketBadge";
+
+type AgentTicket = {
+  id: string;
+  ticketNumber: number;
+  title: string;
+  status: string;
+  createdByName: string | null;
+  createdAt: Date;
+};
 
 export default function AgentActions({
   agentId,
   name,
   niceName,
   phoneNumber,
+  tickets,
 }: {
   agentId: string;
   name: string;
   niceName: string;
   phoneNumber: string;
+  tickets: AgentTicket[];
 }) {
   const [isDeletingAgent, setIsDeletingAgent] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const qrRef = useRef<SVGSVGElement>(null);
 
   const router = useRouter();
@@ -99,51 +119,78 @@ export default function AgentActions({
 
   return (
     <>
-      <ButtonGroup>
-        {!!phoneNumber && (
-          <>
-            <Button className="cursor-pointer" size="sm" asChild>
-              <Link target="_blank" href={whatsappUrl}>
-                Message {niceName || name}
-              </Link>
-            </Button>
-            <Button
-              className="cursor-pointer"
-              size="sm"
-              variant="outline"
-              onClick={() => setQrDialogOpen(true)}
-            >
-              QR Code
-            </Button>
-          </>
-        )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              {isDeletingAgent ? <Spinner /> : <MoreHorizontalIcon />}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuGroup>
-              <Alert
-                destructive
-                title={`Delete ${name}`}
-                description="This action cannot be undone."
-                actionText="Delete"
-                onAction={deleteAgent}
-              >
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="text-destructive focus:text-destructive"
+      <div className="flex items-center gap-2">
+        <ButtonGroup>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setReportDialogOpen(true)}
                 >
-                  <Trash2Icon className="mr-2 h-4 w-4" />
-                  Delete Agent
-                </DropdownMenuItem>
-              </Alert>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </ButtonGroup>
+                  <FlagIcon className="h-4 w-4 text-red-600" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Report issue for this agent</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <AgentTicketBadge tickets={tickets} variant="button" />
+        </ButtonGroup>
+
+        <ButtonGroup>
+          {!!phoneNumber && (
+            <>
+              <Button className="cursor-pointer" size="sm" asChild>
+                <Link target="_blank" href={whatsappUrl}>
+                  Message {niceName || name}
+                </Link>
+              </Button>
+              <Button
+                className="cursor-pointer"
+                size="sm"
+                variant="outline"
+                onClick={() => setQrDialogOpen(true)}
+              >
+                QR Code
+              </Button>
+            </>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                {isDeletingAgent ? <Spinner /> : <MoreHorizontalIcon />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuGroup>
+                <Alert
+                  destructive
+                  title={`Delete ${name}`}
+                  description="This action cannot be undone."
+                  actionText="Delete"
+                  onAction={deleteAgent}
+                >
+                  <DropdownMenuItem
+                    onSelect={(e) => e.preventDefault()}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2Icon className="mr-2 h-4 w-4" />
+                    Delete Agent
+                  </DropdownMenuItem>
+                </Alert>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ButtonGroup>
+      </div>
+
+      <ReportAgentDialog
+        open={reportDialogOpen}
+        onOpenChange={setReportDialogOpen}
+        agentId={agentId}
+      />
 
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
         <DialogContent>
