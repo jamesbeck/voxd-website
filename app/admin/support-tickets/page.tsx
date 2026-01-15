@@ -5,6 +5,7 @@ import SupportTicketsTable from "./supportTicketsTable";
 import { Flag, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page({
   searchParams,
@@ -12,6 +13,15 @@ export default async function Page({
   searchParams: { tab?: string };
 }) {
   const activeTab = (await searchParams).tab || "open";
+  const accessToken = await verifyAccessToken();
+
+  // Determine the label for the awaiting tab
+  const awaitingLabel =
+    !accessToken.partner &&
+    !accessToken.superAdmin &&
+    accessToken.organisationName
+      ? `Waiting on ${accessToken.organisationName}`
+      : "Waiting on Client";
 
   return (
     <Container>
@@ -40,6 +50,11 @@ export default async function Page({
           <TabsTrigger value="open" asChild>
             <Link href="/admin/support-tickets?tab=open">Open Tickets</Link>
           </TabsTrigger>
+          <TabsTrigger value="awaiting" asChild>
+            <Link href="/admin/support-tickets?tab=awaiting">
+              {awaitingLabel}
+            </Link>
+          </TabsTrigger>
           <TabsTrigger value="closed" asChild>
             <Link href="/admin/support-tickets?tab=closed">Closed Tickets</Link>
           </TabsTrigger>
@@ -47,6 +62,10 @@ export default async function Page({
 
         <TabsContent value="open">
           <SupportTicketsTable statusFilter="open" />
+        </TabsContent>
+
+        <TabsContent value="awaiting">
+          <SupportTicketsTable statusFilter="awaiting" />
         </TabsContent>
 
         <TabsContent value="closed">

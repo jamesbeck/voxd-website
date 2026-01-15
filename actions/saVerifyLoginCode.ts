@@ -45,6 +45,7 @@ const saVerifyLoginCode = async ({
 
   //get the user
   const adminUser = await db("adminUser")
+    .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
     .select(
       "adminUser.id",
       "adminUser.name",
@@ -52,7 +53,8 @@ const saVerifyLoginCode = async ({
       "adminUser.otpAttempts",
       "adminUser.partnerId",
       "adminUser.superAdmin",
-      "adminUser.organisationId"
+      "adminUser.organisationId",
+      "organisation.name as organisationName"
     )
     .whereRaw('LOWER("adminUser".email) = LOWER(?)', [idToken.email])
     .first();
@@ -145,6 +147,7 @@ const saVerifyLoginCode = async ({
       partner: !!adminUser.partnerId,
       partnerId: adminUser.partnerId,
       organisationId: adminUser.organisationId,
+      organisationName: adminUser.organisationName,
     } as AccessTokenPayload,
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) }

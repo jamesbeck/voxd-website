@@ -14,7 +14,12 @@ import saUpdateSupportTicketStatus from "@/actions/saUpdateSupportTicketStatus";
 
 const STATUSES = [
   { value: "Open", label: "Open", color: "bg-red-500" },
-  { value: "In Progress", label: "In Progress", color: "bg-orange-500" },
+  { value: "In Progress", label: "In Progress", color: "bg-blue-500" },
+  {
+    value: "Awaiting Client",
+    label: "Awaiting Client",
+    color: "bg-orange-500",
+  },
   { value: "Closed", label: "Closed", color: "bg-green-500" },
 ];
 

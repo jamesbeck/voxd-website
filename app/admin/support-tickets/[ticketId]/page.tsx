@@ -49,6 +49,8 @@ export default async function Page({
       case "open":
         return "bg-red-500";
       case "in progress":
+        return "bg-blue-500";
+      case "awaiting client":
         return "bg-orange-500";
       case "closed":
         return "bg-green-500";

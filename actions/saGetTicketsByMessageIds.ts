@@ -35,7 +35,11 @@ const saGetTicketsByMessageIds = async ({
         ? await db("supportTicket")
             .leftJoin("adminUser", "supportTicket.adminUserId", "adminUser.id")
             .whereIn("supportTicket.userMessageId", userMessageIds)
-            .whereIn("supportTicket.status", ["Open", "In Progress"])
+            .whereIn("supportTicket.status", [
+              "Open",
+              "In Progress",
+              "Awaiting Client",
+            ])
             .select(
               "supportTicket.id",
               "supportTicket.ticketNumber",
@@ -55,7 +59,11 @@ const saGetTicketsByMessageIds = async ({
         ? await db("supportTicket")
             .leftJoin("adminUser", "supportTicket.adminUserId", "adminUser.id")
             .whereIn("supportTicket.assistantMessageId", assistantMessageIds)
-            .whereIn("supportTicket.status", ["Open", "In Progress"])
+            .whereIn("supportTicket.status", [
+              "Open",
+              "In Progress",
+              "Awaiting Client",
+            ])
             .select(
               "supportTicket.id",
               "supportTicket.ticketNumber",

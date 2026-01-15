@@ -12,4 +12,5 @@ export interface AccessTokenPayload {
   partner: boolean;
   partnerId?: string;
   organisationId?: string;
+  organisationName?: string;
 }

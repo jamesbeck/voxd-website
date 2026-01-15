@@ -8,7 +8,7 @@ import {
 } from "@/types/types";
 
 type SupportTicketParams = {
-  statusFilter?: "open" | "closed";
+  statusFilter?: "open" | "closed" | "awaiting";
 };
 
 const saGetSupportTicketTableData = async ({
@@ -45,6 +45,8 @@ const saGetSupportTicketTableData = async ({
     base.whereNot("supportTicket.status", "Closed");
   } else if (statusFilter === "closed") {
     base.where("supportTicket.status", "Closed");
+  } else if (statusFilter === "awaiting") {
+    base.where("supportTicket.status", "Awaiting Client");
   }
 
   // Regular organisation users can only see tickets for agents their organisation owns
