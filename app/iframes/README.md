@@ -42,3 +42,36 @@ The page:
 - Shows the appropriate business name and logo (from either example or organization)
 - Handles missing conversations with a proper not-found page
 - Uses minimal styling to ensure compatibility with parent page styles
+
+## Examples
+
+### Usage
+
+Partners can embed full examples (including body content and all conversations) using:
+
+```
+/iframes/examples/[exampleId]
+```
+
+### Embedding
+
+To embed a full example in an iframe:
+
+```html
+<iframe
+  src="https://yourdomain.com/iframes/examples/[exampleId]"
+  width="100%"
+  height="800"
+  frameborder="0"
+  allowtransparency="true"
+  style="min-height: 800px;"
+></iframe>
+```
+
+### Features
+
+- **No branding**: No partner logo or hero image
+- **Plain white background**: Clean, minimal design without containers
+- **Example conversations included**: Shows all example conversations with the WhatsApp simulator
+- **Content included**: Displays the example title, business name, and body content
+- **Fully responsive**: Adapts to the iframe width
