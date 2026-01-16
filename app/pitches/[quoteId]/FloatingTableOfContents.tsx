@@ -93,7 +93,7 @@ export default function FloatingTableOfContents({
   return (
     <>
       {/* Desktop sticky sidebar */}
-      <nav className="hidden xl:block sticky top-8 self-start">
+      <nav className="hidden xl:block sticky top-30 self-start">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[220px]">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
             Contents

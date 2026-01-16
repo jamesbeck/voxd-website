@@ -61,8 +61,15 @@ export async function generateMetadata({
   const title = `${quote.title} | ${quote.partner.name}`;
   const description = `AI Chatbot Implementation Proposal for ${quote.organisationName} - prepared by ${quote.partner.name}`;
 
-  // Use organisation logo as OG image if available, otherwise use partner logo
-  const ogImage = quote.organisationLogoFileExtension
+  // Use optimized OG version of hero image (1200x630, <600KB for WhatsApp compatibility)
+  // Fall back to organisation logo if available, otherwise use partner logo
+  const ogImage = quote.heroImageFileExtension
+    ? `https://s3.${
+        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
+      }.wasabisys.com/${
+        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
+      }/quoteImages/${quote.id}_og.${quote.heroImageFileExtension}`
+    : quote.organisationLogoFileExtension
     ? `https://s3.${
         process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
       }.wasabisys.com/${
@@ -239,6 +246,24 @@ export default async function PublicQuotePage({
 
       {/* Spacer for fixed header */}
       <div className="h-14 md:h-[72px]" />
+
+      {/* Hero Image */}
+      {quote.heroImageFileExtension && (
+        <div className="relative w-full">
+          <Image
+            src={`https://s3.${
+              process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
+            }.wasabisys.com/${
+              process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
+            }/quoteImages/${quote.id}.${quote.heroImageFileExtension}`}
+            alt={quote.title}
+            width={1920}
+            height={600}
+            unoptimized
+            className="w-full h-[250px] md:h-[350px] object-cover"
+          />
+        </div>
+      )}
 
       {/* Content wrapper with sidebar on desktop */}
       <div className="max-w-3xl xl:max-w-6xl mx-auto px-4 py-8 xl:flex xl:gap-8">

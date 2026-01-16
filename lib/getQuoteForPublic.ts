@@ -31,6 +31,7 @@ export type PublicQuote = {
   generatedSpecification: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
+  heroImageFileExtension: string | null;
   partner: {
     name: string;
     colour: string | null;
@@ -68,6 +69,7 @@ export const getQuoteForPublic = async ({
       "quote.generatedSpecification",
       "quote.setupFee",
       "quote.monthlyFee",
+      "quote.heroImageFileExtension",
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
@@ -134,6 +136,7 @@ export const getQuoteForPublic = async ({
     generatedSpecification: quote.generatedSpecification,
     setupFee: quote.setupFee,
     monthlyFee: quote.monthlyFee,
+    heroImageFileExtension: quote.heroImageFileExtension,
     partner: {
       name: quote.partnerName,
       colour: quote.partnerColour,
