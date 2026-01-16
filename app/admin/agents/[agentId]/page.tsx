@@ -15,7 +15,7 @@ import Link from "next/link";
 import Dashboard from "./dashboard";
 import EditAgentForm from "./editAgentForm";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
-import DocumentsTable from "./documentsTable";
+import DocumentsCards from "./documentsCards";
 import NewDocumentForm from "./newDocumentForm";
 import PartialPromptsTable from "./partialPromptsTable";
 import NewPartialPromptForm from "./newPartialPromptForm";
@@ -238,7 +238,7 @@ export default async function Page({
                     </Link>
                   </Button>
                 </div>
-                <DocumentsTable agentId={agentId} />
+                <DocumentsCards agentId={agentId} />
               </Container>
             </TabsContent>
             <TabsContent value="new-document">
