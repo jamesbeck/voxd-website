@@ -59,7 +59,9 @@ interface Document {
 
 const DocumentsCards = ({ agentId }: { agentId: string }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [searchResults, setSearchResults] = useState<KnowledgeBlockSearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<
+    KnowledgeBlockSearchResult[]
+  >([]);
   const [isSearching, setIsSearching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -186,7 +188,9 @@ const DocumentsCards = ({ agentId }: { agentId: string }) => {
                 max={1}
                 step={0.05}
                 value={[similarityThreshold]}
-                onValueChange={(value: number[]) => setSimilarityThreshold(value[0])}
+                onValueChange={(value: number[]) =>
+                  setSimilarityThreshold(value[0])
+                }
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -335,7 +339,10 @@ const DocumentsCards = ({ agentId }: { agentId: string }) => {
       {!loading && !isSearching && !searchQuery && documents.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {documents.map((doc) => (
-            <Card key={doc.id} className="hover:shadow-lg transition-shadow flex flex-col">
+            <Card
+              key={doc.id}
+              className="hover:shadow-lg transition-shadow flex flex-col"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
