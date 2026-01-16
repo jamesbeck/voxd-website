@@ -17,7 +17,15 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Pencil, GripVertical } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  GripVertical,
+  Code2,
+  Copy,
+  Check,
+} from "lucide-react";
 import saGenerateQuoteExampleConversation from "@/actions/saGenerateQuoteExampleConversation";
 import saGenerateExampleConversation from "@/actions/saGenerateExampleConversation";
 import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
@@ -64,12 +72,14 @@ function SortableConversationItem({
   isSelected,
   onSelect,
   onEdit,
+  onEmbed,
   onDelete,
 }: {
   conversation: ExampleConversation;
   isSelected: boolean;
   onSelect: () => void;
   onEdit: () => void;
+  onEmbed: () => void;
   onDelete: () => void;
 }) {
   const {
@@ -102,6 +112,7 @@ function SortableConversationItem({
         {...attributes}
         {...listeners}
         className="flex items-center px-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        suppressHydrationWarning
       >
         <GripVertical className="h-4 w-4" />
       </div>
@@ -125,6 +136,16 @@ function SortableConversationItem({
           title="Edit conversation"
         >
           <Pencil className="h-4 w-4" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEmbed();
+          }}
+          className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+          title="Get embed code"
+        >
+          <Code2 className="h-4 w-4" />
         </button>
         <button
           onClick={(e) => {
@@ -165,6 +186,10 @@ export default function ExampleConversationsTab({
   >(initialConversations.length > 0 ? initialConversations[0].id : null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [embedId, setEmbedId] = useState<string | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [origin, setOrigin] = useState("");
   const [editConversation, setEditConversation] =
     useState<ExampleConversation | null>(null);
   const [editMessages, setEditMessages] = useState<
@@ -174,6 +199,11 @@ export default function ExampleConversationsTab({
   const [editStartTime, setEditStartTime] = useState("");
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+
+  // Set origin on mount
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   // Sync local state with props when they change
   useEffect(() => {
@@ -398,7 +428,7 @@ export default function ExampleConversationsTab({
       ) : (
         <div className="flex gap-6">
           {/* Left side - conversation list */}
-          <div className="flex-1 space-y-2 min-w-0">
+          <div className="flex-1 min-w-0">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -408,16 +438,21 @@ export default function ExampleConversationsTab({
                 items={conversations.map((c) => c.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {conversations.map((conversation) => (
-                  <SortableConversationItem
-                    key={conversation.id}
-                    conversation={conversation}
-                    isSelected={selectedConversationId === conversation.id}
-                    onSelect={() => setSelectedConversationId(conversation.id)}
-                    onEdit={() => openEditDialog(conversation)}
-                    onDelete={() => setDeleteId(conversation.id)}
-                  />
-                ))}
+                <div className="space-y-2" suppressHydrationWarning>
+                  {conversations.map((conversation) => (
+                    <SortableConversationItem
+                      key={conversation.id}
+                      conversation={conversation}
+                      isSelected={selectedConversationId === conversation.id}
+                      onSelect={() =>
+                        setSelectedConversationId(conversation.id)
+                      }
+                      onEdit={() => openEditDialog(conversation)}
+                      onEmbed={() => setEmbedId(conversation.id)}
+                      onDelete={() => setDeleteId(conversation.id)}
+                    />
+                  ))}
+                </div>
               </SortableContext>
             </DndContext>
           </div>
@@ -469,6 +504,102 @@ export default function ExampleConversationsTab({
               {deleting && <Spinner className="mr-2" />}
               Delete
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Embed dialog */}
+      <Dialog
+        open={!!embedId}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEmbedId(null);
+            setCopiedUrl(false);
+            setCopiedCode(false);
+          }
+        }}
+      >
+        <DialogContent className="w-full max-w-6xl sm:max-w-6xl">
+          <DialogHeader>
+            <DialogTitle>Embed Conversation</DialogTitle>
+            <DialogDescription>
+              Copy the URL or iframe code to embed this conversation on your
+              website.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Embed URL</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    const url = `${origin}/iframes/example-conversations/${embedId}`;
+                    await navigator.clipboard.writeText(url);
+                    setCopiedUrl(true);
+                    toast.success("URL copied to clipboard");
+                    setTimeout(() => setCopiedUrl(false), 2000);
+                  }}
+                >
+                  {copiedUrl ? (
+                    <>
+                      <Check className="h-4 w-4 mr-1" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 mr-1" />
+                      Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+              <div className="p-3 bg-muted rounded-md font-mono text-sm break-all">
+                {origin}/iframes/example-conversations/{embedId}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Iframe Code</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    const iframeCode = `<iframe\n  src="${origin}/iframes/example-conversations/${embedId}"\n  width="360"\n  height="736"\n  frameborder="0"\n  allowtransparency="true"\n></iframe>`;
+                    await navigator.clipboard.writeText(iframeCode);
+                    setCopiedCode(true);
+                    toast.success("Code copied to clipboard");
+                    setTimeout(() => setCopiedCode(false), 2000);
+                  }}
+                >
+                  {copiedCode ? (
+                    <>
+                      <Check className="h-4 w-4 mr-1" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4 mr-1" />
+                      Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+              <pre className="p-3 bg-muted rounded-md font-mono text-sm overflow-x-auto">
+                {`<iframe
+  src="${origin}/iframes/example-conversations/${embedId}"
+  width="360"
+  height="736"
+  frameborder="0"
+  allowtransparency="true"
+></iframe>`}
+              </pre>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setEmbedId(null)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
