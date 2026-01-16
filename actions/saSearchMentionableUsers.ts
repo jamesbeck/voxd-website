@@ -22,8 +22,7 @@ const saSearchMentionableUsers = async ({
 
   // Get the ticket to determine which users can be mentioned
   const ticket = await db("supportTicket")
-    .join("agent", "supportTicket.agentId", "agent.id")
-    .join("organisation", "agent.organisationId", "organisation.id")
+    .join("organisation", "supportTicket.organisationId", "organisation.id")
     .where("supportTicket.id", ticketId)
     .select("organisation.partnerId", "organisation.id as organisationId")
     .first();

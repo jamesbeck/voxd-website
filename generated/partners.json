@@ -40,5 +40,19 @@
     "domain": "portal.chatfox.ai",
     "colour": "081d35",
     "sendEmailFromDomain": "chatfox.ai"
+  },
+  {
+    "id": "019bc6e1-d178-7da3-8b62-1f9da6ff456b",
+    "name": "Technolink",
+    "billingAddressLine1": null,
+    "billingAddressLine2": null,
+    "billingCity": null,
+    "billingState": null,
+    "billingPostcode": null,
+    "billingCountry": null,
+    "billingEmails": null,
+    "domain": null,
+    "colour": null,
+    "sendEmailFromDomain": null
   }
 ]
