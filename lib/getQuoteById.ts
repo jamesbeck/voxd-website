@@ -40,6 +40,7 @@ export type Quote = {
   generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
   proposalPersonalMessage: string | null;
+  heroImageFileExtension: string | null; // Hero image file extension for quote
 };
 
 export const getQuoteById = async ({

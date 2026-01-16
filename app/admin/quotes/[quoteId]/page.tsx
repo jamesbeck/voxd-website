@@ -30,6 +30,7 @@ import EditQuoteTitleDialog from "./EditQuoteTitleDialog";
 import EditBackgroundForm from "./EditBackgroundForm";
 import EditPitchForm from "./EditPitchForm";
 import QuoteViewsTable from "./QuoteViewsTable";
+import QuoteHeroImageTab from "./QuoteHeroImageTab";
 
 export default async function Page({
   params,
@@ -123,6 +124,11 @@ export default async function Page({
                     href={`/admin/quotes/${quote.id}?tab=exampleConversations`}
                   >
                     Example Conversations
+                  </Link>
+                </TabsTrigger>
+                <TabsTrigger value="heroImage" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=heroImage`}>
+                    Hero Image
                   </Link>
                 </TabsTrigger>
                 <TabsTrigger value="views" asChild>
@@ -284,6 +290,14 @@ export default async function Page({
                 quoteId={quote.id}
                 conversations={quote.exampleConversations}
                 businessName={quote.organisationName}
+              />
+            </TabsContent>
+            <TabsContent value="heroImage">
+              <QuoteHeroImageTab
+                quoteId={quote.id}
+                heroImageFileExtension={quote.heroImageFileExtension}
+                organisationName={quote.organisationName}
+                background={quote.background || ""}
               />
             </TabsContent>
             <TabsContent value="views">

@@ -54,6 +54,7 @@
 
   --animate-collapsible-down: collapsible-down 0.2s ease-out;
   --animate-collapsible-up: collapsible-up 0.2s ease-out;
+  --animate-bounce-subtle: bounce-subtle 3s ease-in-out infinite;
 
   @keyframes collapsible-down {
     from {
@@ -74,6 +75,33 @@
     to {
       height: 0;
       opacity: 0;
+    }
+  }
+
+  @keyframes bounce-subtle {
+    0%,
+    100% {
+      transform: translateY(0);
+      animation-timing-function: ease-out;
+    }
+    3% {
+      transform: translateY(-30%);
+      animation-timing-function: ease-in;
+    }
+    6% {
+      transform: translateY(0);
+      animation-timing-function: ease-out;
+    }
+    8% {
+      transform: translateY(-10%);
+      animation-timing-function: ease-in;
+    }
+    10% {
+      transform: translateY(0);
+    }
+    12%,
+    100% {
+      transform: translateY(0);
     }
   }
 }

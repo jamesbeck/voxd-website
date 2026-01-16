@@ -7,9 +7,11 @@ import {
   PlusIcon,
   CameraIcon,
   MicrophoneIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import Message from "./message";
 import { addSeconds, format } from "date-fns";
+import { useRef, useState, useEffect } from "react";
 
 export default function WhatsAppSim({
   messages,
@@ -35,6 +37,24 @@ export default function WhatsAppSim({
   organizationLogoFileExtension?: string | null;
   organizationLogoDarkBackground?: boolean;
 }) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isAtTop, setIsAtTop] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollContainerRef.current) {
+        const scrollTop = scrollContainerRef.current.scrollTop;
+        setIsAtTop(scrollTop <= 10);
+      }
+    };
+
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll);
+      return () => scrollContainer.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
+
   // iphone background image is 1350x2760
   // height is 2.0444444 width
 
@@ -131,7 +151,10 @@ export default function WhatsAppSim({
               </div>
             </div>
           </div>
-          <div className="w-full h-[540px] relative overflow-y-scroll bg-[url(/whatsAppSim/bg.png)] bg-contain bg-repeat ">
+          <div
+            className="w-full h-[540px] relative overflow-y-scroll bg-[url(/whatsAppSim/bg.png)] bg-contain bg-repeat "
+            ref={scrollContainerRef}
+          >
             {/* <Image
               src="/whatsAppSim/bg.jpg"
               alt="background"
@@ -160,6 +183,31 @@ export default function WhatsAppSim({
                   />
                 );
               })}
+            </div>
+
+            {/* Scroll down indicator */}
+            <div
+              className={cn(
+                "absolute bottom-[5px] left-0 right-0 flex justify-center z-20 transition-opacity duration-300 group",
+                isAtTop && messages.length > 3
+                  ? "opacity-100 animate-bounce-subtle"
+                  : "opacity-0 pointer-events-none"
+              )}
+            >
+              <div className="relative">
+                <div className="bg-black/20 text-gray-700 p-2.5 rounded-full backdrop-blur-sm shadow-sm">
+                  <ChevronDownIcon className="w-7 h-7" />
+                </div>
+                {/* Hover tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-lg">
+                    Scroll down to see the rest of the conversation
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[1px]">
+                      <div className="border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div className="w-full py-[10px] pl-[10px] flex items-center space-x-[10px]">
