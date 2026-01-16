@@ -10,6 +10,9 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "VOXD | WhatsApp AI Chatbots",
   description: "Bespoke WhatsApp AI Chatbots",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default async function RootLayout({

@@ -10,11 +10,18 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
 
+  const favicon = partner?.domain
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}`
+    : "/logo.svg";
+
   return {
     title: partner?.name
       ? `${partner.name} | WhatsApp AI Chatbots`
       : "VOXD | WhatsApp AI Chatbots",
     description: partner?.name || "WhatsApp AI Chatbots",
+    icons: {
+      icon: favicon,
+    },
   };
 }
 

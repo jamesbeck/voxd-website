@@ -87,9 +87,16 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/pitches/${quoteId}`;
 
+  const favicon = pitch.partner.domain
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}`
+    : "/logo.svg";
+
   return {
     title,
     description,
+    icons: {
+      icon: favicon,
+    },
     openGraph: {
       title,
       description,

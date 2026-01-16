@@ -42,9 +42,16 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/examples/${slug}`;
 
+  const favicon = example.partner.domain
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}`
+    : "/logo.svg";
+
   return {
     title,
     description,
+    icons: {
+      icon: favicon,
+    },
     openGraph: {
       title,
       description,
