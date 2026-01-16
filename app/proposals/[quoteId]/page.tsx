@@ -58,7 +58,7 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${quote.title} | ${quote.partner.name}`;
+  const title = `${quote.organisationName} - ${quote.title} | ${quote.partner.name}`;
   const description = `AI Chatbot Implementation Proposal for ${quote.organisationName} - prepared by ${quote.partner.name}`;
 
   // Use optimized OG version of hero image (1200x630, <600KB for WhatsApp compatibility)
