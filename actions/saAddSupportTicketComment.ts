@@ -114,14 +114,38 @@ const saAddSupportTicketComment = async ({
       // Also send to mentioned users
       const mentionedUserIds = extractMentionedUserIds(comment);
       if (mentionedUserIds.length > 0) {
-        const mentionedUsers = await db("adminUser")
-          .whereIn("id", mentionedUserIds)
-          .select("email");
-        mentionedUsers.forEach((user) => {
-          if (user.email && !recipients.includes(user.email)) {
-            recipients.push(user.email);
-          }
-        });
+        // Check if @all is mentioned
+        const hasAllMention = mentionedUserIds.includes("__ALL__");
+        
+        if (hasAllMention) {
+          // Notify all users in the organization (except the commenter)
+          const allOrgUsers = await db("adminUser")
+            .where(function () {
+              this.where("organisationId", ticket.organisationId)
+                .orWhere("partnerId", ticket.partnerId)
+                .orWhere("superAdmin", true);
+            })
+            .andWhere("id", "!=", accessToken.adminUserId)
+            .select("email");
+          allOrgUsers.forEach((user) => {
+            if (user.email && !recipients.includes(user.email)) {
+              recipients.push(user.email);
+            }
+          });
+        }
+        
+        // Add specifically mentioned users (excluding __ALL__)
+        const specificUserIds = mentionedUserIds.filter(id => id !== "__ALL__");
+        if (specificUserIds.length > 0) {
+          const mentionedUsers = await db("adminUser")
+            .whereIn("id", specificUserIds)
+            .select("email");
+          mentionedUsers.forEach((user) => {
+            if (user.email && !recipients.includes(user.email)) {
+              recipients.push(user.email);
+            }
+          });
+        }
       }
 
       const formattedComment = formatCommentForEmail(comment.trim());

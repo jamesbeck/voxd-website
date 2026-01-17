@@ -75,9 +75,20 @@ const saSearchMentionableUsers = async ({
     .orderBy("name", "asc")
     .limit(10);
 
+  // Add @all option if search is empty or matches "all"
+  const results: MentionableUser[] = [];
+  if (!search || "all".includes(search.toLowerCase())) {
+    results.push({
+      id: "__ALL__",
+      name: "all",
+      email: "Notify everyone in the organization",
+    });
+  }
+  results.push(...users);
+
   return {
     success: true,
-    data: users,
+    data: results,
   };
 };
 
