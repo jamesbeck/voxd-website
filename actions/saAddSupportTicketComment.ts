@@ -97,7 +97,6 @@ const saAddSupportTicketComment = async ({
     try {
       sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
-      const isDevelopment = process.env.NODE_ENV === "development";
       const partnerDomain = ticket.partnerDomain || "voxd.ai";
       const partnerName = ticket.partnerName || "Voxd";
       const emailFromDomain = ticket.sendEmailFromDomain || "voxd.ai";
@@ -106,26 +105,37 @@ const saAddSupportTicketComment = async ({
       // Build recipient list
       const recipients: string[] = ["james.beck@voxd.ai"];
 
-      if (!isDevelopment) {
-        // In production, also send to mentioned users
-        const mentionedUserIds = extractMentionedUserIds(comment);
-        if (mentionedUserIds.length > 0) {
-          const mentionedUsers = await db("adminUser")
-            .whereIn("id", mentionedUserIds)
-            .select("email");
-          mentionedUsers.forEach((user) => {
-            if (user.email && !recipients.includes(user.email)) {
-              recipients.push(user.email);
-            }
-          });
-        }
+      // Also send to mentioned users
+      const mentionedUserIds = extractMentionedUserIds(comment);
+      if (mentionedUserIds.length > 0) {
+        const mentionedUsers = await db("adminUser")
+          .whereIn("id", mentionedUserIds)
+          .select("email");
+        mentionedUsers.forEach((user) => {
+          if (user.email && !recipients.includes(user.email)) {
+            recipients.push(user.email);
+          }
+        });
       }
 
       const formattedComment = formatCommentForEmail(comment.trim());
 
+      // Remove the commenter from recipients so they don't get notified of their own comment
+      const finalRecipients = recipients.filter(
+        (email) => email !== commenter?.email
+      );
+
+      // Only send email if there are recipients after filtering
+      if (finalRecipients.length === 0) {
+        return {
+          success: true,
+          data: newComment,
+        };
+      }
+
       await sendgrid.send({
         from: `${partnerName} Support <support@${emailFromDomain}>`,
-        to: recipients,
+        to: finalRecipients,
         subject: `New Comment on Ticket #${ticket.ticketNumber}: ${ticket.title}`,
         html: `
           <!DOCTYPE html>
