@@ -10,6 +10,8 @@ const getAgentById = async ({ agentId }: { agentId: string }) => {
       "agent.*",
       "model.model",
       "model.provider",
+      "model.inputTokenCost",
+      "model.outputTokenCost",
       "phoneNumber.displayPhoneNumber",
       "phoneNumber.displayPhoneNumber as phoneNumber",
       "organisation.name as organisationName"

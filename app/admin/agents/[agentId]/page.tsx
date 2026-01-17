@@ -32,6 +32,7 @@ import {
   BookOpen,
   FileText,
 } from "lucide-react";
+import ModelTab from "./modelTab";
 
 export default async function Page({
   params,
@@ -92,6 +93,9 @@ export default async function Page({
                     </Link>
                   </TabsTrigger>
                 )}
+                <TabsTrigger value="model" asChild>
+                  <Link href={`/admin/agents/${agentId}?tab=model`}>Model</Link>
+                </TabsTrigger>
                 <TabsTrigger value="sessions" asChild>
                   <Link href={`/admin/agents/${agentId}?tab=sessions`}>
                     Sessions
@@ -202,6 +206,17 @@ export default async function Page({
                 </Container>
               </TabsContent>
             )}
+            <TabsContent value="model">
+              <Container>
+                <ModelTab
+                  currentModelId={agent?.modelId}
+                  currentModelName={agent?.model}
+                  currentModelProvider={agent?.provider}
+                  currentInputTokenCost={agent?.inputTokenCost}
+                  currentOutputTokenCost={agent?.outputTokenCost}
+                />
+              </Container>
+            </TabsContent>
             <TabsContent value="sessions">
               <Container>
                 <H2>Sessions</H2>
