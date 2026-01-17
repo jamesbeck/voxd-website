@@ -116,7 +116,7 @@ const saAddSupportTicketComment = async ({
       if (mentionedUserIds.length > 0) {
         // Check if @all is mentioned
         const hasAllMention = mentionedUserIds.includes("__ALL__");
-        
+
         if (hasAllMention) {
           // Notify all users in the organization (except the commenter)
           const allOrgUsers = await db("adminUser")
@@ -133,9 +133,11 @@ const saAddSupportTicketComment = async ({
             }
           });
         }
-        
+
         // Add specifically mentioned users (excluding __ALL__)
-        const specificUserIds = mentionedUserIds.filter(id => id !== "__ALL__");
+        const specificUserIds = mentionedUserIds.filter(
+          (id) => id !== "__ALL__"
+        );
         if (specificUserIds.length > 0) {
           const mentionedUsers = await db("adminUser")
             .whereIn("id", specificUserIds)
