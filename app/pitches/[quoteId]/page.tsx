@@ -87,9 +87,10 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/pitches/${quoteId}`;
 
-  const favicon = pitch.partner.domain && pitch.partner.logoFileExtension
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
-    : "/logo.svg";
+  const favicon =
+    pitch.partner.domain && pitch.partner.logoFileExtension
+      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
+      : "/logo.svg";
 
   return {
     title,
@@ -162,9 +163,10 @@ export default async function PublicPitchPage({
   const brandColor = pitch.partner.colour
     ? `#${pitch.partner.colour}`
     : "#6366f1";
-  const logoUrl = pitch.partner.domain && pitch.partner.logoFileExtension
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
-    : "/logo.svg";
+  const logoUrl =
+    pitch.partner.domain && pitch.partner.logoFileExtension
+      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
+      : "/logo.svg";
 
   const organisationLogoUrl = pitch.organisationLogoFileExtension
     ? `https://s3.${

@@ -10,9 +10,10 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
 
-  const favicon = partner?.domain && partner?.logoFileExtension
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}.${partner.logoFileExtension}`
-    : "/logo.svg";
+  const favicon =
+    partner?.domain && partner?.logoFileExtension
+      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}.${partner.logoFileExtension}`
+      : "/logo.svg";
 
   return {
     title: partner?.name
