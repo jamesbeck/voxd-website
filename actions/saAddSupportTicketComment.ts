@@ -4,6 +4,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import sendgrid from "@sendgrid/mail";
+import { addLog } from "@/lib/addLog";
 
 // Extract mentioned user IDs from comment text
 // Mentions are stored as @[Display Name](userId)
@@ -51,6 +52,7 @@ const saAddSupportTicketComment = async ({
       "supportTicket.id",
       "supportTicket.ticketNumber",
       "supportTicket.title",
+      "supportTicket.status",
       "organisation.partnerId",
       "organisation.id as organisationId",
       "partner.domain as partnerDomain",
@@ -84,6 +86,26 @@ const saAddSupportTicketComment = async ({
   }
 
   try {
+    // Check if ticket is closed and reopen it
+    const wasClosed = ticket.status?.toLowerCase() === "closed";
+
+    if (wasClosed) {
+      await db("supportTicket")
+        .where("id", ticketId)
+        .update({ status: "Open" });
+
+      // Log the status change
+      await addLog({
+        adminUserId: accessToken.adminUserId,
+        event: "Update Support Ticket Status",
+        description: `Ticket #${ticket.ticketNumber} automatically reopened from Closed to Open due to new comment`,
+        data: {
+          entityType: "supportTicket",
+          entityId: ticketId,
+        },
+      });
+    }
+
     const [newComment] = await db("supportTicketComment")
       .insert({
         supportTicketId: ticketId,
@@ -91,6 +113,15 @@ const saAddSupportTicketComment = async ({
         comment: comment.trim(),
       })
       .returning(["id", "createdAt"]);
+
+    // If ticket was closed, add a system comment about status change
+    if (wasClosed) {
+      await db("supportTicketComment").insert({
+        supportTicketId: ticketId,
+        adminUserId: accessToken.adminUserId,
+        comment: "Status changed to Open because of new comment",
+      });
+    }
 
     // Get commenter name for email
     const commenter = await db("adminUser")

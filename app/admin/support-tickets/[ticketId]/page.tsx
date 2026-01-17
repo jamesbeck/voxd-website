@@ -236,7 +236,7 @@ export default async function Page({
 
         <TabsContent value="comments">
           <Container>
-            <TicketComments ticketId={ticketId} />
+            <TicketComments ticketId={ticketId} ticketStatus={ticket.status} />
           </Container>
         </TabsContent>
       </Tabs>

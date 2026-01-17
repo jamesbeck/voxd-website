@@ -15,12 +15,13 @@ import {
 } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { Send, User } from "lucide-react";
+import { Send, User, AlertCircle } from "lucide-react";
 import saGetSupportTicketComments from "@/actions/saGetSupportTicketComments";
 import saAddSupportTicketComment from "@/actions/saAddSupportTicketComment";
 import MentionTextarea, {
   renderCommentWithMentions,
 } from "@/components/inputs/MentionTextarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type Comment = {
   id: string;
@@ -35,7 +36,13 @@ const formSchema = z.object({
   comment: z.string().min(1, "Comment is required"),
 });
 
-export default function TicketComments({ ticketId }: { ticketId: string }) {
+export default function TicketComments({
+  ticketId,
+  ticketStatus,
+}: {
+  ticketId: string;
+  ticketStatus: string;
+}) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -140,6 +147,15 @@ export default function TicketComments({ ticketId }: { ticketId: string }) {
 
       {/* Add comment form */}
       <div className="border-t pt-6">
+        {ticketStatus?.toLowerCase() === "closed" && (
+          <Alert className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              This ticket is closed. Adding a comment will automatically reopen
+              it.
+            </AlertDescription>
+          </Alert>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
