@@ -54,12 +54,14 @@ const saSearchMentionableUsers = async ({
   // 1. Users belonging to the organisation that owns the agent
   // 2. Users belonging to the partner that owns the organisation
   // 3. Super admin users
+  // Exclude the current logged-in user from the list
   const users = await db("adminUser")
     .where(function () {
       this.where("organisationId", ticket.organisationId)
         .orWhere("partnerId", ticket.partnerId)
         .orWhere("superAdmin", true);
     })
+    .andWhere("id", "!=", accessToken.adminUserId)
     .andWhere(function () {
       if (search) {
         this.where("name", "ilike", `%${search}%`).orWhere(
