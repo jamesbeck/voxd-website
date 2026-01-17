@@ -14,9 +14,16 @@ interface Model {
 const saGetAllModels = async (): Promise<ServerActionResponse> => {
   try {
     const models: Model[] = await db("model")
-      .select("*")
-      .orderBy("provider", "asc")
-      .orderBy("model", "asc");
+      .leftJoin("provider", "model.providerId", "provider.id")
+      .select(
+        "model.id",
+        "model.model",
+        "model.inputTokenCost",
+        "model.outputTokenCost",
+        "provider.name as provider"
+      )
+      .orderBy("provider.name", "asc")
+      .orderBy("model.model", "asc");
 
     return {
       success: true,
