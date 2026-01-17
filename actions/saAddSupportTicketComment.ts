@@ -37,8 +37,14 @@ const saAddSupportTicketComment = async ({
 
   // First verify access to the ticket and get full details
   const ticket = await db("supportTicket")
-    .join("agent", "supportTicket.agentId", "agent.id")
-    .join("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("agent", "supportTicket.agentId", "agent.id")
+    .leftJoin("organisation", function () {
+      this.on("agent.organisationId", "=", "organisation.id").orOn(
+        "supportTicket.organisationId",
+        "=",
+        "organisation.id"
+      );
+    })
     .leftJoin("partner", "organisation.partnerId", "partner.id")
     .where("supportTicket.id", ticketId)
     .select(
@@ -162,16 +168,24 @@ const saAddSupportTicketComment = async ({
                         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                           <tr>
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px; width: 120px;">Ticket #</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px; font-weight: 600;">${ticket.ticketNumber}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px; font-weight: 600;">${
+                              ticket.ticketNumber
+                            }</td>
                           </tr>
                           <tr>
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Title</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${ticket.title}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${
+                              ticket.title
+                            }</td>
                           </tr>
-                          <tr>
+                          ${
+                            ticket.agentName
+                              ? `<tr>
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #888888; font-size: 14px;">Agent</td>
                             <td style="padding: 10px; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 14px;">${ticket.agentName}</td>
-                          </tr>
+                          </tr>`
+                              : ""
+                          }
                         </table>
 
                         <p style="margin: 0 0 10px 0; color: #888888; font-size: 14px;">Comment:</p>
@@ -197,7 +211,13 @@ const saAddSupportTicketComment = async ({
           </body>
           </html>
         `,
-        text: `New Comment on Support Ticket #${ticket.ticketNumber}\n\n${commenterName} added a new comment:\n\nTicket #: ${ticket.ticketNumber}\nTitle: ${ticket.title}\nAgent: ${ticket.agentName}\n\nComment:\n${formattedComment}\n\nView ticket: ${ticketUrl}`,
+        text: `New Comment on Support Ticket #${
+          ticket.ticketNumber
+        }\n\n${commenterName} added a new comment:\n\nTicket #: ${
+          ticket.ticketNumber
+        }\nTitle: ${ticket.title}${
+          ticket.agentName ? `\nAgent: ${ticket.agentName}` : ""
+        }\n\nComment:\n${formattedComment}\n\nView ticket: ${ticketUrl}`,
       });
     } catch (emailError) {
       // Log but don't fail the comment creation if email fails

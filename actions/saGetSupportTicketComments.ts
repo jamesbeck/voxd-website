@@ -24,8 +24,14 @@ const saGetSupportTicketComments = async ({
 
   // First verify access to the ticket
   const ticket = await db("supportTicket")
-    .join("agent", "supportTicket.agentId", "agent.id")
-    .join("organisation", "agent.organisationId", "organisation.id")
+    .leftJoin("agent", "supportTicket.agentId", "agent.id")
+    .leftJoin("organisation", function () {
+      this.on("agent.organisationId", "=", "organisation.id").orOn(
+        "supportTicket.organisationId",
+        "=",
+        "organisation.id"
+      );
+    })
     .where("supportTicket.id", ticketId)
     .select("organisation.partnerId", "organisation.id as organisationId")
     .first();
