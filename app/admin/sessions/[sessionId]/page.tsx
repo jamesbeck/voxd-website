@@ -213,13 +213,13 @@ export default async function Page({
                   {
                     label: "Approx. Prompt Cost",
                     value: `$${session.totalPromptCost.toFixed(4)}`,
-                    description: `${session.totalPromptTokens.toLocaleString()} tokens`,
+                    description: `${session.totalinputTokens.toLocaleString()} tokens`,
                     icon: <Zap className="h-4 w-4" />,
                   },
                   {
                     label: "Approx. Response Cost",
                     value: `$${session.totalCompletionCost.toFixed(4)}`,
-                    description: `${session.totalCompletionTokens.toLocaleString()} tokens`,
+                    description: `${session.totaloutputTokens.toLocaleString()} tokens`,
                     icon: <Zap className="h-4 w-4" />,
                   },
                   {
@@ -228,7 +228,7 @@ export default async function Page({
                       session.totalPromptCost + session.totalCompletionCost
                     ).toFixed(4)}`,
                     description: `${(
-                      session.totalPromptTokens + session.totalCompletionTokens
+                      session.totalinputTokens + session.totaloutputTokens
                     ).toLocaleString()} total tokens`,
                     icon: <DollarSign className="h-4 w-4" />,
                   },

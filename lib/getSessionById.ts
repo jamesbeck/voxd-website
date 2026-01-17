@@ -11,8 +11,8 @@ interface Session {
   closedReason: string | null;
   data: any;
   lastUserMessageDate: Date | null;
-  totalPromptTokens: number;
-  totalCompletionTokens: number;
+  totalinputTokens: number;
+  totaloutputTokens: number;
   totalPromptCost: number;
   totalCompletionCost: number;
   totalCost: number;
@@ -38,19 +38,19 @@ const getSessionById = async ({
         '(SELECT MAX("createdAt") FROM "userMessage" WHERE "userMessage"."sessionId" = "session"."id") as "lastUserMessageDate"'
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."promptTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalPromptTokens"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalinputTokens"'
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."completionTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalCompletionTokens"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totaloutputTokens"'
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."promptTokens" * "model"."inputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalPromptCost"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens" * "model"."inputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalPromptCost"'
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."completionTokens" * "model"."outputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalCompletionCost"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputTokens" * "model"."outputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalCompletionCost"'
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."promptTokens" * "model"."inputTokenCost" + "assistantMessage"."completionTokens" * "model"."outputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalCost"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens" * "model"."inputTokenCost" + "assistantMessage"."outputTokens" * "model"."outputTokenCost") FROM "assistantMessage" LEFT JOIN "model" ON "assistantMessage"."modelId" = "model"."id" WHERE "assistantMessage"."sessionId" = "session"."id") / 1000000.0, 0) AS FLOAT) as "totalCost"'
       )
     )
     .where("session.id", sessionId);

@@ -83,7 +83,7 @@ const saGetChatUserTableData = async ({
   const costSubquery = db("assistantMessage")
     .select(
       db.raw(
-        'SUM("assistantMessage"."promptTokens" * "model"."inputTokenCost" + "assistantMessage"."completionTokens" * "model"."outputTokenCost") / 1000000.0'
+        'SUM("assistantMessage"."inputTokens" * "model"."inputTokenCost" + "assistantMessage"."outputTokens" * "model"."outputTokenCost") / 1000000.0'
       )
     )
     .leftJoin("model", "assistantMessage.modelId", "model.id")

@@ -307,21 +307,20 @@ export default async function Page({
                       },
                       {
                         label: "Prompt Tokens",
-                        value: message.promptTokens?.toLocaleString() ?? "-",
+                        value: message.inputTokens?.toLocaleString() ?? "-",
                         icon: <Coins className="h-4 w-4" />,
                       },
                       {
                         label: "Completion Tokens",
-                        value:
-                          message.completionTokens?.toLocaleString() ?? "-",
+                        value: message.outputTokens?.toLocaleString() ?? "-",
                         icon: <Coins className="h-4 w-4" />,
                       },
                       {
                         label: "Total Tokens",
                         value:
-                          message.promptTokens && message.completionTokens
+                          message.inputTokens && message.outputTokens
                             ? (
-                                message.promptTokens + message.completionTokens
+                                message.inputTokens + message.outputTokens
                               ).toLocaleString()
                             : "-",
                         icon: <Coins className="h-4 w-4" />,

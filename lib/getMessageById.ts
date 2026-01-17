@@ -20,8 +20,8 @@ interface AssistantMessage {
   outputSessionData: Record<string, any> | null;
   outputUserData: Record<string, any> | null;
   text: string;
-  promptTokens: number | null;
-  completionTokens: number | null;
+  inputTokens: number | null;
+  outputTokens: number | null;
   createdAt: Date;
   modelId: string | null;
   model: string | null;

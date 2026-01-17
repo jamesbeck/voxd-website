@@ -111,18 +111,17 @@ export default function Conversation({
                           <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
                             <Coins className="h-3.5 w-3.5" />
                             <span className="text-[11px]">
-                              {message?.promptTokens +
-                                message?.completionTokens}
+                              {message?.inputTokens + message?.outputTokens}
                             </span>
                           </div>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p className="font-medium">Token Usage</p>
                           <p className="text-xs opacity-70">
-                            Input: {message?.promptTokens} tokens
+                            Input: {message?.inputTokens} tokens
                           </p>
                           <p className="text-xs opacity-70">
-                            Output: {message?.completionTokens} tokens
+                            Output: {message?.outputTokens} tokens
                           </p>
                         </TooltipContent>
                       </Tooltip>
