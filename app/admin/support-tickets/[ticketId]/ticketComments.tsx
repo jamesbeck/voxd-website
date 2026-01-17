@@ -57,6 +57,17 @@ export default function TicketComments({ ticketId }: { ticketId: string }) {
 
   useEffect(() => {
     fetchComments();
+
+    // Listen for status change events to refresh comments
+    const handleStatusChange = () => {
+      fetchComments();
+    };
+
+    window.addEventListener("ticket-status-changed", handleStatusChange);
+
+    return () => {
+      window.removeEventListener("ticket-status-changed", handleStatusChange);
+    };
   }, [ticketId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {

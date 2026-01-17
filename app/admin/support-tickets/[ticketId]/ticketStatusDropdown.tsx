@@ -51,6 +51,9 @@ export default function TicketStatusDropdown({
 
     setStatus(newStatus);
     toast.success(`Status changed to ${newStatus}`);
+
+    // Dispatch event to refresh comments without full page reload
+    window.dispatchEvent(new CustomEvent("ticket-status-changed"));
     router.refresh();
   };
 
