@@ -46,8 +46,8 @@ export default async function LoginPage({
       <LoginForm
         email={devEmail || idToken?.email}
         logoUrl={
-          partner?.domain
-            ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
+          partner?.domain && partner?.logoFileExtension
+            ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}.${partner?.logoFileExtension}`
             : undefined
         }
         redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}

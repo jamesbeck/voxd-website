@@ -77,8 +77,8 @@ export async function generateMetadata({
       }/organisationLogos/${quote.organisationId}.${
         quote.organisationLogoFileExtension
       }`
-    : quote.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}`
+    : quote.partner.domain && quote.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
     : null;
 
   // Get current host from request headers
@@ -87,8 +87,8 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/proposals/${quoteId}`;
 
-  const favicon = quote.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}`
+  const favicon = quote.partner.domain && quote.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
     : "/logo.svg";
 
   return {
@@ -162,8 +162,8 @@ export default async function PublicQuotePage({
   const brandColor = quote.partner.colour
     ? `#${quote.partner.colour}`
     : "#6366f1";
-  const logoUrl = quote.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}`
+  const logoUrl = quote.partner.domain && quote.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
     : "/logo.svg";
 
   const organisationLogoUrl = quote.organisationLogoFileExtension

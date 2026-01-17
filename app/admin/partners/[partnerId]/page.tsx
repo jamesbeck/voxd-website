@@ -7,6 +7,7 @@ import NewPartnerForm from "./newPartnerForm";
 import { notFound } from "next/navigation";
 import EditPartnerForm from "./editPartnerForm";
 import getPartnerById from "@/lib/getPartnerById";
+import LogoTab from "./logoTab";
 
 export default async function Page({
   params,
@@ -34,9 +35,10 @@ export default async function Page({
       <H1>{partner?.name || "New Partner"}</H1>
       {partner && (
         <>
-          <Tabs defaultValue="sessions" className="space-y-2">
+          <Tabs defaultValue="edit" className="space-y-2">
             <TabsList>
               <TabsTrigger value="edit">Edit Partner</TabsTrigger>
+              <TabsTrigger value="logo">Logo</TabsTrigger>
               {/* <TabsTrigger value="sessions">Sessions</TabsTrigger> */}
             </TabsList>
 
@@ -49,6 +51,13 @@ export default async function Page({
                 domain={partner.domain}
                 colour={partner.colour}
                 openAiApiKey={partner.openAiApiKey}
+              />
+            </TabsContent>
+            <TabsContent value="logo">
+              <LogoTab
+                partnerId={partner.id}
+                partnerDomain={partner.domain}
+                logoFileExtension={partner.logoFileExtension ?? null}
               />
             </TabsContent>
             {/* <TabsContent value="sessions">

@@ -71,6 +71,7 @@ export interface Partner {
   colour: string;
   domain: string;
   openAiApiKey?: string;
+  logoFileExtension?: string | null;
 }
 
 export interface Example {

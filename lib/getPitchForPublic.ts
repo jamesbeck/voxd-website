@@ -29,6 +29,7 @@ export type PublicPitch = {
     name: string;
     colour: string | null;
     domain: string | null;
+    logoFileExtension: string | null;
   };
   createdBy: {
     name: string | null;
@@ -63,6 +64,7 @@ export const getPitchForPublic = async ({
       "partner.name as partnerName",
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
+      "partner.logoFileExtension as partnerLogoFileExtension",
       "adminUser.name as createdByName",
       "adminUser.email as createdByEmail"
     )
@@ -120,6 +122,7 @@ export const getPitchForPublic = async ({
       name: quote.partnerName,
       colour: quote.partnerColour,
       domain: quote.partnerDomain,
+      logoFileExtension: quote.partnerLogoFileExtension,
     },
     createdBy:
       quote.createdByName || quote.createdByEmail

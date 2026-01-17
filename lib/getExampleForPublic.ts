@@ -25,6 +25,7 @@ export type PublicExample = {
     name: string;
     colour: string | null;
     domain: string | null;
+    logoFileExtension: string | null;
   };
   exampleConversations: PublicExampleConversation[];
 };
@@ -62,7 +63,8 @@ export const getExampleForPublic = async ({
       "example.createdAt",
       "partner.name as partnerName",
       "partner.colour as partnerColour",
-      "partner.domain as partnerDomain"
+      "partner.domain as partnerDomain",
+      "partner.logoFileExtension as partnerLogoFileExtension"
     )
     .first();
 
@@ -112,6 +114,7 @@ export const getExampleForPublic = async ({
       name: example.partnerName || "Voxd",
       colour: example.partnerColour,
       domain: example.partnerDomain,
+      logoFileExtension: example.partnerLogoFileExtension,
     },
     exampleConversations: parsedConversations,
   };

@@ -77,8 +77,8 @@ export async function generateMetadata({
       }/organisationLogos/${pitch.organisationId}.${
         pitch.organisationLogoFileExtension
       }`
-    : pitch.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}`
+    : pitch.partner.domain && pitch.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
     : null;
 
   // Get current host from request headers
@@ -87,8 +87,8 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/pitches/${quoteId}`;
 
-  const favicon = pitch.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}`
+  const favicon = pitch.partner.domain && pitch.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
     : "/logo.svg";
 
   return {
@@ -162,8 +162,8 @@ export default async function PublicPitchPage({
   const brandColor = pitch.partner.colour
     ? `#${pitch.partner.colour}`
     : "#6366f1";
-  const logoUrl = pitch.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}`
+  const logoUrl = pitch.partner.domain && pitch.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
     : "/logo.svg";
 
   const organisationLogoUrl = pitch.organisationLogoFileExtension

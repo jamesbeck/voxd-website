@@ -32,8 +32,8 @@ export async function generateMetadata({
     ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}_og.${example.heroImageFileExtension}`
     : example.logoFileExtension
     ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`
-    : example.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}`
+    : example.partner.domain && example.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
     : null;
 
   // Get current host from request headers
@@ -42,8 +42,8 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/examples/${slug}`;
 
-  const favicon = example.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}`
+  const favicon = example.partner.domain && example.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
     : "/logo.svg";
 
   return {
@@ -100,8 +100,8 @@ export default async function ExamplesPage({
   const brandColor = example.partner.colour
     ? `#${example.partner.colour}`
     : "#6366f1";
-  const partnerLogoUrl = example.partner.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}`
+  const partnerLogoUrl = example.partner.domain && example.partner.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
     : "/logo.svg";
 
   const exampleLogoUrl = example.logoFileExtension

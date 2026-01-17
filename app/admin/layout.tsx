@@ -10,8 +10,8 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
 
-  const favicon = partner?.domain
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}`
+  const favicon = partner?.domain && partner?.logoFileExtension
+    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}.${partner.logoFileExtension}`
     : "/logo.svg";
 
   return {
@@ -45,8 +45,8 @@ export default async function RootLayout({
             superAdmin={accessToken?.superAdmin}
             partner={accessToken?.partner}
             logoUrl={
-              partner?.domain
-                ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}`
+              partner?.domain && partner?.logoFileExtension
+                ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}.${partner?.logoFileExtension}`
                 : undefined
             }
           />
