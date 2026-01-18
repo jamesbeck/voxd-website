@@ -15,7 +15,33 @@ export default async function saUpdateAgentModel({
   try {
     const accessToken = await verifyAccessToken();
 
-    if (!accessToken.superAdmin) {
+    // Get the agent with organisation info for authorization
+    const agent = await db("agent")
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .leftJoin("model", "agent.modelId", "model.id")
+      .leftJoin("provider", "model.providerId", "provider.id")
+      .where("agent.id", agentId)
+      .select(
+        "agent.organisationId",
+        "organisation.partnerId",
+        "agent.modelId as oldModelId",
+        "model.model as oldModelName",
+        "provider.name as oldProviderName"
+      )
+      .first();
+
+    if (!agent) {
+      return { success: false, error: "Agent not found" };
+    }
+
+    // Authorization check
+    const isAuthorized =
+      accessToken.superAdmin ||
+      (accessToken.partner && agent.partnerId === accessToken.partnerId) ||
+      (!accessToken.partner &&
+        agent.organisationId === accessToken.organisationId);
+
+    if (!isAuthorized) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -29,18 +55,6 @@ export default async function saUpdateAgentModel({
     if (!model) {
       return { success: false, error: "Model not found" };
     }
-
-    // Get the old model for logging
-    const agent = await db("agent")
-      .leftJoin("model", "agent.modelId", "model.id")
-      .leftJoin("provider", "model.providerId", "provider.id")
-      .where("agent.id", agentId)
-      .select(
-        "agent.modelId as oldModelId",
-        "model.model as oldModelName",
-        "provider.name as oldProviderName"
-      )
-      .first();
 
     // Update the agent's model
     await db("agent").where({ id: agentId }).update({ modelId });
