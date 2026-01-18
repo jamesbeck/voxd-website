@@ -201,7 +201,6 @@ export default async function Page({
                     openAiApiKey={agent?.openAiApiKey}
                     organisationId={agent?.organisationId}
                     phoneNumberId={agent?.phoneNumberId}
-                    modelId={agent?.modelId}
                   />
                 </Container>
               </TabsContent>
@@ -209,6 +208,7 @@ export default async function Page({
             <TabsContent value="model">
               <Container>
                 <ModelTab
+                  agentId={agentId}
                   currentModelId={agent?.modelId}
                   currentModelName={agent?.model}
                   currentModelProvider={agent?.provider}
