@@ -262,6 +262,7 @@ export default async function Page({
                 pitchPersonalMessage={quote.pitchPersonalMessage}
                 generatedPitchIntroduction={quote.generatedPitchIntroduction}
                 generatedPitch={quote.generatedPitch}
+                pitchHideSections={quote.pitchHideSections}
               />
             </TabsContent>
             <TabsContent value="proposal">

@@ -37,6 +37,7 @@ export type Quote = {
   generatedPitchIntroduction: string | null;
   generatedPitch: string | null;
   pitchPersonalMessage: string | null;
+  pitchHideSections: string[] | null;
   generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
   proposalPersonalMessage: string | null;

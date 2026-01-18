@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import saUpdateQuotePitch from "@/actions/saUpdateQuotePitch";
 import saGenerateQuotePitch from "@/actions/saGenerateQuotePitch";
 import { Eye, EyeOff, Sparkles, AlertCircle } from "lucide-react";
@@ -43,9 +44,13 @@ import {
 } from "@/components/ui/dialog";
 
 const formSchema = z.object({
-  pitchPersonalMessage: z.string().optional(),
   generatedPitchIntroduction: z.string().optional(),
   generatedPitch: z.string().optional(),
+  pitchHideSections: z.array(z.string()).optional(),
+});
+
+const personalMessageSchema = z.object({
+  pitchPersonalMessage: z.string().optional(),
 });
 
 export default function EditPitchForm({
@@ -53,38 +58,67 @@ export default function EditPitchForm({
   pitchPersonalMessage,
   generatedPitchIntroduction,
   generatedPitch,
+  pitchHideSections,
 }: {
   quoteId: string;
   pitchPersonalMessage: string | null;
   generatedPitchIntroduction: string | null;
   generatedPitch: string | null;
+  pitchHideSections: string[] | null;
 }) {
   const [loading, setLoading] = useState(false);
+  const [loadingPersonalMessage, setLoadingPersonalMessage] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPromptDialog, setShowPromptDialog] = useState(false);
   const [extraPrompt, setExtraPrompt] = useState("");
   const [showIntroPreview, setShowIntroPreview] = useState(true);
   const [showPitchPreview, setShowPitchPreview] = useState(true);
+  const [savingSections, setSavingSections] = useState(false);
   const router = useRouter();
+
+  const personalMessageForm = useForm<z.infer<typeof personalMessageSchema>>({
+    resolver: zodResolver(personalMessageSchema),
+    defaultValues: {
+      pitchPersonalMessage: pitchPersonalMessage || "",
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      pitchPersonalMessage: pitchPersonalMessage || "",
       generatedPitchIntroduction: generatedPitchIntroduction || "",
       generatedPitch: generatedPitch || "",
+      pitchHideSections: pitchHideSections || [],
     },
   });
+
+  async function savePitchHideSections(hideSections: string[]) {
+    setSavingSections(true);
+
+    const response = await saUpdateQuotePitch({
+      quoteId: quoteId,
+      pitchHideSections: hideSections,
+    });
+
+    if (!response.success) {
+      toast.error("Failed to update section visibility");
+    } else {
+      toast.success("Section visibility updated");
+      router.refresh();
+    }
+
+    setSavingSections(false);
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
     const response = await saUpdateQuotePitch({
       quoteId: quoteId,
-      pitchPersonalMessage: values.pitchPersonalMessage,
       generatedPitchIntroduction: values.generatedPitchIntroduction,
       generatedPitch: values.generatedPitch,
+      pitchHideSections: values.pitchHideSections,
     });
 
     if (!response.success) {
@@ -106,6 +140,37 @@ export default function EditPitchForm({
     }
 
     setLoading(false);
+  }
+
+  async function onSubmitPersonalMessage(
+    values: z.infer<typeof personalMessageSchema>
+  ) {
+    setLoadingPersonalMessage(true);
+
+    const response = await saUpdateQuotePitch({
+      quoteId: quoteId,
+      pitchPersonalMessage: values.pitchPersonalMessage,
+    });
+
+    if (!response.success) {
+      setLoadingPersonalMessage(false);
+
+      if (response.error) {
+        toast.error("There was an error updating the personal message");
+
+        personalMessageForm.setError("root", {
+          type: "manual",
+          message: response.error,
+        });
+      }
+    }
+
+    if (response.success) {
+      toast.success("Personal message updated successfully");
+      router.refresh();
+    }
+
+    setLoadingPersonalMessage(false);
   }
 
   const hasContent =
@@ -230,172 +295,286 @@ export default function EditPitchForm({
         </DialogContent>
       </Dialog>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="pitchPersonalMessage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Personal Message</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter a personal message to include at the top of the pitch..."
-                    {...field}
-                    rows={4}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Optionally, add a personal message to the pitch.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      {/* Personal Message Section */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Personal Message</h3>
+          <p className="text-sm text-muted-foreground">
+            Add an optional personal message at the top of the pitch
+          </p>
+        </div>
 
-          {!hasContent && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No pitch content yet</AlertTitle>
-              <AlertDescription>
-                Click the button below to generate a pitch using AI, or add
-                content manually.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGenerateClick}
-              disabled={generating}
-            >
-              {generating ? (
-                <Spinner className="mr-2 h-4 w-4" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
+        <Form {...personalMessageForm}>
+          <form
+            onSubmit={personalMessageForm.handleSubmit(onSubmitPersonalMessage)}
+            className="space-y-4"
+          >
+            <FormField
+              control={personalMessageForm.control}
+              name="pitchPersonalMessage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter a personal message to include at the top of the pitch..."
+                      {...field}
+                      rows={4}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-              Generate with AI
+            />
+
+            {personalMessageForm.formState.errors.root && (
+              <div className="max-w-xl">
+                <Alert variant="destructive">
+                  <AlertCircle />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {personalMessageForm.formState.errors.root.message}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            <Button type="submit" disabled={loadingPersonalMessage}>
+              {loadingPersonalMessage && <Spinner className="mr-2" />}
+              Save Personal Message
             </Button>
-          </div>
+          </form>
+        </Form>
+      </div>
 
+      <hr className="my-8" />
+
+      {/* Section Visibility Section */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Section Visibility</h3>
+          <p className="text-sm text-muted-foreground">
+            Control which sections are visible in the pitch
+          </p>
+        </div>
+
+        <Form {...form}>
           <FormField
             control={form.control}
-            name="generatedPitchIntroduction"
-            render={({ field }) => (
+            name="pitchHideSections"
+            render={() => (
               <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Pitch Introduction (Markdown)</FormLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowIntroPreview(!showIntroPreview)}
-                  >
-                    {showIntroPreview ? (
-                      <EyeOff className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Eye className="mr-2 h-4 w-4" />
-                    )}
-                    {showIntroPreview ? "Edit" : "Preview"}
-                  </Button>
-                </div>
-                {showIntroPreview ? (
-                  <div className="min-h-[150px] rounded-md border bg-muted/30 p-4">
-                    {field.value ? (
-                      <MarkdownContent content={field.value} />
-                    ) : (
-                      <p className="text-muted-foreground text-sm italic">
-                        No pitch introduction yet. Click Edit to add one.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter the pitch introduction using Markdown formatting..."
-                      {...field}
-                      rows={8}
-                      className="font-mono text-sm"
+                <div className="space-y-3">
+                  {[
+                    { id: "how-it-works", label: "How It Works" },
+                    { id: "portal", label: "Management Portal" },
+                    { id: "service", label: "The Service" },
+                    { id: "pricing", label: "Investment & Timescales" },
+                    { id: "next-steps", label: "Next Steps" },
+                  ].map((section) => (
+                    <FormField
+                      key={section.id}
+                      control={form.control}
+                      name="pitchHideSections"
+                      render={({ field }) => {
+                        const isHidden = field.value?.includes(section.id);
+                        return (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base cursor-pointer">
+                                {section.label}
+                              </FormLabel>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={!isHidden}
+                                disabled={savingSections}
+                                onCheckedChange={(checked) => {
+                                  const currentHidden = field.value || [];
+                                  let newHidden: string[];
+                                  if (checked) {
+                                    // Remove from hidden list
+                                    newHidden = currentHidden.filter(
+                                      (id) => id !== section.id
+                                    );
+                                  } else {
+                                    // Add to hidden list
+                                    newHidden = [...currentHidden, section.id];
+                                  }
+                                  field.onChange(newHidden);
+                                  savePitchHideSections(newHidden);
+                                }}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        );
+                      }}
                     />
-                  </FormControl>
-                )}
-                <FormDescription>
-                  A brief introduction that sets the stage for the pitch.
-                </FormDescription>
+                  ))}
+                </div>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </Form>
+      </div>
 
-          <FormField
-            control={form.control}
-            name="generatedPitch"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Pitch (Markdown)</FormLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowPitchPreview(!showPitchPreview)}
-                  >
-                    {showPitchPreview ? (
-                      <EyeOff className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Eye className="mr-2 h-4 w-4" />
-                    )}
-                    {showPitchPreview ? "Edit" : "Preview"}
-                  </Button>
-                </div>
-                {showPitchPreview ? (
-                  <div className="min-h-[300px] rounded-md border bg-muted/30 p-4">
-                    {field.value ? (
-                      <MarkdownContent content={field.value} />
-                    ) : (
-                      <p className="text-muted-foreground text-sm italic">
-                        No pitch content yet. Click Edit to add one.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter the pitch using Markdown formatting..."
-                      {...field}
-                      rows={15}
-                      className="font-mono text-sm"
-                    />
-                  </FormControl>
-                )}
-                <FormDescription>
-                  The main pitch content that sells the project to the client.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
+      <hr className="my-8" />
+
+      {/* Pitch Content Section */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Pitch Content</h3>
+          <p className="text-sm text-muted-foreground">
+            Manage the introduction and main pitch content
+          </p>
+        </div>
+
+        {!hasContent && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No pitch content yet</AlertTitle>
+            <AlertDescription>
+              Click the button below to generate a pitch using AI, or add
+              content manually.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGenerateClick}
+            disabled={generating}
+          >
+            {generating ? (
+              <Spinner className="mr-2 h-4 w-4" />
+            ) : (
+              <Sparkles className="mr-2 h-4 w-4" />
             )}
-          />
-
-          {form.formState.errors.root && (
-            <div className="max-w-xl">
-              <Alert variant="destructive">
-                <AlertCircle />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  {form.formState.errors.root.message}
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-
-          <Button type="submit" disabled={loading}>
-            {loading && <Spinner className="mr-2" />}
-            Save Changes
+            Generate Pitch
           </Button>
-        </form>
-      </Form>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="generatedPitchIntroduction"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Pitch Introduction (Markdown)</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowIntroPreview(!showIntroPreview)}
+                    >
+                      {showIntroPreview ? (
+                        <EyeOff className="mr-2 h-4 w-4" />
+                      ) : (
+                        <Eye className="mr-2 h-4 w-4" />
+                      )}
+                      {showIntroPreview ? "Edit" : "Preview"}
+                    </Button>
+                  </div>
+                  {showIntroPreview ? (
+                    <div className="min-h-[150px] max-h-[300px] overflow-y-auto rounded-md border bg-muted/30 p-4">
+                      {field.value ? (
+                        <MarkdownContent content={field.value} />
+                      ) : (
+                        <p className="text-muted-foreground text-sm italic">
+                          No pitch introduction yet. Click Edit to add one.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter the pitch introduction using Markdown formatting..."
+                        {...field}
+                        rows={8}
+                        className="font-mono text-sm resize-none"
+                      />
+                    </FormControl>
+                  )}
+                  <FormDescription>
+                    A brief introduction that sets the stage for the pitch.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="generatedPitch"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Pitch (Markdown)</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPitchPreview(!showPitchPreview)}
+                    >
+                      {showPitchPreview ? (
+                        <EyeOff className="mr-2 h-4 w-4" />
+                      ) : (
+                        <Eye className="mr-2 h-4 w-4" />
+                      )}
+                      {showPitchPreview ? "Edit" : "Preview"}
+                    </Button>
+                  </div>
+                  {showPitchPreview ? (
+                    <div className="min-h-[300px] max-h-[400px] overflow-y-auto rounded-md border bg-muted/30 p-4">
+                      {field.value ? (
+                        <MarkdownContent content={field.value} />
+                      ) : (
+                        <p className="text-muted-foreground text-sm italic">
+                          No pitch content yet. Click Edit to add one.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter the pitch using Markdown formatting..."
+                        {...field}
+                        rows={8}
+                        className="font-mono text-sm resize-none"
+                      />
+                    </FormControl>
+                  )}
+                  <FormDescription>
+                    The main pitch content that sells the project to the client.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {form.formState.errors.root && (
+              <div className="max-w-xl">
+                <Alert variant="destructive">
+                  <AlertCircle />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {form.formState.errors.root.message}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            <Button type="submit" disabled={loading}>
+              {loading && <Spinner className="mr-2" />}
+              Save Pitch Content
+            </Button>
+          </form>
+        </Form>
+      </div>
     </>
   );
 }

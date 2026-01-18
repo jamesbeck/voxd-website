@@ -204,7 +204,7 @@ export default async function PublicPitchPage({
       icon: "FileCheck" as const,
     },
     { id: "next-steps", label: "Next Steps", icon: "Rocket" as const },
-  ];
+  ].filter((section) => !pitch.pitchHideSections?.includes(section.id));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -512,585 +512,605 @@ export default async function PublicPitchPage({
           )}
 
           {/* How It Works Section */}
-          <section
-            id="how-it-works"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <Zap className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  How It Works
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  See how messages flow from your customers through WhatsApp
-                </p>
-              </div>
-            </div>
-
-            <DataFlowDiagram businessName={pitch.partner.name} />
-          </section>
-
-          {/* Management Portal Section */}
-          <section
-            id="portal"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <LayoutDashboard
-                  className="h-6 w-6"
-                  style={{ color: brandColor }}
-                />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {pitch.partner.name} Management Portal
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  Included with every chatbot
-                </p>
-              </div>
-            </div>
-
-            <p className="text-gray-600">
-              Every chatbot comes with full access to the {pitch.partner.name}{" "}
-              management portal, giving you complete visibility and control over
-              your AI assistant.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <Smartphone
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Access Anywhere
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Mobile-friendly portal accessible from any device
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <Users
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Unlimited Admin Users
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Add as many team members as you need
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <PauseCircle
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Pause & Takeover
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Pause AI replies and manually interact with users
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <Send
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Template Messages
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Send pre-approved messages to individuals or groups
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <BarChart3
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Usage Analytics
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Charts and graphs showing usage statistics
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <Eye
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    User Insights
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    View all users and captured information
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <MessageSquare
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Conversation Analysis
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    View raw conversations and AI decision-making details
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <Bot
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    AI Workers
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Monitor AI workers analysing and actioning conversations
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <Download
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Data Export
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Export all your data whenever you need it
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <ThumbsUp
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Feedback & Training
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    Give feedback on messages to help your bot improve
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* The Service Section */}
-          <section
-            id="service"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <Wrench className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  The {pitch.partner.name} Service
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  What we proactively do for you
-                </p>
-              </div>
-            </div>
-
-            <p className="text-gray-600">
-              Beyond the technology, {pitch.partner.name} provides an ongoing
-              managed service to ensure your chatbot continues to deliver
-              exceptional results.
-            </p>
-
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
-                <Bot
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    AI Agent Development
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Build and maintain an appropriate set of AI agents to
-                    deliver the functionality outlined in the specification.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
-                <Sparkles
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Expert Consultancy
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Become an expert consultant for your business, working with
-                    your team to ensure the correct contextual data is available
-                    to the bot.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
-                <Shield
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Reliable 24/7 Service
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Maintain the system and provide a continuous, reliable,
-                    secure service available around the clock.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
-                <Headphones
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Agreed SLA Support
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    8 working hour response time guaranteed, although we almost
-                    always respond much sooner.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
-                <Zap
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Cutting-Edge Technology
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Keep pace with the fast-moving LLM landscape—we implement
-                    the latest models from providers as they&apos;re released,
-                    so your bot is always as capable as technology allows.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
-                <RefreshCw
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Updates & Patches
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Apply code updates and security patches to keep your system
-                    running smoothly and securely.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
-                <Lock
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">
-                    Enterprise Security
-                  </p>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Keep all data secure with regular penetration testing and
-                    progression towards ISO 27001 and ISO 42001 certification.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Investment & Timescales Section */}
-          <section
-            id="pricing"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <FileCheck className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Investment & Timescales
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  Simple, transparent pricing
-                </p>
-              </div>
-            </div>
-
-            <p className="text-gray-600">
-              We believe AI chatbots should be accessible to businesses of all
-              sizes. Our pricing is designed to be straightforward and
-              affordable - you might be surprised at just how cost-effective a
-              custom AI solution can be.
-            </p>
-
-            {/* Pricing Structure */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900">How Pricing Works</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div
-                  className="p-4 rounded-lg border"
-                  style={{ borderColor: `${brandColor}30` }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <Rocket className="h-5 w-5" style={{ color: brandColor }} />
-                    <p className="font-medium text-gray-900">Setup Fee</p>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    A one-time fee covering the initial build, configuration,
-                    and training of your custom AI chatbot.
-                  </p>
-                </div>
-
-                <div
-                  className="p-4 rounded-lg border"
-                  style={{ borderColor: `${brandColor}30` }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <RefreshCw
-                      className="h-5 w-5"
-                      style={{ color: brandColor }}
-                    />
-                    <p className="font-medium text-gray-900">Monthly Fee</p>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    An ongoing fee covering hosting, maintenance, support, and
-                    continuous improvements to your chatbot.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Costs */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-gray-900">Other Costs</h3>
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-start gap-2">
-                  <CheckCircle
-                    className="h-4 w-4 mt-0.5 flex-shrink-0"
-                    style={{ color: brandColor }}
-                  />
-                  <span>
-                    <strong>LLM costs</strong> – You pay your AI provider
-                    directly for message processing (typically fractions of a
-                    penny per conversation)
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle
-                    className="h-4 w-4 mt-0.5 flex-shrink-0"
-                    style={{ color: brandColor }}
-                  />
-                  <span>
-                    <strong>WhatsApp costs</strong> – Meta charges for outbound
-                    messages sent outside the 24-hour reply window (replies are
-                    free)
-                  </span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle
-                    className="h-4 w-4 mt-0.5 flex-shrink-0"
-                    style={{ color: brandColor }}
-                  />
-                  <span>
-                    <strong>Additional development</strong> – Major new features
-                    beyond the initial scope are quoted separately
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Timescales */}
-            <div
-              className="p-4 rounded-lg"
-              style={{ backgroundColor: `${brandColor}10` }}
+          {!pitch.pitchHideSections?.includes("how-it-works") && (
+            <section
+              id="how-it-works"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
             >
               <div className="flex items-start gap-3">
-                <Clock
-                  className="h-5 w-5 mt-0.5 flex-shrink-0"
-                  style={{ color: brandColor }}
-                />
+                <div
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${brandColor}15` }}
+                >
+                  <Zap className="h-6 w-6" style={{ color: brandColor }} />
+                </div>
                 <div>
-                  <p className="font-medium text-gray-900">Fast Turnaround</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Unlike traditional software projects that take months to
-                    deliver, AI chatbots can be up and running in{" "}
-                    <strong>days, not weeks or months</strong>. Our streamlined
-                    process means you&apos;ll see results quickly, with your bot
-                    ready to start helping customers sooner than you might
-                    expect.
+                  <h2 className="text-xl font-bold text-gray-900">
+                    How It Works
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    See how messages flow from your customers through WhatsApp
                   </p>
                 </div>
               </div>
-            </div>
 
-            <p className="text-sm text-gray-500 italic">
-              We&apos;ll provide a detailed quote tailored to your specific
-              requirements. Most businesses are pleasantly surprised by how
-              affordable a custom AI chatbot solution can be.
-            </p>
-          </section>
+              <DataFlowDiagram businessName={pitch.partner.name} />
+            </section>
+          )}
+
+          {/* Management Portal Section */}
+          {!pitch.pitchHideSections?.includes("portal") && (
+            <section
+              id="portal"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${brandColor}15` }}
+                >
+                  <LayoutDashboard
+                    className="h-6 w-6"
+                    style={{ color: brandColor }}
+                  />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {pitch.partner.name} Management Portal
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Included with every chatbot
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-gray-600">
+                Every chatbot comes with full access to the {pitch.partner.name}{" "}
+                management portal, giving you complete visibility and control
+                over your AI assistant.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <Smartphone
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Access Anywhere
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Mobile-friendly portal accessible from any device
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <Users
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Unlimited Admin Users
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Add as many team members as you need
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <PauseCircle
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Pause & Takeover
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Pause AI replies and manually interact with users
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <Send
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Template Messages
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Send pre-approved messages to individuals or groups
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <BarChart3
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Usage Analytics
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Charts and graphs showing usage statistics
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <Eye
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      User Insights
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      View all users and captured information
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <MessageSquare
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Conversation Analysis
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      View raw conversations and AI decision-making details
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <Bot
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      AI Workers
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Monitor AI workers analysing and actioning conversations
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <Download
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Data Export
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Export all your data whenever you need it
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                  <ThumbsUp
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Feedback & Training
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">
+                      Give feedback on messages to help your bot improve
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* The Service Section */}
+          {!pitch.pitchHideSections?.includes("service") && (
+            <section
+              id="service"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${brandColor}15` }}
+                >
+                  <Wrench className="h-6 w-6" style={{ color: brandColor }} />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    The {pitch.partner.name} Service
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    What we proactively do for you
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-gray-600">
+                Beyond the technology, {pitch.partner.name} provides an ongoing
+                managed service to ensure your chatbot continues to deliver
+                exceptional results.
+              </p>
+
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
+                  <Bot
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      AI Agent Development
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Build and maintain an appropriate set of AI agents to
+                      deliver the functionality outlined in the specification.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
+                  <Sparkles
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Expert Consultancy
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Become an expert consultant for your business, working
+                      with your team to ensure the correct contextual data is
+                      available to the bot.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
+                  <Shield
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Reliable 24/7 Service
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Maintain the system and provide a continuous, reliable,
+                      secure service available around the clock.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
+                  <Headphones
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Agreed SLA Support
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      8 working hour response time guaranteed, although we
+                      almost always respond much sooner.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
+                  <Zap
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Cutting-Edge Technology
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Keep pace with the fast-moving LLM landscape—we implement
+                      the latest models from providers as they&apos;re released,
+                      so your bot is always as capable as technology allows.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
+                  <RefreshCw
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Updates & Patches
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Apply code updates and security patches to keep your
+                      system running smoothly and securely.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-4 rounded-lg border border-gray-100">
+                  <Lock
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900 text-sm">
+                      Enterprise Security
+                    </p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      Keep all data secure with regular penetration testing and
+                      progression towards ISO 27001 and ISO 42001 certification.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Investment & Timescales Section */}
+          {!pitch.pitchHideSections?.includes("pricing") && (
+            <section
+              id="pricing"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${brandColor}15` }}
+                >
+                  <FileCheck
+                    className="h-6 w-6"
+                    style={{ color: brandColor }}
+                  />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Investment & Timescales
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Simple, transparent pricing
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-gray-600">
+                We believe AI chatbots should be accessible to businesses of all
+                sizes. Our pricing is designed to be straightforward and
+                affordable - you might be surprised at just how cost-effective a
+                custom AI solution can be.
+              </p>
+
+              {/* Pricing Structure */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-gray-900">
+                  How Pricing Works
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div
+                    className="p-4 rounded-lg border"
+                    style={{ borderColor: `${brandColor}30` }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Rocket
+                        className="h-5 w-5"
+                        style={{ color: brandColor }}
+                      />
+                      <p className="font-medium text-gray-900">Setup Fee</p>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      A one-time fee covering the initial build, configuration,
+                      and training of your custom AI chatbot.
+                    </p>
+                  </div>
+
+                  <div
+                    className="p-4 rounded-lg border"
+                    style={{ borderColor: `${brandColor}30` }}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <RefreshCw
+                        className="h-5 w-5"
+                        style={{ color: brandColor }}
+                      />
+                      <p className="font-medium text-gray-900">Monthly Fee</p>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      An ongoing fee covering hosting, maintenance, support, and
+                      continuous improvements to your chatbot.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Costs */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-gray-900">Other Costs</h3>
+                <div className="space-y-3 text-sm text-gray-600">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    <span>
+                      <strong>LLM costs</strong> – You pay your AI provider
+                      directly for message processing (typically fractions of a
+                      penny per conversation)
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    <span>
+                      <strong>WhatsApp costs</strong> – Meta charges for
+                      outbound messages sent outside the 24-hour reply window
+                      (replies are free)
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    <span>
+                      <strong>Additional development</strong> – Major new
+                      features beyond the initial scope are quoted separately
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timescales */}
+              <div
+                className="p-4 rounded-lg"
+                style={{ backgroundColor: `${brandColor}10` }}
+              >
+                <div className="flex items-start gap-3">
+                  <Clock
+                    className="h-5 w-5 mt-0.5 flex-shrink-0"
+                    style={{ color: brandColor }}
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900">Fast Turnaround</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Unlike traditional software projects that take months to
+                      deliver, AI chatbots can be up and running in{" "}
+                      <strong>days, not weeks or months</strong>. Our
+                      streamlined process means you&apos;ll see results quickly,
+                      with your bot ready to start helping customers sooner than
+                      you might expect.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-500 italic">
+                We&apos;ll provide a detailed quote tailored to your specific
+                requirements. Most businesses are pleasantly surprised by how
+                affordable a custom AI chatbot solution can be.
+              </p>
+            </section>
+          )}
 
           {/* Next Steps Section */}
-          <section
-            id="next-steps"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <Rocket className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Next Steps</h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  Let&apos;s explore what&apos;s possible
-                </p>
-              </div>
-            </div>
-
-            <p className="text-gray-600">
-              If this sounds interesting and you&apos;d like to explore how an
-              AI chatbot could work for {pitch.organisationName}, we&apos;d love
-              the opportunity to learn more about your business and understand
-              your specific needs.
-            </p>
-
-            <div
-              className="p-4 rounded-lg"
-              style={{ backgroundColor: `${brandColor}10` }}
+          {!pitch.pitchHideSections?.includes("next-steps") && (
+            <section
+              id="next-steps"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
             >
-              <p className="text-gray-700">
-                Following a conversation, we can put together a{" "}
-                <strong>formal proposal</strong> tailored specifically to your
-                requirements, including:
-              </p>
-              <ul className="mt-3 space-y-2">
-                <li className="flex items-start gap-2 text-sm text-gray-600">
-                  <ArrowRight
-                    className="h-4 w-4 mt-0.5 flex-shrink-0"
-                    style={{ color: brandColor }}
-                  />
-                  A detailed specification of what your chatbot will do
-                </li>
-                <li className="flex items-start gap-2 text-sm text-gray-600">
-                  <ArrowRight
-                    className="h-4 w-4 mt-0.5 flex-shrink-0"
-                    style={{ color: brandColor }}
-                  />
-                  Clear, transparent pricing
-                </li>
-                <li className="flex items-start gap-2 text-sm text-gray-600">
-                  <ArrowRight
-                    className="h-4 w-4 mt-0.5 flex-shrink-0"
-                    style={{ color: brandColor }}
-                  />
-                  Realistic timescales for delivery
-                </li>
-              </ul>
-            </div>
-
-            <div className="border-t pt-6">
-              <p className="font-medium text-gray-900 mb-3">Get in touch</p>
-              <div
-                className="flex items-center gap-3 p-4 rounded-lg border"
-                style={{ borderColor: `${brandColor}30` }}
-              >
-                <Mail className="h-5 w-5" style={{ color: brandColor }} />
+              <div className="flex items-start gap-3">
+                <div
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${brandColor}15` }}
+                >
+                  <Rocket className="h-6 w-6" style={{ color: brandColor }} />
+                </div>
                 <div>
-                  <p className="font-medium text-gray-900">
-                    {pitch.createdBy?.name || pitch.partner.name}
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Next Steps
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Let&apos;s explore what&apos;s possible
                   </p>
-                  {pitch.createdBy?.email && (
-                    <a
-                      href={`mailto:${pitch.createdBy.email}`}
-                      className="text-sm hover:underline"
-                      style={{ color: brandColor }}
-                    >
-                      {pitch.createdBy.email}
-                    </a>
-                  )}
                 </div>
               </div>
-            </div>
 
-            <p className="text-sm text-gray-500">
-              We look forward to hearing from you and discussing how we can help
-              transform your customer communications.
-            </p>
-          </section>
+              <p className="text-gray-600">
+                If this sounds interesting and you&apos;d like to explore how an
+                AI chatbot could work for {pitch.organisationName}, we&apos;d
+                love the opportunity to learn more about your business and
+                understand your specific needs.
+              </p>
+
+              <div
+                className="p-4 rounded-lg"
+                style={{ backgroundColor: `${brandColor}10` }}
+              >
+                <p className="text-gray-700">
+                  Following a conversation, we can put together a{" "}
+                  <strong>formal proposal</strong> tailored specifically to your
+                  requirements, including:
+                </p>
+                <ul className="mt-3 space-y-2">
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <ArrowRight
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    A detailed specification of what your chatbot will do
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <ArrowRight
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    Clear, transparent pricing
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <ArrowRight
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    Realistic timescales for delivery
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border-t pt-6">
+                <p className="font-medium text-gray-900 mb-3">Get in touch</p>
+                <div
+                  className="flex items-center gap-3 p-4 rounded-lg border"
+                  style={{ borderColor: `${brandColor}30` }}
+                >
+                  <Mail className="h-5 w-5" style={{ color: brandColor }} />
+                  <div>
+                    <p className="font-medium text-gray-900">
+                      {pitch.createdBy?.name || pitch.partner.name}
+                    </p>
+                    {pitch.createdBy?.email && (
+                      <a
+                        href={`mailto:${pitch.createdBy.email}`}
+                        className="text-sm hover:underline"
+                        style={{ color: brandColor }}
+                      >
+                        {pitch.createdBy.email}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-500">
+                We look forward to hearing from you and discussing how we can
+                help transform your customer communications.
+              </p>
+            </section>
+          )}
 
           {/* Footer */}
           <footer className="text-center py-8 text-sm text-gray-500">

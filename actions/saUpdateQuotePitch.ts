@@ -8,11 +8,13 @@ const saUpdateQuotePitch = async ({
   pitchPersonalMessage,
   generatedPitchIntroduction,
   generatedPitch,
+  pitchHideSections,
 }: {
   quoteId: string;
   pitchPersonalMessage?: string;
   generatedPitchIntroduction?: string;
   generatedPitch?: string;
+  pitchHideSections?: string[];
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -40,6 +42,8 @@ const saUpdateQuotePitch = async ({
   if (generatedPitchIntroduction !== undefined)
     updateData.generatedPitchIntroduction = generatedPitchIntroduction;
   if (generatedPitch !== undefined) updateData.generatedPitch = generatedPitch;
+  if (pitchHideSections !== undefined)
+    updateData.pitchHideSections = pitchHideSections;
 
   if (Object.keys(updateData).length === 0) {
     return { success: true }; // Nothing to update
