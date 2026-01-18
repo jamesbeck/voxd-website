@@ -88,7 +88,8 @@ const saGetQuoteViewTableData = async ({
       "quoteView.engine",
       "quoteView.os",
       "quoteView.device",
-      "quoteView.cpu"
+      "quoteView.cpu",
+      "quoteView.locationData"
     )
     .orderBy(`quoteView.${sortField}`, sortDirection)
     .limit(pageSize)

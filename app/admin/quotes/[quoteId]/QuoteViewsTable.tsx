@@ -163,6 +163,40 @@ const QuoteViewsTable = ({ quoteId }: { quoteId: string }) => {
             ),
           },
           {
+            label: "Location",
+            name: "locationData",
+            sort: false,
+            format: (row: any) => {
+              if (!row.locationData) return "-";
+              try {
+                const location =
+                  typeof row.locationData === "string"
+                    ? JSON.parse(row.locationData)
+                    : row.locationData;
+
+                const parts = [];
+                if (location.city) parts.push(location.city);
+                if (location.region) parts.push(location.region);
+                if (location.country_name) parts.push(location.country_name);
+
+                if (parts.length === 0) return "-";
+
+                return (
+                  <div>
+                    <div>{parts.join(", ")}</div>
+                    {location.org && (
+                      <div className="text-xs text-muted-foreground">
+                        {location.org}
+                      </div>
+                    )}
+                  </div>
+                );
+              } catch (e) {
+                return "-";
+              }
+            },
+          },
+          {
             label: "Browser",
             name: "browser",
             sort: true,

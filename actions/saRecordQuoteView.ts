@@ -20,6 +20,30 @@ export async function saRecordQuoteView({
   const parser = new UAParser(userAgent || "");
   const result = parser.getResult();
 
+  // Fetch location data from ipapi.co
+  let locationData = null;
+  if (
+    ipAddress &&
+    ipAddress !== "::1" &&
+    ipAddress !== "127.0.0.1" &&
+    ipAddress !== "localhost"
+  ) {
+    try {
+      const response = await fetch(`https://ipapi.co/${ipAddress}/json/`, {
+        headers: {
+          "User-Agent": "Voxd Website",
+        },
+      });
+
+      if (response.ok) {
+        locationData = await response.json();
+      }
+    } catch (error) {
+      // Silently fail - location data is optional
+      console.error("Failed to fetch location data:", error);
+    }
+  }
+
   await db("quoteView").insert({
     quoteId,
     documentViewed,
@@ -40,5 +64,6 @@ export async function saRecordQuoteView({
         })`.trim()
       : null,
     cpu: result.cpu.architecture || null,
+    locationData: locationData ? JSON.stringify(locationData) : null,
   });
 }
