@@ -45,7 +45,9 @@ const saUpdatePartialPrompt = async ({
   await addLog({
     adminUserId: accessToken.adminUserId,
     event: "Partial Prompt Updated",
-    description: `Partial prompt "${name || existingPartialPrompt.name}" updated`,
+    description: `Partial prompt "${
+      name || existingPartialPrompt.name
+    }" updated`,
     agentId: existingPartialPrompt.agentId,
     data: {
       partialPromptId,
