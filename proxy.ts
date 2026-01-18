@@ -17,6 +17,7 @@ export function proxy(request: NextRequest) {
   const isProposalsPath = request.nextUrl.pathname.startsWith("/proposals");
   const isPitchesPath = request.nextUrl.pathname.startsWith("/pitches");
   const isExamplesPath = request.nextUrl.pathname.startsWith("/examples");
+  const isIFramesPath = request.nextUrl.pathname.startsWith("/iframes");
 
   // Only redirect GET requests for tenant domains
   const shouldRedirect =
@@ -26,7 +27,8 @@ export function proxy(request: NextRequest) {
     !isAdminPath && // Not on admin
     !isProposalsPath && // Not on proposals (public proposal pages)
     !isPitchesPath && // Not on pitches (public pitch pages)
-    !isExamplesPath; // Not on examples (public example pages)
+    !isExamplesPath && // Not on examples (public example pages)
+    !isIFramesPath; // Not on iframes (public iframe pages)
 
   if (shouldRedirect) {
     const loginUrl = new URL("/login", request.url);

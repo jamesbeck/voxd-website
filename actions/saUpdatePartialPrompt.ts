@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { addLog } from "@/lib/addLog";
 
 const saUpdatePartialPrompt = async ({
   partialPromptId,
@@ -13,7 +14,7 @@ const saUpdatePartialPrompt = async ({
   name?: string;
   text?: string;
 }): Promise<ServerActionResponse> => {
-  await verifyAccessToken();
+  const accessToken = await verifyAccessToken();
 
   if (!partialPromptId) {
     return {
@@ -38,6 +39,25 @@ const saUpdatePartialPrompt = async ({
     name,
     text,
     updatedAt: db.fn.now(),
+  });
+
+  // Log partial prompt update
+  await addLog({
+    adminUserId: accessToken.adminUserId,
+    event: "Partial Prompt Updated",
+    description: `Partial prompt "${name || existingPartialPrompt.name}" updated`,
+    agentId: existingPartialPrompt.agentId,
+    data: {
+      partialPromptId,
+      before: {
+        name: existingPartialPrompt.name,
+        text: existingPartialPrompt.text,
+      },
+      after: {
+        name: name ?? existingPartialPrompt.name,
+        text: text ?? existingPartialPrompt.text,
+      },
+    },
   });
 
   return { success: true };
