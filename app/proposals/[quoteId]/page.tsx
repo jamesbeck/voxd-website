@@ -1190,15 +1190,6 @@ export default async function PublicQuotePage({
                 <ArrowRight className="h-4 w-4 text-gray-400" />
               </Link>
 
-              <Link
-                href="/privacy-policy"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">
-                  Privacy Policy
-                </span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
             </div>
           </section>
 
@@ -1232,15 +1223,6 @@ export default async function PublicQuotePage({
             <p>
               Powered by{" "}
               <span className="font-medium">{quote.partner.name}</span>
-            </p>
-            <p className="mt-1">
-              <Link href="/privacy-policy" className="hover:underline">
-                Privacy Policy
-              </Link>
-              {" • "}
-              <Link href="/terms" className="hover:underline">
-                Terms of Service
-              </Link>
             </p>
           </footer>
         </main>

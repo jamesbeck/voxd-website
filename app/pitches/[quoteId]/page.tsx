@@ -1118,15 +1118,6 @@ export default async function PublicPitchPage({
               Powered by{" "}
               <span className="font-medium">{pitch.partner.name}</span>
             </p>
-            <p className="mt-1">
-              <Link href="/privacy-policy" className="hover:underline">
-                Privacy Policy
-              </Link>
-              {" • "}
-              <Link href="/terms" className="hover:underline">
-                Terms of Service
-              </Link>
-            </p>
           </footer>
         </main>
       </div>
