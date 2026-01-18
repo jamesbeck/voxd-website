@@ -50,6 +50,9 @@ export default async function Page({
                 Closed Tickets
               </Link>
             </TabsTrigger>
+            <TabsTrigger value="backlog" asChild>
+              <Link href="/admin/support-tickets?tab=backlog">Back Log</Link>
+            </TabsTrigger>
           </TabsList>
 
           <SupportTicketsActions />
@@ -65,6 +68,10 @@ export default async function Page({
 
         <TabsContent value="closed">
           <SupportTicketsTable statusFilter="closed" />
+        </TabsContent>
+
+        <TabsContent value="backlog">
+          <SupportTicketsTable statusFilter="backlog" />
         </TabsContent>
       </Tabs>
     </Container>

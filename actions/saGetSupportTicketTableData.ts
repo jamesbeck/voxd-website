@@ -8,7 +8,7 @@ import {
 } from "@/types/types";
 
 type SupportTicketParams = {
-  statusFilter?: "open" | "closed" | "awaiting";
+  statusFilter?: "open" | "closed" | "awaiting" | "backlog";
 };
 
 const saGetSupportTicketTableData = async ({
@@ -42,11 +42,13 @@ const saGetSupportTicketTableData = async ({
 
   // Filter by status
   if (statusFilter === "open") {
-    base.whereNot("supportTicket.status", "Closed");
+    base.whereNotIn("supportTicket.status", ["Closed", "Back Log"]);
   } else if (statusFilter === "closed") {
     base.where("supportTicket.status", "Closed");
   } else if (statusFilter === "awaiting") {
     base.where("supportTicket.status", "Awaiting Client");
+  } else if (statusFilter === "backlog") {
+    base.where("supportTicket.status", "Back Log");
   }
 
   // Regular organisation users can only see tickets for their organisation

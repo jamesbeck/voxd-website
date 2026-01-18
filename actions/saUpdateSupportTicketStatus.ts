@@ -4,7 +4,13 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
-const VALID_STATUSES = ["Open", "In Progress", "Awaiting Client", "Closed"];
+const VALID_STATUSES = [
+  "Open",
+  "In Progress",
+  "Awaiting Client",
+  "Closed",
+  "Back Log",
+];
 
 const saUpdateSupportTicketStatus = async ({
   ticketId,

@@ -21,6 +21,7 @@ const STATUSES = [
     color: "bg-orange-500",
   },
   { value: "Closed", label: "Closed", color: "bg-green-500" },
+  { value: "Back Log", label: "Back Log", color: "bg-gray-500" },
 ];
 
 export default function TicketStatusDropdown({

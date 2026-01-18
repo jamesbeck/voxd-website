@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface SupportTicketsTableProps {
-  statusFilter?: "open" | "closed" | "awaiting";
+  statusFilter?: "open" | "closed" | "awaiting" | "backlog";
 }
 
 const SupportTicketsTable = ({
@@ -25,6 +25,8 @@ const SupportTicketsTable = ({
         return "bg-orange-500";
       case "closed":
         return "bg-green-500";
+      case "back log":
+        return "bg-gray-500";
       default:
         return "bg-gray-400";
     }
