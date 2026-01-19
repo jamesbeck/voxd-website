@@ -25,9 +25,11 @@ import {
   Code2,
   Copy,
   Check,
+  Sparkles,
 } from "lucide-react";
 import saGenerateQuoteExampleConversation from "@/actions/saGenerateQuoteExampleConversation";
 import saGenerateExampleConversation from "@/actions/saGenerateExampleConversation";
+import saGenerateScenario from "@/actions/saGenerateScenario";
 import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
 import saDeleteExampleConversation from "@/actions/saDeleteExampleConversation";
 import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConversation";
@@ -105,7 +107,7 @@ function SortableConversationItem({
         isSelected
           ? "border-primary bg-primary/5"
           : "border-border hover:border-primary/50 hover:bg-muted/50",
-        isDragging && "opacity-50 shadow-lg"
+        isDragging && "opacity-50 shadow-lg",
       )}
     >
       <div
@@ -178,6 +180,7 @@ export default function ExampleConversationsTab({
 }: ExampleConversationsTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [generatingScenario, setGeneratingScenario] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [conversations, setConversations] =
     useState<ExampleConversation[]>(initialConversations);
@@ -214,7 +217,7 @@ export default function ExampleConversationsTab({
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -243,8 +246,26 @@ export default function ExampleConversationsTab({
   };
 
   const selectedConversation = conversations.find(
-    (c) => c.id === selectedConversationId
+    (c) => c.id === selectedConversationId,
   );
+
+  const handleGenerateScenario = async () => {
+    setGeneratingScenario(true);
+
+    const response = await saGenerateScenario(
+      quoteId ? { quoteId } : { exampleId: exampleId! },
+    );
+
+    if (!response.success) {
+      toast.error(response.error || "Failed to generate scenario");
+      setGeneratingScenario(false);
+      return;
+    }
+
+    setPrompt(response.data!.scenario);
+    toast.success("Scenario generated successfully");
+    setGeneratingScenario(false);
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -347,10 +368,10 @@ export default function ExampleConversationsTab({
   const updateMessage = (
     index: number,
     field: string,
-    value: string | number
+    value: string | number,
   ) => {
     setEditMessages((prev) =>
-      prev.map((msg, i) => (i === index ? { ...msg, [field]: value } : msg))
+      prev.map((msg, i) => (i === index ? { ...msg, [field]: value } : msg)),
     );
   };
 
@@ -391,7 +412,28 @@ export default function ExampleConversationsTab({
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="prompt">Conversation Scenario</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="prompt">Conversation Scenario</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleGenerateScenario}
+                    disabled={generatingScenario || loading}
+                    className="h-8"
+                  >
+                    {generatingScenario ? (
+                      <>
+                        <Spinner className="mr-2 h-3.5 w-3.5" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                        Generate one for me
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <Textarea
                   id="prompt"
                   placeholder="e.g. A customer asking about product availability and then placing an order..."
@@ -646,7 +688,7 @@ export default function ExampleConversationsTab({
                     key={index}
                     className={cn(
                       "p-3 rounded-lg border space-y-3",
-                      message.role === "user" ? "bg-muted/30" : "bg-primary/5"
+                      message.role === "user" ? "bg-muted/30" : "bg-primary/5",
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -672,7 +714,7 @@ export default function ExampleConversationsTab({
                               updateMessage(
                                 index,
                                 "time",
-                                parseInt(e.target.value) || 0
+                                parseInt(e.target.value) || 0,
                               )
                             }
                             className="w-20 h-7 text-xs"

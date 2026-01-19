@@ -7,7 +7,10 @@ export default function Container({
   children: React.ReactNode;
   colour?: "blue" | "primary" | "white";
 }) {
-  const colourClass = colour == "blue" || colour == "primary" ? "bg-primary text-white" : "bg-white";
+  const colourClass =
+    colour == "blue" || colour == "primary"
+      ? "bg-primary text-white"
+      : "bg-white";
 
   return (
     <div className={cn("w-full", colourClass)}>
