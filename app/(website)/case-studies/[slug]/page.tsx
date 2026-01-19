@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { MessageSquare } from "lucide-react";
 import { getExampleForPublic } from "@/lib/getExampleForPublic";
-import WhatsAppSim from "@/components/whatsAppSim";
+import ConversationCarousel from "@/components/ConversationCarousel";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { Metadata } from "next";
 
@@ -122,30 +122,15 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
               </p>
             )}
 
-            {/* Floating WhatsApp Simulators */}
+            {/* Floating WhatsApp Simulator Carousel */}
             {example.exampleConversations.length > 0 && (
-              <div className="space-y-8 float-right ml-6 mb-6 clear-right w-[360px]">
-                {example.exampleConversations.map((conversation, index) => (
-                  <div key={conversation.id} className="space-y-2">
-                    <div className="text-center">
-                      <p className="text-xs font-medium text-gray-700 line-clamp-2">
-                        {conversation.description}
-                      </p>
-                    </div>
-                    <WhatsAppSim
-                      messages={conversation.messages.map((m) => ({
-                        role: m.role,
-                        content: m.content,
-                        time: m.time,
-                        annotation: m.annotation || "",
-                      }))}
-                      businessName={example.businessName}
-                      startTime={conversation.startTime}
-                      exampleId={example.id}
-                      logoFileExtension={example.logoFileExtension}
-                    />
-                  </div>
-                ))}
+              <div className="float-right ml-6 mb-6 clear-right">
+                <ConversationCarousel
+                  conversations={example.exampleConversations}
+                  businessName={example.businessName}
+                  exampleId={example.id}
+                  logoFileExtension={example.logoFileExtension}
+                />
               </div>
             )}
 

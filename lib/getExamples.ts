@@ -14,7 +14,7 @@ const query = (db: Knex) =>
       GROUP BY ei."exampleId"
     ) i`),
       "i.exampleId",
-      "example.id"
+      "example.id",
     )
     .leftJoin(
       db.raw(`(
@@ -25,7 +25,7 @@ const query = (db: Knex) =>
       GROUP BY ef."exampleId"
     ) f`),
       "f.exampleId",
-      "example.id"
+      "example.id",
     )
     .leftJoin(
       db.raw(`(
@@ -35,15 +35,15 @@ const query = (db: Knex) =>
       GROUP BY ec."exampleId"
     ) ec`),
       "ec.exampleId",
-      "example.id"
+      "example.id",
     )
 
     .select(db.raw(`COALESCE(i.industries, '[]') as industries`))
     .select(db.raw(`COALESCE(f.functions,  '[]') as functions`))
     .select(
       db.raw(
-        `COALESCE(ec."exampleConversations",  '[]') as "exampleConversations"`
-      )
+        `COALESCE(ec."exampleConversations",  '[]') as "exampleConversations"`,
+      ),
     );
 
 export const getExamples = async (): Promise<Example[]> => {
@@ -55,15 +55,11 @@ export const getExamples = async (): Promise<Example[]> => {
 export const getExampleById = async (id: string): Promise<Example> => {
   const example = await query(db).where("example.id", id).first();
 
-  console.log(example);
-
   return example;
 };
 
 export const getExampleBySlug = async (slug: string): Promise<Example> => {
   const example = await query(db).where("example.slug", slug).first();
-
-  console.log(example);
 
   return example;
 };
