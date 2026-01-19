@@ -21,8 +21,8 @@ import {
 
 const menuItems = [
   { href: "/", label: "Home" },
-  { href: "/examples", label: "Examples" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/case-studies", label: "Case Studies" },
+  { href: "/how-it-works", label: "How It Works" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
   { href: "/login", label: "Login", highlight: true },
@@ -41,7 +41,7 @@ export default function Menu() {
                 <NavigationMenuLink
                   asChild
                   className={cn(
-                    item.highlight ? "bg-primary text-white font-bold" : ""
+                    item.highlight ? "bg-primary text-white font-bold" : "",
                   )}
                 >
                   <Link href={item.href}>{item.label}</Link>
@@ -54,7 +54,7 @@ export default function Menu() {
 
       {/* Mobile Menu */}
 
-      <div className="w-full flex md:hidden items-center">
+      <div className="w-full flex md:hidden items-center justify-end">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <button

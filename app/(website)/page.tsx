@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Container from "@/components/websiteui/container";
-import HowItWorks from "@/components/websiteui/HowItWorks";
 import { getExamples } from "@/lib/getExamples";
 import {
   MessageSquare,
@@ -143,24 +142,22 @@ export default async function Home() {
   return (
     <>
       {/* Introduction Section */}
-      <Container>
+      <Container colour="blue">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-br to-primary from-darkgrey bg-clip-text text-transparent">
-            We Build Bespoke WhatsApp AI Chatbots Built Around Your Business
+          <h2 className="text-4xl md:text-5xl font-bold text-white">
+            AI chatbots that feel human - and work like part of your team
           </h2>
-          <p className="text-xl text-gray-600 leading-relaxed">
-            Transform your organisation communication with intelligent AI
-            chatbots that work tirelessly on WhatsApp. Designed to fit
-            seamlessly into your business operations, our bespoke solutions
-            automate organisation support, streamline sales, and manage bookings
-            with enterprise-grade reliability.
+          <p className="text-xl text-white/90 leading-relaxed">
+            Not scripted bots. Not generic AI. Fully integrated, business-aware
+            chatbots that understand your customers, your systems, and your
+            brand — and respond like a real person would.
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-4">
             <a
               href="https://wa.me/TBC"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/90 transition-colors shadow-lg hover:shadow-xl"
             >
               <MessageSquare className="w-6 h-6" />
               Get Started on WhatsApp
@@ -188,7 +185,7 @@ export default async function Home() {
 
       {/* Features Section */}
 
-      <Container colour="green">
+      <Container colour="blue">
         <div className="text-center mb-12">
           <h3 className="text-3xl md:text-4xl font-bold mb-4">
             Why Choose Voxd?
@@ -224,9 +221,6 @@ export default async function Home() {
         </div>
       </Container>
 
-      {/* How It Works - Data Flow Diagram */}
-      <HowItWorks businessName="Voxd" />
-
       {/* Talk to Clive Section */}
       <Container>
         <div className="px-4 md:px-6">
@@ -251,21 +245,6 @@ export default async function Home() {
             </div>
             <p className="text-sm pt-2">
               Available 24/7 • Instant responses • No commitment required
-            </p>
-          </div>
-        </div>
-      </Container>
-
-      {/* CTA Section */}
-      <Container colour="green">
-        <div className="py-16 px-4 md:px-6">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h3 className="text-3xl md:text-4xl font-bold">
-              Ready to Transform Your Organisation Communication?
-            </h3>
-            <p className="text-lg ">
-              Join businesses that are delivering smarter conversations and
-              faster results with Voxd.
             </p>
           </div>
         </div>

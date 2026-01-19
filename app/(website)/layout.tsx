@@ -24,7 +24,7 @@ export default function RootLayout({
 
       <div className="bg-primary w-full flex flex-col justify-center py-8 px-8 items-center text-white font-sm gap-4">
         <Image
-          src="/logo.svg"
+          src="/logoWhite.svg"
           alt="Logo"
           width={60}
           height={60}

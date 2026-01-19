@@ -20,20 +20,17 @@ export default async function FaqPage() {
   return (
     <>
       {/* Hero Section */}
-      <Container>
+      <Container colour="blue">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-2">
-            <HelpCircle className="w-8 h-8 text-primary" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-br to-primary from-darkgrey bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold text-white">
             Frequently Asked Questions
           </h1>
-          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-xl text-white/90 leading-relaxed">
             Everything you need to know about Voxd and our WhatsApp AI chatbot
             services. Can't find what you're looking for?{" "}
             <a
               href="/contact"
-              className="text-primary hover:underline font-medium"
+              className="text-white hover:underline font-semibold"
             >
               Contact us
             </a>
@@ -50,7 +47,7 @@ export default async function FaqPage() {
       </Container>
 
       {/* CTA Section */}
-      <Container colour="green">
+      <Container colour="blue">
         <div className="py-8 max-w-3xl mx-auto text-center space-y-6">
           <h3 className="text-2xl md:text-3xl font-bold">
             Still Have Questions?
