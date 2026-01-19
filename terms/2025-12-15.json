@@ -3,7 +3,7 @@
     "documentType": "terms_and_conditions",
     "companyName": "Voxd AI LTD",
     "version": "1.0.0",
-    "status": "draft",
+    "status": "published",
     "jurisdiction": "England and Wales",
     "lastUpdated": "2025-12-15",
     "schedules": [
@@ -11,6 +11,11 @@
         "scheduleNumber": 1,
         "title": "Data Processing Addendum (UK GDPR)",
         "file": "schedules/schedule-1-dpa.json"
+      },
+      {
+        "scheduleNumber": 2,
+        "title": "Service Level Agreement (SLA)",
+        "file": "schedules/schedule-2-sla.json"
       }
     ]
   },
@@ -20,7 +25,7 @@
       {
         "key": "Company",
         "definedTerm": "Voxd AI LTD",
-        "description": "Voxd AI LTD, a company incorporated in England and Wales, with company registration number [PENDING]."
+        "description": "Voxd AI LTD, a company incorporated in England and Wales, with company registration number 16911937."
       },
       {
         "key": "Client",
@@ -141,74 +146,13 @@
   },
   "sections": [
     {
-      "id": "pre_contractual_statements",
-      "title": "Pre-Contractual Statements",
-      "clauses": [
-        {
-          "id": "pcs.entire_agreement",
-          "title": "Entire Agreement",
-          "text": "These Terms and Conditions constitute the entire agreement between the parties in relation to the Services and supersede and extinguish all previous agreements, understandings, negotiations, assurances, representations, warranties, and arrangements, whether written or oral.",
-          "children": []
-        },
-        {
-          "id": "pcs.no_reliance",
-          "title": "No Reliance on Pre-Contractual Statements",
-          "text": "The Client acknowledges and agrees that, in entering into this agreement, it has not relied upon and shall have no right or remedy in respect of any statement, representation, assurance, or warranty (whether made innocently or negligently) that is not expressly set out in these Terms and Conditions.",
-          "children": []
-        },
-        {
-          "id": "pcs.excluded_materials",
-          "title": "Excluded Pre-Contractual Materials",
-          "text": "Without limitation, the Client agrees that the following shall not form part of this agreement unless expressly incorporated in writing:",
-          "children": [
-            {
-              "id": "pcs.excluded_materials.sales",
-              "title": "Sales Discussions and Demonstrations",
-              "text": "Any sales discussions, demonstrations, presentations, or verbal explanations provided by Voxd prior to the commencement of the Services.",
-              "children": []
-            },
-            {
-              "id": "pcs.excluded_materials.written",
-              "title": "Written Communications",
-              "text": "Any emails, instant messages, proposals, quotations, marketing materials, website content, or documentation provided prior to the effective date of these Terms.",
-              "children": []
-            },
-            {
-              "id": "pcs.excluded_materials.estimates",
-              "title": "Estimates and Projections",
-              "text": "Any estimates, forecasts, projections, examples, performance indicators, or illustrative outputs, including but not limited to AI-generated examples or demonstrations.",
-              "children": []
-            }
-          ]
-        },
-        {
-          "id": "pcs.no_guarantees",
-          "title": "No Guarantees or Promises",
-          "text": "The Client acknowledges that no guarantees, promises, or assurances have been made by Voxd regarding business outcomes, performance, accuracy of AI outputs, financial benefit, compliance, or suitability for any particular purpose, except as expressly stated in these Terms.",
-          "children": []
-        },
-        {
-          "id": "pcs.variations_in_writing",
-          "title": "Variations Must Be in Writing",
-          "text": "No variation, amendment, or addition to these Terms shall be effective unless agreed in writing and signed by an authorised representative of Voxd.",
-          "children": []
-        },
-        {
-          "id": "pcs.misrepresentation_carveout",
-          "title": "Misrepresentation",
-          "text": "Nothing in this section shall exclude or limit any liability for fraud or fraudulent misrepresentation.",
-          "children": []
-        }
-      ]
-    },
-    {
       "id": "about_the_company",
       "title": "About Voxd AI LTD",
       "clauses": [
         {
           "id": "about.company_identity",
           "title": "Company Identity",
-          "text": "Voxd AI LTD is a company incorporated in England and Wales with company registration number [PENDING].",
+          "text": "Voxd AI LTD is a company incorporated in England and Wales with company registration number 16911937.",
           "children": []
         },
         {
@@ -292,6 +236,18 @@
               "id": "interpretation.precedence",
               "title": "Order of Precedence",
               "text": "In the event of any inconsistency between these Terms and an Order Form, the Order Form shall prevail only in respect of the commercial details expressly set out in the Order Form.",
+              "children": []
+            },
+            {
+              "id": "interpretation.schedules",
+              "title": "Schedules",
+              "text": "The Schedules form part of these Terms and Conditions and have full contractual effect.",
+              "children": []
+            },
+            {
+              "id": "interpretation.schedule_precedence",
+              "title": "Schedule Precedence",
+              "text": "In the event of a conflict between the documents, the following order of precedence applies: (1) the SLA, (2) the DPA, (3) these Terms and Conditions.",
               "children": []
             }
           ]
@@ -1167,33 +1123,33 @@
       "title": "Suspension, Downtime and Availability",
       "clauses": [
         {
-          "id": "availability.as_is",
-          "title": "Services Provided As-Is and As-Available",
-          "text": "The Services are provided on an \"as is\" and \"as available\" basis. Voxd does not guarantee uninterrupted, continuous, or error-free availability of the Services.",
+          "id": "availability.general",
+          "title": "Service Availability",
+          "text": "Voxd is committed to providing reliable and professional services. Service availability, uptime targets, permitted downtime, and support response commitments for the Core Services are set out in {{schedule:2}}.",
           "children": []
         },
         {
-          "id": "availability.no_sla",
-          "title": "No Service Levels or Uptime Guarantees",
-          "text": "Unless expressly agreed in writing, Voxd does not provide any service level agreements (SLAs), uptime commitments, response times, or availability guarantees.",
+          "id": "availability.sla_precedence",
+          "title": "Service Level Agreement",
+          "text": "Where {{schedule:2}} applies, it forms part of these Terms and governs service availability commitments. In the event of any inconsistency between this section and {{schedule:2}}, {{schedule:2}} shall prevail in respect of service levels and uptime.",
           "children": []
         },
         {
           "id": "availability.planned_unplanned",
           "title": "Planned and Unplanned Downtime",
-          "text": "The Services may be subject to planned or unplanned downtime, including for maintenance, updates, repairs, emergency work, or due to issues affecting third-party services or infrastructure.",
+          "text": "The Services may from time to time be unavailable due to planned maintenance, updates, repairs, emergency work, or unforeseen issues. Voxd will use reasonable efforts to minimise disruption and, where practicable, provide advance notice of planned maintenance.",
           "children": []
         },
         {
           "id": "availability.third_party_infrastructure",
           "title": "Third-Party Infrastructure and Providers",
-          "text": "Voxd shall not be responsible for downtime, delays, failures, or service degradation caused by third-party infrastructure, hosting providers, platforms, APIs, networks, or services used in connection with the Services, including those appointed or used by Voxd.",
+          "text": "Certain aspects of the Services rely on platforms or systems that Voxd does not own or directly contract with and which are outside Voxd’s control. This typically includes WhatsApp and Meta platforms, large language model providers, and any third-party or client-supplied APIs or software systems. Voxd is not responsible for downtime, delays, failures, or service degradation caused by such third-party platforms or systems, but will provide reasonable assistance to help diagnose related issues where possible.",
           "children": []
         },
         {
           "id": "suspension.right",
           "title": "Right to Suspend Services",
-          "text": "Voxd reserves the right to suspend, restrict, or modify the Services, in whole or in part, at any time where reasonably necessary to:",
+          "text": "Voxd may suspend, restrict, or modify the Services, in whole or in part, where reasonably necessary to protect the Services, comply with legal or platform requirements, or address material risk.",
           "children": [
             {
               "id": "suspension.non_payment",
@@ -1204,39 +1160,33 @@
             {
               "id": "suspension.legal_or_policy",
               "title": "Legal or Policy Requirements",
-              "text": "comply with applicable laws, regulations, court orders, or platform policies;",
+              "text": "comply with applicable laws, regulations, court orders, or binding platform policies;",
               "children": []
             },
             {
               "id": "suspension.security",
               "title": "Security and Risk",
-              "text": "protect the security, integrity, or operation of the Services or third-party platforms;",
+              "text": "protect the security, integrity, or operation of the Services or connected platforms;",
               "children": []
             },
             {
               "id": "suspension.third_party",
-              "title": "Third-Party Issues",
-              "text": "respond to restrictions, failures, or actions taken by third-party services, including WhatsApp, Meta, or LLM providers;",
+              "title": "Third-Party Actions",
+              "text": "respond to restrictions, outages, suspensions, or other actions taken by third-party platforms or providers outside Voxd’s control;",
               "children": []
             },
             {
               "id": "suspension.misuse",
               "title": "Misuse or Risky Use",
-              "text": "prevent or address misuse of the Services or activity that may expose Voxd to legal, regulatory, or reputational risk.",
+              "text": "prevent or address misuse of the Services or activity that may expose Voxd or the Client to legal, regulatory, or reputational risk.",
               "children": []
             }
           ]
         },
         {
-          "id": "suspension.no_liability",
-          "title": "No Liability for Suspension or Downtime",
-          "text": "To the fullest extent permitted by law, Voxd shall have no liability for any loss, damage, cost, or disruption arising from any suspension, restriction, modification, downtime, or unavailability of the Services, regardless of cause.",
-          "children": []
-        },
-        {
-          "id": "suspension.no_refund",
-          "title": "No Refunds or Credits",
-          "text": "The Client acknowledges that no refunds, credits, service extensions, or fee reductions shall be due in respect of any suspension, downtime, or unavailability of the Services.",
+          "id": "availability.liability_alignment",
+          "title": "Liability and Remedies",
+          "text": "Any remedies relating to service availability or downtime are governed by {{schedule:2}} and these Terms. Except as expressly set out in {{schedule:2}}, Voxd does not provide additional refunds, credits, or fee reductions in respect of service unavailability.",
           "children": []
         },
         {
@@ -1496,6 +1446,67 @@
           "id": "assignment.no_release",
           "title": "No Release of Liability",
           "text": "Any subcontracting or assignment by Voxd shall not relieve Voxd of its obligations under these Terms.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "pre_contractual_statements",
+      "title": "Pre-Contractual Statements",
+      "clauses": [
+        {
+          "id": "pcs.entire_agreement",
+          "title": "Entire Agreement",
+          "text": "These Terms and Conditions constitute the entire agreement between the parties in relation to the Services and supersede and extinguish all previous agreements, understandings, negotiations, assurances, representations, warranties, and arrangements, whether written or oral.",
+          "children": []
+        },
+        {
+          "id": "pcs.no_reliance",
+          "title": "No Reliance on Pre-Contractual Statements",
+          "text": "The Client acknowledges and agrees that, in entering into this agreement, it has not relied upon and shall have no right or remedy in respect of any statement, representation, assurance, or warranty (whether made innocently or negligently) that is not expressly set out in these Terms and Conditions.",
+          "children": []
+        },
+        {
+          "id": "pcs.excluded_materials",
+          "title": "Excluded Pre-Contractual Materials",
+          "text": "Without limitation, the Client agrees that the following shall not form part of this agreement unless expressly incorporated in writing:",
+          "children": [
+            {
+              "id": "pcs.excluded_materials.sales",
+              "title": "Sales Discussions and Demonstrations",
+              "text": "Any sales discussions, demonstrations, presentations, or verbal explanations provided by Voxd prior to the commencement of the Services.",
+              "children": []
+            },
+            {
+              "id": "pcs.excluded_materials.written",
+              "title": "Written Communications",
+              "text": "Any emails, instant messages, proposals, quotations, marketing materials, website content, or documentation provided prior to the effective date of these Terms.",
+              "children": []
+            },
+            {
+              "id": "pcs.excluded_materials.estimates",
+              "title": "Estimates and Projections",
+              "text": "Any estimates, forecasts, projections, examples, performance indicators, or illustrative outputs, including but not limited to AI-generated examples or demonstrations.",
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "pcs.no_guarantees",
+          "title": "No Guarantees or Promises",
+          "text": "The Client acknowledges that no guarantees, promises, or assurances have been made by Voxd regarding business outcomes, performance, accuracy of AI outputs, financial benefit, compliance, or suitability for any particular purpose, except as expressly stated in these Terms.",
+          "children": []
+        },
+        {
+          "id": "pcs.variations_in_writing",
+          "title": "Variations Must Be in Writing",
+          "text": "No variation, amendment, or addition to these Terms shall be effective unless agreed in writing and signed by an authorised representative of Voxd.",
+          "children": []
+        },
+        {
+          "id": "pcs.misrepresentation_carveout",
+          "title": "Misrepresentation",
+          "text": "Nothing in this section shall exclude or limit any liability for fraud or fraudulent misrepresentation.",
           "children": []
         }
       ]
