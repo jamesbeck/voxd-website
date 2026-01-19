@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "VOXD | WhatsApp AI Chatbots",
   description: "Bespoke WhatsApp AI Chatbots",
   icons: {
-    icon: "/logo.svg",
+    icon: "/icon.svg",
   },
 };
 
