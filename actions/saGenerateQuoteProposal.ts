@@ -138,6 +138,7 @@ Your task is to write a compelling, professional INTRODUCTION section for a clie
 - Reference ONLY the client's specific needs as mentioned in their specification
 - Be around 2-3 paragraphs
 - Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
 
 IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for.
 

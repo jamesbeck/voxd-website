@@ -131,6 +131,7 @@ const generateExample = async ({
         - Do NOT include example conversations or WhatsApp message flows (these will be handled separately)
         - Do NOT include mock-ups or sample dialogues
         - Avoid use of hyphens in the content
+        - Do not use the Oxford comma before 'and' in a list
 
         Write a case study for:
 

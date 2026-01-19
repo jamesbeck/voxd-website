@@ -158,6 +158,7 @@ IMPORTANT RULES:
 - Do NOT include example conversations or WhatsApp message flows
 - This is a written pitch document, not a live presentation
 - Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
 
 Write in Markdown format. Use **bold** for emphasis where appropriate. Do not use headings - this will be displayed under an "Introduction" heading.${
         extraPrompt
