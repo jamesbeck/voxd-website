@@ -68,7 +68,7 @@ export default function CaseStudiesClient({
         </div>
       </Container>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Filters */}
         <div className="mb-8 space-y-6">
           {/* Industry Filters */}

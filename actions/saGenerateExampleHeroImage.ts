@@ -95,13 +95,13 @@ Write a brief hero image prompt (max 2 sentences) for a professional website ban
     // Add landscape and professional styling
     const finalPrompt = `Professional hero banner image for ${
       example.businessName || "the business"
-    }. ${heroPrompt}. Wide landscape format, professional photography style, clean composition.`;
+    }. ${heroPrompt}.  Landscape format, professional photography style, clean composition. Avoid including any text or people in the image.`;
 
     console.log("Generated hero image prompt:", finalPrompt);
 
     // Step 2: Generate the hero image using image generation tool
     const result = await generateText({
-      model: openai("gpt-5"),
+      model: openai("gpt-5.2"),
       prompt: finalPrompt,
       tools: {
         image_generation: openai.tools.imageGeneration({

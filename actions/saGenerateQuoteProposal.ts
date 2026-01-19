@@ -60,7 +60,7 @@ const saGenerateQuoteProposal = async ({
       "quote.*",
       "organisation.name as organisationName",
       "partner.name as partnerName",
-      "partner.openAiApiKey"
+      "partner.openAiApiKey",
     )
     .where({ "quote.id": quoteId })
     .first();
@@ -137,6 +137,7 @@ Your task is to write a compelling, professional INTRODUCTION section for a clie
 - Be warm, professional, and confident
 - Reference ONLY the client's specific needs as mentioned in their specification
 - Be around 2-3 paragraphs
+- Avoid use of hyphens in the content
 
 IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for.
 
@@ -167,6 +168,7 @@ Your task is to write a detailed, professional SPECIFICATION section for a clien
 - Include bullet points where appropriate
 - Be clear and professional - the client should understand what they're getting
 - Stay focused on their stated requirements only
+- Avoid use of hyphens in the content
 
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 

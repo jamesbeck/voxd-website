@@ -69,10 +69,10 @@ const generateExample = async ({
   });
 
   const industries = (await db("industry").select("name")).map(
-    (industry: { name: string }) => industry.name
+    (industry: { name: string }) => industry.name,
   );
   const functions = (await db("function").select("name")).map(
-    (func: { name: string }) => func.name
+    (func: { name: string }) => func.name,
   );
 
   const { object } = await generateObject({
@@ -82,12 +82,12 @@ const generateExample = async ({
         title: z
           .string()
           .describe(
-            "The title should be a short, concise, SEO friendly description of the case study."
+            "The title should be a short, concise, SEO friendly description of the case study.",
           ),
         short: z
           .string()
           .describe(
-            "A short description should be a concise description of the case study, around 20 words."
+            "A short description should be a concise description of the case study, around 20 words.",
           ),
         body: z.string().describe(`
           The main body of the case study. It should be written for a non technical audience. It should focus on the benefits of the chatbot to the business but not the technical details of how it works or was technically deployed. Do not include the title in the body. It should be written in Markdown format using:
@@ -101,12 +101,12 @@ const generateExample = async ({
         companyName: z
           .string()
           .describe(
-            "The name of the company (generate an appropriate generic one if we don't have one)"
+            "The name of the company (generate an appropriate generic one if we don't have one)",
           ),
         industries: z
           .array(z.enum(industries))
           .describe(
-            `Select industries from this list: ${industries.join(", ")}`
+            `Select industries from this list: ${industries.join(", ")}`,
           ),
         functions: z
           .array(z.enum(functions))
@@ -130,6 +130,7 @@ const generateExample = async ({
         IMPORTANT RULES:
         - Do NOT include example conversations or WhatsApp message flows (these will be handled separately)
         - Do NOT include mock-ups or sample dialogues
+        - Avoid use of hyphens in the content
 
         Write a case study for:
 
@@ -164,14 +165,14 @@ const generateExample = async ({
     industriesIds.map((industryId) => ({
       exampleId: newExample[0].id,
       industryId: industryId.id,
-    }))
+    })),
   );
 
   await db("exampleFunction").insert(
     functionsIds.map((functionId) => ({
       exampleId: newExample[0].id,
       functionId: functionId.id,
-    }))
+    })),
   );
 
   // Create a partial API key for logging (show first 4 and last 4 characters)

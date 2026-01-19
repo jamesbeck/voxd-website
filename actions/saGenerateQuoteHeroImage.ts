@@ -40,7 +40,7 @@ const saGenerateQuoteHeroImage = async ({
     .select(
       "quote.*",
       "organisation.name as organisationName",
-      "organisation.partnerId"
+      "organisation.partnerId",
     )
     .first();
 
@@ -103,7 +103,7 @@ Write a brief hero image prompt (max 2 sentences) for a professional website ban
     // Add landscape and professional styling
     const finalPrompt = `Professional hero banner image for ${
       quote.organisationName || "the organisation"
-    }. ${heroPrompt}. Wide landscape format, professional photography style, clean composition.`;
+    }. ${heroPrompt}. Landscape format, professional photography style, clean composition.  Avoid including any text or people in the image.`;
 
     console.log("Generated hero image prompt:", finalPrompt);
 

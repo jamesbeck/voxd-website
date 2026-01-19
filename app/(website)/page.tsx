@@ -1,143 +1,18 @@
-import Image from "next/image";
 import Container from "@/components/websiteui/container";
 import { getExamples } from "@/lib/getExamples";
-import {
-  MessageSquare,
-  Zap,
-  Brain,
-  PlugZap,
-  Clock,
-  AlertTriangle,
-  Layers,
-  LayoutDashboard,
-  MessagesSquare,
-  Edit3,
-  PauseCircle,
-  UserCheck,
-  BarChart3,
-  Download,
-  Sliders,
-  GitBranch,
-  ShieldAlert,
-  ShieldCheck,
-} from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import ExampleCarousel from "@/components/ExampleCarousel";
+import saGetTopFeatures from "@/actions/saGetTopFeatures";
+import { getIcon } from "@/lib/iconMap";
 import Link from "next/link";
 
 export default async function Home() {
-  const examples = await getExamples();
+  const allExamples = await getExamples();
+  const examples = allExamples.filter(
+    (ex) => ex.partnerId === "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
+  );
 
-  const eg1 = examples[0];
-
-  const features = [
-    {
-      icon: Brain,
-      title: "Intelligent Conversations",
-      description:
-        "Advanced AI capable of handling complex workflows, maintaining context, and delivering human-like responses.",
-    },
-    {
-      icon: PlugZap,
-      title: "Seamless Integration",
-      description:
-        "Connects effortlessly with CRMs, databases, APIs, and backend systems — regardless of your tech stack.",
-    },
-    {
-      icon: Zap,
-      title: "Lightning-Fast Setup",
-      description:
-        "Go live in as little as one day with minimal configuration and no long onboarding cycles.",
-    },
-    {
-      icon: Clock,
-      title: "24/7 Availability",
-      description:
-        "Always-on AI support that delivers instant responses around the clock, every day of the year.",
-    },
-    {
-      icon: MessageSquare,
-      title: "WhatsApp Native",
-      description:
-        "Built specifically for WhatsApp with first-class support for rich media, templates, and interactive messages.",
-    },
-    {
-      icon: ShieldCheck,
-      title: "Enterprise-Grade Security",
-      description:
-        "Industry-leading security practices, encrypted data, and full compliance with data protection regulations.",
-    },
-    {
-      icon: AlertTriangle,
-      title: "Guardrails & Safety Nets",
-      description:
-        "Multi-layered safety mechanisms to prevent hallucinations, enforce policies, and reduce operational risk.",
-    },
-    {
-      icon: Layers,
-      title: "Multi-Agent Architecture",
-      description:
-        "Specialized AI agents collaborate behind the scenes to handle different tasks, intents, and scenarios.",
-    },
-    {
-      icon: LayoutDashboard,
-      title: "Unified Operator Dashboard",
-      description:
-        "A central dashboard to monitor, manage, and control all AI conversations across channels in real time.",
-    },
-    {
-      icon: MessagesSquare,
-      title: "Conversation Explorer",
-      description:
-        "Browse raw conversations with full message history, metadata, timestamps, and AI decision traces.",
-    },
-    {
-      icon: Edit3,
-      title: "Reply Annotation & Feedback",
-      description:
-        "Annotate AI responses, leave internal notes, and provide feedback to continuously improve model behavior.",
-    },
-    {
-      icon: PauseCircle,
-      title: "AI Response Control",
-      description:
-        "Pause, resume, or override AI responses at any time — giving humans full control when needed.",
-    },
-    {
-      icon: UserCheck,
-      title: "Human-in-the-Loop Replies",
-      description:
-        "Jump into live conversations and reply manually, with seamless handoff between AI and human operators.",
-    },
-    {
-      icon: BarChart3,
-      title: "Usage & Performance Analytics",
-      description:
-        "Track message volumes, response times, resolution rates, and AI performance metrics in real time.",
-    },
-    {
-      icon: Download,
-      title: "Data Export & Audit Logs",
-      description:
-        "Export conversations, annotations, and usage data for reporting, compliance, or external analysis.",
-    },
-    {
-      icon: Sliders,
-      title: "Dynamic Prompt & Policy Management",
-      description:
-        "Adjust prompts, rules, and constraints without redeploying or interrupting live conversations.",
-    },
-    {
-      icon: GitBranch,
-      title: "Conversation Versioning",
-      description:
-        "Track changes to prompts, logic, and responses over time with full rollback capabilities.",
-    },
-    {
-      icon: ShieldAlert,
-      title: "Role-Based Access Control",
-      description:
-        "Fine-grained permissions for admins, operators, reviewers, and auditors.",
-    },
-  ];
+  const features = await saGetTopFeatures();
 
   return (
     <>
@@ -172,16 +47,8 @@ export default async function Home() {
         </div>
       </Container>
 
-      {eg1 && (
-        <div className="w-full h-[400px] relative">
-          <Image
-            src={`https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${eg1.id}.png`}
-            alt="Hero Image"
-            fill
-            className="object-cover"
-          />
-        </div>
-      )}
+      {/* Example Carousel */}
+      <ExampleCarousel examples={examples} />
 
       {/* Features Section */}
 
@@ -191,18 +58,19 @@ export default async function Home() {
             Why Choose Voxd?
           </h3>
           <p className="text-lg max-w-2xl mx-auto">
-            Everything you need to deliver exceptional organisation experiences
-            through WhatsApp
+            Everything you need to deliver exceptional experiences through
+            WhatsApp
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
+          {features.map((feature) => {
+            const Icon = getIcon(feature.icon);
             return (
-              <div
-                key={index}
-                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200"
+              <Link
+                key={feature.id}
+                href={`/features/${feature.slug}`}
+                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-xl transition-all duration-200 block hover:scale-105"
               >
                 <div className="flex gap-4 items-center">
                   <div className="bg-primary/10 w-14 h-14 rounded-lg flex items-center justify-center mb-4">
@@ -212,10 +80,8 @@ export default async function Home() {
                     {feature.title}
                   </h4>
                 </div>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
+                <p className="text-gray-600 leading-relaxed">{feature.short}</p>
+              </Link>
             );
           })}
         </div>

@@ -41,7 +41,7 @@ export default async function FaqPage() {
 
       {/* FAQ Content */}
       <Container>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <FaqClient faqs={faqs} categories={categories} />
         </div>
       </Container>

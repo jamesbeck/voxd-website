@@ -222,6 +222,14 @@ export default function AdminSidebar({
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a href="/admin/features">
+                      <Inbox />
+                      <span>Features</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

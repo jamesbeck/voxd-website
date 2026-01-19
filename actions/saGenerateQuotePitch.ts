@@ -74,7 +74,7 @@ const saGenerateQuotePitch = async ({
       "quote.*",
       "organisation.name as organisationName",
       "partner.name as partnerName",
-      "partner.openAiApiKey"
+      "partner.openAiApiKey",
     )
     .where({ "quote.id": quoteId })
     .first();
@@ -157,6 +157,7 @@ IMPORTANT RULES:
 - Do NOT ask any questions - this is not a consultation or discovery session
 - Do NOT include example conversations or WhatsApp message flows
 - This is a written pitch document, not a live presentation
+- Avoid use of hyphens in the content
 
 Write in Markdown format. Use **bold** for emphasis where appropriate. Do not use headings - this will be displayed under an "Introduction" heading.${
         extraPrompt
@@ -238,6 +239,7 @@ IMPORTANT RULES:
 - Do NOT include example conversations or WhatsApp message flows (these will be handled separately)
 - Do NOT include mock-ups or sample dialogues
 - This is a written pitch document, not a live presentation
+- Avoid use of hyphens in the content
 
 Structure the pitch with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
 
