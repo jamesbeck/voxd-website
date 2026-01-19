@@ -65,7 +65,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Hero Image with overlay content */}
       {example.heroImageFileExtension && (
         <div className="relative w-full h-[250px] md:h-[350px] lg:h-[450px]">
@@ -82,7 +82,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
 
           {/* Content overlay */}
           <div className="absolute inset-0 flex items-end">
-            <div className="max-w-5xl mx-auto px-4 pb-8 md:pb-12 lg:pb-16 w-full">
+            <div className="max-w-6xl mx-auto px-4 pb-8 md:pb-12 lg:pb-16 w-full">
               <div className="flex items-start gap-4 md:gap-6">
                 {exampleLogoUrl && (
                   <div className="flex-shrink-0">
@@ -111,42 +111,49 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
       )}
 
       {/* Content wrapper */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-12">
         {/* Main content */}
-        <main className="bg-white rounded-xl shadow-sm p-6 lg:p-12">
-          {/* Case Study Content with floating WhatsApp sims */}
-          <article className="prose prose-gray prose-lg max-w-none">
-            {example.short && (
-              <p className="lead text-xl text-gray-700 leading-relaxed mb-8">
-                {example.short}
-              </p>
-            )}
+        <article className="prose prose-gray prose-lg max-w-none">
+          {/* Short description */}
+          {example.short && (
+            <p className="text-xl md:text-2xl text-gray-700 leading-relaxed mb-8 font-medium">
+              {example.short}
+            </p>
+          )}
 
-            {/* Floating WhatsApp Simulator Carousel */}
-            {example.exampleConversations.length > 0 && (
-              <div className="float-right ml-6 mb-6 clear-right">
-                <ConversationCarousel
-                  conversations={example.exampleConversations}
-                  businessName={example.businessName}
-                  exampleId={example.id}
-                  logoFileExtension={example.logoFileExtension}
-                />
-              </div>
-            )}
+          {/* WhatsApp Simulator Carousel - above body on mobile, floating on desktop */}
+          {example.exampleConversations.length > 0 && (
+            <div className="mx-auto mb-8 lg:float-right lg:ml-6 lg:mb-6 lg:clear-right border border-primary/20 bg-primary/5 rounded-lg p-4 w-fit">
+              <ConversationCarousel
+                conversations={example.exampleConversations}
+                businessName={example.businessName}
+                exampleId={example.id}
+                logoFileExtension={example.logoFileExtension}
+              />
+            </div>
+          )}
 
-            {example.body && <MarkdownContent content={example.body} />}
-          </article>
+          {example.body && <MarkdownContent content={example.body} />}
+        </article>
 
-          {/* Back to Case Studies Link */}
-          <div className="flex justify-center py-8">
-            <a
-              href="/case-studies"
-              className="text-primary hover:text-primary/80 font-medium transition-colors"
-            >
-              ← Back to Case Studies
-            </a>
-          </div>
-        </main>
+        {/* Privacy Disclaimer */}
+        <div className="mt-12 pt-8 border-t border-gray-200">
+          <p className="text-sm text-gray-500 text-center italic max-w-3xl mx-auto">
+            Please note: While this case study is based on a real project,
+            business names, branding, and other identifying information have
+            been modified to protect client privacy.
+          </p>
+        </div>
+
+        {/* Back to Case Studies Link */}
+        <div className="flex justify-center py-8 mt-8">
+          <a
+            href="/case-studies"
+            className="text-primary hover:text-primary/80 font-medium transition-colors"
+          >
+            ← Back to Case Studies
+          </a>
+        </div>
       </div>
     </div>
   );

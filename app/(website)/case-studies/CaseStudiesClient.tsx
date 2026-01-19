@@ -228,6 +228,15 @@ export default function CaseStudiesClient({
             </p>
           </div>
         )}
+
+        {/* Privacy Disclaimer */}
+        <div className="mt-12 pt-8 border-t border-gray-200">
+          <p className="text-sm text-gray-500 text-center italic max-w-3xl mx-auto">
+            Please note: While these case studies are based on real projects,
+            business names, branding, and other identifying information have
+            been modified to protect client privacy.
+          </p>
+        </div>
       </div>
     </>
   );

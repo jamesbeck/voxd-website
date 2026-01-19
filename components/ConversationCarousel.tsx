@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import WhatsAppSim from "@/components/whatsAppSim";
 import { Button } from "@/components/ui/button";
@@ -32,50 +33,56 @@ export default function ConversationCarousel({
   exampleId,
   logoFileExtension,
 }: ConversationCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
-  const goToPrevious = () => {
-    setCurrentIndex((prev) =>
-      prev === 0 ? conversations.length - 1 : prev - 1,
-    );
-  };
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
 
-  const goToNext = () => {
-    setCurrentIndex((prev) =>
-      prev === conversations.length - 1 ? 0 : prev + 1,
-    );
-  };
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
 
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
+  const scrollTo = useCallback(
+    (index: number) => {
+      if (emblaApi) emblaApi.scrollTo(index);
+    },
+    [emblaApi],
+  );
 
   if (conversations.length === 0) return null;
 
-  const currentConversation = conversations[currentIndex];
-
   return (
     <div className="w-[360px]">
-      {/* Conversation description */}
-      <div className="text-center mb-3">
-        <p className="text-xs font-medium text-gray-700 line-clamp-2">
-          {currentConversation.description}
-        </p>
-      </div>
+      {/* Embla Carousel */}
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex">
+          {conversations.map((conversation) => (
+            <div key={conversation.id} className="flex-[0_0_100%] min-w-0">
+              {/* Conversation description */}
+              <div className="text-center mb-3">
+                <p className="text-xs font-medium text-gray-700 line-clamp-2 px-2">
+                  {conversation.description}
+                </p>
+              </div>
 
-      {/* WhatsApp Simulator */}
-      <WhatsAppSim
-        messages={currentConversation.messages.map((m) => ({
-          role: m.role,
-          content: m.content,
-          time: m.time,
-          annotation: m.annotation || "",
-        }))}
-        businessName={businessName}
-        startTime={currentConversation.startTime}
-        exampleId={exampleId}
-        logoFileExtension={logoFileExtension}
-      />
+              {/* WhatsApp Simulator */}
+              <WhatsAppSim
+                messages={conversation.messages.map((m) => ({
+                  role: m.role,
+                  content: m.content,
+                  time: m.time,
+                  annotation: m.annotation || "",
+                }))}
+                businessName={businessName}
+                startTime={conversation.startTime}
+                exampleId={exampleId}
+                logoFileExtension={logoFileExtension}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Navigation Controls */}
       {conversations.length > 1 && (
@@ -84,7 +91,7 @@ export default function ConversationCarousel({
           <Button
             variant="outline"
             size="icon"
-            onClick={goToPrevious}
+            onClick={scrollPrev}
             className="h-8 w-8 rounded-full"
             aria-label="Previous conversation"
           >
@@ -96,12 +103,8 @@ export default function ConversationCarousel({
             {conversations.map((_, index) => (
               <button
                 key={index}
-                onClick={() => goToSlide(index)}
-                className={`h-2 w-2 rounded-full transition-all ${
-                  index === currentIndex
-                    ? "bg-primary w-6"
-                    : "bg-gray-300 hover:bg-gray-400"
-                }`}
+                onClick={() => scrollTo(index)}
+                className="h-2 w-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors"
                 aria-label={`Go to conversation ${index + 1}`}
               />
             ))}
@@ -111,7 +114,7 @@ export default function ConversationCarousel({
           <Button
             variant="outline"
             size="icon"
-            onClick={goToNext}
+            onClick={scrollNext}
             className="h-8 w-8 rounded-full"
             aria-label="Next conversation"
           >
