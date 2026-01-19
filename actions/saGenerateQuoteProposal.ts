@@ -39,7 +39,8 @@ ${partnerName} runs "workers" - separate AI-powered scripts that monitor convers
 - Intelligent AI responses with full context awareness
 - Integration with existing business systems
 - Proactive customer engagement through workers
-- Cost-effective messaging within reply windows`;
+- Cost-effective messaging within reply windows
+- Where relevant offer multilingual support for diverse customer bases`;
 
 const saGenerateQuoteProposal = async ({
   quoteId,

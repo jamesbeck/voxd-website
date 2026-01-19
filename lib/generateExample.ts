@@ -121,6 +121,14 @@ const generateExample = async ({
         * No new logins or passwords
         * Personal familiar experience
         
+        The benefits of AI chatbots include:
+        * 24/7 availability
+        * Instant responses
+        * Handling multiple customers at once
+        * Personalisation at scale
+        * Cost savings on support staff
+        * Multilingual support
+        
         Include in the case study:
         * An engaging introduction to the business and its challenges
         * How the WhatsApp chatbot was implemented to address these challenges

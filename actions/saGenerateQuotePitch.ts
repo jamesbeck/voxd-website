@@ -22,6 +22,7 @@ ${partnerName} provides a powerful, enterprise-ready platform for delivering int
 - Real-time integration with external systems (CRM, back-office)
 - Access to unlimited knowledge sources (FAQs, policies, product catalogues)
 - Tool-enabled intelligence for querying and updating systems
+- Multilingual support for global audiences
 
 **AI Workers and Background Automation**
 - Sentiment monitoring to detect unhappy users
@@ -183,6 +184,7 @@ Your task is to write a compelling, persuasive PITCH that helps the client under
    - Focus on logical, specific features relevant to their sector
    - Describe the types of enquiries and tasks it could handle
    - Explain how it would work in their specific context
+   - Where relevant offer multilingual support for diverse customer bases
 
 2. **Saving money and time while improving customer experience**
    - Identify specific areas where they can reduce costs (staffing, response times)
@@ -223,7 +225,7 @@ Your task is to write a compelling, persuasive PITCH that helps the client under
 8. **Future potential**
    - Describe realistic but more advanced future capabilities that could be added to the chatbot over time
    - Think about features that would be natural next steps once the initial chatbot is established
-   - Consider industry-specific advanced use cases (e.g., predictive recommendations, voice integration, multi-language support, proactive outreach campaigns)
+   - Consider industry-specific advanced use cases (e.g., predictive recommendations, voice integration, proactive outreach campaigns)
    - Keep suggestions grounded and achievable, but show the exciting growth potential
    - Frame this as a journey - starting with solid foundations and growing into more sophisticated capabilities
 
