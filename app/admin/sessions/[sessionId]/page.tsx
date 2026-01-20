@@ -65,7 +65,7 @@ export default async function Page({
   if (session.lastUserMessageDate && !session.closedAt) {
     const sessionExpiresAt = addSeconds(
       session.lastUserMessageDate,
-      agent.autoCloseSessionAfterSecs
+      agent.autoCloseSessionAfterSecs,
     );
   }
 
@@ -133,6 +133,10 @@ export default async function Page({
               </Link>
             </Button>
 
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/admin/chatUsers/${user.id}`}>{user.name}</Link>
+            </Button>
+
             <SessionActions
               sessionId={sessionId}
               name={session.id}
@@ -174,7 +178,7 @@ export default async function Page({
                     value: session.lastUserMessageDate
                       ? format(
                           session.lastUserMessageDate,
-                          "dd/MM/yyyy HH:mm:ss"
+                          "dd/MM/yyyy HH:mm:ss",
                         )
                       : "No messages yet",
                     description: session.lastUserMessageDate
@@ -183,7 +187,7 @@ export default async function Page({
                           new Date(),
                           {
                             addSuffix: true,
-                          }
+                          },
                         )
                       : undefined,
                     icon: <Clock className="h-4 w-4" />,
@@ -195,8 +199,8 @@ export default async function Page({
                     variant: session.closedAt
                       ? "danger"
                       : session.paused
-                      ? "warning"
-                      : "success",
+                        ? "warning"
+                        : "success",
                   },
                   session.closedReason
                     ? {

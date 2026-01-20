@@ -33,7 +33,7 @@ export default async function Page({ params }: { params: { userId: string } }) {
       <BreadcrumbSetter
         breadcrumbs={[
           { label: "Admin", href: "/admin" },
-          { label: "Users", href: "/admin/users" },
+          { label: "Users", href: "/admin/chatUsers" },
           { label: user?.name || "New User" },
         ]}
       />

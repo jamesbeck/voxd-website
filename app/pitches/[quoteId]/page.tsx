@@ -70,16 +70,16 @@ export async function generateMetadata({
         process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
       }/quoteImages/${pitch.id}_og.${pitch.heroImageFileExtension}`
     : pitch.organisationLogoFileExtension
-    ? `https://s3.${
-        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-      }.wasabisys.com/${
-        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-      }/organisationLogos/${pitch.organisationId}.${
-        pitch.organisationLogoFileExtension
-      }`
-    : pitch.partner.domain && pitch.partner.logoFileExtension
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
-    : null;
+      ? `https://s3.${
+          process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
+        }.wasabisys.com/${
+          process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
+        }/organisationLogos/${pitch.organisationId}.${
+          pitch.organisationLogoFileExtension
+        }`
+      : pitch.partner.domain && pitch.partner.logoFileExtension
+        ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
+        : null;
 
   // Get current host from request headers
   const headersList = await headers();
@@ -529,7 +529,9 @@ export default async function PublicPitchPage({
                     How It Works
                   </h2>
                   <p className="text-gray-500 text-sm mt-1">
-                    See how messages flow from your customers through WhatsApp
+                    ages flow from your customers through WhatsApp, to our AI,
+                    and back — with real-time access to all your business
+                    systems.
                   </p>
                 </div>
               </div>

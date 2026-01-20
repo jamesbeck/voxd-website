@@ -15,7 +15,7 @@ export default function HowItWorks({ businessName }: HowItWorksProps) {
           </h1>
           <p className="text-xl text-white/90 leading-relaxed">
             See how messages flow from your customers through WhatsApp, to our
-            AI, and back — with real-time access to all your business systems
+            AI, and back — with real-time access to all your business systems.
           </p>
         </div>
       </Container>

@@ -14,6 +14,7 @@ import {
   Cpu,
   Send,
   CheckCircle,
+  Activity,
 } from "lucide-react";
 
 interface Stage {
@@ -165,6 +166,26 @@ function getStages(businessName: string): Stage[] {
       ],
       isReturn: true,
     },
+    {
+      id: "worker-analysis",
+      step: 8,
+      title: "Worker AI Agent Analysis",
+      subtitle: "Background conversation monitoring & actions",
+      icon: Activity,
+      color: "bg-indigo-500",
+      description: `${businessName}'s worker AI agent continuously analyses conversations in the background and takes intelligent actions when required.`,
+      details: [
+        "Monitors conversations for patterns requiring human escalation",
+        "Schedules follow-up messages at optimal times",
+        "Sets reminders for pending tasks or commitments",
+        "Detects customer satisfaction issues and flags for review",
+        "Generates analytics and insights from conversation trends",
+        "Proactive outreach based on user behavior or business rules",
+        "Runs on a schedule — operates independently from live conversations",
+        "Fully customizable — can trigger any action or integration your business needs",
+      ],
+      isReturn: false,
+    },
   ];
 }
 
@@ -209,15 +230,6 @@ function StageAccordion({
 
           {/* Title */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-500">
-                Step{" "}
-                {Number.isInteger(stage.step)
-                  ? stage.step
-                  : Math.floor(stage.step)}
-                {!Number.isInteger(stage.step) && "+"}
-              </span>
-            </div>
             <h4 className="text-lg font-semibold text-gray-900">
               {stage.title}
             </h4>
@@ -264,7 +276,7 @@ export default function DataFlowDiagram({
 }: DataFlowDiagramProps) {
   const stages = getStages(businessName);
   const [openStages, setOpenStages] = useState<Set<string>>(
-    new Set(["user-sends"])
+    new Set(["user-sends"]),
   );
 
   const toggleStage = (id: string) => {
@@ -279,33 +291,8 @@ export default function DataFlowDiagram({
     });
   };
 
-  const expandAll = () => {
-    setOpenStages(new Set(stages.map((s) => s.id)));
-  };
-
-  const collapseAll = () => {
-    setOpenStages(new Set());
-  };
-
   return (
     <div className="relative">
-      {/* Controls */}
-      <div className="flex justify-end gap-2 mb-4">
-        <button
-          onClick={expandAll}
-          className="text-sm text-primary hover:text-primary/80 transition-colors"
-        >
-          Expand all
-        </button>
-        <span className="text-gray-300">|</span>
-        <button
-          onClick={collapseAll}
-          className="text-sm text-primary hover:text-primary/80 transition-colors"
-        >
-          Collapse all
-        </button>
-      </div>
-
       {/* Accordion stages */}
       <div className="space-y-6">
         {stages.map((stage, index) => (

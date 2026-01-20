@@ -3,6 +3,7 @@
 import { ChatUser } from "@/types/types";
 import saDeleteUser from "@/actions/saDeleteUser";
 import saDeleteSessionsByUser from "@/actions/saDeleteSessionsByUser";
+import saClearUserData from "@/actions/saClearUserData";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -17,11 +18,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import { MoreHorizontalIcon, Trash2Icon, XCircleIcon } from "lucide-react";
 
 export default function UserActions({ user }: { user: ChatUser }) {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [isDeletingSessions, setIsDeletingSessions] = useState(false);
+  const [isClearingData, setIsClearingData] = useState(false);
 
   const router = useRouter();
 
@@ -33,7 +35,7 @@ export default function UserActions({ user }: { user: ChatUser }) {
       toast.error(
         `Error Deleting User: ${
           saResponse.error || "There was an error deleting the user"
-        }`
+        }`,
       );
       setIsDeletingUser(false);
       return;
@@ -52,7 +54,7 @@ export default function UserActions({ user }: { user: ChatUser }) {
       toast.error(
         `Error Deleting User's Sessions: ${
           saResponse.error || "There was an error deleting the user's sessions"
-        }`
+        }`,
       );
       setIsDeletingSessions(false);
       return;
@@ -60,6 +62,25 @@ export default function UserActions({ user }: { user: ChatUser }) {
     // If successful
     toast.success(`Successfully deleted sessions for ${user.name}`);
     setIsDeletingSessions(false);
+    router.refresh();
+  };
+
+  const clearUserData = async () => {
+    setIsClearingData(true);
+    const saResponse = await saClearUserData({ userId: user.id });
+
+    if (!saResponse.success) {
+      toast.error(
+        `Error Clearing User Data: ${
+          saResponse.error || "There was an error clearing the user data"
+        }`,
+      );
+      setIsClearingData(false);
+      return;
+    }
+    // If successful
+    toast.success(`Successfully cleared data for ${user.name}`);
+    setIsClearingData(false);
     router.refresh();
   };
 
@@ -77,6 +98,25 @@ export default function UserActions({ user }: { user: ChatUser }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuGroup>
+          <Alert
+            destructive
+            title={`Clear ${user.name}'s Data`}
+            description="This action cannot be undone. All stored data for this user will be cleared and reset to an empty object."
+            actionText="Clear Data"
+            onAction={clearUserData}
+          >
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={(e) => e.preventDefault()}
+            >
+              {isClearingData ? (
+                <Spinner />
+              ) : (
+                <XCircleIcon className="h-4 w-4" />
+              )}
+              Clear User Data
+            </DropdownMenuItem>
+          </Alert>
           <Alert
             destructive
             title={`Delete ${user.name}'s Sessions`}
