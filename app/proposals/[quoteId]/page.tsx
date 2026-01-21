@@ -70,16 +70,16 @@ export async function generateMetadata({
         process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
       }/quoteImages/${quote.id}_og.${quote.heroImageFileExtension}`
     : quote.organisationLogoFileExtension
-    ? `https://s3.${
-        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-      }.wasabisys.com/${
-        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-      }/organisationLogos/${quote.organisationId}.${
-        quote.organisationLogoFileExtension
-      }`
-    : quote.partner.domain && quote.partner.logoFileExtension
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
-    : null;
+      ? `https://s3.${
+          process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
+        }.wasabisys.com/${
+          process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
+        }/organisationLogos/${quote.organisationId}.${
+          quote.organisationLogoFileExtension
+        }`
+      : quote.partner.domain && quote.partner.logoFileExtension
+        ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
+        : null;
 
   // Get current host from request headers
   const headersList = await headers();
@@ -184,6 +184,15 @@ export default async function PublicQuotePage({
       : []),
     { id: "introduction", label: "Introduction", icon: "FileText" as const },
     { id: "specification", label: "Specification", icon: "BookOpen" as const },
+    ...(quote.exampleConversations.length > 0
+      ? [
+          {
+            id: "examples",
+            label: "Examples",
+            icon: "MessageSquare" as const,
+          },
+        ]
+      : []),
     {
       id: "portal",
       label: "Management Portal",
@@ -194,15 +203,6 @@ export default async function PublicQuotePage({
       label: `The ${quote.partner.name} Service`,
       icon: "Wrench" as const,
     },
-    ...(quote.exampleConversations.length > 0
-      ? [
-          {
-            id: "examples",
-            label: "Examples",
-            icon: "MessageSquare" as const,
-          },
-        ]
-      : []),
     ...(quote.setupFee !== null || quote.monthlyFee !== null
       ? [{ id: "pricing", label: "Investment", icon: "FileCheck" as const }]
       : []),
@@ -481,6 +481,47 @@ export default async function PublicQuotePage({
               )}
             </div>
           </section>
+
+          {/* Example Conversations Section */}
+          {quote.exampleConversations.length > 0 && (
+            <section
+              id="examples"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className="p-2 rounded-lg"
+                  style={{ backgroundColor: `${brandColor}15` }}
+                >
+                  <MessageSquare
+                    className="h-6 w-6"
+                    style={{ color: brandColor }}
+                  />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Example Conversations
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    See how your chatbot could interact with customers
+                  </p>
+                </div>
+              </div>
+
+              <ExampleConversationsAccordion
+                conversations={quote.exampleConversations}
+                businessName={quote.organisationName}
+                brandColor={brandColor}
+                organizationId={quote.organisationId}
+                organizationLogoFileExtension={
+                  quote.organisationLogoFileExtension
+                }
+                organizationLogoDarkBackground={
+                  quote.organisationLogoDarkBackground
+                }
+              />
+            </section>
+          )}
 
           {/* Voxd Portal Section */}
           <section
@@ -810,47 +851,6 @@ export default async function PublicQuotePage({
               </div>
             </div>
           </section>
-
-          {/* Example Conversations Section */}
-          {quote.exampleConversations.length > 0 && (
-            <section
-              id="examples"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="p-2 rounded-lg"
-                  style={{ backgroundColor: `${brandColor}15` }}
-                >
-                  <MessageSquare
-                    className="h-6 w-6"
-                    style={{ color: brandColor }}
-                  />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900">
-                    Example Conversations
-                  </h2>
-                  <p className="text-gray-500 text-sm mt-1">
-                    See how your chatbot could interact with customers
-                  </p>
-                </div>
-              </div>
-
-              <ExampleConversationsAccordion
-                conversations={quote.exampleConversations}
-                businessName={quote.organisationName}
-                brandColor={brandColor}
-                organizationId={quote.organisationId}
-                organizationLogoFileExtension={
-                  quote.organisationLogoFileExtension
-                }
-                organizationLogoDarkBackground={
-                  quote.organisationLogoDarkBackground
-                }
-              />
-            </section>
-          )}
 
           {/* Pricing Section */}
           {(quote.setupFee !== null || quote.monthlyFee !== null) && (
