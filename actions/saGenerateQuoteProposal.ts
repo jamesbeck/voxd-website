@@ -165,6 +165,7 @@ Your task is to write a detailed, professional SPECIFICATION section for a clien
 - Be clear and professional - the client should understand what they're getting
 - Stay focused on their stated requirements only
 - Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
 
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 

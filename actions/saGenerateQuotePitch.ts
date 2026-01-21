@@ -237,6 +237,7 @@ IMPORTANT RULES:
 - Do NOT include mock-ups or sample dialogues
 - This is a written pitch document, not a live presentation
 - Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
 
 Structure the pitch with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
 
