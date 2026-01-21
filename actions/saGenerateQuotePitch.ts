@@ -98,8 +98,7 @@ const saGenerateQuotePitch = async ({
   const hasContent =
     quote.background ||
     quote.objectives ||
-    quote.dataSources ||
-    quote.integrationRequirements ||
+    quote.dataSourcesAndIntegrations ||
     quote.otherNotes;
 
   if (!hasContent) {
@@ -124,12 +123,7 @@ const saGenerateQuotePitch = async ({
 
 ${quote.background ? `### Background\n${quote.background}\n` : ""}
 ${quote.objectives ? `### Objectives\n${quote.objectives}\n` : ""}
-${quote.dataSources ? `### Data Sources\n${quote.dataSources}\n` : ""}
-${
-  quote.integrationRequirements
-    ? `### Integration Requirements\n${quote.integrationRequirements}\n`
-    : ""
-}
+${quote.dataSourcesAndIntegrations ? `### Data Sources & Integrations\n${quote.dataSourcesAndIntegrations}\n` : ""}
 ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 `.trim();
 

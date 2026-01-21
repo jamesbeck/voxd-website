@@ -23,8 +23,7 @@ export type Quote = {
   status: string;
   background: string | null;
   objectives: string | null;
-  dataSources: string | null;
-  integrationRequirements: string | null;
+  dataSourcesAndIntegrations: string | null;
   otherNotes: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
@@ -58,7 +57,7 @@ export const getQuoteById = async ({
       "organisation.name as organisationName",
       "organisation.partnerId",
       "adminUser.name as ownerName",
-      "adminUser.email as ownerEmail"
+      "adminUser.email as ownerEmail",
     )
     .first();
 

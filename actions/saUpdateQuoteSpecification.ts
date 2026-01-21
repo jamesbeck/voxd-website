@@ -6,14 +6,12 @@ import { ServerActionResponse } from "@/types/types";
 const saUpdateQuote = async ({
   quoteId,
   objectives,
-  dataSources,
-  integrationRequirements,
+  dataSourcesAndIntegrations,
   otherNotes,
 }: {
   quoteId: string;
   objectives?: string;
-  dataSources?: string;
-  integrationRequirements?: string;
+  dataSourcesAndIntegrations?: string;
   otherNotes?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
@@ -40,8 +38,7 @@ const saUpdateQuote = async ({
   //update the quote
   await db("quote").where({ id: quoteId }).update({
     objectives,
-    dataSources,
-    integrationRequirements,
+    dataSourcesAndIntegrations,
     otherNotes,
   });
 

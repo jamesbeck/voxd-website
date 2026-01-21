@@ -30,22 +30,19 @@ import {
 
 const formSchema = z.object({
   objectives: z.string().optional(),
-  dataSources: z.string().optional(),
-  integrationRequirements: z.string().optional(),
+  dataSourcesAndIntegrations: z.string().optional(),
   otherNotes: z.string().optional(),
 });
 
 export default function EditSpecificationForm({
   quoteId,
   objectives,
-  dataSources,
-  integrationRequirements,
+  dataSourcesAndIntegrations,
   otherNotes,
 }: {
   quoteId: string;
   objectives: string | null;
-  dataSources: string | null;
-  integrationRequirements: string | null;
+  dataSourcesAndIntegrations: string | null;
   otherNotes: string | null;
 }) {
   const [loading, setLoading] = useState(false);
@@ -56,8 +53,7 @@ export default function EditSpecificationForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       objectives: objectives || "",
-      dataSources: dataSources || "",
-      integrationRequirements: integrationRequirements || "",
+      dataSourcesAndIntegrations: dataSourcesAndIntegrations || "",
       otherNotes: otherNotes || "",
     },
   });
@@ -69,8 +65,7 @@ export default function EditSpecificationForm({
     const response = await saUpdateQuoteSpecification({
       quoteId: quoteId,
       objectives: values.objectives,
-      dataSources: values.dataSources,
-      integrationRequirements: values.integrationRequirements,
+      dataSourcesAndIntegrations: values.dataSourcesAndIntegrations,
       otherNotes: values.otherNotes,
     });
 
@@ -147,36 +142,19 @@ export default function EditSpecificationForm({
 
           <FormField
             control={form.control}
-            name="dataSources"
+            name="dataSourcesAndIntegrations"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Data Sources</FormLabel>
+                <FormLabel>Data Sources & Integrations</FormLabel>
                 <FormControl>
                   <Textarea placeholder="" {...field} className="h-[150px]" />
                 </FormControl>
                 <FormDescription>
-                  What data sources will the chatbot need to access? Examples
-                  include client-supplied documents, manually created knowledge
-                  base, CRM and back office systems.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="integrationRequirements"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Integration Requirements</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="" {...field} className="h-[150px]" />
-                </FormControl>
-                <FormDescription>
-                  What systems or APIs need to be integrated? Examples include
-                  CRM systems, accountancy packages, or bespoke external
-                  systems.
+                  What data sources will the chatbot need to access and what
+                  systems or APIs need to be integrated? Examples include
+                  client-supplied documents, manually created knowledge base,
+                  CRM systems, accountancy packages, back office systems, or
+                  bespoke external systems.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

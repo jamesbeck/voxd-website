@@ -23,8 +23,7 @@ export type PublicQuote = {
   status: string;
   background: string | null;
   objectives: string | null;
-  dataSources: string | null;
-  integrationRequirements: string | null;
+  dataSourcesAndIntegrations: string | null;
   otherNotes: string | null;
   proposalPersonalMessage: string | null;
   generatedProposalIntroduction: string | null;
@@ -62,8 +61,7 @@ export const getQuoteForPublic = async ({
       "quote.status",
       "quote.background",
       "quote.objectives",
-      "quote.dataSources",
-      "quote.integrationRequirements",
+      "quote.dataSourcesAndIntegrations",
       "quote.otherNotes",
       "quote.proposalPersonalMessage",
       "quote.generatedProposalIntroduction",
@@ -80,7 +78,7 @@ export const getQuoteForPublic = async ({
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
       "adminUser.name as createdByName",
-      "adminUser.email as createdByEmail"
+      "adminUser.email as createdByEmail",
     )
     .first();
 
@@ -114,7 +112,7 @@ export const getQuoteForPublic = async ({
         content: m.content,
         time: m.time,
         annotation: m.annotation || null,
-      })
+      }),
     ),
   }));
 
@@ -130,8 +128,7 @@ export const getQuoteForPublic = async ({
     status: quote.status,
     background: quote.background,
     objectives: quote.objectives,
-    dataSources: quote.dataSources,
-    integrationRequirements: quote.integrationRequirements,
+    dataSourcesAndIntegrations: quote.dataSourcesAndIntegrations,
     otherNotes: quote.otherNotes,
     proposalPersonalMessage: quote.proposalPersonalMessage,
     generatedProposalIntroduction: quote.generatedProposalIntroduction,

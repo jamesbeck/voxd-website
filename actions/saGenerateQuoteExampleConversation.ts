@@ -37,7 +37,7 @@ const saGenerateQuoteExampleConversation = async ({
       "quote.*",
       "organisation.name as organisationName",
       "organisation.partnerId",
-      "partner.openAiApiKey"
+      "partner.openAiApiKey",
     )
     .first();
 
@@ -69,7 +69,7 @@ const saGenerateQuoteExampleConversation = async ({
     };
   }
 
-  // Build the specification context from the 5 fields
+  // Build the specification context from the fields
   const specificationContext = `
 Background:
 ${quote.background || "Not specified"}
@@ -77,11 +77,8 @@ ${quote.background || "Not specified"}
 Objectives:
 ${quote.objectives || "Not specified"}
 
-Data Sources:
-${quote.dataSources || "Not specified"}
-
-Integration Requirements:
-${quote.integrationRequirements || "Not specified"}
+Data Sources & Integrations:
+${quote.dataSourcesAndIntegrations || "Not specified"}
 
 Other Notes:
 ${quote.otherNotes || "Not specified"}

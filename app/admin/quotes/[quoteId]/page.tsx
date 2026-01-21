@@ -187,8 +187,8 @@ export default async function Page({
                       quote.status === "accepted"
                         ? "success"
                         : quote.status === "rejected"
-                        ? "danger"
-                        : "default",
+                          ? "danger"
+                          : "default",
                   },
                   {
                     label: "Owner",
@@ -251,8 +251,7 @@ export default async function Page({
               <EditSpecificationForm
                 quoteId={quote.id}
                 objectives={quote.objectives}
-                dataSources={quote.dataSources}
-                integrationRequirements={quote.integrationRequirements}
+                dataSourcesAndIntegrations={quote.dataSourcesAndIntegrations}
                 otherNotes={quote.otherNotes}
               />
             </TabsContent>

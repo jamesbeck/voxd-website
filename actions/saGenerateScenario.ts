@@ -135,11 +135,8 @@ ${quote.background || "Not specified"}
 Objectives:
 ${quote.objectives || "Not specified"}
 
-Data Sources:
-${quote.dataSources || "Not specified"}
-
-Integration Requirements:
-${quote.integrationRequirements || "Not specified"}
+Data Sources & Integrations:
+${quote.dataSourcesAndIntegrations || "Not specified"}
 
 Other Notes:
 ${quote.otherNotes || "Not specified"}
