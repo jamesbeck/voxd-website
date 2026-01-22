@@ -13,6 +13,7 @@ import H2 from "@/components/adminui/H2";
 import getAgents from "@/lib/getAgents";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import SendTemplateTab from "./sendTemplateTab";
+import JsonDataEditor from "./JsonDataEditor";
 
 export default async function Page({ params }: { params: { userId: string } }) {
   const token = await verifyAccessToken();
@@ -80,13 +81,14 @@ export default async function Page({ params }: { params: { userId: string } }) {
             <TabsContent value="data">
               <H2>User Data</H2>
               {user.data ? (
-                <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm">
-                  {JSON.stringify(user.data, null, 2)}
-                </pre>
+                <JsonDataEditor userId={userId} initialData={user.data} />
               ) : (
-                <p className="text-muted-foreground">
-                  No data stored for this user.
-                </p>
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">
+                    No data stored for this user.
+                  </p>
+                  <JsonDataEditor userId={userId} initialData={{}} />
+                </div>
               )}
             </TabsContent>
           </Tabs>
