@@ -27,9 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sparkles, Eye, EyeOff } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { SimpleMarkdownEditor } from "@/components/SimpleMarkdownEditor";
 import {
   Dialog,
   DialogContent,
@@ -53,7 +54,6 @@ export default function NewFaqForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
   const [showAiDialog, setShowAiDialog] = useState(false);
   const [aiInstructions, setAiInstructions] = useState("");
   const router = useRouter();
@@ -114,7 +114,6 @@ export default function NewFaqForm({
 
     form.setValue("answer", response.data.answer);
     toast.success("Answer generated! Review and edit before saving.");
-    setShowPreview(true);
     setGenerating(false);
     setAiInstructions("");
   }
@@ -247,60 +246,31 @@ export default function NewFaqForm({
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center justify-between">
-                  <FormLabel>Answer (Markdown supported)</FormLabel>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowPreview(!showPreview)}
-                    >
-                      {showPreview ? (
-                        <EyeOff className="mr-2 h-4 w-4" />
-                      ) : (
-                        <Eye className="mr-2 h-4 w-4" />
-                      )}
-                      {showPreview ? "Edit" : "Preview"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={openAiDialog}
-                      disabled={generating}
-                    >
-                      {generating ? (
-                        <Spinner className="mr-2 h-4 w-4" />
-                      ) : (
-                        <Sparkles className="mr-2 h-4 w-4" />
-                      )}
-                      Generate with AI
-                    </Button>
-                  </div>
-                </div>
-                {showPreview ? (
-                  <div className="min-h-[150px] rounded-md border bg-muted/30 p-4">
-                    {field.value ? (
-                      <MarkdownContent content={field.value} />
+                  <FormLabel>Answer</FormLabel>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={openAiDialog}
+                    disabled={generating}
+                  >
+                    {generating ? (
+                      <Spinner className="mr-2 h-4 w-4" />
                     ) : (
-                      <p className="text-muted-foreground text-sm italic">
-                        No content to preview
-                      </p>
+                      <Sparkles className="mr-2 h-4 w-4" />
                     )}
-                  </div>
-                ) : (
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter the answer using Markdown formatting...&#10;&#10;**Bold text** for emphasis&#10;- Bullet points for lists&#10;`code` for technical terms&#10;> Blockquotes for important notes"
-                      {...field}
-                      rows={10}
-                      className="font-mono text-sm"
-                    />
-                  </FormControl>
-                )}
+                    Generate with AI
+                  </Button>
+                </div>
+                <FormControl>
+                  <SimpleMarkdownEditor
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter the answer..."
+                  />
+                </FormControl>
                 <FormDescription>
-                  Use Markdown for formatting: **bold**, *italic*, `code`, -
-                  bullet points, {">"} blockquotes
+                  Use the editor toolbar for formatting.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

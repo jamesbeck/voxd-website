@@ -348,13 +348,8 @@ export default function EditPitchForm({
       <hr className="my-8" />
 
       {/* Section Visibility Section */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold">Section Visibility</h3>
-          <p className="text-sm text-muted-foreground">
-            Control which sections are visible in the pitch
-          </p>
-        </div>
+      <div className="space-y-2">
+        <h3 className="text-base font-semibold">Section Visibility</h3>
 
         <Form {...form}>
           <FormField
@@ -362,12 +357,12 @@ export default function EditPitchForm({
             name="pitchHideSections"
             render={() => (
               <FormItem>
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {[
                     { id: "how-it-works", label: "How It Works" },
-                    { id: "portal", label: "Management Portal" },
-                    { id: "service", label: "The Service" },
-                    { id: "pricing", label: "Investment & Timescales" },
+                    { id: "portal", label: "Portal" },
+                    { id: "service", label: "Service" },
+                    { id: "pricing", label: "Pricing" },
                     { id: "next-steps", label: "Next Steps" },
                   ].map((section) => (
                     <FormField
@@ -377,12 +372,7 @@ export default function EditPitchForm({
                       render={({ field }) => {
                         const isHidden = field.value?.includes(section.id);
                         return (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-base cursor-pointer">
-                                {section.label}
-                              </FormLabel>
-                            </div>
+                          <FormItem className="flex flex-row items-center gap-2 rounded border px-3 py-2">
                             <FormControl>
                               <Switch
                                 checked={!isHidden}
@@ -391,12 +381,10 @@ export default function EditPitchForm({
                                   const currentHidden = field.value || [];
                                   let newHidden: string[];
                                   if (checked) {
-                                    // Remove from hidden list
                                     newHidden = currentHidden.filter(
                                       (id) => id !== section.id,
                                     );
                                   } else {
-                                    // Add to hidden list
                                     newHidden = [...currentHidden, section.id];
                                   }
                                   field.onChange(newHidden);
@@ -404,6 +392,9 @@ export default function EditPitchForm({
                                 }}
                               />
                             </FormControl>
+                            <FormLabel className="text-sm cursor-pointer font-normal">
+                              {section.label}
+                            </FormLabel>
                           </FormItem>
                         );
                       }}

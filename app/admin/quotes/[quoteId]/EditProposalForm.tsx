@@ -20,8 +20,9 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import saUpdateQuoteProposal from "@/actions/saUpdateQuoteProposal";
 import saGenerateQuoteProposal from "@/actions/saGenerateQuoteProposal";
-import { Eye, EyeOff, Sparkles, AlertCircle } from "lucide-react";
+import { Sparkles, AlertCircle } from "lucide-react";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { SimpleMarkdownEditor } from "@/components/SimpleMarkdownEditor";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -64,8 +65,6 @@ export default function EditProposalForm({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPromptDialog, setShowPromptDialog] = useState(false);
   const [extraPrompt, setExtraPrompt] = useState("");
-  const [showIntroPreview, setShowIntroPreview] = useState(true);
-  const [showSpecPreview, setShowSpecPreview] = useState(true);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -126,11 +125,11 @@ export default function EditProposalForm({
     // Update form values with new content
     form.setValue(
       "generatedProposalIntroduction",
-      response.data.generatedProposalIntroduction || ""
+      response.data.generatedProposalIntroduction || "",
     );
     form.setValue(
       "generatedSpecification",
-      response.data.generatedSpecification || ""
+      response.data.generatedSpecification || "",
     );
 
     toast.success("Proposal regenerated! Review and save when ready.");
@@ -290,42 +289,14 @@ export default function EditProposalForm({
             name="generatedProposalIntroduction"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Introduction (Markdown)</FormLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowIntroPreview(!showIntroPreview)}
-                  >
-                    {showIntroPreview ? (
-                      <EyeOff className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Eye className="mr-2 h-4 w-4" />
-                    )}
-                    {showIntroPreview ? "Edit" : "Preview"}
-                  </Button>
-                </div>
-                {showIntroPreview ? (
-                  <div className="min-h-[150px] rounded-md border bg-muted/30 p-4">
-                    {field.value ? (
-                      <MarkdownContent content={field.value} />
-                    ) : (
-                      <p className="text-muted-foreground text-sm italic">
-                        No introduction content yet. Generate or add one above.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter the introduction using Markdown formatting..."
-                      {...field}
-                      rows={8}
-                      className="font-mono text-sm"
-                    />
-                  </FormControl>
-                )}
+                <FormLabel>Introduction</FormLabel>
+                <FormControl>
+                  <SimpleMarkdownEditor
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter the introduction..."
+                  />
+                </FormControl>
                 <FormDescription>
                   A warm, professional introduction that welcomes the client and
                   sets the stage for the proposal.
@@ -340,42 +311,14 @@ export default function EditProposalForm({
             name="generatedSpecification"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Detailed Specification (Markdown)</FormLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowSpecPreview(!showSpecPreview)}
-                  >
-                    {showSpecPreview ? (
-                      <EyeOff className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Eye className="mr-2 h-4 w-4" />
-                    )}
-                    {showSpecPreview ? "Edit" : "Preview"}
-                  </Button>
-                </div>
-                {showSpecPreview ? (
-                  <div className="min-h-[300px] rounded-md border bg-muted/30 p-4">
-                    {field.value ? (
-                      <MarkdownContent content={field.value} />
-                    ) : (
-                      <p className="text-muted-foreground text-sm italic">
-                        No specification content yet. Generate or add one above.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter the detailed specification using Markdown formatting..."
-                      {...field}
-                      rows={15}
-                      className="font-mono text-sm"
-                    />
-                  </FormControl>
-                )}
+                <FormLabel>Detailed Specification</FormLabel>
+                <FormControl>
+                  <SimpleMarkdownEditor
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter the detailed specification..."
+                  />
+                </FormControl>
                 <FormDescription>
                   A comprehensive, professional specification that expands on
                   the client's requirements.

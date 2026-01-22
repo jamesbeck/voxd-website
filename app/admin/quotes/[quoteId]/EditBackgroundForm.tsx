@@ -19,8 +19,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import saUpdateQuoteBackground from "@/actions/saUpdateQuoteBackground";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { SimpleMarkdownEditor } from "@/components/SimpleMarkdownEditor";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
@@ -35,7 +36,6 @@ export default function EditBackgroundForm({
   background: string | null;
 }) {
   const [loading, setLoading] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -95,45 +95,16 @@ export default function EditBackgroundForm({
           name="background"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Background (Markdown)</FormLabel>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPreview(!showPreview)}
-                >
-                  {showPreview ? (
-                    <EyeOff className="mr-2 h-4 w-4" />
-                  ) : (
-                    <Eye className="mr-2 h-4 w-4" />
-                  )}
-                  {showPreview ? "Edit" : "Preview"}
-                </Button>
-              </div>
-              {showPreview ? (
-                <div className="min-h-[300px] rounded-md border bg-muted/30 p-4">
-                  {field.value ? (
-                    <MarkdownContent content={field.value} />
-                  ) : (
-                    <p className="text-muted-foreground text-sm italic">
-                      No background content yet. Click Edit to add one.
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter the background using Markdown formatting..."
-                    {...field}
-                    rows={15}
-                    className="font-mono text-sm"
-                  />
-                </FormControl>
-              )}
+              <FormLabel>Background</FormLabel>
+              <FormControl>
+                <SimpleMarkdownEditor
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  placeholder="Enter the background..."
+                />
+              </FormControl>
               <FormDescription>
-                Company background and context for the project. Use Markdown for
-                formatting.
+                Company background and context for the project.
               </FormDescription>
               <FormMessage />
             </FormItem>

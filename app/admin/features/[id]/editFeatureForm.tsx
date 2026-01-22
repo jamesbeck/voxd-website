@@ -20,8 +20,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import saUpdateFeature from "@/actions/saUpdateFeature";
 import saGenerateFeatureBody from "@/actions/saGenerateFeatureBody";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { SimpleMarkdownEditor } from "@/components/SimpleMarkdownEditor";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -51,7 +52,6 @@ export default function EditFeatureForm({
 }) {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [showBodyPreview, setShowBodyPreview] = useState(true);
 
   const router = useRouter();
 
@@ -106,7 +106,6 @@ export default function EditFeatureForm({
 
       if (result.success && result.data?.body) {
         form.setValue("body", result.data.body);
-        setShowBodyPreview(true);
         toast.success("Feature content generated successfully");
         router.refresh();
       } else if (!result.success) {
@@ -211,41 +210,14 @@ export default function EditFeatureForm({
             name="body"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Body (Markdown)</FormLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowBodyPreview(!showBodyPreview)}
-                  >
-                    {showBodyPreview ? (
-                      <EyeOff className="mr-2 h-4 w-4" />
-                    ) : (
-                      <Eye className="mr-2 h-4 w-4" />
-                    )}
-                    {showBodyPreview ? "Edit" : "Preview"}
-                  </Button>
-                </div>
-                {showBodyPreview ? (
-                  <div className="min-h-[400px] rounded-md border bg-muted/30 p-4">
-                    {field.value ? (
-                      <MarkdownContent content={field.value} />
-                    ) : (
-                      <p className="text-muted-foreground text-sm italic">
-                        No body content yet.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <FormControl>
-                    <Textarea
-                      placeholder="Body"
-                      {...field}
-                      className="min-h-[400px] font-mono text-sm"
-                    />
-                  </FormControl>
-                )}
+                <FormLabel>Body</FormLabel>
+                <FormControl>
+                  <SimpleMarkdownEditor
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter the feature body content..."
+                  />
+                </FormControl>
                 <FormDescription>The body of the feature.</FormDescription>
                 <FormMessage />
               </FormItem>
