@@ -337,10 +337,12 @@ export default function EditPitchForm({
               </div>
             )}
 
-            <Button type="submit" disabled={loadingPersonalMessage}>
-              {loadingPersonalMessage && <Spinner className="mr-2" />}
-              Save Personal Message
-            </Button>
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loadingPersonalMessage}>
+                {loadingPersonalMessage && <Spinner className="mr-2" />}
+                Save Personal Message
+              </Button>
+            </div>
           </form>
         </Form>
       </div>
@@ -469,6 +471,13 @@ export default function EditPitchForm({
               )}
             />
 
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loading}>
+                {loading && <Spinner className="mr-2" />}
+                Save Pitch Content
+              </Button>
+            </div>
+
             <FormField
               control={form.control}
               name="generatedPitch"
@@ -502,10 +511,12 @@ export default function EditPitchForm({
               </div>
             )}
 
-            <Button type="submit" disabled={loading}>
-              {loading && <Spinner className="mr-2" />}
-              Save Pitch Content
-            </Button>
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loading}>
+                {loading && <Spinner className="mr-2" />}
+                Save Pitch Content
+              </Button>
+            </div>
           </form>
         </Form>
       </div>
