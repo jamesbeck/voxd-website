@@ -21,9 +21,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import saUpdateQuotePitch from "@/actions/saUpdateQuotePitch";
 import saGenerateQuotePitch from "@/actions/saGenerateQuotePitch";
-import { Eye, EyeOff, Sparkles, AlertCircle } from "lucide-react";
+import { Sparkles, AlertCircle } from "lucide-react";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SimpleMarkdownEditor } from "@/components/SimpleMarkdownEditor";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,8 +73,6 @@ export default function EditPitchForm({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPromptDialog, setShowPromptDialog] = useState(false);
   const [extraPrompt, setExtraPrompt] = useState("");
-  const [showIntroPreview, setShowIntroPreview] = useState(true);
-  const [showPitchPreview, setShowPitchPreview] = useState(true);
   const [savingSections, setSavingSections] = useState(false);
   const router = useRouter();
 
@@ -143,7 +142,7 @@ export default function EditPitchForm({
   }
 
   async function onSubmitPersonalMessage(
-    values: z.infer<typeof personalMessageSchema>
+    values: z.infer<typeof personalMessageSchema>,
   ) {
     setLoadingPersonalMessage(true);
 
@@ -195,7 +194,7 @@ export default function EditPitchForm({
     // Update form values with new content
     form.setValue(
       "generatedPitchIntroduction",
-      response.data.generatedPitchIntroduction || ""
+      response.data.generatedPitchIntroduction || "",
     );
     form.setValue("generatedPitch", response.data.generatedPitch || "");
 
@@ -394,7 +393,7 @@ export default function EditPitchForm({
                                   if (checked) {
                                     // Remove from hidden list
                                     newHidden = currentHidden.filter(
-                                      (id) => id !== section.id
+                                      (id) => id !== section.id,
                                     );
                                   } else {
                                     // Add to hidden list
@@ -463,42 +462,14 @@ export default function EditPitchForm({
               name="generatedPitchIntroduction"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Pitch Introduction (Markdown)</FormLabel>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowIntroPreview(!showIntroPreview)}
-                    >
-                      {showIntroPreview ? (
-                        <EyeOff className="mr-2 h-4 w-4" />
-                      ) : (
-                        <Eye className="mr-2 h-4 w-4" />
-                      )}
-                      {showIntroPreview ? "Edit" : "Preview"}
-                    </Button>
-                  </div>
-                  {showIntroPreview ? (
-                    <div className="min-h-[150px] max-h-[300px] overflow-y-auto rounded-md border bg-muted/30 p-4">
-                      {field.value ? (
-                        <MarkdownContent content={field.value} />
-                      ) : (
-                        <p className="text-muted-foreground text-sm italic">
-                          No pitch introduction yet. Click Edit to add one.
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter the pitch introduction using Markdown formatting..."
-                        {...field}
-                        rows={8}
-                        className="font-mono text-sm resize-none"
-                      />
-                    </FormControl>
-                  )}
+                  <FormLabel>Pitch Introduction</FormLabel>
+                  <FormControl>
+                    <SimpleMarkdownEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter the pitch introduction..."
+                    />
+                  </FormControl>
                   <FormDescription>
                     A brief introduction that sets the stage for the pitch.
                   </FormDescription>
@@ -512,42 +483,14 @@ export default function EditPitchForm({
               name="generatedPitch"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Pitch (Markdown)</FormLabel>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowPitchPreview(!showPitchPreview)}
-                    >
-                      {showPitchPreview ? (
-                        <EyeOff className="mr-2 h-4 w-4" />
-                      ) : (
-                        <Eye className="mr-2 h-4 w-4" />
-                      )}
-                      {showPitchPreview ? "Edit" : "Preview"}
-                    </Button>
-                  </div>
-                  {showPitchPreview ? (
-                    <div className="min-h-[300px] max-h-[400px] overflow-y-auto rounded-md border bg-muted/30 p-4">
-                      {field.value ? (
-                        <MarkdownContent content={field.value} />
-                      ) : (
-                        <p className="text-muted-foreground text-sm italic">
-                          No pitch content yet. Click Edit to add one.
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter the pitch using Markdown formatting..."
-                        {...field}
-                        rows={8}
-                        className="font-mono text-sm resize-none"
-                      />
-                    </FormControl>
-                  )}
+                  <FormLabel>Pitch</FormLabel>
+                  <FormControl>
+                    <SimpleMarkdownEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter the pitch content..."
+                    />
+                  </FormControl>
                   <FormDescription>
                     The main pitch content that sells the project to the client.
                   </FormDescription>
