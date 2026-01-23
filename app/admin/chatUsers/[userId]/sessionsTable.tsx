@@ -12,6 +12,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Alert from "@/components/admin/Alert";
+import saEndSession from "@/actions/saEndSession";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { XCircleIcon } from "lucide-react";
 
 const SessionsTable = ({
   userId,
@@ -20,6 +25,24 @@ const SessionsTable = ({
   userId: string;
   superAdmin: boolean;
 }) => {
+  const router = useRouter();
+
+  const handleCloseSession = async (sessionId: string, agentName: string) => {
+    const saResponse = await saEndSession({ sessionId });
+
+    if (!saResponse.success) {
+      toast.error(
+        `Error Closing Session: ${
+          saResponse.error || "There was an error closing the session"
+        }`,
+      );
+      return;
+    }
+
+    toast.success(`Successfully closed session for ${agentName}`);
+    router.refresh();
+  };
+
   const columns: Column[] = [
     {
       label: "Type",
@@ -29,7 +52,7 @@ const SessionsTable = ({
         <Badge
           className={cn(
             row.sessionType == "live" ? "bg-green-500" : "bg-red-500",
-            "capitalize"
+            "capitalize",
           )}
         >
           {row.sessionType}
@@ -80,7 +103,7 @@ const SessionsTable = ({
         row.firstMessageAt
           ? `${format(
               row.firstMessageAt,
-              "dd/MM/yyyy HH:mm"
+              "dd/MM/yyyy HH:mm",
             )} (${formatDistance(row.firstMessageAt, new Date())})`
           : "",
     },
@@ -92,7 +115,7 @@ const SessionsTable = ({
         row.lastMessageAt
           ? `${format(row.lastMessageAt, "dd/MM/yyyy HH:mm")} (${formatDistance(
               row.lastMessageAt,
-              new Date()
+              new Date(),
             )})`
           : "",
     },
@@ -120,13 +143,27 @@ const SessionsTable = ({
       columns={columns}
       actions={(row: any) => {
         return (
-          <>
+          <div className="flex items-center gap-2">
             {(row.sessionType != "development" || superAdmin) && (
-              <Button asChild size={"sm"}>
+              <Button asChild size="sm">
                 <Link href={`/admin/sessions/${row.id}`}>View</Link>
               </Button>
             )}
-          </>
+            {!row.closedAt && (
+              <Alert
+                destructive
+                title="Close Session"
+                description="Are you sure you want to close this session? The session will be marked as closed and any further messages from the user will start a brand new session."
+                actionText="Close Session"
+                onAction={() => handleCloseSession(row.id, row.agentName)}
+              >
+                <Button size="sm" variant="destructive">
+                  <XCircleIcon className="h-4 w-4 mr-1" />
+                  Close
+                </Button>
+              </Alert>
+            )}
+          </div>
         );
       }}
     />
