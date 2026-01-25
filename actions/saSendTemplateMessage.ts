@@ -17,6 +17,28 @@ type TemplateComponent = {
   parameters?: TemplateParameter[];
 };
 
+/**
+ * Get access token for a phone number by its Meta ID via its WABA
+ */
+async function getAccessTokenForPhoneNumberMetaId(
+  metaId: string,
+): Promise<string | null> {
+  const phoneNumber = await db("phoneNumber").where({ metaId }).first();
+
+  if (phoneNumber?.wabaId) {
+    const waba = await db("waba").where({ id: phoneNumber.wabaId }).first();
+
+    if (waba?.appId) {
+      const app = await db("app").where({ id: waba.appId }).first();
+      if (app?.accessToken) {
+        return app.accessToken;
+      }
+    }
+  }
+
+  return null;
+}
+
 const saSendTemplateMessage = async ({
   userId,
   templateId,
@@ -53,14 +75,26 @@ const saSendTemplateMessage = async ({
       return { success: false, error: "Agent has no phone number" };
     }
 
-    // Get phone number meta ID
+    // Get phone number meta ID and wabaId
     const phoneNumber = await db("phoneNumber")
       .where("phoneNumber.id", agent.phoneNumberId)
-      .select("phoneNumber.metaId")
+      .select("phoneNumber.metaId", "phoneNumber.wabaId")
       .first();
 
     if (!phoneNumber?.metaId) {
       return { success: false, error: "Phone number not found" };
+    }
+
+    // Get access token for this phone number
+    const META_ACCESS_TOKEN = await getAccessTokenForPhoneNumberMetaId(
+      phoneNumber.metaId,
+    );
+    if (!META_ACCESS_TOKEN) {
+      return {
+        success: false,
+        error:
+          "No access token available for this phone number. Please ensure it is linked to an app via its WABA.",
+      };
     }
 
     // Get template
@@ -147,7 +181,6 @@ const saSendTemplateMessage = async ({
       }
     }
 
-    const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP;
     const url = `${process.env.META_GRAPH_URL}/${phoneNumber.metaId}/messages`;
 
     const payload = {

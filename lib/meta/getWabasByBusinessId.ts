@@ -1,7 +1,6 @@
 import { Waba } from "@/types/metaTypes";
 import getAll from "./getAll";
 
-const BUSINESS_ID = process.env.META_IO_SHIELD_BUSINESS_ID!;
 const GRAPH_URL = process.env.META_GRAPH_URL!;
 
 const fields = [
@@ -31,16 +30,21 @@ const fields = [
   "phone_numbers",
 ].join(",");
 
-async function getWabasByBusinessId(): Promise<Waba[]> {
+async function getWabasByBusinessId(
+  businessId: string,
+  accessToken: string,
+): Promise<Waba[]> {
   // 1) Enumerate WABAs you can access (owned + client)
   const [owned, client] = await Promise.all([
     getAll<Waba>(
-      `${GRAPH_URL}/${BUSINESS_ID}/owned_whatsapp_business_accounts`,
-      { limit: 100, fields }
+      `${GRAPH_URL}/${businessId}/owned_whatsapp_business_accounts`,
+      { limit: 100, fields },
+      accessToken,
     ),
     getAll<Waba>(
-      `${GRAPH_URL}/${BUSINESS_ID}/client_whatsapp_business_accounts`,
-      { limit: 100, fields }
+      `${GRAPH_URL}/${businessId}/client_whatsapp_business_accounts`,
+      { limit: 100, fields },
+      accessToken,
     ),
   ]);
 
@@ -49,7 +53,7 @@ async function getWabasByBusinessId(): Promise<Waba[]> {
   // Sort by name then id for a stable view
   wabas.sort(
     (a, b) =>
-      (a.name || "").localeCompare(b.name || "") || a.id.localeCompare(b.id)
+      (a.name || "").localeCompare(b.name || "") || a.id.localeCompare(b.id),
   );
 
   return wabas;

@@ -1,48 +1,66 @@
 "use server";
 
-const apps = [
-  {
-    name: "Voxd",
-    id: 24741739915423743,
-    token: process.env.META_ACCESS_TOKEN_PRODUCTION_APP!,
-  },
-  {
-    name: "Voxd Test",
-    id: 998058092337050,
-    token: process.env.META_ACCESS_TOKEN_DEVELOPMENT_APP!,
-  },
-];
+import db from "@/database/db";
+
+/**
+ * Get access token and meta ID for a WABA by its database ID
+ */
+async function getWabaDetails(
+  wabaDbId: string,
+): Promise<{ accessToken: string; metaId: string } | null> {
+  const waba = await db("waba").where({ id: wabaDbId }).first();
+
+  if (!waba) {
+    return null;
+  }
+
+  if (waba?.appId) {
+    const app = await db("app").where({ id: waba.appId }).first();
+    if (app?.accessToken) {
+      return { accessToken: app.accessToken, metaId: waba.metaId };
+    }
+  }
+
+  return null;
+}
 
 export default async function saSubscribe({
   wabaId,
-  appName,
   unsubscribe = false,
 }: {
   wabaId: string;
-  appName: string;
   unsubscribe?: boolean;
-}) {
-  const app = apps.find((a) => a.name === appName);
+}): Promise<{ success: boolean; error?: string }> {
+  const wabaDetails = await getWabaDetails(wabaId);
 
-  if (!app) {
-    throw new Error(`Unknown app: ${appName}`);
+  if (!wabaDetails) {
+    return {
+      success: false,
+      error:
+        "No access token available for this WABA. Please ensure it is linked to an app.",
+    };
   }
 
-  const ACCESS_TOKEN = app.token;
+  const { accessToken, metaId } = wabaDetails;
   const GRAPH_URL = process.env.META_GRAPH_URL!;
 
-  const url = `${GRAPH_URL}/${wabaId}/subscribed_apps`;
+  const url = `${GRAPH_URL}/${metaId}/subscribed_apps`;
   const response = await fetch(url, {
     method: unsubscribe ? "DELETE" : "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 
   const data = await response.json();
 
-  console.log(data);
+  if (data.error) {
+    return {
+      success: false,
+      error: data.error.message || "Unknown error from Meta API",
+    };
+  }
 
-  return data;
+  return { success: true };
 }

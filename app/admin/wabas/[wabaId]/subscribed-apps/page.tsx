@@ -1,7 +1,7 @@
 import React from "react";
 import getAll from "@/lib/meta/getAll";
+import db from "@/database/db";
 
-const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 const GRAPH = process.env.META_GRAPH_URL!;
 
 type SubscribedApp = {
@@ -15,18 +15,58 @@ type SubscribedApp = {
   // Additional fields appear as Graph allows them
 };
 
+/**
+ * Get access token for a WABA by its database ID
+ */
+async function getAccessTokenForWaba(wabaDbId: string): Promise<string | null> {
+  const waba = await db("waba").where({ id: wabaDbId }).first();
+
+  if (waba?.appId) {
+    const app = await db("app").where({ id: waba.appId }).first();
+    if (app?.accessToken) {
+      return app.accessToken;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get the Meta ID for a WABA by its database ID
+ */
+async function getWabaMetaId(wabaDbId: string): Promise<string | null> {
+  const waba = await db("waba").where({ id: wabaDbId }).first();
+  return waba?.metaId || null;
+}
+
 export default async function Page({ params }: { params: { wabaId: string } }) {
   const { wabaId } = await params;
 
-  if (!ACCESS_TOKEN) {
+  const accessToken = await getAccessTokenForWaba(wabaId);
+  const wabaMetaId = await getWabaMetaId(wabaId);
+
+  if (!accessToken) {
     return (
       <main className="mx-auto max-w-3xl p-6">
         <h1 className="text-2xl font-semibold mb-4">Subscribed Apps</h1>
         <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-700">
           <p className="font-medium mb-2">Missing configuration</p>
           <p>
-            Set <code>META_ACCESS_TOKEN</code> in your environment.
+            No access token available for this WABA. Please ensure it is linked
+            to an app.
           </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!wabaMetaId) {
+    return (
+      <main className="mx-auto max-w-3xl p-6">
+        <h1 className="text-2xl font-semibold mb-4">Subscribed Apps</h1>
+        <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-700">
+          <p className="font-medium mb-2">WABA not found</p>
+          <p>Could not find the WABA in the database.</p>
         </div>
       </main>
     );
@@ -34,10 +74,11 @@ export default async function Page({ params }: { params: { wabaId: string } }) {
 
   try {
     const apps = await getAll<SubscribedApp>(
-      `${GRAPH}/${wabaId}/subscribed_apps`,
+      `${GRAPH}/${wabaMetaId}/subscribed_apps`,
       {
         limit: 100,
-      }
+      },
+      accessToken,
     );
 
     console.log(apps);
@@ -70,7 +111,7 @@ export default async function Page({ params }: { params: { wabaId: string } }) {
     // Sort by name then id
     apps.sort(
       (a, b) =>
-        (a.name || "").localeCompare(b.name || "") || a.id.localeCompare(b.id)
+        (a.name || "").localeCompare(b.name || "") || a.id.localeCompare(b.id),
     );
 
     return (

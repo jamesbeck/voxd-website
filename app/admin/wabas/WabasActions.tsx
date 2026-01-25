@@ -1,6 +1,6 @@
 "use client";
 
-import saSyncWithMeta from "@/actions/saSyncWithMeta";
+import saSyncWabaWithMeta from "@/actions/saSyncWabaWithMeta";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -11,13 +11,13 @@ export default function WabasActions() {
 
   const syncWithMeta = async () => {
     setIsSyncing(true);
-    const saResponse = await saSyncWithMeta();
+    const saResponse = await saSyncWabaWithMeta({});
 
     if (!saResponse.success) {
       toast.error(
         `Error Syncing: ${
           saResponse.error || "There was an error syncing with Meta"
-        }`
+        }`,
       );
       setIsSyncing(false);
       return;
@@ -28,7 +28,7 @@ export default function WabasActions() {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-end gap-2">
       <Button className="cursor-pointer" size="sm" onClick={syncWithMeta}>
         {isSyncing ? <Spinner /> : null}
         Sync with Meta

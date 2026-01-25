@@ -50,7 +50,7 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
           format: (row) => (
             <Badge
               className={cn(
-                row.status == "CONNECTED" ? "bg-green-500" : "bg-red-500"
+                row.status == "CONNECTED" ? "bg-green-500" : "bg-red-500",
               )}
             >
               {row.status}
@@ -64,7 +64,7 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
           format: (row) => (
             <Badge
               className={cn(
-                row.platformType == "CLOUD_API" ? "bg-green-500" : "bg-red-500"
+                row.platformType == "CLOUD_API" ? "bg-green-500" : "bg-red-500",
               )}
             >
               {row.platformType}
@@ -78,7 +78,7 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
           format: (row) => (
             <Badge
               className={cn(
-                row.organisationMode == "LIVE" ? "bg-green-500" : "bg-red-500"
+                row.organisationMode == "LIVE" ? "bg-green-500" : "bg-red-500",
               )}
             >
               {row.organisationMode}
@@ -108,7 +108,7 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
                           className={cn(
                             entity.can_send_message == "AVAILABLE"
                               ? "bg-green-500"
-                              : "bg-red-500"
+                              : "bg-red-500",
                           )}
                         >
                           {entity.entity_type}
@@ -139,7 +139,7 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
         return (
           <>
             <Button className="cursor-pointer" asChild>
-              <Link href={`/admin/wabas/${row.id}`}>View</Link>
+              <Link href={`/admin/phone-numbers/${row.id}`}>View</Link>
             </Button>
             <Button
               className="cursor-pointer"
@@ -154,7 +154,7 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
                 target="_blank"
                 href={`https://wa.me/${row.displayPhoneNumber.replaceAll(
                   " ",
-                  ""
+                  "",
                 )}`}
               >
                 Message

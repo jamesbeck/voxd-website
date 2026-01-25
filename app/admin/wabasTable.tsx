@@ -31,6 +31,7 @@ const WabasTable = () => {
     { label: "ID", name: "id", sort: true },
     { label: "Waba Name", name: "name", sort: true },
     { label: "Business Name", name: "businessName", sort: true },
+    { label: "App", name: "appName", sort: true },
     {
       label: "Status",
       name: "accountReviewStatus",
@@ -40,7 +41,7 @@ const WabasTable = () => {
           className={cn(
             row.accountReviewStatus == "APPROVED"
               ? "bg-green-500"
-              : "bg-red-500"
+              : "bg-red-500",
           )}
         >
           {row.accountReviewStatus}
@@ -66,7 +67,7 @@ const WabasTable = () => {
                       className={cn(
                         entity.can_send_message == "AVAILABLE"
                           ? "bg-green-500"
-                          : "bg-red-500"
+                          : "bg-red-500",
                       )}
                     >
                       {entity.entity_type}

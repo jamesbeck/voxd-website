@@ -1,46 +1,76 @@
 "use server";
 
-const apps = [
+import { syncPhoneNumberFromMeta } from "@/actions/saSyncPhoneNumberWithMeta";
+import db from "@/database/db";
+
+const webhooks = [
   {
-    name: "Voxd",
-    id: 24741739915423743,
-    token: process.env.META_ACCESS_TOKEN_PRODUCTION_APP!,
-    webhookUrl: "https://voxd-core-tqdxb.ondigitalocean.app/webhook",
+    name: "Voxd Production",
+    webhookUrl: "https://swiftreply-core-tqdxb.ondigitalocean.app/webhook",
   },
   {
-    name: "Voxd Test",
-    id: 998058092337050,
-    token: process.env.META_ACCESS_TOKEN_DEVELOPMENT_APP!,
+    name: "Voxd Development",
     webhookUrl: "https://wildcat-lucky-horribly.ngrok-free.app/webhook",
   },
 ];
 
-export default async function saSetNumberWebhook({
-  numberId,
-  appName,
-}: {
-  numberId: string;
-  appName: string;
-}) {
-  const app = apps.find((a) => a.name === appName);
+/**
+ * Get access token for a phone number by its Meta ID via its WABA
+ */
+async function getAccessTokenForPhoneNumberMetaId(
+  metaId: string,
+): Promise<string | null> {
+  // Look up phone number by metaId
+  const phoneNumber = await db("phoneNumber").where({ metaId }).first();
 
-  if (!app) {
-    throw new Error(`Unknown app: ${appName}`);
+  if (phoneNumber?.wabaId) {
+    // Get the WABA to find its linked app
+    const waba = await db("waba").where({ id: phoneNumber.wabaId }).first();
+
+    if (waba?.appId) {
+      const app = await db("app").where({ id: waba.appId }).first();
+      if (app?.accessToken) {
+        return app.accessToken;
+      }
+    }
   }
 
-  const ACCESS_TOKEN = app.token;
+  return null;
+}
+
+export default async function saSetNumberWebhook({
+  numberId,
+  webhookName,
+}: {
+  numberId: string;
+  webhookName: string;
+}) {
+  const webhook = webhooks.find((w) => w.name === webhookName);
+
+  if (!webhook) {
+    throw new Error(`Unknown webhook: ${webhookName}`);
+  }
+
+  const accessToken = await getAccessTokenForPhoneNumberMetaId(numberId);
+  if (!accessToken) {
+    throw new Error(
+      "No access token available for this phone number. Please ensure it is linked to an app.",
+    );
+  }
+
   const GRAPH_URL = process.env.META_GRAPH_URL!;
 
   const url = `${GRAPH_URL}/${numberId}`;
+  console.log(url);
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       webhook_configuration: {
-        override_callback_uri: app.webhookUrl,
+        override_callback_uri: webhook.webhookUrl,
         verify_token: process.env.META_VERIFY_TOKEN!,
       },
     }),
@@ -50,9 +80,13 @@ export default async function saSetNumberWebhook({
 
   console.log(data, {
     webhook_configuration: {
-      override_callback_uri: app.webhookUrl,
+      override_callback_uri: webhook.webhookUrl,
       verify_token: process.env.META_VERIFY_TOKEN!,
     },
   });
+
+  // Re-sync the phone number with Meta to update local data
+  await syncPhoneNumberFromMeta({ metaId: numberId, accessToken });
+
   return data;
 }

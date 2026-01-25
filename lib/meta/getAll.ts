@@ -1,13 +1,15 @@
 import { Page } from "@/types/metaTypes";
 
-const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
-
 // A tiny helper to follow Graph pagination.
-async function getAll<T>(url: string, params: Record<string, any>) {
+async function getAll<T>(
+  url: string,
+  params: Record<string, any>,
+  accessToken: string,
+) {
   const out: T[] = [];
   const qs = new URLSearchParams({
     ...params,
-    access_token: ACCESS_TOKEN,
+    access_token: accessToken,
   }).toString();
   let next = `${url}?${qs}`;
 
@@ -18,7 +20,7 @@ async function getAll<T>(url: string, params: Record<string, any>) {
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new Error(
-        `GET ${next} failed: ${res.status} ${res.statusText} ${text}`
+        `GET ${next} failed: ${res.status} ${res.statusText} ${text}`,
       );
     }
     const json = (await res.json()) as Page<T>;

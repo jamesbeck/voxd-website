@@ -1,6 +1,6 @@
 import { Waba } from "@/types/metaTypes";
+import db from "@/database/db";
 
-const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 const GRAPH_URL = process.env.META_GRAPH_URL!;
 
 const fields = [
@@ -30,13 +30,46 @@ const fields = [
   "phone_numbers",
 ].join(",");
 
-async function getWaba(id: string): Promise<Waba> {
+/**
+ * Get access token for a WABA by its database ID
+ */
+async function getAccessTokenForWaba(wabaDbId: string): Promise<string | null> {
+  const waba = await db("waba").where({ id: wabaDbId }).first();
+
+  if (waba?.appId) {
+    const app = await db("app").where({ id: waba.appId }).first();
+    if (app?.accessToken) {
+      return app.accessToken;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get WABA details from Meta API
+ * @param id - Database ID of the WABA
+ */
+async function getWaba(id: string): Promise<Waba | null> {
+  // First get the WABA from DB to get its metaId and accessToken
+  const dbWaba = await db("waba").where({ id }).first();
+  if (!dbWaba) {
+    return null;
+  }
+
+  const accessToken = await getAccessTokenForWaba(id);
+  if (!accessToken) {
+    throw new Error(
+      "No access token available for this WABA. Please ensure it is linked to an app.",
+    );
+  }
+
   const qs = new URLSearchParams({
     fields,
-    access_token: ACCESS_TOKEN,
+    access_token: accessToken,
   }).toString();
 
-  const url = `${GRAPH_URL}/${id}/?${qs}`;
+  const url = `${GRAPH_URL}/${dbWaba.metaId}/?${qs}`;
 
   const res = await fetch(url, { cache: "no-store" });
 

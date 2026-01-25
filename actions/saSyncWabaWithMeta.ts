@@ -4,9 +4,8 @@ import { ServerActionResponse } from "@/types/types";
 import getAll from "@/lib/meta/getAll";
 import { Waba } from "@/types/metaTypes";
 import db from "@/database/db";
+import { syncPhoneNumberFromMeta } from "./saSyncPhoneNumberWithMeta";
 
-const BUSINESS_ID = process.env.META_IO_SHIELD_BUSINESS_ID!;
-const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP!;
 const GRAPH_URL = process.env.META_GRAPH_URL!;
 
 const wabaFields = [
@@ -34,32 +33,7 @@ const wabaFields = [
   "phone_numbers",
 ].join(",");
 
-const phoneNumberFields = [
-  "account_mode",
-  "status",
-  "display_phone_number",
-  "health_status",
-  "messaging_limit_tier",
-  "name_status",
-  "quality_score",
-  "verified_name",
-  "platform_type",
-  "code_verification_status",
-  "is_official_business_account",
-  "is_on_biz_app",
-  "is_pin_enabled",
-  "is_preverified_number",
-  "last_onboarded_time",
-  "new_certificate",
-  "new_display_name",
-  "new_name_status",
-  "official_business_account",
-  "search_visibility",
-  "whatsapp_business_manager_messaging_limit",
-  "webhook_configuration",
-].join(",");
-
-async function syncSingleWaba(waba: Waba): Promise<void> {
+async function syncSingleWaba(waba: Waba, accessToken: string): Promise<void> {
   let dbBusinessId = null;
   let dbWabaId = null;
 
@@ -140,62 +114,13 @@ async function syncSingleWaba(waba: Waba): Promise<void> {
     dbWabaId = newWaba[0].id;
   }
 
+  // Sync phone numbers using the shared function
   for (const phoneNumber of waba.phone_numbers?.data || []) {
-    //fetch each phone number details
-    const qs = new URLSearchParams({
-      fields: phoneNumberFields,
-      access_token: ACCESS_TOKEN,
-    }).toString();
-
-    const url = `${GRAPH_URL}/${phoneNumber.id}/?${qs}`;
-
-    const res = await fetch(url, { cache: "no-store" });
-
-    const phoneNumberResponse = await res.json();
-
-    //do we already have this phone numnber?
-    const existingPhoneNumber = await db("phoneNumber")
-      .where({ metaId: phoneNumber.id })
-      .first();
-
-    if (existingPhoneNumber) {
-      //update
-      await db("phoneNumber")
-        .where({ metaId: phoneNumber.id })
-        .update({
-          wabaId: dbWabaId,
-          accountMode: phoneNumberResponse.account_mode,
-          status: phoneNumberResponse.status,
-          displayPhoneNumber: phoneNumberResponse.display_phone_number,
-          healthStatus: JSON.stringify(phoneNumberResponse.health_status),
-          messagingLimitTier: phoneNumberResponse.messaging_limit_tier,
-          nameStatus: phoneNumberResponse.name_status,
-          qualityScore: JSON.stringify(phoneNumberResponse.quality_score),
-          verifiedName: phoneNumberResponse.verified_name,
-          platformType: phoneNumberResponse.platform_type,
-          webhookConfiguration: JSON.stringify(
-            phoneNumberResponse.webhook_configuration,
-          ),
-        });
-    } else {
-      //create
-      await db("phoneNumber").insert({
-        metaId: phoneNumber.id,
-        wabaId: dbWabaId,
-        accountMode: phoneNumberResponse.account_mode,
-        status: phoneNumberResponse.status,
-        displayPhoneNumber: phoneNumberResponse.display_phone_number,
-        healthStatus: JSON.stringify(phoneNumberResponse.health_status),
-        messagingLimitTier: phoneNumberResponse.messaging_limit_tier,
-        nameStatus: phoneNumberResponse.name_status,
-        qualityScore: JSON.stringify(phoneNumberResponse.quality_score),
-        verifiedName: phoneNumberResponse.verified_name,
-        platformType: phoneNumberResponse.platform_type,
-        webhookConfiguration: JSON.stringify(
-          phoneNumberResponse.webhook_configuration,
-        ),
-      });
-    }
+    await syncPhoneNumberFromMeta({
+      metaId: phoneNumber.id,
+      wabaId: dbWabaId,
+      accessToken,
+    });
   }
 
   // Sync message templates for this WABA
@@ -215,7 +140,7 @@ async function syncSingleWaba(waba: Waba): Promise<void> {
       fields:
         "id,name,status,category,language,components,parameter_format,sub_category",
     },
-    ACCESS_TOKEN,
+    accessToken,
   );
 
   for (const template of templates) {
@@ -268,7 +193,24 @@ async function syncSingleWaba(waba: Waba): Promise<void> {
   }
 }
 
-export default async function saSyncWithMeta({
+/**
+ * Get the access token for a WABA by looking up its linked app
+ */
+async function getAccessTokenForWaba(wabaDbId: string): Promise<string | null> {
+  // Get the WABA and its linked app
+  const waba = await db("waba").where({ id: wabaDbId }).first();
+
+  if (waba?.appId) {
+    const app = await db("app").where({ id: waba.appId }).first();
+    if (app?.accessToken) {
+      return app.accessToken;
+    }
+  }
+
+  return null;
+}
+
+export default async function saSyncWabaWithMeta({
   wabaId,
 }: {
   wabaId?: string;
@@ -281,10 +223,20 @@ export default async function saSyncWithMeta({
         return { success: false, error: "WABA not found" };
       }
 
+      // Get the access token for this WABA
+      const accessToken = await getAccessTokenForWaba(wabaId);
+      if (!accessToken) {
+        return {
+          success: false,
+          error:
+            "No access token available for this WABA. Please ensure it has phone numbers linked to an app.",
+        };
+      }
+
       // Fetch the WABA from Meta using its metaId
       const qs = new URLSearchParams({
         fields: wabaFields,
-        access_token: ACCESS_TOKEN,
+        access_token: accessToken,
       }).toString();
 
       const url = `${GRAPH_URL}/${dbWaba.metaId}/?${qs}`;
@@ -300,26 +252,54 @@ export default async function saSyncWithMeta({
         };
       }
 
-      await syncSingleWaba(waba);
+      await syncSingleWaba(waba, accessToken);
     } else {
-      // Sync all WABAs
-      const [owned, client] = await Promise.all([
-        getAll<Waba>(
-          `${GRAPH_URL}/${BUSINESS_ID}/owned_whatsapp_business_accounts`,
-          { limit: 100, fields: wabaFields },
-          ACCESS_TOKEN,
-        ),
-        getAll<Waba>(
-          `${GRAPH_URL}/${BUSINESS_ID}/client_whatsapp_business_accounts`,
-          { limit: 100, fields: wabaFields },
-          ACCESS_TOKEN,
-        ),
-      ]);
+      // Sync all WABAs by iterating through all unique metaBusinessIds in the app table
+      const apps = await db("app").select("*");
 
-      const wabas = [...owned, ...client];
+      if (apps.length === 0) {
+        return {
+          success: false,
+          error: "No apps found in the database. Please add an app first.",
+        };
+      }
 
-      for (const waba of wabas) {
-        await syncSingleWaba(waba);
+      // Get unique metaBusinessIds
+      const uniqueBusinessIds = [
+        ...new Set(
+          apps.map((app: { metaBusinessId: string }) => app.metaBusinessId),
+        ),
+      ];
+
+      for (const metaBusinessId of uniqueBusinessIds) {
+        // Find an app with this business ID to get its access token
+        const app = apps.find(
+          (a: { metaBusinessId: string }) =>
+            a.metaBusinessId === metaBusinessId,
+        );
+        if (!app) continue;
+
+        const accessToken = app.accessToken;
+
+        // Fetch owned and client WABAs for this business
+        const [owned, client] = await Promise.all([
+          getAll<Waba>(
+            `${GRAPH_URL}/${metaBusinessId}/owned_whatsapp_business_accounts`,
+            { limit: 100, fields: wabaFields },
+            accessToken,
+          ),
+          getAll<Waba>(
+            `${GRAPH_URL}/${metaBusinessId}/client_whatsapp_business_accounts`,
+            { limit: 100, fields: wabaFields },
+            accessToken,
+          ),
+        ]);
+
+        const wabas = [...owned, ...client];
+
+        for (const waba of wabas) {
+          await syncSingleWaba(waba, accessToken);
+        }
       }
     }
   } catch (error) {

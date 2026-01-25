@@ -1,5 +1,4 @@
 import React from "react";
-import getWabasByBusinessId from "@/lib/meta/getWabasByBusinessId";
 import WabaCard from "@/components/admin/wabaCard";
 import WabasTable from "../wabasTable";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
@@ -14,8 +13,6 @@ export default async function Page() {
 
   if (!accessToken?.superAdmin) notFound();
 
-  const wabas = await getWabasByBusinessId();
-
   return (
     <Container>
       <BreadcrumbSetter
@@ -29,16 +26,6 @@ export default async function Page() {
       <WabasActions />
 
       <WabasTable />
-
-      {wabas.length === 0 ? (
-        <div className="rounded-lg border p-4">No WABAs found.</div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {wabas.map((w) => (
-            <WabaCard key={w.id} waba={w} />
-          ))}
-        </div>
-      )}
     </Container>
   );
 }

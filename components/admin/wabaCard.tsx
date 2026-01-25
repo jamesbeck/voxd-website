@@ -17,6 +17,7 @@ export default function WabaCard({ waba }: { waba: Waba }) {
 
       <div className="my-8">
         <h3>Subscribed Apps</h3>
+
         <button
           style={{
             backgroundColor: "green",
@@ -28,12 +29,11 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "Voxd",
               unsubscribe: false,
             })
           }
         >
-          Subscribe to Voxd
+          Subscribe
         </button>
         <button
           style={{
@@ -46,13 +46,13 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "Voxd",
               unsubscribe: true,
             })
           }
         >
-          Unsubscribe to Voxd
+          Unsubscribe
         </button>
+
         <button
           style={{
             backgroundColor: "green",
@@ -64,12 +64,11 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "Voxd Test",
               unsubscribe: false,
             })
           }
         >
-          Subscribe to Voxd Development
+          Subscribe
         </button>
         <button
           style={{
@@ -82,12 +81,11 @@ export default function WabaCard({ waba }: { waba: Waba }) {
           onClick={() =>
             saSubscribe({
               wabaId: waba.id,
-              appName: "Voxd Test",
               unsubscribe: true,
             })
           }
         >
-          Unsubscribe to Voxd Development
+          Unsubscribe
         </button>
         <ul>
           {waba.subscribed_apps?.data.map((app) => (
@@ -111,11 +109,11 @@ export default function WabaCard({ waba }: { waba: Waba }) {
                 </div>
                 <div>
                   Application:{" "}
-                  {p.webhook_configuration.application || "Not set"}
+                  {p.webhook_configuration?.application || "Not set"}
                 </div>
-                <div>WABA: {p.webhook_configuration.waba || "Not set"}</div>
+                <div>WABA: {p.webhook_configuration?.waba || "Not set"}</div>
                 <div>
-                  Number: {p.webhook_configuration.phone_number || "Not set"}
+                  Number: {p.webhook_configuration?.phone_number || "Not set"}
                 </div>
 
                 <button
@@ -129,7 +127,7 @@ export default function WabaCard({ waba }: { waba: Waba }) {
                   onClick={() =>
                     saSetNumberWebhook({
                       numberId: p.id,
-                      appName: "Voxd",
+                      webhookName: "Voxd Production",
                     })
                   }
                 >
@@ -146,11 +144,11 @@ export default function WabaCard({ waba }: { waba: Waba }) {
                   onClick={() =>
                     saSetNumberWebhook({
                       numberId: p.id,
-                      appName: "Voxd Test",
+                      webhookName: "Voxd Development",
                     })
                   }
                 >
-                  Set webhook to Voxd Test
+                  Set webhook to Voxd Development
                 </button>
                 <button
                   style={{

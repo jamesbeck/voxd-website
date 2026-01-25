@@ -4,6 +4,28 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
+/**
+ * Get access token for a phone number by its Meta ID via its WABA
+ */
+async function getAccessTokenForPhoneNumberMetaId(
+  metaId: string,
+): Promise<string | null> {
+  const phoneNumber = await db("phoneNumber").where({ metaId }).first();
+
+  if (phoneNumber?.wabaId) {
+    const waba = await db("waba").where({ id: phoneNumber.wabaId }).first();
+
+    if (waba?.appId) {
+      const app = await db("app").where({ id: waba.appId }).first();
+      if (app?.accessToken) {
+        return app.accessToken;
+      }
+    }
+  }
+
+  return null;
+}
+
 const saSendMessage = async ({
   message,
   sessionId,
@@ -24,28 +46,35 @@ const saSendMessage = async ({
         "session.sessionType",
         "phoneNumber.metaId as phoneNumberMetaId",
         "agent.id as agentId",
-        "chatUser.number as userPhoneNumber"
+        "chatUser.number as userPhoneNumber",
       )
       .first();
     if (!session) {
       return { success: false, error: "Session not found" };
     }
 
-    const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN_PRODUCTION_APP;
-
     //if session type is live use the agents phone number to send
     //if session type is development, use the development waba number (701062049765457)
-    //if session type is test, use the test number (743921902140200)
 
     let phoneNumberMetaIdToUse = session.phoneNumberMetaId;
     if (session.sessionType === "development")
       phoneNumberMetaIdToUse = "701062049765457";
-    else if (session.sessionType === "test")
-      phoneNumberMetaIdToUse = "743921902140200";
 
-    const url = `${process.env.META_GRAPH_URL}/${
-      phoneNumberMetaIdToUse || "701062049765457"
-    }/messages`;
+    const finalPhoneNumberMetaId = phoneNumberMetaIdToUse || "701062049765457";
+
+    const META_ACCESS_TOKEN = await getAccessTokenForPhoneNumberMetaId(
+      finalPhoneNumberMetaId,
+    );
+
+    if (!META_ACCESS_TOKEN) {
+      return {
+        success: false,
+        error:
+          "No access token available for this phone number. Please ensure it is linked to an app via its WABA.",
+      };
+    }
+
+    const url = `${process.env.META_GRAPH_URL}/${finalPhoneNumberMetaId}/messages`;
 
     const payload = {
       messaging_product: "whatsapp",
