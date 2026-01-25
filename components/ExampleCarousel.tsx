@@ -37,7 +37,7 @@ export default function ExampleCarousel({ examples }: ExampleCarouselProps) {
 
             return (
               <div key={example.id} className="flex-[0_0_100%] min-w-0">
-                <div className="relative w-full h-[600px] md:h-[600px] lg:h-[800px]">
+                <div className="relative w-full h-[600px] md:h-[600px] lg:h-[900px]">
                   {/* Background Hero Image with Overlay */}
                   {example.heroImageFileExtension && (
                     <>
