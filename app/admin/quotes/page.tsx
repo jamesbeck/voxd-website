@@ -13,6 +13,7 @@ export default async function Page() {
   if (!accessToken?.partner && !accessToken?.superAdmin) notFound();
 
   const isSuperAdmin = accessToken?.superAdmin ?? false;
+  const partnerId = accessToken?.partnerId ?? null;
 
   return (
     <Container>
@@ -25,7 +26,7 @@ export default async function Page() {
         <NewQuoteButton />
       </div>
 
-      <QuotesTable isSuperAdmin={isSuperAdmin} />
+      <QuotesTable isSuperAdmin={isSuperAdmin} userPartnerId={partnerId} />
     </Container>
   );
 }

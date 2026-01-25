@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { format } from "date-fns";
+import { verifyIdToken } from "@/lib/auth/verifyToken";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
@@ -150,12 +151,17 @@ export default async function PublicPitchPage({
     null;
   const userAgent = headersList.get("user-agent");
 
+  // Get email from id_token if present (regardless of expiry)
+  const idToken = await verifyIdToken(false);
+  const loggedInEmail = idToken?.email || null;
+
   // Fire and forget - don't block page render
   saRecordQuoteView({
     quoteId,
     documentViewed: "pitch",
     ipAddress,
     userAgent,
+    loggedInEmail,
   }).catch(() => {
     // Silently ignore errors
   });

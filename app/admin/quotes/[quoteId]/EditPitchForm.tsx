@@ -43,6 +43,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   generatedPitchIntroduction: z.string().optional(),
@@ -73,6 +81,9 @@ export default function EditPitchForm({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPromptDialog, setShowPromptDialog] = useState(false);
   const [extraPrompt, setExtraPrompt] = useState("");
+  const [generationMode, setGenerationMode] = useState<"scratch" | "amend">(
+    "scratch",
+  );
   const [savingSections, setSavingSections] = useState(false);
   const router = useRouter();
 
@@ -183,6 +194,15 @@ export default function EditPitchForm({
     const response = await saGenerateQuotePitch({
       quoteId,
       extraPrompt: extraPrompt.trim() || undefined,
+      mode: generationMode,
+      existingIntroduction:
+        generationMode === "amend"
+          ? form.getValues("generatedPitchIntroduction")
+          : undefined,
+      existingPitch:
+        generationMode === "amend"
+          ? form.getValues("generatedPitch")
+          : undefined,
     });
 
     if (!response.success) {
@@ -213,6 +233,7 @@ export default function EditPitchForm({
 
   function handleConfirmReplace() {
     setShowConfirmDialog(false);
+    setGenerationMode("scratch");
     setShowPromptDialog(true);
   }
 
@@ -264,16 +285,56 @@ export default function EditPitchForm({
               Add optional instructions to customise how the pitch is generated.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Textarea
-              placeholder="e.g. write the pitch for a non-technical layman"
-              value={extraPrompt}
-              onChange={(e) => setExtraPrompt(e.target.value)}
-              rows={3}
-            />
-            <p className="text-xs text-muted-foreground">
-              This is optional. Leave blank to use the default generation.
-            </p>
+          <div className="space-y-4">
+            {hasContent && (
+              <div className="space-y-2">
+                <Label htmlFor="generation-mode">Generation Mode</Label>
+                <Select
+                  value={generationMode}
+                  onValueChange={(value: "scratch" | "amend") =>
+                    setGenerationMode(value)
+                  }
+                >
+                  <SelectTrigger id="generation-mode">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="scratch">
+                      Generate from scratch
+                    </SelectItem>
+                    <SelectItem value="amend">Amend the existing</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {generationMode === "scratch"
+                    ? "This will replace the existing pitch with entirely new content."
+                    : "This will modify the existing pitch based on your instructions."}
+                </p>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="extra-prompt">
+                {generationMode === "amend"
+                  ? "Amendment Instructions"
+                  : "Additional Instructions"}
+              </Label>
+              <Textarea
+                id="extra-prompt"
+                placeholder={
+                  generationMode === "amend"
+                    ? "e.g. make the tone more formal, add more focus on security features"
+                    : "e.g. write the pitch for a non-technical layman"
+                }
+                value={extraPrompt}
+                onChange={(e) => setExtraPrompt(e.target.value)}
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">
+                {generationMode === "amend"
+                  ? "Describe how you want the existing pitch to be modified."
+                  : "This is optional. Leave blank to use the default generation."}
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -282,6 +343,7 @@ export default function EditPitchForm({
               onClick={() => {
                 setShowPromptDialog(false);
                 setExtraPrompt("");
+                setGenerationMode("scratch");
               }}
             >
               Cancel

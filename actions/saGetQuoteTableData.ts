@@ -14,8 +14,10 @@ const saGetQuoteTableData = async ({
   sortField = "id",
   sortDirection = "asc",
   organisationId,
+  partnerId,
 }: ServerActionReadParams & {
   organisationId?: string;
+  partnerId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -43,6 +45,11 @@ const saGetQuoteTableData = async ({
     base.where("organisation.partnerId", accessToken.partnerId);
   }
 
+  // Allow superAdmins to filter by a specific partnerId
+  if (accessToken?.superAdmin && partnerId) {
+    base.where("organisation.partnerId", partnerId);
+  }
+
   //count query
   const countQuery = base.clone().select("organisation.id");
   const countResult = await db
@@ -52,17 +59,47 @@ const saGetQuoteTableData = async ({
 
   const totalAvailable = countResult ? parseInt(countResult.count) : 0;
 
+  // Subquery to get the latest view datetime for each quote
+  // Excludes views from users belonging to the same partner
+  const partnerEmails = accessToken.partnerId
+    ? db("adminUser")
+        .select("email")
+        .where("partnerId", accessToken.partnerId)
+        .whereNotNull("email")
+    : null;
+
+  const lastViewedSubquery = db("quoteView")
+    .select("quoteId")
+    .max("datetime as lastViewedAt")
+    .where((qb) => {
+      if (partnerEmails) {
+        qb.whereNull("loggedInEmail").orWhereNotIn(
+          "loggedInEmail",
+          partnerEmails
+        );
+      }
+    })
+    .groupBy("quoteId")
+    .as("lastViewed");
+
   const quotes = await base
     .clone()
+    .leftJoin(lastViewedSubquery, "lastViewed.quoteId", "quote.id")
+    .groupBy("lastViewed.lastViewedAt")
     .select(
       "quote.*",
       "organisation.name as organisationName",
       "partner.name as partnerName",
-      "partner.id as partnerId"
+      "partner.id as partnerId",
+      "lastViewed.lastViewedAt"
     )
 
     // .select([db.raw('COUNT("agent"."id")::int as "agentCount"')])
-    .orderBy(sortField, sortDirection)
+    .orderByRaw(
+      sortField === "lastViewedAt"
+        ? `"lastViewed"."lastViewedAt" ${sortDirection} NULLS LAST`
+        : `"${sortField}" ${sortDirection}`
+    )
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 

@@ -59,9 +59,15 @@ ${partnerName} provides a powerful, enterprise-ready platform for delivering int
 const saGenerateQuotePitch = async ({
   quoteId,
   extraPrompt,
+  mode = "scratch",
+  existingIntroduction,
+  existingPitch,
 }: {
   quoteId: string;
   extraPrompt?: string;
+  mode?: "scratch" | "amend";
+  existingIntroduction?: string;
+  existingPitch?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return { success: false, error: "Quote ID is required" };
@@ -131,10 +137,43 @@ ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
     // Get the partner context with dynamic name
     const partnerContext = getPartnerContext(partnerName);
 
+    // Build amend-specific context if in amend mode
+    const isAmendMode =
+      mode === "amend" && existingIntroduction && existingPitch;
+
     // Generate the pitch introduction
-    const { text: pitchIntro } = await generateText({
-      model: openai("gpt-5.2"),
-      system: `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+    const introSystemPrompt = isAmendMode
+      ? `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+
+${partnerContext}
+
+Your task is to AMEND an existing pitch introduction based on the user's instructions. You have the existing introduction and should modify it according to their specific requests while maintaining the overall structure and purpose.
+
+The introduction should:
+- Be friendly and welcoming, addressing the client by their organisation name
+- Acknowledge their business and industry based on the background provided
+- Express genuine excitement about the potential to help transform their customer communications
+- Set the stage for explaining how AI chatbots can benefit their specific business
+- Be around 2-3 paragraphs
+- Be conversational but professional
+
+IMPORTANT RULES:
+- Do NOT thank them for their time or for meeting with us - we have never met them
+- Do NOT assume we have had any prior conversations or meetings
+- Do NOT ask any questions - this is not a consultation or discovery session
+- Do NOT include example conversations or WhatsApp message flows
+- This is a written pitch document, not a live presentation
+- Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
+
+Write in Markdown format. Use **bold** for emphasis where appropriate. Do not use headings - this will be displayed under an "Introduction" heading.
+
+EXISTING INTRODUCTION TO AMEND:
+${existingIntroduction}
+
+USER'S AMENDMENT INSTRUCTIONS:
+${extraPrompt || "Please improve and refine the existing content."}`
+      : `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
 ${partnerContext}
 
@@ -155,18 +194,55 @@ IMPORTANT RULES:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-Write in Markdown format. Use **bold** for emphasis where appropriate. Do not use headings - this will be displayed under an "Introduction" heading.${
-        extraPrompt
-          ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
-          : ""
-      }`,
-      prompt: `Please write a pitch introduction for the following client:\n\n${specificationContext}`,
+Write in Markdown format. Use **bold** for emphasis where appropriate. Do not use headings - this will be displayed under an "Introduction" heading.${extraPrompt ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}` : ""}`;
+
+    const introPrompt = isAmendMode
+      ? `Please amend the existing pitch introduction for the following client based on the amendment instructions provided:\n\n${specificationContext}`
+      : `Please write a pitch introduction for the following client:\n\n${specificationContext}`;
+
+    const { text: pitchIntro } = await generateText({
+      model: openai("gpt-5.2"),
+      system: introSystemPrompt,
+      prompt: introPrompt,
     });
 
-    // Generate the main pitch
-    const { text: pitch } = await generateText({
-      model: openai("gpt-5.2"),
-      system: `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+    // Build the main pitch system prompt
+    const mainPitchSystemPrompt = isAmendMode
+      ? `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+
+${partnerContext}
+
+Your task is to AMEND an existing pitch based on the user's instructions. You have the existing pitch and should modify it according to their specific requests while maintaining the overall structure and coverage of key themes.
+
+The pitch should cover themes like:
+- What a chatbot could do for their business
+- Saving money and time while improving customer experience
+- Getting ahead of the competition with AI
+- The benefits of WhatsApp vs other channels
+- Seamless integration capabilities
+- Security and safeguards
+- Additional benefits
+- Future potential
+- Summary / Conclusion
+
+IMPORTANT RULES:
+- Do NOT thank them for their time or for meeting with us - we have never met them
+- Do NOT assume we have had any prior conversations or meetings
+- Do NOT ask any questions - this is not a consultation or discovery session
+- Do NOT include example conversations or WhatsApp message flows (these will be handled separately)
+- Do NOT include mock-ups or sample dialogues
+- This is a written pitch document, not a live presentation
+- Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
+
+Structure the pitch with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy.
+
+EXISTING PITCH TO AMEND:
+${existingPitch}
+
+USER'S AMENDMENT INSTRUCTIONS:
+${extraPrompt || "Please improve and refine the existing content."}`
+      : `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
 ${partnerContext}
 
@@ -241,12 +317,17 @@ IMPORTANT RULES:
 
 Structure the pitch with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
 
-Make sure to tailor every section to their specific industry and needs based on the background information provided.${
-        extraPrompt
-          ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
-          : ""
-      }`,
-      prompt: `Please write a pitch for the following client:\n\n${specificationContext}`,
+Make sure to tailor every section to their specific industry and needs based on the background information provided.${extraPrompt ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}` : ""}`;
+
+    const mainPitchPrompt = isAmendMode
+      ? `Please amend the existing pitch for the following client based on the amendment instructions provided:\n\n${specificationContext}`
+      : `Please write a pitch for the following client:\n\n${specificationContext}`;
+
+    // Generate the main pitch
+    const { text: pitch } = await generateText({
+      model: openai("gpt-5.2"),
+      system: mainPitchSystemPrompt,
+      prompt: mainPitchPrompt,
     });
 
     if (!pitchIntro || !pitch) {

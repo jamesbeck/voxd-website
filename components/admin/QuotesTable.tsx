@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import DataTable from "@/components/adminui/Table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import { format } from "date-fns";
 
@@ -43,10 +46,23 @@ const getStatusBadge = (status: string) => {
 interface QuotesTableProps {
   organisationId?: string;
   isSuperAdmin?: boolean;
+  userPartnerId?: string | null;
 }
 
-const QuotesTable = ({ organisationId, isSuperAdmin }: QuotesTableProps) => {
+const QuotesTable = ({ organisationId, isSuperAdmin, userPartnerId }: QuotesTableProps) => {
+  const [showOnlyMyPartner, setShowOnlyMyPartner] = useState(true);
   const columns = [
+    // Only show Organisation column if not filtered by organisation
+    ...(!organisationId
+      ? [
+          {
+            label: "Organisation",
+            name: "organisationName",
+            sort: true,
+            linkTo: (row: any) => `/admin/organisations/${row.organisationId}`,
+          },
+        ]
+      : []),
     {
       label: "Title",
       name: "title",
@@ -66,17 +82,17 @@ const QuotesTable = ({ organisationId, isSuperAdmin }: QuotesTableProps) => {
       sort: true,
       format: (row: any) => format(new Date(row.createdAt), "dd/MM/yyyy") || "",
     },
-    // Only show Organisation column if not filtered by organisation
-    ...(!organisationId
-      ? [
-          {
-            label: "Organisation",
-            name: "organisationName",
-            sort: true,
-            linkTo: (row: any) => `/admin/organisations/${row.organisationId}`,
-          },
-        ]
-      : []),
+    {
+      label: "Last Viewed",
+      name: "lastViewedAt",
+      sort: true,
+      tooltip:
+        "Last time this quote was viewed by someone outside your team. Views from logged-in team members are excluded.",
+      format: (row: any) =>
+        row.lastViewedAt
+          ? format(new Date(row.lastViewedAt), "dd/MM/yyyy HH:mm")
+          : "-",
+    },
     // Only show Partner column for super admins on the main quotes page
     ...(isSuperAdmin && !organisationId
       ? [
@@ -99,13 +115,31 @@ const QuotesTable = ({ organisationId, isSuperAdmin }: QuotesTableProps) => {
     );
   };
 
+  const getDataParams = {
+    ...(organisationId ? { organisationId } : {}),
+    ...(isSuperAdmin && showOnlyMyPartner && userPartnerId ? { partnerId: userPartnerId } : {}),
+  };
+
   return (
-    <DataTable
-      getData={saGetQuoteTableData}
-      getDataParams={organisationId ? { organisationId } : undefined}
-      columns={columns}
-      actions={actions}
-    />
+    <>
+      {isSuperAdmin && !organisationId && (
+        <div className="flex items-center space-x-2 mb-4">
+          <Switch
+            id="partner-filter"
+            checked={showOnlyMyPartner}
+            onCheckedChange={setShowOnlyMyPartner}
+          />
+          <Label htmlFor="partner-filter">Show only my partner</Label>
+        </div>
+      )}
+      <DataTable
+        key={showOnlyMyPartner ? "filtered" : "all"}
+        getData={saGetQuoteTableData}
+        getDataParams={Object.keys(getDataParams).length > 0 ? getDataParams : undefined}
+        columns={columns}
+        actions={actions}
+      />
+    </>
   );
 };
 

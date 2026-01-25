@@ -42,6 +42,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   proposalPersonalMessage: z.string().optional(),
@@ -65,6 +73,9 @@ export default function EditProposalForm({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPromptDialog, setShowPromptDialog] = useState(false);
   const [extraPrompt, setExtraPrompt] = useState("");
+  const [generationMode, setGenerationMode] = useState<"scratch" | "amend">(
+    "scratch",
+  );
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -114,6 +125,15 @@ export default function EditProposalForm({
     const response = await saGenerateQuoteProposal({
       quoteId,
       extraPrompt: extraPrompt.trim() || undefined,
+      mode: generationMode,
+      existingIntroduction:
+        generationMode === "amend"
+          ? form.getValues("generatedProposalIntroduction")
+          : undefined,
+      existingSpecification:
+        generationMode === "amend"
+          ? form.getValues("generatedSpecification")
+          : undefined,
     });
 
     if (!response.success) {
@@ -151,6 +171,7 @@ export default function EditProposalForm({
 
   function handleConfirmReplace() {
     setShowConfirmDialog(false);
+    setGenerationMode("scratch");
     setShowPromptDialog(true);
   }
 
@@ -203,16 +224,56 @@ export default function EditProposalForm({
               generated.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Textarea
-              placeholder="e.g. write the proposal for a non-technical layman"
-              value={extraPrompt}
-              onChange={(e) => setExtraPrompt(e.target.value)}
-              rows={3}
-            />
-            <p className="text-xs text-muted-foreground">
-              This is optional. Leave blank to use the default generation.
-            </p>
+          <div className="space-y-4">
+            {hasContent && (
+              <div className="space-y-2">
+                <Label htmlFor="generation-mode">Generation Mode</Label>
+                <Select
+                  value={generationMode}
+                  onValueChange={(value: "scratch" | "amend") =>
+                    setGenerationMode(value)
+                  }
+                >
+                  <SelectTrigger id="generation-mode">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="scratch">
+                      Generate from scratch
+                    </SelectItem>
+                    <SelectItem value="amend">Amend the existing</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  {generationMode === "scratch"
+                    ? "This will replace the existing proposal with entirely new content."
+                    : "This will modify the existing proposal based on your instructions."}
+                </p>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="extra-prompt">
+                {generationMode === "amend"
+                  ? "Amendment Instructions"
+                  : "Additional Instructions"}
+              </Label>
+              <Textarea
+                id="extra-prompt"
+                placeholder={
+                  generationMode === "amend"
+                    ? "e.g. make the tone more formal, add more focus on security features"
+                    : "e.g. write the proposal for a non-technical layman"
+                }
+                value={extraPrompt}
+                onChange={(e) => setExtraPrompt(e.target.value)}
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">
+                {generationMode === "amend"
+                  ? "Describe how you want the existing proposal to be modified."
+                  : "This is optional. Leave blank to use the default generation."}
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -221,6 +282,7 @@ export default function EditProposalForm({
               onClick={() => {
                 setShowPromptDialog(false);
                 setExtraPrompt("");
+                setGenerationMode("scratch");
               }}
             >
               Cancel

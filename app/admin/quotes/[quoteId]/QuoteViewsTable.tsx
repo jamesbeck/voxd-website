@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DataTable from "@/components/adminui/Table";
 import saGetQuoteViewTableData from "@/actions/saGetQuoteViewTableData";
-import saGetCurrentUserIp from "@/actions/saGetCurrentUserIp";
 import saDeleteQuoteViews from "@/actions/saDeleteQuoteViews";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,18 +27,9 @@ import { toast } from "sonner";
 import { format, formatDistance } from "date-fns";
 
 const QuoteViewsTable = ({ quoteId }: { quoteId: string }) => {
-  const [currentUserIp, setCurrentUserIp] = useState<string | null>(null);
-  const [showOwnViews, setShowOwnViews] = useState(false);
+  const [showTeamViews, setShowTeamViews] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  useEffect(() => {
-    const fetchIp = async () => {
-      const ip = await saGetCurrentUserIp();
-      setCurrentUserIp(ip);
-    };
-    fetchIp();
-  }, []);
 
   const handleDeleteViews = async () => {
     setIsDeleting(true);
@@ -62,71 +52,69 @@ const QuoteViewsTable = ({ quoteId }: { quoteId: string }) => {
 
   return (
     <div className="space-y-4">
-      {currentUserIp && (
-        <div className="flex justify-end gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowOwnViews(!showOwnViews)}
-              >
-                {showOwnViews ? (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-2" />
-                    Hide my views
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Show my views
-                  </>
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                {showOwnViews
-                  ? `Currently showing views from your IP address (${currentUserIp})`
-                  : `Currently hiding views from your IP address (${currentUserIp})`}
-              </p>
-            </TooltipContent>
-          </Tooltip>
+      <div className="flex justify-end gap-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTeamViews(!showTeamViews)}
+            >
+              {showTeamViews ? (
+                <>
+                  <EyeOff className="h-4 w-4 mr-2" />
+                  Hide team views
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Show team views
+                </>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              {showTeamViews
+                ? "Currently showing views from your team members"
+                : "Currently hiding views from your team members"}
+            </p>
+          </TooltipContent>
+        </Tooltip>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm" disabled={isDeleting}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Reset Views
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This will permanently delete all view records for this quote.
-                  This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteViews}
-                  className="bg-destructive text-white hover:bg-destructive/90"
-                >
-                  {isDeleting ? "Deleting..." : "Delete All Views"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      )}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" disabled={isDeleting}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Reset Views
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete all view records for this quote.
+                This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteViews}
+                className="bg-destructive text-white hover:bg-destructive/90"
+              >
+                {isDeleting ? "Deleting..." : "Delete All Views"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
       <DataTable
         key={refreshKey}
         getData={saGetQuoteViewTableData}
         getDataParams={{
           quoteId,
-          excludeIpAddress: showOwnViews ? undefined : currentUserIp,
+          excludePartnerViews: !showTeamViews,
         }}
         defaultSort={{
           name: "datetime",
@@ -161,6 +149,14 @@ const QuoteViewsTable = ({ quoteId }: { quoteId: string }) => {
                 {row.documentViewed === "quote" ? "Proposal" : "Pitch"}
               </Badge>
             ),
+          },
+          {
+            label: "Email",
+            name: "loggedInEmail",
+            sort: true,
+            tooltip:
+              "If the user was logged in to the portal, who were they logged in as? You can use this to filter out views from your team or identify existing customers that viewed the quote.",
+            format: (row: any) => row.loggedInEmail || "-",
           },
           {
             label: "Location",

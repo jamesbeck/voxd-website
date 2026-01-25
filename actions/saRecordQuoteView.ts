@@ -8,6 +8,7 @@ type RecordQuoteViewParams = {
   documentViewed: "pitch" | "quote";
   ipAddress: string | null;
   userAgent: string | null;
+  loggedInEmail?: string | null;
 };
 
 export async function saRecordQuoteView({
@@ -15,6 +16,7 @@ export async function saRecordQuoteView({
   documentViewed,
   ipAddress,
   userAgent,
+  loggedInEmail,
 }: RecordQuoteViewParams): Promise<void> {
   // Parse user agent
   const parser = new UAParser(userAgent || "");
@@ -65,5 +67,6 @@ export async function saRecordQuoteView({
       : null,
     cpu: result.cpu.architecture || null,
     locationData: locationData ? JSON.stringify(locationData) : null,
+    loggedInEmail: loggedInEmail || null,
   });
 }

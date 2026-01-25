@@ -45,9 +45,15 @@ ${partnerName} runs "workers" - separate AI-powered scripts that monitor convers
 const saGenerateQuoteProposal = async ({
   quoteId,
   extraPrompt,
+  mode = "scratch",
+  existingIntroduction,
+  existingSpecification,
 }: {
   quoteId: string;
   extraPrompt?: string;
+  mode?: "scratch" | "amend";
+  existingIntroduction?: string;
+  existingSpecification?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return { success: false, error: "Quote ID is required" };
@@ -116,10 +122,40 @@ ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 `.trim();
 
   try {
-    // Generate the introduction
-    const { text: introduction } = await generateText({
-      model: openai("gpt-5.2"),
-      system: `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+    // Build amend-specific context if in amend mode
+    const isAmendMode =
+      mode === "amend" && existingIntroduction && existingSpecification;
+
+    // Build the introduction system prompt
+    const introSystemPrompt = isAmendMode
+      ? `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+
+${partnerContext}
+
+The above context is for YOUR UNDERSTANDING ONLY of what ${partnerName} does. Do NOT automatically include all ${partnerName} capabilities in the proposal.
+
+Your task is to AMEND an existing proposal introduction based on the user's instructions. You have the existing introduction and should modify it according to their specific requests while maintaining the overall structure and purpose.
+
+The introduction should:
+- Welcome the client and thank them for their interest
+- Briefly explain that we provide WhatsApp AI chatbot solutions
+- Set the stage for the detailed specification that follows
+- Be warm, professional, and confident
+- Reference ONLY the client's specific needs as mentioned in their specification
+- Be around 2-3 paragraphs
+- Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
+
+IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for.
+
+Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.
+
+EXISTING INTRODUCTION TO AMEND:
+${existingIntroduction}
+
+USER'S AMENDMENT INSTRUCTIONS:
+${extraPrompt || "Please improve and refine the existing content."}`
+      : `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
 ${partnerContext}
 
@@ -141,15 +177,52 @@ Write in Markdown format. Use **bold** for emphasis. Do not use headings in this
         extraPrompt
           ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
           : ""
-      }`,
-      prompt: `Please write an introduction for the following proposal:\n\n${specificationContext}`,
+      }`;
+
+    const introPrompt = isAmendMode
+      ? `Please amend the existing proposal introduction for the following client based on the amendment instructions provided:\n\n${specificationContext}`
+      : `Please write an introduction for the following proposal:\n\n${specificationContext}`;
+
+    // Generate the introduction
+    const { text: introduction } = await generateText({
+      model: openai("gpt-5.2"),
+      system: introSystemPrompt,
+      prompt: introPrompt,
       temperature: 0.7,
     });
 
-    // Generate the detailed specification
-    const { text: specification } = await generateText({
-      model: openai("gpt-5.2"),
-      system: `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+    // Build the specification system prompt
+    const specSystemPrompt = isAmendMode
+      ? `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+
+${partnerContext}
+
+The above context is for YOUR UNDERSTANDING ONLY of what ${partnerName} does. Do NOT automatically include all ${partnerName} capabilities in the proposal.
+
+Your task is to AMEND an existing specification section based on the user's instructions. You have the existing specification and should modify it according to their specific requests while maintaining the overall structure.
+
+The specification should:
+- Rewrite and expand on ONLY what the client has provided, using professional language
+- Do NOT add features, integrations, or capabilities that the client hasn't mentioned
+- Do NOT make assumptions about what the client might want
+- Explain how we will deliver what they've specifically asked for
+- Use clear sections with appropriate Markdown headings (##, ###)
+- Include bullet points where appropriate
+- Be clear and professional - the client should understand what they're getting
+- Stay focused on their stated requirements only
+- Avoid use of hyphens in the content
+- Do not use the Oxford comma before 'and' in a list
+
+CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
+
+Write in Markdown format. Use appropriate headings (## for main sections, ### for subsections), **bold** for emphasis, bullet points for lists.
+
+EXISTING SPECIFICATION TO AMEND:
+${existingSpecification}
+
+USER'S AMENDMENT INSTRUCTIONS:
+${extraPrompt || "Please improve and refine the existing content."}`
+      : `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
 ${partnerContext}
 
@@ -173,8 +246,17 @@ Write in Markdown format. Use appropriate headings (## for main sections, ### fo
         extraPrompt
           ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
           : ""
-      }`,
-      prompt: `Please write a detailed specification based on the following information:\n\n${specificationContext}`,
+      }`;
+
+    const specPrompt = isAmendMode
+      ? `Please amend the existing specification for the following client based on the amendment instructions provided:\n\n${specificationContext}`
+      : `Please write a detailed specification based on the following information:\n\n${specificationContext}`;
+
+    // Generate the detailed specification
+    const { text: specification } = await generateText({
+      model: openai("gpt-5.2"),
+      system: specSystemPrompt,
+      prompt: specPrompt,
       temperature: 0.7,
     });
 

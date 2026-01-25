@@ -9,7 +9,7 @@ import {
 
 export interface QuoteViewFilters {
   quoteId?: string;
-  excludeIpAddress?: string | null;
+  excludePartnerViews?: boolean;
 }
 
 const saGetQuoteViewTableData = async ({
@@ -19,7 +19,7 @@ const saGetQuoteViewTableData = async ({
   sortField = "datetime",
   sortDirection = "desc",
   quoteId,
-  excludeIpAddress,
+  excludePartnerViews,
 }: ServerActionReadParams<QuoteViewFilters>): Promise<ServerActionReadResponse> => {
   const token = await verifyAccessToken();
 
@@ -41,9 +41,18 @@ const saGetQuoteViewTableData = async ({
     base.where("quoteView.quoteId", quoteId);
   }
 
-  // Exclude specific IP address if provided (used to hide current user's views)
-  if (excludeIpAddress) {
-    base.whereNot("quoteView.ipAddress", excludeIpAddress);
+  // Exclude views from users who belong to the same partner
+  if (excludePartnerViews && token.partnerId) {
+    const partnerEmails = db("adminUser")
+      .select("email")
+      .where("partnerId", token.partnerId)
+      .whereNotNull("email");
+    base.where((qb) => {
+      qb.whereNull("quoteView.loggedInEmail").orWhereNotIn(
+        "quoteView.loggedInEmail",
+        partnerEmails
+      );
+    });
   }
 
   // Always exclude localhost IPs in production
@@ -89,7 +98,8 @@ const saGetQuoteViewTableData = async ({
       "quoteView.os",
       "quoteView.device",
       "quoteView.cpu",
-      "quoteView.locationData"
+      "quoteView.locationData",
+      "quoteView.loggedInEmail"
     )
     .orderBy(`quoteView.${sortField}`, sortDirection)
     .limit(pageSize)

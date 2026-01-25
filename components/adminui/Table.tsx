@@ -18,7 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Info } from "lucide-react";
 import Link from "next/link";
 import {
   ServerActionReadResponse,
@@ -29,11 +29,17 @@ import { cn } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Button } from "../ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type Column = {
   label: string;
   name: string;
   sort?: boolean;
+  tooltip?: string;
   format?: (row: any) => string | React.ReactNode;
   linkTo?: (row: any) => string;
 };
@@ -164,6 +170,16 @@ export default function DataTable<TExtra extends object = object>({
                   >
                     <span className="inline-flex items-center gap-1">
                       {column.label}
+                      {column.tooltip && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info size={14} className="text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>{column.tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                       {column.sort &&
                         isSorted &&
                         (sortDirection === "asc" ? (
