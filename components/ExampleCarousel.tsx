@@ -37,7 +37,7 @@ export default function ExampleCarousel({ examples }: ExampleCarouselProps) {
 
             return (
               <div key={example.id} className="flex-[0_0_100%] min-w-0">
-                <div className="relative w-full h-[500px] md:h-[600px] lg:h-[800px]">
+                <div className="relative w-full h-[600px] md:h-[600px] lg:h-[800px]">
                   {/* Background Hero Image with Overlay */}
                   {example.heroImageFileExtension && (
                     <>
@@ -54,13 +54,13 @@ export default function ExampleCarousel({ examples }: ExampleCarouselProps) {
                   )}
 
                   {/* Content Container */}
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="max-w-7xl mx-auto px-4 w-full">
+                  <div className="absolute inset-0 flex items-center pb-20 md:pb-24">
+                    <div className="max-w-7xl mx-auto px-6 md:px-8 w-full">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                         {/* Left Side - Text Content */}
-                        <div className="text-white space-y-6">
+                        <div className="text-white space-y-6 text-center lg:text-left">
                           {/* Logo and Business Name */}
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4 justify-center lg:justify-start">
                             {example.logoFileExtension && (
                               <div className="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 bg-white rounded-lg p-2">
                                 <div className="relative w-full h-full">
@@ -97,7 +97,7 @@ export default function ExampleCarousel({ examples }: ExampleCarouselProps) {
                           </Link>
 
                           {/* Privacy Disclaimer */}
-                          <p className="text-xs text-white/70 italic max-w-xl">
+                          <p className="text-xs text-white/70 italic max-w-xl mx-auto lg:mx-0">
                             Please note: While this case study is based on a
                             real project, business names, branding, and other
                             identifying information have been modified to
@@ -125,39 +125,36 @@ export default function ExampleCarousel({ examples }: ExampleCarouselProps) {
                       </div>
                     </div>
                   </div>
+
+                  {/* Navigation Controls - absolutely positioned at bottom center */}
+                  {examples.length > 1 && (
+                    <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={scrollPrev}
+                        className="h-10 w-10 rounded-full bg-white hover:bg-white/90 border-0"
+                        aria-label="Previous example"
+                      >
+                        <ChevronLeft className="h-5 w-5 text-primary" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={scrollNext}
+                        className="h-10 w-10 rounded-full bg-white hover:bg-white/90 border-0"
+                        aria-label="Next example"
+                      >
+                        <ChevronRight className="h-5 w-5 text-primary" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
       </div>
-
-      {/* Navigation Controls */}
-      {examples.length > 1 && (
-        <>
-          {/* Previous Button */}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={scrollPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/90 hover:bg-white z-10"
-            aria-label="Previous example"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-
-          {/* Next Button */}
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={scrollNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/90 hover:bg-white z-10"
-            aria-label="Next example"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
-        </>
-      )}
     </div>
   );
 }

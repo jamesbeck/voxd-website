@@ -42,7 +42,7 @@ export default async function FeaturePage({
 
   return (
     <>
-      <Container colour="blue">
+      <Container colour="blue" header>
         <div className="max-w-6xl mx-auto">
           <Link
             href="/"

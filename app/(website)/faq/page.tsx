@@ -20,7 +20,7 @@ export default async function FaqPage() {
   return (
     <>
       {/* Hero Section */}
-      <Container colour="blue">
+      <Container colour="blue" header>
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-bold text-white">
             Frequently Asked Questions

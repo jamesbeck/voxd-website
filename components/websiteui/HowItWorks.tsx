@@ -8,7 +8,7 @@ interface HowItWorksProps {
 export default function HowItWorks({ businessName }: HowItWorksProps) {
   return (
     <>
-      <Container colour="blue">
+      <Container colour="blue" header>
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-bold text-white">
             How It Works

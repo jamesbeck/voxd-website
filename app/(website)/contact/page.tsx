@@ -7,7 +7,7 @@ export default function ContactPage() {
   return (
     <>
       {/* Header Section */}
-      <Container colour="blue">
+      <Container colour="blue" header>
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-bold text-white">
             Contact Us
@@ -31,22 +31,22 @@ export default function ContactPage() {
             assistant on WhatsApp. Available 24/7, he can answer your questions
             instantly and connect you with our team.
           </p>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-4">
-            <a
-              href="https://wa.me/+447418641010"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
-            >
-              <MessageSquare className="w-6 h-6" />
-              <span className="flex flex-col items-start">
-                <span>Chat with Clive on WhatsApp</span>
-                <span className="text-xs font-normal opacity-70">
-                  Click or scan
+          <div className="flex flex-col items-center justify-center gap-6 pt-4">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <a
+                href="https://wa.me/+447418641010"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
+              >
+                <MessageSquare className="w-6 h-6" />
+                <span className="flex flex-col items-start">
+                  <span>Chat with Clive on WhatsApp</span>
+                  <span className="text-xs font-normal opacity-70">
+                    Click or scan
+                  </span>
                 </span>
-              </span>
-            </a>
-            <div className="hidden md:block">
+              </a>
               <WhatsAppQRCode url="https://wa.me/+447418641010" />
             </div>
           </div>
