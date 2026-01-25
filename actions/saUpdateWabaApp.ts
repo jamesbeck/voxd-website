@@ -19,7 +19,10 @@ export default async function saUpdateWabaApp({
 
     // Only super admins can update WABA app
     if (!accessToken.superAdmin) {
-      return { success: false, error: "Unauthorized: Only super admins can change WABA app" };
+      return {
+        success: false,
+        error: "Unauthorized: Only super admins can change WABA app",
+      };
     }
 
     // Get the current WABA for logging
@@ -69,7 +72,7 @@ export default async function saUpdateWabaApp({
     // If an app was set, subscribe it to the WABA
     if (appId) {
       const subscribeResult = await saSubscribe({ wabaId, unsubscribe: false });
-      
+
       if (!subscribeResult.success) {
         // Return success for the update but include subscription error as warning
         return {
@@ -90,7 +93,8 @@ export default async function saUpdateWabaApp({
     console.error("Error updating WABA app:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update WABA app",
+      error:
+        error instanceof Error ? error.message : "Failed to update WABA app",
     };
   }
 }

@@ -88,7 +88,9 @@ export default function WabaInfoTab({ waba }: WabaInfoProps) {
             className="text-xs border-l-2 pl-2 ml-1 border-muted-foreground/30"
           >
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{entity.entity_type}:</span>
+              <span className="text-muted-foreground">
+                {entity.entity_type}:
+              </span>
               <span
                 className={
                   entity.can_send_message?.toLowerCase() === "available"
@@ -139,7 +141,9 @@ export default function WabaInfoTab({ waba }: WabaInfoProps) {
 
     return (
       <div className="space-y-2">
-        <div className="font-semibold">{subscribedApps.length} app(s) subscribed</div>
+        <div className="font-semibold">
+          {subscribedApps.length} app(s) subscribed
+        </div>
         {subscribedApps.map((app, index) => (
           <div
             key={app.whatsapp_business_api_data.id || index}

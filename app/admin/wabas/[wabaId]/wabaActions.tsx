@@ -28,7 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MoreHorizontalIcon, RefreshCw, Link2, Link2Off, AppWindow } from "lucide-react";
+import {
+  MoreHorizontalIcon,
+  RefreshCw,
+  Link2,
+  Link2Off,
+  AppWindow,
+} from "lucide-react";
 import saSyncWabaWithMeta from "@/actions/saSyncWabaWithMeta";
 import saSubscribe from "@/lib/meta/saSubscribe";
 import saGetAllApps, { App } from "@/actions/saGetAllApps";
