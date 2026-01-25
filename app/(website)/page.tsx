@@ -5,6 +5,7 @@ import ExampleCarousel from "@/components/ExampleCarousel";
 import saGetTopFeatures from "@/actions/saGetTopFeatures";
 import { getIcon } from "@/lib/iconMap";
 import Link from "next/link";
+import WhatsAppQRCode from "@/components/WhatsAppQRCode";
 
 export default async function Home() {
   const allExamples = await getExamples();
@@ -29,19 +30,21 @@ export default async function Home() {
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-4">
             <a
-              href="https://wa.me/TBC"
+              href="https://wa.me/+447418641010"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-white text-primary px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white/90 transition-colors shadow-lg hover:shadow-xl"
             >
               <MessageSquare className="w-6 h-6" />
-              Get Started on WhatsApp
+              <span className="flex flex-col items-start">
+                <span>Get Started on WhatsApp</span>
+                <span className="text-xs font-normal opacity-70">
+                  Click or scan
+                </span>
+              </span>
             </a>
             <div className="hidden md:block">
-              <div className="bg-gray-200 w-32 h-32 rounded-lg flex items-center justify-center text-gray-500 text-sm">
-                QR Code
-              </div>
-              <p className="text-sm text-gray-500 mt-2">Scan to chat</p>
+              <WhatsAppQRCode url="https://wa.me/+447418641010" />
             </div>
           </div>
         </div>
@@ -100,14 +103,24 @@ export default async function Home() {
               an intelligent chatbot could do for your business – and experience
               the power of Voxd firsthand.
             </p>
-            <div className="pt-6">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-6">
               <a
-                href="#"
+                href="https://wa.me/+447418641010"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 bg-primary text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
               >
                 <MessageSquare className="w-6 h-6" />
-                Chat with Clive on WhatsApp
+                <span className="flex flex-col items-start">
+                  <span>Chat with Clive on WhatsApp</span>
+                  <span className="text-xs font-normal opacity-70">
+                    Click or scan
+                  </span>
+                </span>
               </a>
+              <div className="hidden md:block">
+                <WhatsAppQRCode url="https://wa.me/+447418641010" />
+              </div>
             </div>
             <p className="text-sm pt-2">
               Available 24/7 • Instant responses • No commitment required
