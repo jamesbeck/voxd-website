@@ -281,7 +281,7 @@ export default async function PublicQuotePage({
       )}
 
       {/* Content wrapper with sidebar on desktop */}
-      <div className="max-w-3xl xl:max-w-6xl mx-auto px-4 py-8 xl:flex xl:gap-8">
+      <div className="max-w-3xl xl:max-w-6xl mx-auto px-4 py-8 xl:flex xl:items-start xl:gap-8">
         {/* Desktop sticky ToC */}
         <FloatingTableOfContents sections={sections} brandColor={brandColor} />
 
