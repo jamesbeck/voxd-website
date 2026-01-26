@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
-import { format } from "date-fns";
+import { format, isToday, isPast, startOfDay } from "date-fns";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -85,6 +85,25 @@ const QuotesTable = ({
       name: "createdAt",
       sort: true,
       format: (row: any) => format(new Date(row.createdAt), "dd/MM/yyyy") || "",
+    },
+    {
+      label: "Next Action Date",
+      name: "nextActionDate",
+      sort: true,
+      format: (row: any) => {
+        if (!row.nextActionDate) return "-";
+        const date = new Date(row.nextActionDate);
+        const dateStr = format(date, "dd/MM/yyyy");
+        const isOverdue = isToday(date) || isPast(startOfDay(date));
+        if (isOverdue) {
+          return (
+            <Badge className="bg-red-600 text-white border-transparent text-sm px-3 py-1">
+              {dateStr}
+            </Badge>
+          );
+        }
+        return dateStr;
+      },
     },
     {
       label: "Last Viewed",

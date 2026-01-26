@@ -17,8 +17,8 @@ import {
   FileText,
   Activity,
   Building,
-  ExternalLink,
   User,
+  CalendarClock,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,7 @@ import EditBackgroundForm from "./EditBackgroundForm";
 import EditPitchForm from "./EditPitchForm";
 import QuoteViewsTable from "./QuoteViewsTable";
 import QuoteHeroImageTab from "./QuoteHeroImageTab";
+import QuoteActionsTab from "./QuoteActionsTab";
 
 export default async function Page({
   params,
@@ -93,6 +94,11 @@ export default async function Page({
               <TabsList>
                 <TabsTrigger value="info" asChild>
                   <Link href={`/admin/quotes/${quote.id}?tab=info`}>Info</Link>
+                </TabsTrigger>
+                <TabsTrigger value="actions" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=actions`}>
+                    Actions
+                  </Link>
                 </TabsTrigger>
                 <TabsTrigger value="background" asChild>
                   <Link href={`/admin/quotes/${quote.id}?tab=background`}>
@@ -167,17 +173,24 @@ export default async function Page({
                     icon: <FileText className="h-4 w-4" />,
                   },
                   {
-                    label: "Organisation",
-                    value: quote.organisationName,
-                    icon: <Building className="h-4 w-4" />,
-                  },
-                  {
                     label: "Created",
                     value: format(quote.createdAt, "dd/MM/yyyy HH:mm"),
                     description: formatDistance(quote.createdAt, new Date(), {
                       addSuffix: true,
                     }),
                     icon: <Calendar className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Organisation",
+                    value: (
+                      <Link
+                        href={`/admin/organisations/${quote.organisationId}`}
+                        className="text-primary hover:underline"
+                      >
+                        {quote.organisationName}
+                      </Link>
+                    ),
+                    icon: <Building className="h-4 w-4" />,
                   },
                   {
                     label: "Status",
@@ -209,36 +222,25 @@ export default async function Page({
                     icon: <User className="h-4 w-4" />,
                   },
                   {
-                    label: "Public Pitch Link",
-                    value: (
-                      <a
-                        href={`/pitches/${quote.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-primary hover:underline"
-                      >
-                        View Pitch Page
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ),
-                    icon: <ExternalLink className="h-4 w-4" />,
-                  },
-                  {
-                    label: "Public Proposal Link",
-                    value: (
-                      <a
-                        href={`/proposals/${quote.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-primary hover:underline"
-                      >
-                        View Proposal Page
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    ),
-                    icon: <ExternalLink className="h-4 w-4" />,
+                    label: "Next Action Date",
+                    value: quote.nextActionDate
+                      ? format(quote.nextActionDate, "dd/MM/yyyy")
+                      : "Not set",
+                    icon: <CalendarClock className="h-4 w-4" />,
+                    variant:
+                      quote.nextActionDate &&
+                      new Date(quote.nextActionDate) <= new Date()
+                        ? "danger"
+                        : "default",
                   },
                 ]}
+              />
+            </TabsContent>
+            <TabsContent value="actions">
+              <QuoteActionsTab
+                quoteId={quote.id}
+                nextAction={quote.nextAction}
+                nextActionDate={quote.nextActionDate}
               />
             </TabsContent>
             <TabsContent value="background">

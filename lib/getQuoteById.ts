@@ -41,6 +41,8 @@ export type Quote = {
   generatedSpecification: string | null;
   proposalPersonalMessage: string | null;
   heroImageFileExtension: string | null; // Hero image file extension for quote
+  nextAction: string | null;
+  nextActionDate: string | null;
 };
 
 export const getQuoteById = async ({
