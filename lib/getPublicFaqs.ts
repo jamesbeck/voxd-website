@@ -1,4 +1,5 @@
 import db from "@/database/db";
+import slugify from "slugify";
 
 export type PublicFaq = {
   id: string;
@@ -7,6 +8,7 @@ export type PublicFaq = {
   categoryId: string | null;
   categoryName: string | null;
   createdAt: Date;
+  slug: string;
 };
 
 export type FaqCategory = {
@@ -15,6 +17,10 @@ export type FaqCategory = {
   count: number;
 };
 
+function generateFaqSlug(question: string): string {
+  return slugify(question, { lower: true, strict: true });
+}
+
 export async function getPublicFaqs(): Promise<PublicFaq[]> {
   const faqs = await db("faq")
     .select(
@@ -22,7 +28,7 @@ export async function getPublicFaqs(): Promise<PublicFaq[]> {
       "faq.question",
       "faq.answer",
       "faq.categoryId",
-      "faq.createdAt"
+      "faq.createdAt",
     )
     .select("faqCategory.name as categoryName")
     .leftJoin("faqCategory", "faq.categoryId", "faqCategory.id")
@@ -30,7 +36,42 @@ export async function getPublicFaqs(): Promise<PublicFaq[]> {
     .orderBy("faqCategory.name", "asc")
     .orderBy("faq.question", "asc");
 
-  return faqs;
+  return faqs.map((faq) => ({
+    ...faq,
+    slug: generateFaqSlug(faq.question),
+  }));
+}
+
+export async function getPublicFaqBySlug(
+  slug: string,
+): Promise<PublicFaq | null> {
+  const faqs = await getPublicFaqs();
+  return faqs.find((faq) => faq.slug === slug) || null;
+}
+
+export async function getRelatedFaqs(
+  categoryId: string,
+  excludeFaqId: string,
+): Promise<PublicFaq[]> {
+  const faqs = await db("faq")
+    .select(
+      "faq.id",
+      "faq.question",
+      "faq.answer",
+      "faq.categoryId",
+      "faq.createdAt",
+    )
+    .select("faqCategory.name as categoryName")
+    .leftJoin("faqCategory", "faq.categoryId", "faqCategory.id")
+    .where("faq.partnersOnly", false)
+    .where("faq.categoryId", categoryId)
+    .whereNot("faq.id", excludeFaqId)
+    .orderBy("faq.question", "asc");
+
+  return faqs.map((faq) => ({
+    ...faq,
+    slug: generateFaqSlug(faq.question),
+  }));
 }
 
 export async function getPublicFaqCategories(): Promise<FaqCategory[]> {
@@ -41,7 +82,7 @@ export async function getPublicFaqCategories(): Promise<FaqCategory[]> {
       this.on("faq.categoryId", "=", "faqCategory.id").andOn(
         "faq.partnersOnly",
         "=",
-        db.raw("false")
+        db.raw("false"),
       );
     })
     .groupBy("faqCategory.id", "faqCategory.name")

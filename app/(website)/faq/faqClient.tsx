@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, ChevronDown, ChevronUp, X, FolderOpen } from "lucide-react";
+import Link from "next/link";
+import {
+  Search,
+  ChevronDown,
+  ChevronUp,
+  X,
+  FolderOpen,
+  ExternalLink,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PublicFaq, FaqCategory } from "@/lib/getPublicFaqs";
 import { MarkdownContent } from "@/components/MarkdownContent";
@@ -55,7 +63,7 @@ export default function FaqClient({ faqs, categories }: FaqClientProps) {
     });
 
     return Object.entries(groups).sort((a, b) =>
-      a[1].categoryName.localeCompare(b[1].categoryName)
+      a[1].categoryName.localeCompare(b[1].categoryName),
     );
   }, [filteredFaqs]);
 
@@ -103,7 +111,7 @@ export default function FaqClient({ faqs, categories }: FaqClientProps) {
                 "px-4 py-2 rounded-full text-sm font-medium transition-all",
                 !selectedCategory
                   ? "bg-primary text-white shadow-md"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200",
               )}
             >
               All ({faqs.length})
@@ -113,14 +121,14 @@ export default function FaqClient({ faqs, categories }: FaqClientProps) {
                 key={category.id}
                 onClick={() =>
                   setSelectedCategory(
-                    selectedCategory === category.id ? null : category.id
+                    selectedCategory === category.id ? null : category.id,
                   )
                 }
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-medium transition-all",
                   selectedCategory === category.id
                     ? "bg-primary text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200",
                 )}
               >
                 {category.name} ({category.count})
@@ -202,7 +210,7 @@ export default function FaqClient({ faqs, categories }: FaqClientProps) {
                   ))}
                 </div>
               </div>
-            )
+            ),
           )}
         </div>
       )}
@@ -224,7 +232,7 @@ function FaqItem({ faq, isExpanded, onToggle, searchQuery }: FaqItemProps) {
 
     const regex = new RegExp(
       `(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-      "gi"
+      "gi",
     );
     const parts = text.split(regex);
 
@@ -235,7 +243,7 @@ function FaqItem({ faq, isExpanded, onToggle, searchQuery }: FaqItemProps) {
         </mark>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -245,7 +253,7 @@ function FaqItem({ faq, isExpanded, onToggle, searchQuery }: FaqItemProps) {
         "bg-white rounded-xl border transition-all duration-200",
         isExpanded
           ? "border-primary/30 shadow-md ring-1 ring-primary/10"
-          : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+          : "border-gray-200 hover:border-gray-300 hover:shadow-sm",
       )}
     >
       <button
@@ -258,7 +266,7 @@ function FaqItem({ faq, isExpanded, onToggle, searchQuery }: FaqItemProps) {
         <span
           className={cn(
             "flex-shrink-0 mt-0.5 p-1 rounded-full transition-colors",
-            isExpanded ? "bg-primary text-white" : "bg-gray-100 text-gray-500"
+            isExpanded ? "bg-primary text-white" : "bg-gray-100 text-gray-500",
           )}
         >
           {isExpanded ? (
@@ -272,12 +280,21 @@ function FaqItem({ faq, isExpanded, onToggle, searchQuery }: FaqItemProps) {
       <div
         className={cn(
           "overflow-hidden transition-all duration-200",
-          isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+          isExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0",
         )}
       >
         <div className="px-5 pb-5 pt-0">
           <div className="border-t border-gray-100 pt-4">
             <MarkdownContent content={faq.answer} />
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <Link
+                href={`/faq/${faq.slug}`}
+                className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+              >
+                View Answer Page
+                <ExternalLink className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
