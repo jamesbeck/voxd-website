@@ -4,6 +4,7 @@ import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
+import db from "../database/db";
 
 const saGenerateFaqAnswer = async ({
   question,
@@ -28,8 +29,29 @@ const saGenerateFaqAnswer = async ({
     return { success: false, error: "Question is required" };
   }
 
+  // Get the partner's OpenAI API key
+  if (!accessToken.partnerId) {
+    return {
+      success: false,
+      error: "No partner associated with your account",
+    };
+  }
+
+  const partner = await db("partner")
+    .where("id", accessToken.partnerId)
+    .select("openAiApiKey")
+    .first();
+
+  if (!partner?.openAiApiKey) {
+    return {
+      success: false,
+      error:
+        "Your partner account does not have an OpenAI API key configured. Please contact an administrator.",
+    };
+  }
+
   const openai = createOpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: partner.openAiApiKey,
   });
 
   const systemPrompt = `You are an expert FAQ writer for Voxd, a company that provides WhatsApp-based AI chatbot services for businesses.
@@ -104,7 +126,7 @@ If the question is not specifically about Voxd or its services, provide a helpfu
 
   try {
     const { text } = await generateText({
-      model: openai("gpt-4.1"),
+      model: openai("gpt-5.2"),
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,

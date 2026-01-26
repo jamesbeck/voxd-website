@@ -49,7 +49,11 @@ interface QuotesTableProps {
   userPartnerId?: string | null;
 }
 
-const QuotesTable = ({ organisationId, isSuperAdmin, userPartnerId }: QuotesTableProps) => {
+const QuotesTable = ({
+  organisationId,
+  isSuperAdmin,
+  userPartnerId,
+}: QuotesTableProps) => {
   const [showOnlyMyPartner, setShowOnlyMyPartner] = useState(true);
   const columns = [
     // Only show Organisation column if not filtered by organisation
@@ -117,7 +121,9 @@ const QuotesTable = ({ organisationId, isSuperAdmin, userPartnerId }: QuotesTabl
 
   const getDataParams = {
     ...(organisationId ? { organisationId } : {}),
-    ...(isSuperAdmin && showOnlyMyPartner && userPartnerId ? { partnerId: userPartnerId } : {}),
+    ...(isSuperAdmin && showOnlyMyPartner && userPartnerId
+      ? { partnerId: userPartnerId }
+      : {}),
   };
 
   return (
@@ -135,7 +141,9 @@ const QuotesTable = ({ organisationId, isSuperAdmin, userPartnerId }: QuotesTabl
       <DataTable
         key={showOnlyMyPartner ? "filtered" : "all"}
         getData={saGetQuoteTableData}
-        getDataParams={Object.keys(getDataParams).length > 0 ? getDataParams : undefined}
+        getDataParams={
+          Object.keys(getDataParams).length > 0 ? getDataParams : undefined
+        }
         columns={columns}
         actions={actions}
       />

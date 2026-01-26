@@ -174,10 +174,10 @@ Your task is to write a compelling, professional INTRODUCTION section for a clie
 IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for.
 
 Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.${
-        extraPrompt
-          ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
-          : ""
-      }`;
+          extraPrompt
+            ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
+            : ""
+        }`;
 
     const introPrompt = isAmendMode
       ? `Please amend the existing proposal introduction for the following client based on the amendment instructions provided:\n\n${specificationContext}`
@@ -243,10 +243,10 @@ Your task is to write a detailed, professional SPECIFICATION section for a clien
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 
 Write in Markdown format. Use appropriate headings (## for main sections, ### for subsections), **bold** for emphasis, bullet points for lists.${
-        extraPrompt
-          ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
-          : ""
-      }`;
+          extraPrompt
+            ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
+            : ""
+        }`;
 
     const specPrompt = isAmendMode
       ? `Please amend the existing specification for the following client based on the amendment instructions provided:\n\n${specificationContext}`

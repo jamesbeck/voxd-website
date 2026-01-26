@@ -33,7 +33,7 @@ const saGetQuoteViewTableData = async ({
   const base = db("quoteView").leftJoin(
     "quote",
     "quoteView.quoteId",
-    "quote.id"
+    "quote.id",
   );
 
   // Filter by quoteId if provided
@@ -50,7 +50,7 @@ const saGetQuoteViewTableData = async ({
     base.where((qb) => {
       qb.whereNull("quoteView.loggedInEmail").orWhereNotIn(
         "quoteView.loggedInEmail",
-        partnerEmails
+        partnerEmails,
       );
     });
   }
@@ -99,7 +99,7 @@ const saGetQuoteViewTableData = async ({
       "quoteView.device",
       "quoteView.cpu",
       "quoteView.locationData",
-      "quoteView.loggedInEmail"
+      "quoteView.loggedInEmail",
     )
     .orderBy(`quoteView.${sortField}`, sortDirection)
     .limit(pageSize)

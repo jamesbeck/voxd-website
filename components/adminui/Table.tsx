@@ -47,7 +47,7 @@ interface DataTableProps<TExtra extends object = object> {
   columns: Column[];
   actions?: (row: any) => React.ReactNode;
   getData: (
-    params: ServerActionReadParams<TExtra>
+    params: ServerActionReadParams<TExtra>,
   ) => Promise<ServerActionReadResponse>;
   pageSize?: number;
   defaultSort?: { name: string; direction: "asc" | "desc" };
@@ -64,16 +64,16 @@ export default function DataTable<TExtra extends object = object>({
   getDataParams,
 }: DataTableProps<TExtra>) {
   const [response, setResponse] = useState<ServerActionReadResponse | null>(
-    null
+    null,
   );
   const [searchValue, setSearchValue] = useState("");
   const debouncedSearchTerm = useDebounce(searchValue, 300);
   const [page, setPage] = useState(1);
   const [sortField, setSortField] = useState<string | undefined>(
-    defaultSort?.name || columns[0]?.name
+    defaultSort?.name || columns[0]?.name,
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
-    defaultSort?.direction || "asc"
+    defaultSort?.direction || "asc",
   );
   const [loading, setLoading] = useState(true);
   const currentRequestRef = useRef<symbol | null>(null);
@@ -164,7 +164,7 @@ export default function DataTable<TExtra extends object = object>({
                   <TableHead
                     key={column.name}
                     className={cn(
-                      column.sort ? "cursor-pointer select-none" : ""
+                      column.sort ? "cursor-pointer select-none" : "",
                     )}
                     onClick={() => column.sort && handleSortClick(column.name)}
                   >
@@ -173,7 +173,10 @@ export default function DataTable<TExtra extends object = object>({
                       {column.tooltip && (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info size={14} className="text-muted-foreground cursor-help" />
+                            <Info
+                              size={14}
+                              className="text-muted-foreground cursor-help"
+                            />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
                             <p>{column.tooltip}</p>
@@ -259,7 +262,7 @@ export default function DataTable<TExtra extends object = object>({
         <div
           className={cn(
             "w-full flex justify-end",
-            loading ? "pointer-events-none opacity-20" : ""
+            loading ? "pointer-events-none opacity-20" : "",
           )}
         >
           <div>

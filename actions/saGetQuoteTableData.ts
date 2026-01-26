@@ -75,7 +75,7 @@ const saGetQuoteTableData = async ({
       if (partnerEmails) {
         qb.whereNull("loggedInEmail").orWhereNotIn(
           "loggedInEmail",
-          partnerEmails
+          partnerEmails,
         );
       }
     })
@@ -91,14 +91,14 @@ const saGetQuoteTableData = async ({
       "organisation.name as organisationName",
       "partner.name as partnerName",
       "partner.id as partnerId",
-      "lastViewed.lastViewedAt"
+      "lastViewed.lastViewedAt",
     )
 
     // .select([db.raw('COUNT("agent"."id")::int as "agentCount"')])
     .orderByRaw(
       sortField === "lastViewedAt"
         ? `"lastViewed"."lastViewedAt" ${sortDirection} NULLS LAST`
-        : `"${sortField}" ${sortDirection}`
+        : `"${sortField}" ${sortDirection}`,
     )
     .limit(pageSize)
     .offset((page - 1) * pageSize);
