@@ -15,9 +15,11 @@ const saGetQuoteTableData = async ({
   sortDirection = "asc",
   organisationId,
   partnerId,
+  statusFilter,
 }: ServerActionReadParams & {
   organisationId?: string;
   partnerId?: string;
+  statusFilter?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -39,6 +41,17 @@ const saGetQuoteTableData = async ({
     });
 
   if (organisationId) base.where("quote.organisationId", organisationId);
+
+  // Apply status filter
+  if (statusFilter) {
+    if (statusFilter === "open") {
+      // Open = all statuses except Closed Won and Closed Lost
+      base.whereNotIn("quote.status", ["Closed Won", "Closed Lost"]);
+    } else {
+      // Filter by specific status
+      base.where("quote.status", statusFilter);
+    }
+  }
 
   //if not super admin add where clause to only get the quote for relevant organisations
   if (accessToken?.partner && !accessToken?.superAdmin) {

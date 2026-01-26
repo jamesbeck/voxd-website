@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import { format, isToday, isPast, startOfDay } from "date-fns";
 
@@ -32,6 +33,24 @@ const getStatusBadge = (status: string) => {
           Sent to Client
         </Badge>
       );
+    case "Closed Won":
+      return (
+        <Badge
+          className="border-transparent"
+          style={{ backgroundColor: "#16a34a", color: "white" }}
+        >
+          Closed Won
+        </Badge>
+      );
+    case "Closed Lost":
+      return (
+        <Badge
+          className="border-transparent"
+          style={{ backgroundColor: "#dc2626", color: "white" }}
+        >
+          Closed Lost
+        </Badge>
+      );
     case "Closed":
       return (
         <Badge className="bg-green-600 text-white border-transparent">
@@ -55,6 +74,19 @@ const QuotesTable = ({
   userPartnerId,
 }: QuotesTableProps) => {
   const [showOnlyMyPartner, setShowOnlyMyPartner] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>("open");
+
+  const statusTabs = [
+    { value: "open", label: "Open Quotes" },
+    { value: "Draft", label: "Draft" },
+    { value: "Sent to Voxd for Cost Pricing", label: "Sent to Voxd" },
+    { value: "Cost Pricing Received from Voxd", label: "Pricing Received" },
+    { value: "Sent to Client", label: "With Client" },
+    { value: "Closed Won", label: "Closed Won" },
+    { value: "Closed Lost", label: "Closed Lost" },
+    { value: "all", label: "All Quotes" },
+  ];
+
   const columns = [
     // Only show Organisation column if not filtered by organisation
     ...(!organisationId
@@ -143,10 +175,24 @@ const QuotesTable = ({
     ...(isSuperAdmin && showOnlyMyPartner && userPartnerId
       ? { partnerId: userPartnerId }
       : {}),
+    ...(statusFilter !== "all" ? { statusFilter } : {}),
   };
 
   return (
     <>
+      <Tabs
+        value={statusFilter}
+        onValueChange={setStatusFilter}
+        className="mb-4"
+      >
+        <TabsList className="flex-wrap h-auto gap-1">
+          {statusTabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       {isSuperAdmin && !organisationId && (
         <div className="flex items-center space-x-2 mb-4">
           <Switch
@@ -158,7 +204,7 @@ const QuotesTable = ({
         </div>
       )}
       <DataTable
-        key={showOnlyMyPartner ? "filtered" : "all"}
+        key={`${showOnlyMyPartner}-${statusFilter}`}
         getData={saGetQuoteTableData}
         getDataParams={
           Object.keys(getDataParams).length > 0 ? getDataParams : undefined

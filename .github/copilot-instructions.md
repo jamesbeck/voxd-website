@@ -55,8 +55,8 @@ Quotes progress through the following stages (stored as plain English strings in
 1. **Draft** - Initial state when a quote is created. The partner is drafting the specification and details.
 2. **Sent to Voxd for Cost Pricing** - The partner has submitted the quote to Voxd for cost pricing review.
 3. **Cost Pricing Received from Voxd** - Voxd has provided cost pricing (setupFeeVoxdCost, monthlyFeeVoxdCost). The partner can now set their client-facing prices.
-4. **Sent to Client** - The quote has been sent to the end client for review.
-5. **Closed** - The quote process is complete (accepted or rejected).
+4. **Sent to Client** (displayed as "With Client") - The quote has been sent to the end client for review.
+5. **Closed Won** or **Closed Lost** - The quote process is complete. "Closed Won" indicates the client accepted, "Closed Lost" indicates the client declined.
 
 ### Quote Pricing Fields
 

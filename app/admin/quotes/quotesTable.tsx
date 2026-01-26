@@ -29,6 +29,24 @@ const getStatusBadge = (status: string) => {
           Sent to Client
         </Badge>
       );
+    case "Closed Won":
+      return (
+        <Badge
+          className="border-transparent"
+          style={{ backgroundColor: "#16a34a", color: "white" }}
+        >
+          Closed Won
+        </Badge>
+      );
+    case "Closed Lost":
+      return (
+        <Badge
+          className="border-transparent"
+          style={{ backgroundColor: "#dc2626", color: "white" }}
+        >
+          Closed Lost
+        </Badge>
+      );
     case "Closed":
       return (
         <Badge className="bg-green-600 text-white border-transparent">

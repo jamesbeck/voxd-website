@@ -158,6 +158,7 @@ export default async function Page({
                   status={quote.status}
                   canDelete={isSuperAdmin || isOwnerPartner}
                   createdByAdminUserId={quote.createdByAdminUserId}
+                  isSuperAdmin={isSuperAdmin}
                 />
               </div>
             </div>
@@ -255,6 +256,7 @@ export default async function Page({
                 objectives={quote.objectives}
                 dataSourcesAndIntegrations={quote.dataSourcesAndIntegrations}
                 otherNotes={quote.otherNotes}
+                status={quote.status}
               />
             </TabsContent>
             <TabsContent value="pitch">

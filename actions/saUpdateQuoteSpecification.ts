@@ -35,6 +35,15 @@ const saUpdateQuote = async ({
     };
   }
 
+  // Only allow editing specification fields when the quote is in Draft status
+  if (existingQuote.status !== "Draft") {
+    return {
+      success: false,
+      error:
+        "Specification can only be edited when the quote is in Draft status",
+    };
+  }
+
   //update the quote
   await db("quote").where({ id: quoteId }).update({
     objectives,

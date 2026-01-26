@@ -36,32 +36,12 @@ const saSubmitQuoteForCostPricing = async ({
     };
   }
 
-  // Check if the proposal has been generated
-  if (
-    !existingQuote.generatedProposalIntroduction ||
-    !existingQuote.generatedSpecification
-  ) {
+  // Check if the objectives field has been filled in (required in the Specification tab)
+  if (!existingQuote.objectives || existingQuote.objectives.trim() === "") {
     return {
       success: false,
       error:
-        "Please generate the proposal before submitting for cost pricing. Go to the Proposal tab and click 'Generate with AI' to create the proposal content.",
-    };
-  }
-
-  // Check if at least one example conversation exists
-  const exampleConversationCount = await db("exampleConversation")
-    .where({ quoteId })
-    .count("id as count")
-    .first();
-
-  const conversationCount =
-    parseInt(exampleConversationCount?.count as string) || 0;
-
-  if (conversationCount === 0) {
-    return {
-      success: false,
-      error:
-        "Please generate at least one example conversation before submitting for cost pricing. Go to the Example Conversations tab and generate a conversation.",
+        "Please complete the Specification tab first. At minimum, the Objectives field must be filled in before submitting for cost pricing.",
     };
   }
 
