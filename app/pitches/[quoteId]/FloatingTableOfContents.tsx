@@ -61,7 +61,7 @@ export default function FloatingTableOfContents({
       {
         rootMargin: "-20% 0px -70% 0px",
         threshold: 0,
-      }
+      },
     );
 
     sections.forEach(({ id }) => {
@@ -92,42 +92,44 @@ export default function FloatingTableOfContents({
 
   return (
     <>
-      {/* Desktop sticky sidebar */}
-      <nav className="hidden xl:block sticky top-30 self-start">
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[220px]">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            Contents
-          </p>
-          <ul className="space-y-1">
-            {sections.map(({ id, label, icon }) => {
-              const Icon = iconMap[icon];
-              return (
-                <li key={id}>
-                  <button
-                    onClick={() => scrollToSection(id)}
-                    className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      activeSection === id
-                        ? "font-medium"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
-                    style={
-                      activeSection === id
-                        ? {
-                            backgroundColor: `${brandColor}15`,
-                            color: brandColor,
-                          }
-                        : undefined
-                    }
-                  >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
-                    {label}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </nav>
+      {/* Desktop sticky sidebar - wrapped in a div to be proper flex child */}
+      <div className="hidden xl:block flex-shrink-0">
+        <nav className="sticky top-30">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[220px]">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              Contents
+            </p>
+            <ul className="space-y-1">
+              {sections.map(({ id, label, icon }) => {
+                const Icon = iconMap[icon];
+                return (
+                  <li key={id}>
+                    <button
+                      onClick={() => scrollToSection(id)}
+                      className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                        activeSection === id
+                          ? "font-medium"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                      style={
+                        activeSection === id
+                          ? {
+                              backgroundColor: `${brandColor}15`,
+                              color: brandColor,
+                            }
+                          : undefined
+                      }
+                    >
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      {label}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </nav>
+      </div>
 
       {/* Mobile floating button */}
       <button
