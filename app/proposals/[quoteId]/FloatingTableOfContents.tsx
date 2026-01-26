@@ -59,7 +59,7 @@ export default function FloatingTableOfContents({
       {
         rootMargin: "-20% 0px -70% 0px",
         threshold: 0,
-      }
+      },
     );
 
     sections.forEach(({ id }) => {
