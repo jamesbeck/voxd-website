@@ -40,6 +40,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const VOXD_PARTNER_ID = "019a6ec7-43b1-7da4-a2d8-8c84acb387b4";
 
@@ -48,9 +50,15 @@ const formSchema = z.object({
   partnerId: z.string().optional(),
 });
 
-const ExamplesTable = ({ superAdmin }: { superAdmin: boolean }) => {
+interface ExamplesTableProps {
+  superAdmin: boolean;
+  userPartnerId?: string | null;
+}
+
+const ExamplesTable = ({ superAdmin, userPartnerId }: ExamplesTableProps) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showOnlyMyPartner, setShowOnlyMyPartner] = useState(true);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -176,8 +184,25 @@ const ExamplesTable = ({ superAdmin }: { superAdmin: boolean }) => {
         </Dialog>
       </div>
 
+      {superAdmin && (
+        <div className="flex items-center space-x-2 mb-4">
+          <Switch
+            id="partner-filter"
+            checked={showOnlyMyPartner}
+            onCheckedChange={setShowOnlyMyPartner}
+          />
+          <Label htmlFor="partner-filter">Show only my partner</Label>
+        </div>
+      )}
+
       <DataTable
+        key={showOnlyMyPartner ? "filtered" : "all"}
         getData={saGetExampleTableData}
+        getDataParams={
+          superAdmin && showOnlyMyPartner && userPartnerId
+            ? { partnerId: userPartnerId }
+            : undefined
+        }
         defaultSort={{
           name: "title",
           direction: "desc",

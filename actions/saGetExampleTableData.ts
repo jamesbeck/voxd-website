@@ -13,8 +13,10 @@ const saGetExampleTableData = async ({
   pageSize = 100,
   sortField = "id",
   sortDirection = "asc",
+  partnerId,
 }: ServerActionReadParams & {
   organisationId?: string;
+  partnerId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -35,6 +37,10 @@ const saGetExampleTableData = async ({
       // Partners can only see their own examples
       if (accessToken.partner && !accessToken.superAdmin) {
         qb.where("example.partnerId", accessToken.partnerId);
+      }
+      // Super admins can filter by partner
+      if (accessToken.superAdmin && partnerId) {
+        qb.where("example.partnerId", partnerId);
       }
     });
 
