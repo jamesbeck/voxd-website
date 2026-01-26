@@ -2,6 +2,7 @@
 
 import db from "@/database/db";
 import { UAParser } from "ua-parser-js";
+import { isPreviewBot } from "@/lib/isPreviewBot";
 
 type RecordQuoteViewParams = {
   quoteId: string;
@@ -18,6 +19,11 @@ export async function saRecordQuoteView({
   userAgent,
   loggedInEmail,
 }: RecordQuoteViewParams): Promise<void> {
+  // Skip tracking for preview bots (iMessage, Slack, email clients, etc.)
+  if (isPreviewBot(userAgent)) {
+    return;
+  }
+
   // Parse user agent
   const parser = new UAParser(userAgent || "");
   const result = parser.getResult();

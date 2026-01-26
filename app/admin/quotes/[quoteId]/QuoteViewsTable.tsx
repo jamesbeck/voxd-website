@@ -218,6 +218,31 @@ const QuoteViewsTable = ({ quoteId }: { quoteId: string }) => {
               <span className="font-mono text-xs">{row.ipAddress || "-"}</span>
             ),
           },
+          {
+            label: "User Agent",
+            name: "userAgent",
+            sort: false,
+            tooltip: "The full user agent string sent by the browser",
+            format: (row: any) => {
+              if (!row.userAgent) return "-";
+              const truncated =
+                row.userAgent.length > 40
+                  ? row.userAgent.substring(0, 40) + "..."
+                  : row.userAgent;
+              return (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="font-mono text-xs cursor-help">
+                      {truncated}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-md break-all">
+                    <p className="font-mono text-xs">{row.userAgent}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            },
+          },
         ]}
       />
     </div>
