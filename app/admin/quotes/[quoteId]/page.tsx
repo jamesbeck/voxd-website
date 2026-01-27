@@ -250,6 +250,7 @@ export default async function Page({
                 dataSourcesAndIntegrations={quote.dataSourcesAndIntegrations}
                 otherNotes={quote.otherNotes}
                 status={quote.status}
+                isSuperAdmin={isSuperAdmin}
               />
             </TabsContent>
             <TabsContent value="pitch">

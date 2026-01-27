@@ -42,14 +42,16 @@ export default function EditSpecificationForm({
   dataSourcesAndIntegrations,
   otherNotes,
   status,
+  isSuperAdmin = false,
 }: {
   quoteId: string;
   objectives: string | null;
   dataSourcesAndIntegrations: string | null;
   otherNotes: string | null;
   status: string;
+  isSuperAdmin?: boolean;
 }) {
-  const isReadOnly = status !== "Draft" && status !== "Pitched to Client";
+  const isReadOnly = !isSuperAdmin && status !== "Draft" && status !== "Pitched to Client";
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
