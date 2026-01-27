@@ -91,8 +91,8 @@ export default function FloatingTableOfContents({
   return (
     <>
       {/* Desktop sticky sidebar - wrapped in a div to be proper flex child */}
-      <div className="hidden xl:block flex-shrink-0">
-        <nav className="sticky top-30">
+      <div className="hidden xl:block flex-shrink-0 self-start sticky top-[100px]">
+        <nav>
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-[220px]">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
               Contents

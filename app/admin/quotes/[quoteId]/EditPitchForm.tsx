@@ -423,6 +423,7 @@ export default function EditPitchForm({
               <FormItem>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {[
+                    { id: "case-studies", label: "Case Studies" },
                     { id: "how-it-works", label: "How It Works" },
                     { id: "portal", label: "Portal" },
                     { id: "service", label: "Service" },

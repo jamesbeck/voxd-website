@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 import Alert from "@/components/admin/Alert";
 import { Spinner } from "@/components/ui/spinner";
 import saSubmitQuoteForCostPricing from "@/actions/saSubmitQuoteForCostPricing";
+import saMarkQuotePitchedToClient from "@/actions/saMarkQuotePitchedToClient";
 import saDeleteQuote from "@/actions/saDeleteQuote";
 import saReopenQuote from "@/actions/saReopenQuote";
 import saReturnQuoteToDraft from "@/actions/saReturnQuoteToDraft";
+import saReturnQuoteToPitched from "@/actions/saReturnQuoteToPitched";
 import saReturnQuoteToCostPricingReceived from "@/actions/saReturnQuoteToCostPricingReceived";
 import saMarkQuoteSentToClient from "@/actions/saMarkQuoteSentToClient";
 import saCloseQuote from "@/actions/saCloseQuote";
@@ -48,8 +50,10 @@ export default function QuoteActions({
   isSuperAdmin?: boolean;
 }) {
   const [isSubmittingForPricing, setIsSubmittingForPricing] = useState(false);
+  const [isPitching, setIsPitching] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReturningToDraft, setIsReturningToDraft] = useState(false);
+  const [isReturningToPitched, setIsReturningToPitched] = useState(false);
   const [isReturningToCostPricing, setIsReturningToCostPricing] =
     useState(false);
   const [isMarkingSentToClient, setIsMarkingSentToClient] = useState(false);
@@ -60,16 +64,40 @@ export default function QuoteActions({
 
   const router = useRouter();
 
-  // SuperAdmins see "Mark as With Client" instead of "Submit to Voxd" in Draft status
-  const canSubmitForPricing = status === "Draft" && !isSuperAdmin;
+  // SuperAdmins can also "Mark as Proposal with Client" from Draft or Pitched to Client status
+  const canPitchToClient = status === "Draft";
+  const canSubmitForPricing =
+    status === "Draft" || status === "Pitched to Client";
   const canReturnToDraft =
     status !== "Draft" && status !== "Closed Won" && status !== "Closed Lost";
+  const canReturnToPitched =
+    status === "Sent to Voxd for Cost Pricing" ||
+    status === "Cost Pricing Received from Voxd";
   const canMarkSentToClient =
     status === "Cost Pricing Received from Voxd" ||
-    (status === "Draft" && isSuperAdmin);
-  const canClose = status === "With Client";
-  const canReturnToCostPricing = status === "With Client";
+    ((status === "Draft" || status === "Pitched to Client") && isSuperAdmin);
+  const canClose = status === "Proposal with Client";
+  const canReturnToCostPricing = status === "Proposal with Client";
   const canReopen = status === "Closed Won" || status === "Closed Lost";
+
+  const pitchToClient = async () => {
+    setIsPitching(true);
+    const saResponse = await saMarkQuotePitchedToClient({ quoteId });
+
+    if (!saResponse.success) {
+      toast.error(
+        `Error Marking as Pitched: ${
+          saResponse.error || "There was an error marking as pitched"
+        }`,
+      );
+      setIsPitching(false);
+      return;
+    }
+    // If successful
+    toast.success(`Successfully marked ${name} as pitched to client`);
+    setIsPitching(false);
+    router.refresh();
+  };
 
   const submitForPricing = async () => {
     setIsSubmittingForPricing(true);
@@ -127,24 +155,44 @@ export default function QuoteActions({
     router.refresh();
   };
 
+  const returnToPitched = async () => {
+    setIsReturningToPitched(true);
+    const saResponse = await saReturnQuoteToPitched({ quoteId });
+
+    if (!saResponse.success) {
+      toast.error(
+        `Error Returning to Pitched: ${
+          saResponse.error || "There was an error returning to pitched status"
+        }`,
+      );
+      setIsReturningToPitched(false);
+      return;
+    }
+    // If successful
+    toast.success(`Successfully returned ${name} to pitched status`);
+    setIsReturningToPitched(false);
+    router.refresh();
+  };
+
   const markSentToClient = async () => {
     setIsMarkingSentToClient(true);
     const saResponse = await saMarkQuoteSentToClient({
       quoteId,
-      skipFromDraft: status === "Draft",
+      skipFromDraft: status === "Draft" || status === "Pitched to Client",
     });
 
     if (!saResponse.success) {
       toast.error(
-        `Error Marking as With Client: ${
-          saResponse.error || "There was an error marking as with client"
+        `Error Marking as Proposal with Client: ${
+          saResponse.error ||
+          "There was an error marking as proposal with client"
         }`,
       );
       setIsMarkingSentToClient(false);
       return;
     }
     // If successful
-    toast.success(`Successfully marked ${name} as with client`);
+    toast.success(`Successfully marked ${name} as proposal with client`);
     setIsMarkingSentToClient(false);
     router.refresh();
   };
@@ -227,6 +275,20 @@ export default function QuoteActions({
 
   return (
     <div className="flex items-center gap-2">
+      {canPitchToClient && (
+        <Alert
+          title={`Mark ${name} as Pitched`}
+          description="Are you sure you want to mark this quote as pitched to the client?"
+          actionText="Mark as Pitched"
+          onAction={pitchToClient}
+          destructive={false}
+        >
+          <Button className="cursor-pointer" size="sm">
+            {isPitching ? <Spinner /> : null}
+            Mark as Pitched
+          </Button>
+        </Alert>
+      )}
       {canSubmitForPricing && (
         <Alert
           title={`Submit ${name} for Pricing`}
@@ -243,15 +305,15 @@ export default function QuoteActions({
       )}
       {canMarkSentToClient && (
         <Alert
-          title={`Mark ${name} as With Client`}
-          description="Are you sure you want to mark this quote as with client?"
-          actionText="Mark as With Client"
+          title={`Mark ${name} as Proposal with Client`}
+          description="Are you sure you want to mark this quote as proposal with client?"
+          actionText="Mark as Proposal with Client"
           onAction={markSentToClient}
           destructive={false}
         >
           <Button className="cursor-pointer" size="sm">
             {isMarkingSentToClient ? <Spinner /> : null}
-            Mark as With Client
+            Mark as Proposal with Client
           </Button>
         </Alert>
       )}
@@ -365,6 +427,29 @@ export default function QuoteActions({
               </Alert>
             </>
           )}
+          {canReturnToPitched && (
+            <>
+              <Alert
+                title="Return to Pitched to Client"
+                description="Are you sure you want to return this quote to 'Pitched to Client' status?"
+                actionText="Return to Pitched"
+                onAction={returnToPitched}
+                destructive={false}
+              >
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="cursor-pointer"
+                >
+                  {isReturningToPitched ? (
+                    <Spinner className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Undo2 className="h-4 w-4 mr-2" />
+                  )}
+                  Return to Pitched to Client
+                </DropdownMenuItem>
+              </Alert>
+            </>
+          )}
           {canReturnToCostPricing && (
             <>
               <Alert
@@ -393,7 +478,7 @@ export default function QuoteActions({
               <DropdownMenuSeparator />
               <Alert
                 title="Re-open Quote"
-                description="Are you sure you want to re-open this quote? This will set the quote back to 'With Client' status."
+                description="Are you sure you want to re-open this quote? This will set the quote back to 'Proposal with Client' status."
                 actionText="Re-open Quote"
                 onAction={reopenQuote}
                 destructive={false}

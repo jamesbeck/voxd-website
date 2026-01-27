@@ -37,11 +37,11 @@ const saCloseQuote = async ({
     };
   }
 
-  // Only allow closing if the quote is in "With Client" status
-  if (existingQuote.status !== "With Client") {
+  // Only allow closing if the quote is in "Proposal with Client" status
+  if (existingQuote.status !== "Proposal with Client") {
     return {
       success: false,
-      error: "Quote can only be closed when in 'With Client' status",
+      error: "Quote can only be closed when in 'Proposal with Client' status",
     };
   }
 

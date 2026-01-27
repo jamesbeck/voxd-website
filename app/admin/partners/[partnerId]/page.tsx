@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import EditPartnerForm from "./editPartnerForm";
 import getPartnerById from "@/lib/getPartnerById";
 import LogoTab from "./logoTab";
+import QuotesTable from "@/components/admin/QuotesTable";
 
 export default async function Page({
   params,
@@ -39,6 +40,7 @@ export default async function Page({
             <TabsList>
               <TabsTrigger value="edit">Edit Partner</TabsTrigger>
               <TabsTrigger value="logo">Logo</TabsTrigger>
+              <TabsTrigger value="quotes">Quotes</TabsTrigger>
               {/* <TabsTrigger value="sessions">Sessions</TabsTrigger> */}
             </TabsList>
 
@@ -58,6 +60,13 @@ export default async function Page({
                 partnerId={partner.id}
                 partnerDomain={partner.domain}
                 logoFileExtension={partner.logoFileExtension ?? null}
+              />
+            </TabsContent>
+            <TabsContent value="quotes">
+              <QuotesTable
+                userPartnerId={partner.id}
+                isSuperAdmin={true}
+                showPartnerToggle={false}
               />
             </TabsContent>
             {/* <TabsContent value="sessions">

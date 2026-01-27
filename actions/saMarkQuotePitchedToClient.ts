@@ -3,7 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saReopenQuote = async ({
+const saMarkQuotePitchedToClient = async ({
   quoteId,
 }: {
   quoteId: string;
@@ -28,23 +28,20 @@ const saReopenQuote = async ({
     };
   }
 
-  // Only allow reopening if the quote is in a closed status
-  if (
-    existingQuote.status !== "Closed Won" &&
-    existingQuote.status !== "Closed Lost"
-  ) {
+  // Only allow marking as pitched from Draft status
+  if (existingQuote.status !== "Draft") {
     return {
       success: false,
-      error: "Quote can only be reopened when in a closed status",
+      error: "Quote can only be marked as pitched when in 'Draft' status",
     };
   }
 
-  // Update the quote status back to 'Proposal with Client'
+  // Update the quote status to 'Pitched to Client'
   await db("quote").where({ id: quoteId }).update({
-    status: "Proposal with Client",
+    status: "Pitched to Client",
   });
 
   return { success: true };
 };
 
-export default saReopenQuote;
+export default saMarkQuotePitchedToClient;

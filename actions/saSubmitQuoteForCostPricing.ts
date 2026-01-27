@@ -28,11 +28,15 @@ const saSubmitQuoteForCostPricing = async ({
     };
   }
 
-  // Only allow submitting for cost pricing if the quote is in Draft status
-  if (existingQuote.status !== "Draft") {
+  // Only allow submitting for cost pricing if the quote is in Draft or Pitched to Client status
+  if (
+    existingQuote.status !== "Draft" &&
+    existingQuote.status !== "Pitched to Client"
+  ) {
     return {
       success: false,
-      error: "Quote has already been submitted for cost pricing",
+      error:
+        "Quote must be in 'Draft' or 'Pitched to Client' status before submitting for cost pricing",
     };
   }
 

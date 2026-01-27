@@ -49,7 +49,7 @@ export default function EditSpecificationForm({
   otherNotes: string | null;
   status: string;
 }) {
-  const isReadOnly = status !== "Draft";
+  const isReadOnly = status !== "Draft" && status !== "Pitched to Client";
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 

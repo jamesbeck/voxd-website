@@ -26,6 +26,7 @@ export type PublicPitch = {
   generatedPitch: string | null;
   pitchHideSections: string[] | null;
   heroImageFileExtension: string | null;
+  partnerId: string;
   partner: {
     name: string;
     colour: string | null;
@@ -63,12 +64,13 @@ export const getPitchForPublic = async ({
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
       "organisation.logoDarkBackground as organisationLogoDarkBackground",
+      "partner.id as partnerId",
       "partner.name as partnerName",
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
       "adminUser.name as createdByName",
-      "adminUser.email as createdByEmail"
+      "adminUser.email as createdByEmail",
     )
     .first();
 
@@ -102,7 +104,7 @@ export const getPitchForPublic = async ({
         content: m.content,
         time: m.time,
         annotation: m.annotation || null,
-      })
+      }),
     ),
   }));
 
@@ -121,6 +123,7 @@ export const getPitchForPublic = async ({
     generatedPitch: quote.generatedPitch,
     pitchHideSections: quote.pitchHideSections,
     heroImageFileExtension: quote.heroImageFileExtension,
+    partnerId: quote.partnerId,
     partner: {
       name: quote.partnerName,
       colour: quote.partnerColour,

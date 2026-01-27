@@ -3,7 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saReturnQuoteToCostPricingReceived = async ({
+const saReturnQuoteToPitched = async ({
   quoteId,
 }: {
   quoteId: string;
@@ -15,27 +15,30 @@ const saReturnQuoteToCostPricingReceived = async ({
     };
   }
 
-  // Check quote exists and is in the right status
-  const quote = await db("quote").where({ id: quoteId }).first();
+  // Find the existing quote
+  const quote = await db("quote").select("*").where({ id: quoteId }).first();
 
   if (!quote) {
     return { success: false, error: "Quote not found" };
   }
 
-  if (quote.status !== "Proposal with Client") {
+  if (
+    quote.status !== "Sent to Voxd for Cost Pricing" &&
+    quote.status !== "Cost Pricing Received from Voxd"
+  ) {
     return {
       success: false,
       error:
-        "Quote must be in 'Proposal with Client' status to return to Cost Pricing Received",
+        "Quote must be in 'Sent to Voxd for Cost Pricing' or 'Cost Pricing Received from Voxd' status to return to Pitched to Client",
     };
   }
 
   // Update quote status
   await db("quote")
     .where({ id: quoteId })
-    .update({ status: "Cost Pricing Received from Voxd" });
+    .update({ status: "Pitched to Client" });
 
   return { success: true };
 };
 
-export default saReturnQuoteToCostPricingReceived;
+export default saReturnQuoteToPitched;

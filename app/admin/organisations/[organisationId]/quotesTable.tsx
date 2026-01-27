@@ -11,6 +11,12 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case "Draft":
       return <Badge variant="secondary">{status}</Badge>;
+    case "Pitched to Client":
+      return (
+        <Badge className="bg-cyan-500 text-white border-transparent">
+          Pitched to Client
+        </Badge>
+      );
     case "Sent to Voxd for Cost Pricing":
       return (
         <Badge className="bg-amber-500 text-white border-transparent">
@@ -23,10 +29,10 @@ const getStatusBadge = (status: string) => {
           Pricing Received
         </Badge>
       );
-    case "With Client":
+    case "Proposal with Client":
       return (
         <Badge className="bg-purple-500 text-white border-transparent">
-          With Client
+          Proposal with Client
         </Badge>
       );
     case "Closed":

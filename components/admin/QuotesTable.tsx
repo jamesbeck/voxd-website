@@ -21,6 +21,12 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case "Draft":
       return <Badge variant="secondary">{status}</Badge>;
+    case "Pitched to Client":
+      return (
+        <Badge className="bg-cyan-500 text-white border-transparent">
+          Pitched to Client
+        </Badge>
+      );
     case "Sent to Voxd for Cost Pricing":
       return (
         <Badge className="bg-amber-500 text-white border-transparent">
@@ -33,10 +39,10 @@ const getStatusBadge = (status: string) => {
           Pricing Received
         </Badge>
       );
-    case "With Client":
+    case "Proposal with Client":
       return (
         <Badge className="bg-purple-500 text-white border-transparent">
-          With Client
+          Proposal with Client
         </Badge>
       );
     case "Closed Won":
@@ -72,12 +78,14 @@ interface QuotesTableProps {
   organisationId?: string;
   isSuperAdmin?: boolean;
   userPartnerId?: string | null;
+  showPartnerToggle?: boolean;
 }
 
 const QuotesTable = ({
   organisationId,
   isSuperAdmin,
   userPartnerId,
+  showPartnerToggle = true,
 }: QuotesTableProps) => {
   const [showOnlyMyPartner, setShowOnlyMyPartner] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("open");
@@ -85,9 +93,10 @@ const QuotesTable = ({
   const statusTabs = [
     { value: "open", label: "Open Quotes" },
     { value: "Draft", label: "Draft" },
+    { value: "Pitched to Client", label: "Pitched" },
     { value: "Sent to Voxd for Cost Pricing", label: "Sent to Voxd" },
     { value: "Cost Pricing Received from Voxd", label: "Pricing Received" },
-    { value: "With Client", label: "With Client" },
+    { value: "Proposal with Client", label: "With Client" },
     { value: "Closed Won", label: "Closed Won" },
     { value: "Closed Lost", label: "Closed Lost" },
     { value: "all", label: "All Quotes" },
@@ -231,7 +240,7 @@ const QuotesTable = ({
           ))}
         </TabsList>
       </Tabs>
-      {isSuperAdmin && !organisationId && (
+      {isSuperAdmin && !organisationId && showPartnerToggle && (
         <div className="flex items-center space-x-2 mb-4">
           <Switch
             id="partner-filter"

@@ -5,6 +5,7 @@ import { Check, X } from "lucide-react";
 
 const steps = [
   { key: "Draft", label: "Draft" },
+  { key: "Pitched to Client", label: "Pitched to Client" },
   {
     key: "Sent to Voxd for Cost Pricing",
     label: "Sent to Voxd for Cost Pricing",
@@ -13,7 +14,7 @@ const steps = [
     key: "Cost Pricing Received from Voxd",
     label: "Cost Pricing Received from Voxd",
   },
-  { key: "With Client", label: "With Client" },
+  { key: "Proposal with Client", label: "Proposal with Client" },
   { key: "Closed", label: "Closed" }, // This will match both "Closed Won" and "Closed Lost"
 ];
 
