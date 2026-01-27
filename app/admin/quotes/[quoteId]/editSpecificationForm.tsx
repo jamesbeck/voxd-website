@@ -51,7 +51,8 @@ export default function EditSpecificationForm({
   status: string;
   isSuperAdmin?: boolean;
 }) {
-  const isReadOnly = !isSuperAdmin && status !== "Draft" && status !== "Pitched to Client";
+  const isReadOnly =
+    !isSuperAdmin && status !== "Draft" && status !== "Pitched to Client";
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
