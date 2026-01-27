@@ -30,7 +30,7 @@ const saMarkQuoteSentToClient = async ({
     };
   }
 
-  // Allow marking as sent to client from "Cost Pricing Received from Voxd" status
+  // Allow marking as with client from "Cost Pricing Received from Voxd" status
   // Or from "Draft" status if skipFromDraft is true (for superAdmins)
   const allowedStatuses = ["Cost Pricing Received from Voxd"];
   if (skipFromDraft) {
@@ -41,14 +41,14 @@ const saMarkQuoteSentToClient = async ({
     return {
       success: false,
       error: skipFromDraft
-        ? "Quote can only be marked as sent to client when in 'Draft' or 'Cost Pricing Received from Voxd' status"
-        : "Quote can only be marked as sent to client when in 'Cost Pricing Received from Voxd' status",
+        ? "Quote can only be marked as with client when in 'Draft' or 'Cost Pricing Received from Voxd' status"
+        : "Quote can only be marked as with client when in 'Cost Pricing Received from Voxd' status",
     };
   }
 
-  // Update the quote status to 'Sent to Client'
+  // Update the quote status to 'With Client'
   await db("quote").where({ id: quoteId }).update({
-    status: "Sent to Client",
+    status: "With Client",
   });
 
   return { success: true };

@@ -22,7 +22,7 @@ const saReturnQuoteToCostPricingReceived = async ({
     return { success: false, error: "Quote not found" };
   }
 
-  if (quote.status !== "Sent to Client") {
+  if (quote.status !== "With Client") {
     return {
       success: false,
       error:

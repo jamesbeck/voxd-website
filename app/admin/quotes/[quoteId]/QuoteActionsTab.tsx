@@ -139,6 +139,9 @@ export default function QuoteActionsTab({
       label: "Action",
       name: "action",
       sort: true,
+      format: (row) => (
+        <div className="whitespace-normal break-words">{row.action}</div>
+      ),
     },
     {
       label: "By",
@@ -245,6 +248,14 @@ export default function QuoteActionsTab({
                 onClick={() => handleDateChange(addDays(new Date(), 1))}
               >
                 Tomorrow
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-7 px-2"
+                onClick={() => handleDateChange(addDays(new Date(), 2))}
+              >
+                +2 days
               </Button>
               <Button
                 variant="outline"

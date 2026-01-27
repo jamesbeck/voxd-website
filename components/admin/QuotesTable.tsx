@@ -8,6 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import { format, isToday, isPast, startOfDay } from "date-fns";
 
@@ -27,10 +33,10 @@ const getStatusBadge = (status: string) => {
           Pricing Received
         </Badge>
       );
-    case "Sent to Client":
+    case "With Client":
       return (
         <Badge className="bg-purple-500 text-white border-transparent">
-          Sent to Client
+          With Client
         </Badge>
       );
     case "Closed Won":
@@ -81,7 +87,7 @@ const QuotesTable = ({
     { value: "Draft", label: "Draft" },
     { value: "Sent to Voxd for Cost Pricing", label: "Sent to Voxd" },
     { value: "Cost Pricing Received from Voxd", label: "Pricing Received" },
-    { value: "Sent to Client", label: "With Client" },
+    { value: "With Client", label: "With Client" },
     { value: "Closed Won", label: "Closed Won" },
     { value: "Closed Lost", label: "Closed Lost" },
     { value: "all", label: "All Quotes" },
@@ -123,18 +129,50 @@ const QuotesTable = ({
       name: "nextActionDate",
       sort: true,
       format: (row: any) => {
+        // If no next action text and quote is not closed, show red NONE badge
+        if (!row.nextAction) {
+          const isClosed =
+            row.status === "Closed Won" || row.status === "Closed Lost";
+          if (!isClosed) {
+            return (
+              <Badge
+                className="border-transparent"
+                style={{ backgroundColor: "#dc2626", color: "white" }}
+              >
+                NONE
+              </Badge>
+            );
+          }
+          return "-";
+        }
         if (!row.nextActionDate) return "-";
         const date = new Date(row.nextActionDate);
         const dateStr = format(date, "dd/MM/yyyy");
         const isOverdue = isToday(date) || isPast(startOfDay(date));
-        if (isOverdue) {
-          return (
-            <Badge className="bg-red-600 text-white border-transparent text-sm px-3 py-1">
-              {dateStr}
-            </Badge>
-          );
-        }
-        return dateStr;
+
+        const content = isOverdue ? (
+          <Badge
+            className="border-transparent"
+            style={{ backgroundColor: "#dc2626", color: "white" }}
+          >
+            {dateStr}
+          </Badge>
+        ) : (
+          <span>{dateStr}</span>
+        );
+
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-help">{content}</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">{row.nextAction}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
       },
     },
     {

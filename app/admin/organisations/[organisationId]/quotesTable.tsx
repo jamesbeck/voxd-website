@@ -23,10 +23,10 @@ const getStatusBadge = (status: string) => {
           Pricing Received
         </Badge>
       );
-    case "Sent to Client":
+    case "With Client":
       return (
         <Badge className="bg-purple-500 text-white border-transparent">
-          Sent to Client
+          With Client
         </Badge>
       );
     case "Closed":

@@ -39,9 +39,9 @@ const saReopenQuote = async ({
     };
   }
 
-  // Update the quote status back to 'Sent to Client'
+  // Update the quote status back to 'With Client'
   await db("quote").where({ id: quoteId }).update({
-    status: "Sent to Client",
+    status: "With Client",
   });
 
   return { success: true };

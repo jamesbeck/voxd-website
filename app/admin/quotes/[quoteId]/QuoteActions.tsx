@@ -60,15 +60,15 @@ export default function QuoteActions({
 
   const router = useRouter();
 
-  // SuperAdmins see "Mark as Sent to Client" instead of "Submit to Voxd" in Draft status
+  // SuperAdmins see "Mark as With Client" instead of "Submit to Voxd" in Draft status
   const canSubmitForPricing = status === "Draft" && !isSuperAdmin;
   const canReturnToDraft =
     status !== "Draft" && status !== "Closed Won" && status !== "Closed Lost";
   const canMarkSentToClient =
     status === "Cost Pricing Received from Voxd" ||
     (status === "Draft" && isSuperAdmin);
-  const canClose = status === "Sent to Client";
-  const canReturnToCostPricing = status === "Sent to Client";
+  const canClose = status === "With Client";
+  const canReturnToCostPricing = status === "With Client";
   const canReopen = status === "Closed Won" || status === "Closed Lost";
 
   const submitForPricing = async () => {
@@ -136,15 +136,15 @@ export default function QuoteActions({
 
     if (!saResponse.success) {
       toast.error(
-        `Error Marking as Sent to Client: ${
-          saResponse.error || "There was an error marking as sent to client"
+        `Error Marking as With Client: ${
+          saResponse.error || "There was an error marking as with client"
         }`,
       );
       setIsMarkingSentToClient(false);
       return;
     }
     // If successful
-    toast.success(`Successfully marked ${name} as sent to client`);
+    toast.success(`Successfully marked ${name} as with client`);
     setIsMarkingSentToClient(false);
     router.refresh();
   };
@@ -243,15 +243,15 @@ export default function QuoteActions({
       )}
       {canMarkSentToClient && (
         <Alert
-          title={`Mark ${name} as Sent to Client`}
-          description="Are you sure you want to mark this quote as sent to the client?"
-          actionText="Mark as Sent to Client"
+          title={`Mark ${name} as With Client`}
+          description="Are you sure you want to mark this quote as with client?"
+          actionText="Mark as With Client"
           onAction={markSentToClient}
           destructive={false}
         >
           <Button className="cursor-pointer" size="sm">
             {isMarkingSentToClient ? <Spinner /> : null}
-            Mark as Sent to Client
+            Mark as With Client
           </Button>
         </Alert>
       )}

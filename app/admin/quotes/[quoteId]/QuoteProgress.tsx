@@ -13,7 +13,7 @@ const steps = [
     key: "Cost Pricing Received from Voxd",
     label: "Cost Pricing Received from Voxd",
   },
-  { key: "Sent to Client", label: "With Client" },
+  { key: "With Client", label: "With Client" },
   { key: "Closed", label: "Closed" }, // This will match both "Closed Won" and "Closed Lost"
 ];
 

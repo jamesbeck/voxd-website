@@ -145,13 +145,6 @@ export default async function Page({
               </TabsList>
 
               <div className="flex items-center gap-2 ml-auto">
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/admin/quotes`}>
-                    <ChevronLeft className="h-4 w-4" />
-                    Back
-                  </Link>
-                </Button>
-
                 <QuoteActions
                   quoteId={quote.id}
                   name={quote.title}
