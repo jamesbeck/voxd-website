@@ -564,7 +564,7 @@ export default async function PublicPitchPage({
                 <p className="text-gray-600">
                   These case studies showcase the broad range of use cases for
                   AI chatbots across different industries. While each business
-                  is unique, they demonstrate the versatility and value that
+                  is unique, they demonstrate the versatility and value that{" "}
                   {pitch.partner.name}-powered chatbots can bring to your
                   organisation.
                 </p>
