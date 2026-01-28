@@ -16,9 +16,7 @@ export default async function Page() {
       <BreadcrumbSetter breadcrumbs={[{ label: "Admin" }]} />
       <H1>{adminAreaTitle}</H1>
       {!!accessToken.superAdmin && <p>Welcome, Master Admin!</p>}
-      {!!accessToken.partner && (
-        <p>Welcome to the your VOXD partner admin area.</p>
-      )}
+      {!!accessToken.partner && <p>Welcome to the your partner admin area.</p>}
     </Container>
   );
 }
