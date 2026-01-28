@@ -565,7 +565,8 @@ export default async function PublicPitchPage({
                   These case studies showcase the broad range of use cases for
                   AI chatbots across different industries. While each business
                   is unique, they demonstrate the versatility and value that
-                  Voxd-powered chatbots can bring to your organisation.
+                  {pitch.partner.name}-powered chatbots can bring to your
+                  organisation.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
