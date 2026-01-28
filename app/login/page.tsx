@@ -1,7 +1,8 @@
 import LoginForm from "@/components/LoginForm";
-import { verifyIdToken } from "@/lib/auth/verifyToken";
+import { verifyIdToken, verifyAccessToken } from "@/lib/auth/verifyToken";
 import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
@@ -18,7 +19,13 @@ export default async function LoginPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const idToken = await verifyIdToken(false);
+  const accessToken = await verifyAccessToken(false);
   const { redirectTo } = await searchParams;
+
+  // If already logged in, redirect to admin (or the requested redirect destination)
+  if (accessToken) {
+    redirect(typeof redirectTo === "string" ? redirectTo : "/admin");
+  }
 
   const partner = await getPartnerFromHeaders();
 
