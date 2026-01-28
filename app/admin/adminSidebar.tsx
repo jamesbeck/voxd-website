@@ -16,6 +16,7 @@ import {
   FolderOpen,
   ScrollText,
   Ticket,
+  Link2,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -119,6 +120,11 @@ const menuItems: MenuItem[] = [
     title: "Admin Users",
     url: "/admin/adminUsers",
     icon: UserCog,
+  },
+  {
+    title: "Connected Accounts",
+    url: "/admin/oauth-accounts",
+    icon: Link2,
   },
   {
     roles: ["admin"],
