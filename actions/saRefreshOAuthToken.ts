@@ -76,12 +76,10 @@ const saRefreshOAuthToken = async ({
 
     // Mark the account as error status if refresh fails
     try {
-      await db("oauthAccount")
-        .where({ id: oauthAccountId })
-        .update({
-          status: "error",
-          updatedAt: new Date(),
-        });
+      await db("oauthAccount").where({ id: oauthAccountId }).update({
+        status: "error",
+        updatedAt: new Date(),
+      });
     } catch (updateError) {
       console.error("Error updating account status:", updateError);
     }
@@ -100,7 +98,7 @@ export default saRefreshOAuthToken;
  * Automatically refreshes if expired
  */
 export async function getValidAccessToken(
-  oauthAccountId: string
+  oauthAccountId: string,
 ): Promise<string | null> {
   const oauthAccount = await db("oauthAccount")
     .where({ id: oauthAccountId })

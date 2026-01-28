@@ -37,7 +37,10 @@ const saDisconnectOAuthAccount = async ({
     if (oauthAccount.adminUserId !== accessToken.adminUserId) {
       // Super admins can disconnect any account
       if (!accessToken.superAdmin) {
-        return { success: false, error: "You can only disconnect your own accounts" };
+        return {
+          success: false,
+          error: "You can only disconnect your own accounts",
+        };
       }
     }
 
@@ -47,7 +50,9 @@ const saDisconnectOAuthAccount = async ({
         const refreshToken = decryptToken(oauthAccount.refreshTokenEncrypted);
         await revokeToken(refreshToken);
       } else if (oauthAccount.accessTokenEncrypted) {
-        const accessTokenValue = decryptToken(oauthAccount.accessTokenEncrypted);
+        const accessTokenValue = decryptToken(
+          oauthAccount.accessTokenEncrypted,
+        );
         await revokeToken(accessTokenValue);
       }
     } catch (revokeError) {
@@ -56,13 +61,11 @@ const saDisconnectOAuthAccount = async ({
     }
 
     // Update the account status
-    await db("oauthAccount")
-      .where({ id: oauthAccountId })
-      .update({
-        status: "revoked",
-        revokedAt: new Date(),
-        updatedAt: new Date(),
-      });
+    await db("oauthAccount").where({ id: oauthAccountId }).update({
+      status: "revoked",
+      revokedAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     // Log the action
     await addLog({
@@ -83,7 +86,10 @@ const saDisconnectOAuthAccount = async ({
     console.error("Error disconnecting OAuth account:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to disconnect OAuth account",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to disconnect OAuth account",
     };
   }
 };

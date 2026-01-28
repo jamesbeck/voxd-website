@@ -72,7 +72,7 @@ export function getGoogleAuthUrl(state: string, scopes?: string[]): string {
  * Exchange authorization code for access and refresh tokens
  */
 export async function exchangeCodeForTokens(
-  code: string
+  code: string,
 ): Promise<GoogleTokenResponse> {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -107,7 +107,7 @@ export async function exchangeCodeForTokens(
  * Refresh an access token using a refresh token
  */
 export async function refreshAccessToken(
-  refreshToken: string
+  refreshToken: string,
 ): Promise<GoogleTokenResponse> {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -160,7 +160,7 @@ export async function revokeToken(token: string): Promise<void> {
  * Get user info from Google using an access token
  */
 export async function getGoogleUserInfo(
-  accessToken: string
+  accessToken: string,
 ): Promise<GoogleUserInfo> {
   const response = await fetch(GOOGLE_USERINFO_URL, {
     headers: {

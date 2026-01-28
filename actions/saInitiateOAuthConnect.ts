@@ -59,7 +59,10 @@ const saInitiateOAuthConnect = async ({
     console.error("Error initiating OAuth connect:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to initiate OAuth connection",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to initiate OAuth connection",
     };
   }
 };

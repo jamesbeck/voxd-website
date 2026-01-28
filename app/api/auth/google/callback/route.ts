@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const errorDescription = searchParams.get("error_description") || error;
     console.error("Google OAuth error:", error, errorDescription);
     return NextResponse.redirect(
-      `${errorPageUrl}?error=${encodeURIComponent(errorDescription)}`
+      `${errorPageUrl}?error=${encodeURIComponent(errorDescription)}`,
     );
   }
 
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   if (!code || !state) {
     console.error("Missing code or state parameter");
     return NextResponse.redirect(
-      `${errorPageUrl}?error=${encodeURIComponent("Missing authorization code or state")}`
+      `${errorPageUrl}?error=${encodeURIComponent("Missing authorization code or state")}`,
     );
   }
 
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     if (!oauthState) {
       console.error("Invalid or expired state:", state);
       return NextResponse.redirect(
-        `${errorPageUrl}?error=${encodeURIComponent("Invalid or expired authorization state. Please try again.")}`
+        `${errorPageUrl}?error=${encodeURIComponent("Invalid or expired authorization state. Please try again.")}`,
       );
     }
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate token expiry
     const accessTokenExpiresAt = new Date(
-      Date.now() + tokenResponse.expires_in * 1000
+      Date.now() + tokenResponse.expires_in * 1000,
     );
 
     // Check if this account is already connected
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
     const errorMessage =
       err instanceof Error ? err.message : "An unexpected error occurred";
     return NextResponse.redirect(
-      `${errorPageUrl}?error=${encodeURIComponent(errorMessage)}`
+      `${errorPageUrl}?error=${encodeURIComponent(errorMessage)}`,
     );
   }
 }

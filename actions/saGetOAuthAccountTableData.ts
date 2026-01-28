@@ -79,7 +79,7 @@ const saGetOAuthAccountTableData = async ({
       "oauthAccount.revokedAt",
       "oauthAccount.scopes",
       "adminUser.name as adminUserName",
-      "adminUser.email as adminUserEmail"
+      "adminUser.email as adminUserEmail",
     )
     .orderByRaw(`"oauthAccount"."${sortField}" ${sortDirection} NULLS LAST`)
     .limit(pageSize)
