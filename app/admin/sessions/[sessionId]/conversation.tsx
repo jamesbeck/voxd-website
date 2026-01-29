@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Bot, Clock, Cog, Coins, Type, Wrench } from "lucide-react";
 import MessageActions from "./MessageActions";
+import ReactMarkdown from "react-markdown";
 
 type Ticket = {
   id: string;
@@ -59,7 +60,7 @@ export default function Conversation({
           const timeSincePreviousMessage = previousMessage
             ? differenceInMilliseconds(
                 message.createdAt,
-                previousMessage.createdAt
+                previousMessage.createdAt,
               )
             : null;
 
@@ -82,12 +83,12 @@ export default function Conversation({
                       (message.apiKeyName
                         ? ` • API: ${message.apiKeyName}`
                         : message.userName
-                        ? ` • ${message.userName}`
-                        : "")}
+                          ? ` • ${message.userName}`
+                          : "")}
                   </div>
 
-                  <div className="text-sm whitespace-pre-wrap">
-                    {message.text}
+                  <div className="text-sm prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-p:leading-relaxed">
+                    <ReactMarkdown>{message.text}</ReactMarkdown>
                   </div>
                 </div>
 
@@ -134,7 +135,7 @@ export default function Conversation({
                               {(
                                 differenceInMilliseconds(
                                   message.responseReceivedAt,
-                                  message.responseRequestedAt
+                                  message.responseRequestedAt,
                                 ) / 1000
                               ).toFixed(2)}
                               s
@@ -149,35 +150,53 @@ export default function Conversation({
                         </TooltipContent>
                       </Tooltip>
 
-                      {message.toolCalls.length > 0 && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
-                              <Wrench className="h-3.5 w-3.5" />
-                              <span className="text-[11px]">
-                                {message.toolCalls.length}
-                              </span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom">
-                            <p className="font-medium">Tools Used</p>
-                            {message.toolCalls.map(
-                              (toolCall: any, idx: number) => (
-                                <p key={idx} className="text-xs opacity-70">
-                                  {toolCall.toolName} (
-                                  {(
-                                    differenceInMilliseconds(
-                                      toolCall.finishedAt,
-                                      toolCall.startedAt
-                                    ) / 1000
-                                  ).toFixed(2)}
-                                  s)
+                      {message.toolCalls.length > 0 &&
+                        (() => {
+                          const hasErrorLogs = message.toolCalls.some(
+                            (toolCall: any) =>
+                              toolCall.logs?.some(
+                                (log: any) => log.error === true,
+                              ),
+                          );
+                          return (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={`flex items-center gap-1 transition-colors cursor-default ${
+                                    hasErrorLogs
+                                      ? "text-red-500 hover:text-red-600"
+                                      : "text-muted-foreground hover:text-foreground"
+                                  }`}
+                                >
+                                  <Wrench className="h-3.5 w-3.5" />
+                                  <span className="text-[11px]">
+                                    {message.toolCalls.length}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">
+                                <p className="font-medium">
+                                  Tools Used
+                                  {hasErrorLogs ? " (Contains Errors)" : ""}
                                 </p>
-                              )
-                            )}
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
+                                {message.toolCalls.map(
+                                  (toolCall: any, idx: number) => (
+                                    <p key={idx} className="text-xs opacity-70">
+                                      {toolCall.toolName} (
+                                      {(
+                                        differenceInMilliseconds(
+                                          toolCall.finishedAt,
+                                          toolCall.startedAt,
+                                        ) / 1000
+                                      ).toFixed(2)}
+                                      s)
+                                    </p>
+                                  ),
+                                )}
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })()}
 
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -271,12 +290,12 @@ export default function Conversation({
                                       timeSincePreviousMessage / 1000
                                     ).toFixed(0)}s`
                                   : timeSincePreviousMessage < 3600000
-                                  ? `${Math.floor(
-                                      timeSincePreviousMessage / 60000
-                                    )}m`
-                                  : `${Math.floor(
-                                      timeSincePreviousMessage / 3600000
-                                    )}h`}
+                                    ? `${Math.floor(
+                                        timeSincePreviousMessage / 60000,
+                                      )}m`
+                                    : `${Math.floor(
+                                        timeSincePreviousMessage / 3600000,
+                                      )}h`}
                               </span>
                             </div>
                           </TooltipTrigger>

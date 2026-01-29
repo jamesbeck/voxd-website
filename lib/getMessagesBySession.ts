@@ -18,13 +18,23 @@ const getMessages = async ({ sessionId }: { sessionId: string }) => {
 
   const toolCalls = await db("toolCall").whereIn(
     "assistantMessageId",
-    assistantMessages.map((m) => m.id)
+    assistantMessages.map((m) => m.id),
+  );
+
+  const toolCallLogs = await db("toolCallLog").whereIn(
+    "toolCallId",
+    toolCalls.map((tc) => tc.id),
   );
 
   const assistantMessagesWithRole = assistantMessages.map((m) => ({
     ...m,
     role: "assistant",
-    toolCalls: toolCalls.filter((tc) => tc.assistantMessageId === m.id),
+    toolCalls: toolCalls
+      .filter((tc) => tc.assistantMessageId === m.id)
+      .map((tc) => ({
+        ...tc,
+        logs: toolCallLogs.filter((log) => log.toolCallId === tc.id),
+      })),
   }));
 
   const manualMessages = await db("manualMessage")
@@ -34,7 +44,7 @@ const getMessages = async ({ sessionId }: { sessionId: string }) => {
     .select(
       "manualMessage.*",
       "adminUser.name as userName",
-      "apiKey.name as apiKeyName"
+      "apiKey.name as apiKeyName",
     )
     .orderBy("createdAt", "asc");
 

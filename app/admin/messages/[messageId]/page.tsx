@@ -70,7 +70,7 @@ export default async function Page({
   // Get all messages for navigation
   const allMessages = await getMessages({ sessionId: session.id });
   const currentIndex = allMessages.findIndex(
-    (m) => m.id === messageId && m.role === messageType
+    (m) => m.id === messageId && m.role === messageType,
   );
   const previousMessage =
     currentIndex > 0 ? allMessages[currentIndex - 1] : null;
@@ -219,8 +219,8 @@ export default async function Page({
                     message.role === "user"
                       ? "info"
                       : message.role === "assistant"
-                      ? "default"
-                      : "warning",
+                        ? "default"
+                        : "warning",
                 },
                 {
                   label: "Created At",
@@ -266,8 +266,8 @@ export default async function Page({
                           message.responseStatus === "complete"
                             ? ("success" as const)
                             : message.responseStatus === "error"
-                            ? ("danger" as const)
-                            : ("warning" as const),
+                              ? ("danger" as const)
+                              : ("warning" as const),
                       },
                       ...(message.error
                         ? [
@@ -334,7 +334,7 @@ export default async function Page({
                               value: `${(
                                 differenceInMilliseconds(
                                   message.responseReceivedAt,
-                                  message.responseRequestedAt
+                                  message.responseRequestedAt,
                                 ) / 1000
                               ).toFixed(2)}s`,
                               icon: <Clock className="h-4 w-4" />,
@@ -399,130 +399,155 @@ export default async function Page({
             <TabsContent value="tool-calls">
               {message.toolCalls.length > 0 ? (
                 <div className="space-y-4">
-                  {message.toolCalls.map((toolCall: any) => (
-                    <Card key={toolCall.id} className="py-0">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="font-bold text-lg">
-                            {toolCall.toolName}
-                          </h3>
-                          {toolCall.startedAt && toolCall.finishedAt && (
-                            <span className="text-sm text-muted-foreground">
-                              {(
-                                differenceInMilliseconds(
-                                  toolCall.finishedAt,
-                                  toolCall.startedAt
-                                ) / 1000
-                              ).toFixed(2)}
-                              s
+                  {message.toolCalls.map((toolCall: any) => {
+                    return (
+                      <Card key={toolCall.id} className="py-0">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-bold text-lg">
+                              {toolCall.toolName}
+                            </h3>
+                            {toolCall.startedAt && toolCall.finishedAt && (
+                              <span className="text-sm text-muted-foreground">
+                                {(
+                                  differenceInMilliseconds(
+                                    toolCall.finishedAt,
+                                    toolCall.startedAt,
+                                  ) / 1000
+                                ).toFixed(2)}
+                                s
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mb-4">
+                            <Hash className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground font-mono">
+                              {toolCall.id}
                             </span>
-                          )}
-                        </div>
+                          </div>
 
-                        {toolCall.errorMessage && (
-                          <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md space-y-3">
-                            <div>
-                              <div className="text-red-600 dark:text-red-400 font-semibold mb-1">
-                                Error Message
-                              </div>
-                              <div className="text-red-600 dark:text-red-400 text-sm">
-                                {toolCall.errorMessage}
-                              </div>
-                            </div>
-                            {toolCall.errorCause && (
+                          {toolCall.errorMessage && (
+                            <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md space-y-3">
                               <div>
                                 <div className="text-red-600 dark:text-red-400 font-semibold mb-1">
-                                  Cause
+                                  Error Message
                                 </div>
                                 <div className="text-red-600 dark:text-red-400 text-sm">
-                                  {toolCall.errorCause}
+                                  {toolCall.errorMessage}
                                 </div>
                               </div>
-                            )}
-                            {toolCall.errorStack && (
-                              <div>
-                                <div className="text-red-600 dark:text-red-400 font-semibold mb-1">
-                                  Stack Trace
+                              {toolCall.errorCause && (
+                                <div>
+                                  <div className="text-red-600 dark:text-red-400 font-semibold mb-1">
+                                    Cause
+                                  </div>
+                                  <div className="text-red-600 dark:text-red-400 text-sm">
+                                    {toolCall.errorCause}
+                                  </div>
                                 </div>
-                                <pre className="text-red-600 dark:text-red-400 text-xs overflow-auto max-h-48 whitespace-pre-wrap">
-                                  {toolCall.errorStack}
-                                </pre>
+                              )}
+                              {toolCall.errorStack && (
+                                <div>
+                                  <div className="text-red-600 dark:text-red-400 font-semibold mb-1">
+                                    Stack Trace
+                                  </div>
+                                  <pre className="text-red-600 dark:text-red-400 text-xs overflow-auto max-h-48 whitespace-pre-wrap">
+                                    {toolCall.errorStack}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                              <div className="text-sm font-semibold mb-1">
+                                Input
                               </div>
-                            )}
+                              <pre className="bg-muted p-3 rounded text-xs overflow-auto max-h-48">
+                                {toolCall.input
+                                  ? JSON.stringify(toolCall.input, null, 2)
+                                  : "No input"}
+                              </pre>
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold mb-1">
+                                Output
+                              </div>
+                              <pre className="bg-muted p-3 rounded text-xs overflow-auto max-h-48">
+                                {toolCall.output
+                                  ? JSON.stringify(toolCall.output, null, 2)
+                                  : "No output"}
+                              </pre>
+                            </div>
                           </div>
-                        )}
 
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <div className="text-sm font-semibold mb-1">
-                              Input
-                            </div>
-                            <pre className="bg-muted p-3 rounded text-xs overflow-auto max-h-48">
-                              {toolCall.input
-                                ? JSON.stringify(toolCall.input, null, 2)
-                                : "No input"}
-                            </pre>
-                          </div>
-                          <div>
-                            <div className="text-sm font-semibold mb-1">
-                              Output
-                            </div>
-                            <pre className="bg-muted p-3 rounded text-xs overflow-auto max-h-48">
-                              {toolCall.output
-                                ? JSON.stringify(toolCall.output, null, 2)
-                                : "No output"}
-                            </pre>
-                          </div>
-                        </div>
-
-                        {toolCall.logs && toolCall.logs.length > 0 && (
-                          <div>
-                            <div className="text-sm font-semibold mb-2">
-                              Logs
-                            </div>
-                            <div className="border rounded-md overflow-hidden">
-                              <table className="w-full text-sm">
-                                <thead className="bg-muted">
-                                  <tr>
-                                    <th className="text-left p-2 font-medium">
-                                      Time
-                                    </th>
-                                    <th className="text-left p-2 font-medium">
-                                      Message
-                                    </th>
-                                    <th className="text-left p-2 font-medium">
-                                      Data
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {toolCall.logs.map((log: any) => (
-                                    <tr key={log.id} className="border-t">
-                                      <td className="p-2 text-muted-foreground whitespace-nowrap">
-                                        {format(log.createdAt, "HH:mm:ss.SSS")}
-                                      </td>
-                                      <td className="p-2">{log.message}</td>
-                                      <td className="p-2">
-                                        {log.data ? (
-                                          <pre className="text-xs overflow-auto max-w-xs">
-                                            {JSON.stringify(log.data, null, 2)}
-                                          </pre>
-                                        ) : (
-                                          <span className="text-muted-foreground">
-                                            -
-                                          </span>
+                          {toolCall.logs && toolCall.logs.length > 0 && (
+                            <div>
+                              <div className="text-sm font-semibold mb-2">
+                                Logs
+                              </div>
+                              <div className="space-y-2">
+                                {toolCall.logs.map((log: any) => (
+                                  <div
+                                    key={log.id}
+                                    className={cn(
+                                      "border rounded-lg p-3",
+                                      log.error &&
+                                        "bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-800",
+                                    )}
+                                  >
+                                    <div className="flex items-start justify-between gap-4 mb-2">
+                                      <div
+                                        className={cn(
+                                          "text-xs whitespace-nowrap font-mono",
+                                          log.error
+                                            ? "text-red-600 dark:text-red-400"
+                                            : "text-muted-foreground",
                                         )}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                                      >
+                                        {format(log.createdAt, "HH:mm:ss.SSS")}
+                                      </div>
+                                      {log.error && (
+                                        <Badge
+                                          variant="destructive"
+                                          className="text-xs"
+                                        >
+                                          Error
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div
+                                      className={cn(
+                                        "text-sm mb-2",
+                                        log.error &&
+                                          "text-red-600 dark:text-red-400 font-semibold",
+                                      )}
+                                    >
+                                      {log.message}
+                                    </div>
+                                    {log.data && (
+                                      <div className="mt-2">
+                                        <pre
+                                          className={cn(
+                                            "bg-muted p-2 rounded text-xs overflow-auto",
+                                            log.error &&
+                                              "text-red-600 dark:text-red-400",
+                                          )}
+                                        >
+                                          {JSON.stringify(log.data, null, 2)}
+                                        </pre>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               ) : (
                 <Card>
