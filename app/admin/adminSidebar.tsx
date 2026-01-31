@@ -17,6 +17,7 @@ import {
   ScrollText,
   Ticket,
   Link2,
+  Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -131,6 +132,12 @@ const menuItems: MenuItem[] = [
     title: "Activity Log",
     url: "/admin/log",
     icon: ScrollText,
+  },
+  {
+    roles: ["admin"],
+    title: "Tool Calls",
+    url: "/admin/tool-calls",
+    icon: Wrench,
   },
 ];
 
