@@ -19,13 +19,14 @@ function isValidPartnerDomain(domain: string): boolean {
  * Get the redirect base URL, using origin domain from OAuth state if valid
  */
 function getRedirectBaseUrl(originDomain: string | null | undefined): string {
-  const fallbackUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  
+  const fallbackUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   if (originDomain && isValidPartnerDomain(originDomain)) {
     // Use https for production partner domains
     return `https://${originDomain}`;
   }
-  
+
   return fallbackUrl;
 }
 
@@ -36,8 +37,9 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get("error");
 
   // Default fallback URL - will be updated once we have state info
-  const fallbackUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  
+  const fallbackUrl =
+    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
   // Helper to get redirect URLs based on origin domain
   const getRedirectUrls = (originDomain: string | null | undefined) => {
     const baseUrl = getRedirectBaseUrl(originDomain);
@@ -52,7 +54,7 @@ export async function GET(request: NextRequest) {
   if (error) {
     const errorDescription = searchParams.get("error_description") || error;
     console.error("Google OAuth error:", error, errorDescription);
-    
+
     // Try to get origin domain from state if available
     let originDomain: string | null = null;
     if (state) {
@@ -63,7 +65,7 @@ export async function GET(request: NextRequest) {
         await db("oauthState").where({ id: oauthStateRecord.id }).delete();
       }
     }
-    
+
     const { errorPageUrl } = getRedirectUrls(originDomain);
     return NextResponse.redirect(
       `${errorPageUrl}?error=${encodeURIComponent(errorDescription)}`,
@@ -95,7 +97,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Extract origin domain from metadata for cross-domain redirect
-    const originDomain: string | null = oauthState.metadata?.originDomain || null;
+    const originDomain: string | null =
+      oauthState.metadata?.originDomain || null;
     const { errorPageUrl, successUrl } = getRedirectUrls(originDomain);
 
     const { adminUserId, provider, scopes } = oauthState;
@@ -189,7 +192,7 @@ export async function GET(request: NextRequest) {
     console.error("Error in OAuth callback:", err);
     const errorMessage =
       err instanceof Error ? err.message : "An unexpected error occurred";
-    
+
     // For catch block errors, we don't have access to originDomain from state
     // Fall back to default URL
     const catchErrorUrl = `${fallbackUrl}/admin/oauth-accounts/error`;
