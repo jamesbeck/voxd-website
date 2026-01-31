@@ -6,6 +6,28 @@ import {
   encryptToken,
 } from "@/lib/oauth/googleOAuth";
 import { addLog } from "@/lib/addLog";
+import partners from "@/generated/partners.json";
+
+/**
+ * Validate that a domain is a known partner domain to prevent open redirects
+ */
+function isValidPartnerDomain(domain: string): boolean {
+  return partners.some((p) => p.domain === domain);
+}
+
+/**
+ * Get the redirect base URL, using origin domain from OAuth state if valid
+ */
+function getRedirectBaseUrl(originDomain: string | null | undefined): string {
+  const fallbackUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  
+  if (originDomain && isValidPartnerDomain(originDomain)) {
+    // Use https for production partner domains
+    return `https://${originDomain}`;
+  }
+  
+  return fallbackUrl;
+}
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -13,14 +35,36 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const errorPageUrl = `${baseUrl}/admin/oauth-accounts/error`;
-  const successUrl = `${baseUrl}/admin/oauth-accounts`;
+  // Default fallback URL - will be updated once we have state info
+  const fallbackUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  
+  // Helper to get redirect URLs based on origin domain
+  const getRedirectUrls = (originDomain: string | null | undefined) => {
+    const baseUrl = getRedirectBaseUrl(originDomain);
+    return {
+      errorPageUrl: `${baseUrl}/admin/oauth-accounts/error`,
+      successUrl: `${baseUrl}/admin/oauth-accounts`,
+    };
+  };
 
+  // For errors before we have state, try to look up state to get origin domain
   // Handle OAuth errors from Google
   if (error) {
     const errorDescription = searchParams.get("error_description") || error;
     console.error("Google OAuth error:", error, errorDescription);
+    
+    // Try to get origin domain from state if available
+    let originDomain: string | null = null;
+    if (state) {
+      const oauthStateRecord = await db("oauthState").where({ state }).first();
+      originDomain = oauthStateRecord?.metadata?.originDomain || null;
+      // Clean up the state record
+      if (oauthStateRecord) {
+        await db("oauthState").where({ id: oauthStateRecord.id }).delete();
+      }
+    }
+    
+    const { errorPageUrl } = getRedirectUrls(originDomain);
     return NextResponse.redirect(
       `${errorPageUrl}?error=${encodeURIComponent(errorDescription)}`,
     );
@@ -29,6 +73,7 @@ export async function GET(request: NextRequest) {
   // Validate required parameters
   if (!code || !state) {
     console.error("Missing code or state parameter");
+    const { errorPageUrl } = getRedirectUrls(null);
     return NextResponse.redirect(
       `${errorPageUrl}?error=${encodeURIComponent("Missing authorization code or state")}`,
     );
@@ -43,10 +88,15 @@ export async function GET(request: NextRequest) {
 
     if (!oauthState) {
       console.error("Invalid or expired state:", state);
+      const { errorPageUrl } = getRedirectUrls(null);
       return NextResponse.redirect(
         `${errorPageUrl}?error=${encodeURIComponent("Invalid or expired authorization state. Please try again.")}`,
       );
     }
+
+    // Extract origin domain from metadata for cross-domain redirect
+    const originDomain: string | null = oauthState.metadata?.originDomain || null;
+    const { errorPageUrl, successUrl } = getRedirectUrls(originDomain);
 
     const { adminUserId, provider, scopes } = oauthState;
 
@@ -139,8 +189,12 @@ export async function GET(request: NextRequest) {
     console.error("Error in OAuth callback:", err);
     const errorMessage =
       err instanceof Error ? err.message : "An unexpected error occurred";
+    
+    // For catch block errors, we don't have access to originDomain from state
+    // Fall back to default URL
+    const catchErrorUrl = `${fallbackUrl}/admin/oauth-accounts/error`;
     return NextResponse.redirect(
-      `${errorPageUrl}?error=${encodeURIComponent(errorMessage)}`,
+      `${catchErrorUrl}?error=${encodeURIComponent(errorMessage)}`,
     );
   }
 }

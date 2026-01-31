@@ -9,6 +9,7 @@ import {
   getDefaultScopes,
   getCallbackUrl,
 } from "@/lib/oauth/googleOAuth";
+import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
 
 interface InitiateOAuthConnectParams {
   provider: "google";
@@ -36,7 +37,11 @@ const saInitiateOAuthConnect = async ({
     // State expires after 10 minutes
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    // Store state in database
+    // Get the current partner domain for cross-domain redirect after OAuth
+    const partner = await getPartnerFromHeaders();
+    const originDomain = partner?.domain || null;
+
+    // Store state in database with origin domain for redirect
     await db("oauthState").insert({
       state,
       adminUserId: accessToken.adminUserId,
@@ -44,6 +49,7 @@ const saInitiateOAuthConnect = async ({
       scopes: scopeList.join(" "),
       redirectUri: getCallbackUrl(),
       expiresAt,
+      metadata: originDomain ? { originDomain } : null,
     });
 
     // Generate auth URL
