@@ -147,6 +147,7 @@ export default async function Page({
               <div className="flex items-center gap-2 ml-auto">
                 <QuoteActions
                   quoteId={quote.id}
+                  shortLinkId={quote.shortLinkId}
                   name={quote.title}
                   status={quote.status}
                   canDelete={isSuperAdmin || isOwnerPartner}
@@ -164,6 +165,11 @@ export default async function Page({
                   {
                     label: "Quote ID",
                     value: quote.id,
+                    icon: <FileText className="h-4 w-4" />,
+                  },
+                  {
+                    label: "Short Link ID",
+                    value: quote.shortLinkId,
                     icon: <FileText className="h-4 w-4" />,
                   },
                   {

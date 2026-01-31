@@ -27,6 +27,18 @@ const saCreateQuote = async (input: {
 
   const { title, organisationId } = parsed.data;
 
+  // Generate a random 6-character short link ID (capital letters and numbers only)
+  const generateShortLinkId = (): string => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let result = "";
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+
+  const shortLinkId = generateShortLinkId();
+
   // Get logged-in user to set as owner
   const accessToken = await verifyAccessToken();
 
@@ -45,6 +57,7 @@ const saCreateQuote = async (input: {
         status: "Draft",
         createdByAdminUserId: accessToken.adminUserId,
         background: organisation?.about || null,
+        shortLinkId,
       })
       .returning("id");
 

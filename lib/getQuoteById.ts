@@ -43,6 +43,7 @@ export type Quote = {
   heroImageFileExtension: string | null; // Hero image file extension for quote
   nextAction: string | null;
   nextActionDate: string | null;
+  shortLinkId: string;
 };
 
 export const getQuoteById = async ({

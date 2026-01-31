@@ -36,6 +36,7 @@ import ChangeOwnerDialog from "./ChangeOwnerDialog";
 
 export default function QuoteActions({
   quoteId,
+  shortLinkId,
   name,
   status,
   canDelete,
@@ -43,6 +44,7 @@ export default function QuoteActions({
   isSuperAdmin = false,
 }: {
   quoteId: string;
+  shortLinkId: string;
   name: string;
   status: string;
   canDelete: boolean;
@@ -360,7 +362,7 @@ export default function QuoteActions({
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild className="cursor-pointer">
             <a
-              href={`/pitches/${quoteId}`}
+              href={`/pitches/${shortLinkId}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -371,7 +373,7 @@ export default function QuoteActions({
           <DropdownMenuItem
             onSelect={() => {
               navigator.clipboard.writeText(
-                `${window.location.origin}/pitches/${quoteId}`,
+                `${window.location.origin}/pitches/${shortLinkId}`,
               );
               toast.success("Pitch link copied to clipboard");
             }}
@@ -383,7 +385,7 @@ export default function QuoteActions({
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild className="cursor-pointer">
             <a
-              href={`/proposals/${quoteId}`}
+              href={`/proposals/${shortLinkId}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -394,7 +396,7 @@ export default function QuoteActions({
           <DropdownMenuItem
             onSelect={() => {
               navigator.clipboard.writeText(
-                `${window.location.origin}/proposals/${quoteId}`,
+                `${window.location.origin}/proposals/${shortLinkId}`,
               );
               toast.success("Proposal link copied to clipboard");
             }}

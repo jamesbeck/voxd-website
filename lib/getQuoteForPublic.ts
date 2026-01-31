@@ -49,11 +49,22 @@ export const getQuoteForPublic = async ({
 }: {
   quoteId: string;
 }): Promise<PublicQuote | null> => {
-  const quote = await db("quote")
+  // Determine if quoteId is a short link (6 chars, uppercase letters and numbers) or UUID
+  const isShortLink = /^[A-Z0-9]{6}$/.test(quoteId);
+
+  const query = db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
-    .where("quote.id", quoteId)
+    .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id");
+
+  // Look up by shortLinkId or quote.id depending on format
+  if (isShortLink) {
+    query.where("quote.shortLinkId", quoteId);
+  } else {
+    query.where("quote.id", quoteId);
+  }
+
+  const quote = await query
     .select(
       "quote.id",
       "quote.title",
@@ -89,7 +100,7 @@ export const getQuoteForPublic = async ({
   // Get example conversations for this quote
   // Order by "order" field first (nulls last), then by id for consistent ordering
   const conversations = await db("exampleConversation")
-    .where("quoteId", quoteId)
+    .where("quoteId", quote.id)
     .select("id", "description", "startTime", "messages")
     .orderByRaw('"order" IS NULL, "order" ASC, id ASC');
 
