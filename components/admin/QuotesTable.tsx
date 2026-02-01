@@ -111,6 +111,24 @@ const QuotesTable = ({
             name: "organisationName",
             sort: true,
             linkTo: (row: any) => `/admin/organisations/${row.organisationId}`,
+            format: (row: any) => {
+              const name = row.organisationName || "";
+              if (name.length <= 40) return name;
+              return (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-help">
+                        {name.slice(0, 40)}...
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">{name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
+            },
           },
         ]
       : []),
@@ -119,7 +137,22 @@ const QuotesTable = ({
       name: "title",
       sort: true,
       linkTo: (row: any) => `/admin/quotes/${row.id}`,
-      format: (row: any) => row.title || "",
+      format: (row: any) => {
+        const title = row.title || "";
+        if (title.length <= 40) return title;
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-help">{title.slice(0, 40)}...</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">{title}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      },
     },
     {
       label: "Stage",
