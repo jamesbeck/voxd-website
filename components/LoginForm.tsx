@@ -31,19 +31,27 @@ export default function LoginForm({
 
   async function onSubmit(values: { email: string }) {
     setLoading(true);
-    const sendLoginCodeResult = await saSendLoginCode({
-      email: values.email,
-      redirectTo,
-    });
-    if (!sendLoginCodeResult.success) {
-      form.setError("root", { message: sendLoginCodeResult.error });
-    } else {
-      // This part might not be reached if saSendLoginCode redirects
-      router.push(
-        `/login/verify${redirectTo ? `?redirectTo=${redirectTo}` : ""}`
+    try {
+      const sendLoginCodeResult = await saSendLoginCode({
+        email: values.email,
+        redirectTo,
+      });
+      if (!sendLoginCodeResult.success) {
+        form.setError("root", { message: sendLoginCodeResult.error });
+        setLoading(false);
+        return;
+      }
+      // Navigate to verify page - keep loading true during navigation
+      router.replace(
+        `/login/verify${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""}`,
       );
+    } catch (error) {
+      console.error("Login error:", error);
+      form.setError("root", {
+        message: "Something went wrong. Please try again.",
+      });
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
