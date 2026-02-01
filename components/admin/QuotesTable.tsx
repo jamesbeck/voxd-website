@@ -284,6 +284,7 @@ const QuotesTable = ({
         </div>
       )}
       <DataTable
+        tableId="admin-quotes"
         key={`${showOnlyMyPartner}-${statusFilter}`}
         getData={saGetQuoteTableData}
         getDataParams={
