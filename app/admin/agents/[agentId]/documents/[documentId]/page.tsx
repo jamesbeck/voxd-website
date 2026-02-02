@@ -23,6 +23,7 @@ import DocumentActions from "./documentActions";
 import KnowledgeBlocksTable from "./knowledgeBlocksTable";
 import NewKnowledgeBlockForm from "./newKnowledgeBlockForm";
 import SmartImportForm from "./smartImportKnowledgeBlocksForm";
+import RegenerateEmbeddingsButton from "./regenerateEmbeddingsButton";
 
 export default async function Page({
   params,
@@ -140,7 +141,7 @@ export default async function Page({
                     label: "Created",
                     value: format(
                       new Date(document.createdAt),
-                      "dd/MM/yyyy HH:mm"
+                      "dd/MM/yyyy HH:mm",
                     ),
                     icon: <Calendar className="h-4 w-4" />,
                   },
@@ -148,7 +149,7 @@ export default async function Page({
                     label: "Updated",
                     value: format(
                       new Date(document.updatedAt),
-                      "dd/MM/yyyy HH:mm"
+                      "dd/MM/yyyy HH:mm",
                     ),
                     icon: <Calendar className="h-4 w-4" />,
                   },
@@ -184,6 +185,10 @@ export default async function Page({
                 </p>
               </div>
               <div className="flex gap-2">
+                <RegenerateEmbeddingsButton
+                  documentId={documentId}
+                  documentTitle={document.title}
+                />
                 <Button asChild>
                   <Link
                     href={`/admin/agents/${agentId}/documents/${documentId}?tab=smart-import`}

@@ -48,8 +48,16 @@ const saCreateKnowledgeBlock = async ({
   const blockIndex = lastBlock ? lastBlock.blockIndex + 1 : 0;
 
   // Generate embedding using the agent's OpenAI API key
-  // Include title in the embedding text if provided
-  const embeddingText = title ? `${title}\n\n${content}` : content;
+  // Include document title and block title for better semantic context
+  let embeddingText = content;
+  if (document.title && title) {
+    embeddingText = `${document.title}: ${title}\n\n${content}`;
+  } else if (document.title) {
+    embeddingText = `${document.title}\n\n${content}`;
+  } else if (title) {
+    embeddingText = `${title}\n\n${content}`;
+  }
+
   let embeddingVector: number[] | null = null;
   let tokenCount: number | null = null;
   try {

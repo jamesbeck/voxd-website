@@ -24,14 +24,15 @@ const saUpdateKnowledgeBlock = async ({
     .join(
       "knowledgeDocument",
       "knowledgeBlock.documentId",
-      "knowledgeDocument.id"
+      "knowledgeDocument.id",
     )
     .join("agent", "knowledgeDocument.agentId", "agent.id")
     .where("knowledgeBlock.id", blockId)
     .select(
       "knowledgeBlock.*",
       "knowledgeDocument.agentId",
-      "agent.openAiApiKey"
+      "knowledgeDocument.title as documentTitle",
+      "agent.openAiApiKey",
     )
     .first();
 
@@ -55,8 +56,16 @@ const saUpdateKnowledgeBlock = async ({
   }
 
   // Generate new embedding using the agent's OpenAI API key
-  // Include title in the embedding text if provided
-  const embeddingText = title ? `${title}\n\n${content}` : content;
+  // Include document title and block title for better semantic context
+  let embeddingText = content;
+  if (block.documentTitle && title) {
+    embeddingText = `${block.documentTitle}: ${title}\n\n${content}`;
+  } else if (block.documentTitle) {
+    embeddingText = `${block.documentTitle}\n\n${content}`;
+  } else if (title) {
+    embeddingText = `${title}\n\n${content}`;
+  }
+
   let embeddingVector: number[] | null = null;
   let tokenCount: number | null = null;
   try {
