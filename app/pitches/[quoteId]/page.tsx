@@ -1183,13 +1183,13 @@ export default async function PublicPitchPage({
 
               <p className="text-gray-600">
                 Have questions about this concept or want to learn more? Chat
-                with {pitch.salesBot.name} on WhatsApp – they&apos;re ready to
-                help you explore how an AI chatbot could work for your business.
+                with {pitch.salesBot.name} on WhatsApp - he's ready to help you
+                explore how an AI chatbot could work for your business.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <WhatsAppQRCode
-                  url={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about pitch ${pitch.shortLinkId}`)}`}
+                  url={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${pitch.shortLinkId}`)}`}
                   size={120}
                 />
                 <div className="flex flex-col gap-2">
@@ -1197,7 +1197,7 @@ export default async function PublicPitchPage({
                     Scan the QR code or click the button below
                   </p>
                   <a
-                    href={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about pitch ${pitch.shortLinkId}`)}`}
+                    href={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${pitch.shortLinkId}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90"
