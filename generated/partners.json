@@ -1,35 +1,5 @@
 [
   {
-    "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
-    "name": "ChatFox",
-    "billingAddressLine1": null,
-    "billingAddressLine2": null,
-    "billingCity": null,
-    "billingState": null,
-    "billingPostcode": null,
-    "billingCountry": null,
-    "billingEmails": null,
-    "domain": "portal.chatfox.ai",
-    "colour": "081d35",
-    "sendEmailFromDomain": "chatfox.ai",
-    "logoFileExtension": "svg"
-  },
-  {
-    "id": "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
-    "name": "Voxd",
-    "billingAddressLine1": null,
-    "billingAddressLine2": null,
-    "billingCity": null,
-    "billingState": null,
-    "billingPostcode": null,
-    "billingCountry": null,
-    "billingEmails": null,
-    "domain": "voxd.ai",
-    "colour": "00a9ff",
-    "sendEmailFromDomain": "voxd.ai",
-    "logoFileExtension": "svg"
-  },
-  {
     "id": "019bb1f6-dbc5-7266-bd2c-57aa890d776e",
     "name": "The Growth Architect",
     "billingAddressLine1": null,
@@ -42,7 +12,9 @@
     "domain": "chat.thegrowtharchitect.co.uk",
     "colour": "111111",
     "sendEmailFromDomain": "voxd.ai",
-    "logoFileExtension": "png"
+    "logoFileExtension": "png",
+    "salesBotName": null,
+    "salesBotAgentId": null
   },
   {
     "id": "019bc6e1-d178-7da3-8b62-1f9da6ff456b",
@@ -57,6 +29,42 @@
     "domain": "technolink.voxd.ai",
     "colour": "081d35",
     "sendEmailFromDomain": "voxd.ai",
-    "logoFileExtension": "png"
+    "logoFileExtension": "png",
+    "salesBotName": null,
+    "salesBotAgentId": null
+  },
+  {
+    "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
+    "name": "ChatFox",
+    "billingAddressLine1": null,
+    "billingAddressLine2": null,
+    "billingCity": null,
+    "billingState": null,
+    "billingPostcode": null,
+    "billingCountry": null,
+    "billingEmails": null,
+    "domain": "portal.chatfox.ai",
+    "colour": "081d35",
+    "sendEmailFromDomain": "chatfox.ai",
+    "logoFileExtension": "svg",
+    "salesBotName": "Basil",
+    "salesBotAgentId": "019b7e21-1fcc-744d-849c-fb5ded6f6802"
+  },
+  {
+    "id": "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
+    "name": "Voxd",
+    "billingAddressLine1": null,
+    "billingAddressLine2": null,
+    "billingCity": null,
+    "billingState": null,
+    "billingPostcode": null,
+    "billingCountry": null,
+    "billingEmails": null,
+    "domain": "voxd.ai",
+    "colour": "00a9ff",
+    "sendEmailFromDomain": "voxd.ai",
+    "logoFileExtension": "svg",
+    "salesBotName": "Clive",
+    "salesBotAgentId": "01994d3e-b028-7c19-8aa0-3762438868aa"
   }
 ]

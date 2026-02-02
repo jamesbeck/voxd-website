@@ -16,6 +16,7 @@ export type PublicPitch = {
   id: string;
   title: string;
   createdAt: string;
+  shortLinkId: string;
   organisationName: string;
   organisationId: string;
   organisationLogoFileExtension: string | null;
@@ -33,6 +34,10 @@ export type PublicPitch = {
     domain: string | null;
     logoFileExtension: string | null;
   };
+  salesBot: {
+    name: string;
+    phoneNumber: string;
+  } | null;
   createdBy: {
     name: string | null;
     email: string | null;
@@ -51,7 +56,9 @@ export const getPitchForPublic = async ({
   const query = db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id");
+    .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
+    .leftJoin("agent", "partner.salesBotAgentId", "agent.id")
+    .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id");
 
   // Look up by shortLinkId or quote.id depending on format
   if (isShortLink) {
@@ -65,6 +72,7 @@ export const getPitchForPublic = async ({
       "quote.id",
       "quote.title",
       "quote.createdAt",
+      "quote.shortLinkId",
       "quote.status",
       "quote.pitchPersonalMessage",
       "quote.generatedPitchIntroduction",
@@ -80,6 +88,8 @@ export const getPitchForPublic = async ({
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
+      "partner.salesBotName",
+      "phoneNumber.displayPhoneNumber as salesBotPhoneNumber",
       "adminUser.name as createdByName",
       "adminUser.email as createdByEmail",
     )
@@ -123,6 +133,7 @@ export const getPitchForPublic = async ({
     id: quote.id,
     title: quote.title,
     createdAt: quote.createdAt,
+    shortLinkId: quote.shortLinkId,
     organisationName: quote.organisationName,
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
@@ -141,6 +152,13 @@ export const getPitchForPublic = async ({
       domain: quote.partnerDomain,
       logoFileExtension: quote.partnerLogoFileExtension,
     },
+    salesBot:
+      quote.salesBotName && quote.salesBotPhoneNumber
+        ? {
+            name: quote.salesBotName,
+            phoneNumber: quote.salesBotPhoneNumber,
+          }
+        : null,
     createdBy:
       quote.createdByName || quote.createdByEmail
         ? {
