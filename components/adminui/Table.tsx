@@ -74,7 +74,10 @@ export default function DataTable<TExtra extends object = object>({
   const [page, setPage] = useState(1);
 
   // Get initial sort from localStorage if tableId is provided
-  const getInitialSort = (): { field: string | undefined; direction: "asc" | "desc" } => {
+  const getInitialSort = (): {
+    field: string | undefined;
+    direction: "asc" | "desc";
+  } => {
     if (tableId && typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem(`table-sort-${tableId}`);
@@ -95,8 +98,12 @@ export default function DataTable<TExtra extends object = object>({
   };
 
   const initialSort = getInitialSort();
-  const [sortField, setSortField] = useState<string | undefined>(initialSort.field);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(initialSort.direction);
+  const [sortField, setSortField] = useState<string | undefined>(
+    initialSort.field,
+  );
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+    initialSort.direction,
+  );
   const [loading, setLoading] = useState(true);
   const currentRequestRef = useRef<symbol | null>(null);
 
@@ -167,7 +174,7 @@ export default function DataTable<TExtra extends object = object>({
       try {
         localStorage.setItem(
           `table-sort-${tableId}`,
-          JSON.stringify({ field: newField, direction: newDirection })
+          JSON.stringify({ field: newField, direction: newDirection }),
         );
       } catch {
         // Ignore storage errors
