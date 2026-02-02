@@ -27,7 +27,7 @@ import {
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
-import { useDebounce, useLocalStorage } from "@uidotdev/usehooks";
+import { useDebounce } from "@uidotdev/usehooks";
 import { Button } from "../ui/button";
 import {
   Tooltip,
@@ -73,28 +73,30 @@ export default function DataTable<TExtra extends object = object>({
   const debouncedSearchTerm = useDebounce(searchValue, 300);
   const [page, setPage] = useState(1);
 
-  // Persist sort preferences when tableId is provided
-  const [storedSort, setStoredSort] = useLocalStorage<{
-    field: string;
-    direction: "asc" | "desc";
-  } | null>(tableId ? `table-sort-${tableId}` : "unused-key", null);
-
-  const getInitialSortField = () => {
-    if (tableId && storedSort?.field) return storedSort.field;
-    return defaultSort?.name || columns[0]?.name;
+  // Get initial sort from localStorage if tableId is provided
+  const getInitialSort = (): { field: string | undefined; direction: "asc" | "desc" } => {
+    if (tableId && typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(`table-sort-${tableId}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed?.field && parsed?.direction) {
+            return { field: parsed.field, direction: parsed.direction };
+          }
+        }
+      } catch {
+        // Ignore parse errors
+      }
+    }
+    return {
+      field: defaultSort?.name || columns[0]?.name,
+      direction: defaultSort?.direction || "asc",
+    };
   };
 
-  const getInitialSortDirection = (): "asc" | "desc" => {
-    if (tableId && storedSort?.direction) return storedSort.direction;
-    return defaultSort?.direction || "asc";
-  };
-
-  const [sortField, setSortField] = useState<string | undefined>(
-    getInitialSortField,
-  );
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
-    getInitialSortDirection,
-  );
+  const initialSort = getInitialSort();
+  const [sortField, setSortField] = useState<string | undefined>(initialSort.field);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(initialSort.direction);
   const [loading, setLoading] = useState(true);
   const currentRequestRef = useRef<symbol | null>(null);
 
@@ -162,7 +164,14 @@ export default function DataTable<TExtra extends object = object>({
 
     // Persist sort preference if tableId is provided
     if (tableId) {
-      setStoredSort({ field: newField, direction: newDirection });
+      try {
+        localStorage.setItem(
+          `table-sort-${tableId}`,
+          JSON.stringify({ field: newField, direction: newDirection })
+        );
+      } catch {
+        // Ignore storage errors
+      }
     }
 
     setPage(1); // reset page on sort change
