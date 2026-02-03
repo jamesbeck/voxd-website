@@ -170,7 +170,7 @@ ${quote.otherNotes || "Not specified"}
   try {
     const { text } = await generateText({
       model: openai("gpt-4o"),
-      prompt: `You are helping to generate realistic conversation scenarios for an AI WhatsApp chatbot.
+      prompt: `You are helping to generate realistic scenario descriptions for an AI WhatsApp chatbot.
 
 The business name is "${businessName}".
 
@@ -179,20 +179,22 @@ ${context}
 
 ${
   existingScenarios.length > 0
-    ? `Here are the existing conversation scenarios that have already been created:
+    ? `Here are the existing scenarios that have already been created:
 ${existingScenarios.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
 Please generate a NEW scenario that is DIFFERENT from these existing ones.`
-    : "This will be the first conversation scenario."
+    : "This will be the first scenario."
 }
 
-Generate a single, concise conversation scenario (2-3 sentences) that:
-1. Demonstrates a realistic use case for this chatbot
+Generate a single, concise scenario description (2-3 sentences) that:
+1. Describes a realistic situation where a user would interact with this chatbot
 2. Is different from any existing scenarios
-3. Shows the chatbot's capabilities based on the specification
+3. Relates to the chatbot's capabilities based on the specification
 4. Is specific enough to guide conversation generation but not overly detailed
 
-Return ONLY the scenario text, nothing else.`,
+IMPORTANT: Write a textual DESCRIPTION of the scenario, NOT a script or dialogue. Do NOT use formats like "Client: ... Bot: ..." or any back-and-forth conversation format. Instead, describe the situation in prose, e.g., "A customer wants to reschedule their appointment for next week because they have a conflict."
+
+Return ONLY the scenario description text, nothing else.`,
     });
 
     return {
