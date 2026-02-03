@@ -195,9 +195,7 @@ export default async function PublicPitchPage({
     : null;
 
   const sections = [
-    ...(pitch.pitchPersonalMessage
-      ? [{ id: "welcome", label: "Welcome", icon: "Mail" as const }]
-      : []),
+    { id: "welcome", label: "Welcome", icon: "Mail" as const },
     { id: "introduction", label: "Introduction", icon: "FileText" as const },
     { id: "pitch", label: "The Concept", icon: "Lightbulb" as const },
     ...(pitch.exampleConversations.length > 0
@@ -301,132 +299,125 @@ export default async function PublicPitchPage({
 
         {/* Main content */}
         <main className="flex-1 max-w-3xl space-y-8">
-          {/* Welcome Section (if personal message exists) */}
-          {pitch.pitchPersonalMessage && (
-            <section
-              id="welcome"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="p-2 rounded-lg"
-                  style={{ backgroundColor: `${brandColor}15` }}
-                >
-                  <Mail className="h-6 w-6" style={{ color: brandColor }} />
-                </div>
+          {/* Welcome Section - always shown */}
+          <section
+            id="welcome"
+            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="p-2 rounded-lg"
+                style={{ backgroundColor: `${brandColor}15` }}
+              >
+                <Mail className="h-6 w-6" style={{ color: brandColor }} />
+              </div>
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                  {pitch.title}
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  AI Chatbot Concept
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="flex items-center gap-3 text-sm">
+                <Calendar className="h-4 w-4 text-gray-400" />
                 <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                    {pitch.title}
-                  </h2>
+                  <p className="text-gray-500">Date Created</p>
+                  <p className="font-medium text-gray-900">
+                    {format(new Date(pitch.createdAt), "dd MMMM yyyy")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm">
+                <Building className="h-4 w-4 text-gray-400" />
+                <div>
+                  <p className="text-gray-500">Prepared For</p>
+                  <p className="font-medium text-gray-900">
+                    {pitch.organisationName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm">
+                <User className="h-4 w-4 text-gray-400" />
+                <div>
+                  <p className="text-gray-500">Prepared By</p>
+                  <p className="font-medium text-gray-900">
+                    {pitch.createdBy?.name || pitch.partner.name}
+                    {pitch.createdBy?.email && (
+                      <span className="text-gray-500 text-xs font-normal ml-1">
+                        ({pitch.createdBy.email})
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Jump to examples CTA - only show if there are example conversations */}
+            {pitch.exampleConversations.length > 0 && (
+              <div
+                className="rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                style={{ backgroundColor: `${brandColor}08` }}
+              >
+                <p className="text-gray-700 text-sm">
+                  Read below for the full concept, or skip straight to see the
+                  chatbot in action.
+                </p>
+                <JumpToExamplesButton brandColor={brandColor} />
+              </div>
+            )}
+
+            {/* Questions - Only show if partner has salesBot configured */}
+            {pitch.salesBot && (
+              <div
+                className="border-t pt-6 space-y-4"
+                style={{ borderColor: `${brandColor}20` }}
+              >
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Questions?
+                  </h3>
                   <p className="text-gray-500 text-sm mt-1">
-                    AI Chatbot Concept
+                    Talk to {pitch.salesBot.name}...
                   </p>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-gray-500">Date Created</p>
-                    <p className="font-medium text-gray-900">
-                      {format(new Date(pitch.createdAt), "dd MMMM yyyy")}
-                    </p>
-                  </div>
-                </div>
+                <p className="text-gray-600">
+                  Have questions about this concept or want to learn more?
+                  Chat with {pitch.salesBot.name} on WhatsApp - he&apos;s
+                  ready to help you explore how an AI chatbot could work for
+                  your business.
+                </p>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <Building className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-gray-500">Prepared For</p>
-                    <p className="font-medium text-gray-900">
-                      {pitch.organisationName}
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <WhatsAppQRCode
+                    url={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${pitch.shortLinkId}`)}`}
+                    size={120}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-gray-500 text-center sm:text-left">
+                      Scan the QR code or click the button below
                     </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-sm">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-gray-500">Prepared By</p>
-                    <p className="font-medium text-gray-900">
-                      {pitch.createdBy?.name || pitch.partner.name}
-                      {pitch.createdBy?.email && (
-                        <span className="text-gray-500 text-xs font-normal ml-1">
-                          ({pitch.createdBy.email})
-                        </span>
-                      )}
-                    </p>
+                    <a
+                      href={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${pitch.shortLinkId}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90"
+                      style={{ backgroundColor: brandColor }}
+                    >
+                      <MessageSquare className="h-5 w-5" />
+                      Chat with {pitch.salesBot.name} on WhatsApp
+                    </a>
                   </div>
                 </div>
               </div>
-
-              {/* Jump to examples CTA - only show if there are example conversations */}
-              {pitch.exampleConversations.length > 0 && (
-                <div
-                  className="border-t pt-6"
-                  style={{ borderColor: `${brandColor}20` }}
-                >
-                  <div
-                    className="rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                    style={{ backgroundColor: `${brandColor}08` }}
-                  >
-                    <p className="text-gray-700 text-sm">
-                      Read below for the full concept, or skip straight to see
-                      the chatbot in action.
-                    </p>
-                    <JumpToExamplesButton brandColor={brandColor} />
-                  </div>
-                </div>
-              )}
-
-              {/* Questions - Only show if partner has salesBot configured */}
-              {pitch.salesBot && (
-                <div
-                  className="border-t pt-6 space-y-4"
-                  style={{ borderColor: `${brandColor}20` }}
-                >
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Questions?
-                    </h3>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Talk to {pitch.salesBot.name}...
-                    </p>
-                  </div>
-
-                  <p className="text-gray-600">
-                    Have questions about this concept or want to learn more?
-                    Chat with {pitch.salesBot.name} on WhatsApp - he&apos;s
-                    ready to help you explore how an AI chatbot could work for
-                    your business.
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row items-center gap-6">
-                    <WhatsAppQRCode
-                      url={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${pitch.shortLinkId}`)}`}
-                      size={120}
-                    />
-                    <div className="flex flex-col gap-2">
-                      <p className="text-sm text-gray-500 text-center sm:text-left">
-                        Scan the QR code or click the button below
-                      </p>
-                      <a
-                        href={`https://wa.me/${pitch.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${pitch.shortLinkId}`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90"
-                        style={{ backgroundColor: brandColor }}
-                      >
-                        <MessageSquare className="h-5 w-5" />
-                        Chat with {pitch.salesBot.name} on WhatsApp
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
+            )}
+          </section>
 
           {/* Introduction Section */}
           <section
@@ -441,67 +432,14 @@ export default async function PublicPitchPage({
                 <FileText className="h-6 w-6" style={{ color: brandColor }} />
               </div>
               <div>
-                {pitch.pitchPersonalMessage ? (
-                  <>
-                    <h2 className="text-xl font-bold text-gray-900">
-                      Introduction
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                      Overview of the AI chatbot concept
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                      {pitch.title}
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                      AI Chatbot Concept
-                    </p>
-                  </>
-                )}
+                <h2 className="text-xl font-bold text-gray-900">
+                  Introduction
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  Overview of the AI chatbot concept
+                </p>
               </div>
             </div>
-
-            {/* Only show metadata grid if there's no personal message section */}
-            {!pitch.pitchPersonalMessage && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-gray-500">Date Created</p>
-                    <p className="font-medium text-gray-900">
-                      {format(new Date(pitch.createdAt), "dd MMMM yyyy")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-sm">
-                  <Building className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-gray-500">Prepared For</p>
-                    <p className="font-medium text-gray-900">
-                      {pitch.organisationName}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-sm">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-gray-500">Prepared By</p>
-                    <p className="font-medium text-gray-900">
-                      {pitch.createdBy?.name || pitch.partner.name}
-                      {pitch.createdBy?.email && (
-                        <span className="text-gray-500 text-xs font-normal ml-1">
-                          ({pitch.createdBy.email})
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Personal message from salesperson */}
             {pitch.pitchPersonalMessage && (
@@ -523,11 +461,7 @@ export default async function PublicPitchPage({
               </div>
             )}
 
-            <div
-              className={
-                pitch.pitchPersonalMessage ? "border-t pt-6" : "border-t pt-6"
-              }
-            >
+            <div className={pitch.pitchPersonalMessage ? "border-t pt-6" : ""}>
               {pitch.generatedPitchIntroduction ? (
                 <div className="prose prose-gray max-w-none">
                   <MarkdownContent content={pitch.generatedPitchIntroduction} />
