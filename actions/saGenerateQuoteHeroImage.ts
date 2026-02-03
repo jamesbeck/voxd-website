@@ -8,6 +8,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { addLog } from "@/lib/addLog";
+import { createQuoteOgWithLogo } from "@/lib/createQuoteOgWithLogo";
 
 const saGenerateQuoteHeroImage = async ({
   quoteId,
@@ -33,14 +34,20 @@ const saGenerateQuoteHeroImage = async ({
     };
   }
 
-  // Get the quote with organisation details
+  // Get the quote with organisation and partner details
   const quote = await db("quote")
     .where("quote.id", quoteId)
     .join("organisation", "quote.organisationId", "organisation.id")
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .select(
       "quote.*",
+      "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.partnerId",
+      "organisation.logoFileExtension as organisationLogoFileExtension",
+      "organisation.logoDarkBackground as organisationLogoDarkBackground",
+      "partner.domain as partnerDomain",
+      "partner.logoFileExtension as partnerLogoFileExtension",
     )
     .first();
 
@@ -185,6 +192,17 @@ Write a brief hero image prompt (max 2 sentences) for a professional website ban
     });
 
     await s3Client.send(ogCommand);
+
+    // Step 3c: Create OG image with organisation logo overlay (stored separately)
+    await createQuoteOgWithLogo({
+      quoteId,
+      heroImageBuffer: buffer,
+      organisationId: quote.organisationId,
+      organisationLogoFileExtension: quote.organisationLogoFileExtension,
+      organisationLogoDarkBackground: quote.organisationLogoDarkBackground,
+      partnerDomain: quote.partnerDomain,
+      partnerLogoFileExtension: quote.partnerLogoFileExtension,
+    });
 
     // Step 4: Update database
     await db("quote").where("id", quoteId).update({

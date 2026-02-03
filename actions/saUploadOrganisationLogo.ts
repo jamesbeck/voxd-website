@@ -1,11 +1,16 @@
 "use server";
 
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { addLog } from "@/lib/addLog";
 import sharp from "sharp";
+import { createQuoteOgWithLogo } from "@/lib/createQuoteOgWithLogo";
 
 const saUploadOrganisationLogo = async ({
   organisationId,
@@ -71,7 +76,7 @@ const saUploadOrganisationLogo = async ({
     return {
       success: false,
       error: `Invalid file type. Allowed types: ${allowedExtensions.join(
-        ", "
+        ", ",
       )}`,
     };
   }
@@ -108,7 +113,7 @@ const saUploadOrganisationLogo = async ({
         ACL: "public-read",
         ContentType: getContentType(ext),
         CacheControl: "public, max-age=31536000",
-      })
+      }),
     );
 
     // Update the organisation record with the logo extension
@@ -116,6 +121,76 @@ const saUploadOrganisationLogo = async ({
       logoFileExtension: ext,
       logoDarkBackground: needsDarkBackground,
     });
+
+    // Get partner info for fallback
+    const partner = await db("partner")
+      .where("id", organisation.partnerId)
+      .select("domain", "logoFileExtension")
+      .first();
+
+    // Regenerate OG images for all quotes belonging to this organisation
+    const allQuotes = await db("quote")
+      .where("organisationId", organisationId)
+      .select("id", "heroImageFileExtension");
+
+    if (allQuotes.length > 0) {
+      const s3ClientForOg = new S3Client({
+        region: process.env.WASABI_REGION || "eu-west-1",
+        endpoint: `https://s3.${process.env.WASABI_REGION || "eu-west-1"}.wasabisys.com`,
+        credentials: {
+          accessKeyId: process.env.WASABI_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY!,
+        },
+        forcePathStyle: true,
+      });
+
+      // Process in background - don't block the response
+      Promise.all(
+        allQuotes.map(async (quote) => {
+          try {
+            let heroBuffer: Buffer | null = null;
+
+            // Only fetch hero image if it exists
+            if (quote.heroImageFileExtension) {
+              const heroKey = `quoteImages/${quote.id}.${quote.heroImageFileExtension}`;
+              try {
+                const heroResponse = await s3ClientForOg.send(
+                  new GetObjectCommand({
+                    Bucket: bucketName,
+                    Key: heroKey,
+                  }),
+                );
+
+                if (heroResponse.Body) {
+                  const heroArrayBuffer =
+                    await heroResponse.Body.transformToByteArray();
+                  heroBuffer = Buffer.from(heroArrayBuffer);
+                }
+              } catch {
+                // Hero image not found, continue without it
+              }
+            }
+
+            await createQuoteOgWithLogo({
+              quoteId: quote.id,
+              heroImageBuffer: heroBuffer,
+              organisationId,
+              organisationLogoFileExtension: ext,
+              organisationLogoDarkBackground: needsDarkBackground,
+              partnerDomain: partner?.domain,
+              partnerLogoFileExtension: partner?.logoFileExtension,
+            });
+          } catch (err) {
+            console.error(
+              `Failed to regenerate OG image for quote ${quote.id}:`,
+              err,
+            );
+          }
+        }),
+      ).catch((err) => {
+        console.error("Error regenerating OG images:", err);
+      });
+    }
 
     await addLog({
       adminUserId: accessToken.adminUserId,
@@ -161,7 +236,7 @@ function getContentType(ext: string): string {
  */
 async function analyzeLogoBackground(
   buffer: Buffer,
-  extension: string
+  extension: string,
 ): Promise<boolean> {
   try {
     // SVGs are tricky - default to analyzing them as rasterized

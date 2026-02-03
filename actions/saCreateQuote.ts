@@ -4,6 +4,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { z, treeifyError } from "zod";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { createQuoteOgWithLogo } from "@/lib/createQuoteOgWithLogo";
 
 // Validation schema for creating a quote
 const createQuoteSchema = z.object({
@@ -42,10 +43,17 @@ const saCreateQuote = async (input: {
   // Get logged-in user to set as owner
   const accessToken = await verifyAccessToken();
 
-  // Get the organisation's about field to use as background
+  // Get the organisation with partner info
   const organisation = await db("organisation")
-    .where({ id: organisationId })
-    .select("about")
+    .where("organisation.id", organisationId)
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .select(
+      "organisation.about",
+      "organisation.logoFileExtension",
+      "organisation.logoDarkBackground",
+      "partner.domain as partnerDomain",
+      "partner.logoFileExtension as partnerLogoFileExtension",
+    )
     .first();
 
   // Insert new quote (include organisationId if column exists; adjust as needed)
@@ -60,6 +68,19 @@ const saCreateQuote = async (input: {
         shortLinkId,
       })
       .returning("id");
+
+    // Generate OG image for the new quote (uses fallback chain: org logo or partner logo)
+    createQuoteOgWithLogo({
+      quoteId: newQuote.id,
+      heroImageBuffer: null,
+      organisationId,
+      organisationLogoFileExtension: organisation?.logoFileExtension || null,
+      organisationLogoDarkBackground: organisation?.logoDarkBackground || null,
+      partnerDomain: organisation?.partnerDomain || null,
+      partnerLogoFileExtension: organisation?.partnerLogoFileExtension || null,
+    }).catch((err) => {
+      console.error("Failed to generate OG image for new quote:", err);
+    });
 
     return { success: true, data: newQuote };
   } catch (error: any) {

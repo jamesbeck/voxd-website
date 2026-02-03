@@ -50,6 +50,14 @@ export default function QuoteHeroImageTab({
       }`
     : null;
 
+  const ogImageUrl = heroImageFileExtension
+    ? `https://${
+        process.env.NEXT_PUBLIC_WASABI_ENDPOINT
+      }/voxd/quoteOgWithLogo/${quoteId}.webp${
+        cacheBuster ? `?t=${cacheBuster}` : ""
+      }`
+    : null;
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -64,7 +72,7 @@ export default function QuoteHeroImageTab({
     ];
     if (!allowedTypes.includes(file.type)) {
       toast.error(
-        "Invalid file type. Please upload a PNG, JPG, GIF, SVG, or WebP image."
+        "Invalid file type. Please upload a PNG, JPG, GIF, SVG, or WebP image.",
       );
       return;
     }
@@ -170,8 +178,8 @@ export default function QuoteHeroImageTab({
         </p>
       </div>
 
-      {/* Generate Hero Image Button */}
-      <div className="flex gap-2">
+      {/* Generate / Replace Hero Image Buttons */}
+      <div className="flex gap-2 items-center">
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" disabled={generating}>
@@ -226,6 +234,26 @@ export default function QuoteHeroImageTab({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        <span className="text-muted-foreground text-sm">or</span>
+
+        <Button
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+        >
+          <Upload className="mr-2 h-4 w-4" />
+          {existingHeroImageUrl ? "Replace Hero Image" : "Upload Hero Image"}
+        </Button>
+        <Input
+          id="heroImage"
+          type="file"
+          accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          disabled={uploading}
+          className="hidden"
+        />
       </div>
 
       {/* Current Hero Image */}
@@ -245,67 +273,75 @@ export default function QuoteHeroImageTab({
         </div>
       )}
 
-      {/* Preview */}
-      {preview && (
+      {/* OG Image Preview */}
+      {ogImageUrl && !preview && (
         <div className="space-y-2">
-          <Label>New Hero Image Preview</Label>
-          <div className="border rounded-lg p-4 bg-muted/30 relative">
+          <Label>OG Image Preview (with logo overlay)</Label>
+          <p className="text-xs text-muted-foreground">
+            This image is used for social media previews when sharing
+            pitch/proposal links.
+          </p>
+          <div className="border rounded-lg p-4 bg-muted/30">
             <Image
-              src={preview}
-              alt="Hero image preview"
-              width={800}
-              height={300}
+              src={ogImageUrl}
+              alt="OG image with logo"
+              width={1200}
+              height={630}
               className="object-cover w-full rounded"
               unoptimized
             />
-            <Button
-              variant="destructive"
-              size="icon"
-              className="absolute top-6 right-6"
-              onClick={clearSelection}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </div>
         </div>
       )}
 
-      {/* Upload Form */}
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="heroImage">
-            {existingHeroImageUrl ? "Replace Hero Image" : "Upload Hero Image"}
-          </Label>
-          <Input
-            id="heroImage"
-            type="file"
-            accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            disabled={uploading}
-          />
-          <p className="text-xs text-muted-foreground">
-            Accepted formats: PNG, JPG, GIF, SVG, WebP. Max size: 5MB.
-            Recommended: landscape format (16:9 aspect ratio).
-          </p>
+      {/* Preview */}
+      {preview && (
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>New Hero Image Preview</Label>
+            <div className="border rounded-lg p-4 bg-muted/30 relative">
+              <Image
+                src={preview}
+                alt="Hero image preview"
+                width={800}
+                height={300}
+                className="object-cover w-full rounded"
+                unoptimized
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-6 right-6"
+                onClick={clearSelection}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={handleUpload} disabled={uploading}>
+              {uploading ? (
+                <>
+                  <Spinner className="mr-2 h-4 w-4" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Hero Image
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={clearSelection}
+              disabled={uploading}
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
-
-        {preview && (
-          <Button onClick={handleUpload} disabled={uploading}>
-            {uploading ? (
-              <>
-                <Spinner className="mr-2 h-4 w-4" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Hero Image
-              </>
-            )}
-          </Button>
-        )}
-      </div>
+      )}
     </div>
   );
 }

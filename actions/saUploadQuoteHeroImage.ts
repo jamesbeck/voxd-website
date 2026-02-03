@@ -5,6 +5,7 @@ import sharp from "sharp";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { createQuoteOgWithLogo } from "@/lib/createQuoteOgWithLogo";
 
 const saUploadQuoteHeroImage = async ({
   quoteId,
@@ -56,9 +57,15 @@ const saUploadQuoteHeroImage = async ({
     };
   }
 
-  // Get the organisation to check partnerId
+  // Get the organisation with partner info to check partnerId
   const organisation = await db("organisation")
-    .where("id", quote.organisationId)
+    .where("organisation.id", quote.organisationId)
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .select(
+      "organisation.*",
+      "partner.domain as partnerDomain",
+      "partner.logoFileExtension as partnerLogoFileExtension",
+    )
     .first();
 
   if (!organisation) {
@@ -85,7 +92,7 @@ const saUploadQuoteHeroImage = async ({
     return {
       success: false,
       error: `Invalid file type. Allowed types: ${allowedExtensions.join(
-        ", "
+        ", ",
       )}`,
     };
   }
@@ -152,6 +159,17 @@ const saUploadQuoteHeroImage = async ({
     });
 
     await s3Client.send(ogCommand);
+
+    // Create OG image with organisation logo overlay (stored separately)
+    await createQuoteOgWithLogo({
+      quoteId,
+      heroImageBuffer: buffer,
+      organisationId: quote.organisationId,
+      organisationLogoFileExtension: organisation.logoFileExtension,
+      organisationLogoDarkBackground: organisation.logoDarkBackground,
+      partnerDomain: organisation.partnerDomain,
+      partnerLogoFileExtension: organisation.partnerLogoFileExtension,
+    });
 
     // Update database with file extension
     await db("quote").where("id", quoteId).update({

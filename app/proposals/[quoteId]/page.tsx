@@ -62,25 +62,8 @@ export async function generateMetadata({
   const title = `${quote.organisationName} - ${quote.title} | ${quote.partner.name}`;
   const description = `AI Chatbot Implementation Proposal for ${quote.organisationName} - prepared by ${quote.partner.name}`;
 
-  // Use optimized OG version of hero image (1200x630, <600KB for WhatsApp compatibility)
-  // Fall back to organisation logo if available, otherwise use partner logo
-  const ogImage = quote.heroImageFileExtension
-    ? `https://s3.${
-        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-      }.wasabisys.com/${
-        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-      }/quoteImages/${quote.id}_og.${quote.heroImageFileExtension}`
-    : quote.organisationLogoFileExtension
-      ? `https://s3.${
-          process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-        }.wasabisys.com/${
-          process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-        }/organisationLogos/${quote.organisationId}.${
-          quote.organisationLogoFileExtension
-        }`
-      : quote.partner.domain && quote.partner.logoFileExtension
-        ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
-        : null;
+  // OG image is always generated in quoteOgWithLogo folder (uses fallback chain: hero+logo, hero, org logo, partner logo)
+  const ogImage = `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/quoteOgWithLogo/${quote.id}.webp`;
 
   // Get current host from request headers
   const headersList = await headers();
@@ -105,24 +88,20 @@ export async function generateMetadata({
       type: "website",
       url: pageUrl,
       siteName: quote.partner.name,
-      ...(ogImage && {
-        images: [
-          {
-            url: ogImage,
-            width: 1200,
-            height: 630,
-            alt: `${quote.organisationName} Logo`,
-          },
-        ],
-      }),
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${quote.organisationName} Logo`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(ogImage && {
-        images: [ogImage],
-      }),
+      images: [ogImage],
     },
     robots: {
       index: false,

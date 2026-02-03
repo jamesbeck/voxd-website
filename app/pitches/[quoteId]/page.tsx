@@ -66,25 +66,8 @@ export async function generateMetadata({
   const title = `${pitch.organisationName} - ${pitch.title} | ${pitch.partner.name}`;
   const description = `AI Chatbot Concept for ${pitch.organisationName} - prepared by ${pitch.partner.name}`;
 
-  // Use optimized OG version of hero image (1200x630, <600KB for WhatsApp compatibility)
-  // Fall back to organisation logo if available, otherwise use partner logo
-  const ogImage = pitch.heroImageFileExtension
-    ? `https://s3.${
-        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-      }.wasabisys.com/${
-        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-      }/quoteImages/${pitch.id}_og.${pitch.heroImageFileExtension}`
-    : pitch.organisationLogoFileExtension
-      ? `https://s3.${
-          process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-        }.wasabisys.com/${
-          process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-        }/organisationLogos/${pitch.organisationId}.${
-          pitch.organisationLogoFileExtension
-        }`
-      : pitch.partner.domain && pitch.partner.logoFileExtension
-        ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${pitch.partner.domain}.${pitch.partner.logoFileExtension}`
-        : null;
+  // OG image is always generated in quoteOgWithLogo folder (uses fallback chain: hero+logo, hero, org logo, partner logo)
+  const ogImage = `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/quoteOgWithLogo/${pitch.id}.webp`;
 
   // Get current host from request headers
   const headersList = await headers();
@@ -109,24 +92,20 @@ export async function generateMetadata({
       type: "website",
       url: pageUrl,
       siteName: pitch.partner.name,
-      ...(ogImage && {
-        images: [
-          {
-            url: ogImage,
-            width: 1200,
-            height: 630,
-            alt: `${pitch.organisationName} Logo`,
-          },
-        ],
-      }),
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${pitch.organisationName} Logo`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(ogImage && {
-        images: [ogImage],
-      }),
+      images: [ogImage],
     },
     robots: {
       index: false,
