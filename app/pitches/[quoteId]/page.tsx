@@ -41,6 +41,7 @@ import {
 import { getPitchForPublic } from "@/lib/getPitchForPublic";
 import { getCaseStudiesByPartnerId } from "@/lib/getCaseStudiesByPartnerId";
 import FloatingTableOfContents from "./FloatingTableOfContents";
+import JumpToExamplesButton from "./JumpToExamplesButton";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import WhatsAppQRCode from "@/components/WhatsAppQRCode";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
@@ -323,7 +324,7 @@ export default async function PublicPitchPage({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-gray-400" />
                   <div>
@@ -350,26 +351,33 @@ export default async function PublicPitchPage({
                     <p className="text-gray-500">Prepared By</p>
                     <p className="font-medium text-gray-900">
                       {pitch.createdBy?.name || pitch.partner.name}
+                      {pitch.createdBy?.email && (
+                        <span className="text-gray-500 text-xs font-normal ml-1">
+                          ({pitch.createdBy.email})
+                        </span>
+                      )}
                     </p>
-                    {pitch.createdBy?.email && (
-                      <p className="text-gray-500 text-xs">
-                        {pitch.createdBy.email}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
 
-              <div className="border-t pt-6">
-                <div className="prose prose-gray max-w-none">
-                  <MarkdownContent content={pitch.pitchPersonalMessage} />
+              {/* Jump to examples CTA - only show if there are example conversations */}
+              {pitch.exampleConversations.length > 0 && (
+                <div
+                  className="border-t pt-6"
+                  style={{ borderColor: `${brandColor}20` }}
+                >
+                  <div
+                    className="rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                    style={{ backgroundColor: `${brandColor}08` }}
+                  >
+                    <p className="text-gray-700 text-sm">
+                      Read below for the full concept, or skip straight to see the chatbot in action.
+                    </p>
+                    <JumpToExamplesButton brandColor={brandColor} />
+                  </div>
                 </div>
-                {pitch.createdBy?.name && (
-                  <p className="mt-6 text-gray-700 font-medium">
-                    — {pitch.createdBy.name}
-                  </p>
-                )}
-              </div>
+              )}
 
               {/* Questions - Only show if partner has salesBot configured */}
               {pitch.salesBot && (
@@ -456,7 +464,7 @@ export default async function PublicPitchPage({
 
             {/* Only show metadata grid if there's no personal message section */}
             {!pitch.pitchPersonalMessage && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-gray-400" />
                   <div>
@@ -483,18 +491,38 @@ export default async function PublicPitchPage({
                     <p className="text-gray-500">Prepared By</p>
                     <p className="font-medium text-gray-900">
                       {pitch.createdBy?.name || pitch.partner.name}
+                      {pitch.createdBy?.email && (
+                        <span className="text-gray-500 text-xs font-normal ml-1">
+                          ({pitch.createdBy.email})
+                        </span>
+                      )}
                     </p>
-                    {pitch.createdBy?.email && (
-                      <p className="text-gray-500 text-xs">
-                        {pitch.createdBy.email}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
             )}
 
-            <div className={pitch.pitchPersonalMessage ? "" : "border-t pt-6"}>
+            {/* Personal message from salesperson */}
+            {pitch.pitchPersonalMessage && (
+              <div
+                className="rounded-lg p-5 border-l-4"
+                style={{
+                  backgroundColor: `${brandColor}08`,
+                  borderLeftColor: brandColor,
+                }}
+              >
+                <div className="prose prose-gray prose-sm max-w-none">
+                  <MarkdownContent content={pitch.pitchPersonalMessage} />
+                </div>
+                {pitch.createdBy?.name && (
+                  <p className="mt-4 text-gray-600 font-medium text-sm">
+                    — {pitch.createdBy.name}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className={pitch.pitchPersonalMessage ? "border-t pt-6" : "border-t pt-6"}>
               {pitch.generatedPitchIntroduction ? (
                 <div className="prose prose-gray max-w-none">
                   <MarkdownContent content={pitch.generatedPitchIntroduction} />

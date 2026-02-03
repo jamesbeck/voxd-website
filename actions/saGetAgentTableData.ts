@@ -72,9 +72,9 @@ const saGetAgentTableData = async ({
     .select(
       db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
       db.raw(
-        `MAX(CASE WHEN "session"."sessionType" != 'development' THEN "userMessage"."createdAt" END) as "lastMessageAt"`
+        `MAX(CASE WHEN "session"."sessionType" != 'development' THEN "userMessage"."createdAt" END) as "lastMessageAt"`,
       ),
-      db.raw('COUNT(DISTINCT "session"."id")::int as "sessionCount"')
+      db.raw('COUNT(DISTINCT "session"."id")::int as "sessionCount"'),
     )
     .orderByRaw(`?? ${sortDirection} NULLS LAST`, [sortField])
     .limit(pageSize)
