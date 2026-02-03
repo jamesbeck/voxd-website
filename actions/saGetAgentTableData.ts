@@ -71,7 +71,9 @@ const saGetAgentTableData = async ({
     .select("phoneNumber.displayPhoneNumber as phoneNumber")
     .select(
       db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
-      db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
+      db.raw(
+        `MAX(CASE WHEN "session"."sessionType" != 'development' THEN "userMessage"."createdAt" END) as "lastMessageAt"`
+      ),
       db.raw('COUNT(DISTINCT "session"."id")::int as "sessionCount"')
     )
     .orderByRaw(`?? ${sortDirection} NULLS LAST`, [sortField])
