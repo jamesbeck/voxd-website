@@ -315,9 +315,7 @@ export default async function PublicPitchPage({
                 <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                   {pitch.title}
                 </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  AI Chatbot Concept
-                </p>
+                <p className="text-gray-500 text-sm mt-1">AI Chatbot Concept</p>
               </div>
             </div>
 
@@ -388,10 +386,10 @@ export default async function PublicPitchPage({
                 </div>
 
                 <p className="text-gray-600">
-                  Have questions about this concept or want to learn more?
-                  Chat with {pitch.salesBot.name} on WhatsApp - he&apos;s
-                  ready to help you explore how an AI chatbot could work for
-                  your business.
+                  Have questions about this concept or want to learn more? Chat
+                  with {pitch.salesBot.name} on WhatsApp - he&apos;s ready to
+                  help you explore how an AI chatbot could work for your
+                  business.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center gap-6">
