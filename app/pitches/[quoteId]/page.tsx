@@ -372,7 +372,8 @@ export default async function PublicPitchPage({
                     style={{ backgroundColor: `${brandColor}08` }}
                   >
                     <p className="text-gray-700 text-sm">
-                      Read below for the full concept, or skip straight to see the chatbot in action.
+                      Read below for the full concept, or skip straight to see
+                      the chatbot in action.
                     </p>
                     <JumpToExamplesButton brandColor={brandColor} />
                   </div>
@@ -522,7 +523,11 @@ export default async function PublicPitchPage({
               </div>
             )}
 
-            <div className={pitch.pitchPersonalMessage ? "border-t pt-6" : "border-t pt-6"}>
+            <div
+              className={
+                pitch.pitchPersonalMessage ? "border-t pt-6" : "border-t pt-6"
+              }
+            >
               {pitch.generatedPitchIntroduction ? (
                 <div className="prose prose-gray max-w-none">
                   <MarkdownContent content={pitch.generatedPitchIntroduction} />
