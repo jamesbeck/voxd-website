@@ -161,7 +161,7 @@ const saUploadQuoteHeroImage = async ({
     await s3Client.send(ogCommand);
 
     // Create OG image with organisation logo overlay (stored separately)
-    await createQuoteOgWithLogo({
+    const ogResult = await createQuoteOgWithLogo({
       quoteId,
       heroImageBuffer: buffer,
       organisationId: quote.organisationId,
@@ -170,6 +170,10 @@ const saUploadQuoteHeroImage = async ({
       partnerDomain: organisation.partnerDomain,
       partnerLogoFileExtension: organisation.partnerLogoFileExtension,
     });
+
+    if (!ogResult.success) {
+      console.error("Failed to create OG image with logo:", ogResult.error);
+    }
 
     // Update database with file extension
     await db("quote").where("id", quoteId).update({

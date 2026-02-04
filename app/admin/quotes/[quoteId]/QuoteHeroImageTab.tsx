@@ -50,13 +50,12 @@ export default function QuoteHeroImageTab({
       }`
     : null;
 
-  const ogImageUrl = heroImageFileExtension
-    ? `https://${
-        process.env.NEXT_PUBLIC_WASABI_ENDPOINT
-      }/voxd/quoteOgWithLogo/${quoteId}.webp${
-        cacheBuster ? `?t=${cacheBuster}` : ""
-      }`
-    : null;
+  // OG image is always generated (uses fallback chain: hero+logo, hero, org logo, partner logo)
+  const ogImageUrl = `https://${
+    process.env.NEXT_PUBLIC_WASABI_ENDPOINT
+  }/voxd/quoteOgWithLogo/${quoteId}.webp${
+    cacheBuster ? `?t=${cacheBuster}` : ""
+  }`;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -274,7 +273,7 @@ export default function QuoteHeroImageTab({
       )}
 
       {/* OG Image Preview */}
-      {ogImageUrl && !preview && (
+      {!preview && (
         <div className="space-y-2">
           <Label>OG Image Preview (with logo overlay)</Label>
           <p className="text-xs text-muted-foreground">
