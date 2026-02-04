@@ -18,8 +18,8 @@ const saGetWabaTableData = async ({
 
   const base = db("waba")
     .leftJoin("metaBusiness", "waba.metaBusinessId", "metaBusiness.id")
-    .leftJoin("app", "waba.appId", "app.id")
-    .groupBy("waba.id", "metaBusiness.id", "app.id")
+    .leftJoin("metaApp", "waba.appId", "metaApp.id")
+    .groupBy("waba.id", "metaBusiness.id", "metaApp.id")
     .where((qb) => {
       if (search) {
         qb.where("waba.name", "ilike", `%${search}%`);
@@ -44,7 +44,7 @@ const saGetWabaTableData = async ({
     .clone()
     .select("waba.*")
     .select("metaBusiness.name as businessName")
-    .select("app.name as appName")
+    .select("metaApp.name as appName")
     // .select(
     //   db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
     //   db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),

@@ -45,8 +45,8 @@ const saGetPhoneNumberById = async ({
 
   const phoneNumber = await db("phoneNumber")
     .leftJoin("waba", "phoneNumber.wabaId", "waba.id")
-    .leftJoin("app", "waba.appId", "app.id")
-    .select("phoneNumber.*", "waba.name as wabaName", "app.name as appName")
+    .leftJoin("metaApp", "waba.appId", "metaApp.id")
+    .select("phoneNumber.*", "waba.name as wabaName", "metaApp.name as appName")
     .where("phoneNumber.id", phoneNumberId)
     .first();
 

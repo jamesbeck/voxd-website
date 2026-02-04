@@ -64,10 +64,10 @@ const saGetWabaById = async (wabaId: string): Promise<GetWabaByIdResponse> => {
 
   const waba = await db("waba")
     .leftJoin("metaBusiness", "waba.metaBusinessId", "metaBusiness.id")
-    .leftJoin("app", "waba.appId", "app.id")
+    .leftJoin("metaApp", "waba.appId", "metaApp.id")
     .select("waba.*")
     .select("metaBusiness.name as businessName")
-    .select("app.name as appName")
+    .select("metaApp.name as appName")
     .where("waba.id", wabaId)
     .first();
 

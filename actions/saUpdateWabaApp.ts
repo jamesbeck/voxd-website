@@ -39,7 +39,7 @@ export default async function saUpdateWabaApp({
     // Get new app details if provided
     let newAppName: string | null = null;
     if (appId) {
-      const newApp = await db("app").where({ id: appId }).first();
+      const newApp = await db("metaApp").where({ id: appId }).first();
       if (!newApp) {
         return { success: false, error: "App not found" };
       }

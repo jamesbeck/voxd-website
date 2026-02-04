@@ -22,7 +22,7 @@ const saGetAllApps = async (): Promise<ServerActionResponse> => {
       };
     }
 
-    const apps: App[] = await db("app")
+    const apps: App[] = await db("metaApp")
       .select("id", "name", "metaAppId")
       .orderBy("name", "asc");
 

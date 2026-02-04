@@ -17,7 +17,7 @@ async function getAccessTokenForWaba(wabaDbId: string): Promise<string | null> {
   const waba = await db("waba").where({ id: wabaDbId }).first();
 
   if (waba?.appId) {
-    const app = await db("app").where({ id: waba.appId }).first();
+    const app = await db("metaApp").where({ id: waba.appId }).first();
     if (app?.accessToken) {
       return app.accessToken;
     }
