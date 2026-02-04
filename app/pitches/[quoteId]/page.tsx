@@ -146,7 +146,7 @@ export default async function PublicPitchPage({
 
   // Fire and forget - don't block page render
   saRecordQuoteView({
-    quoteId,
+    quoteId: pitch.id,
     documentViewed: "pitch",
     ipAddress,
     userAgent,

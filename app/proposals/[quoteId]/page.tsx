@@ -136,7 +136,7 @@ export default async function PublicQuotePage({
 
   // Fire and forget - don't block page render
   saRecordQuoteView({
-    quoteId,
+    quoteId: quote.id,
     documentViewed: "quote",
     ipAddress,
     userAgent,
