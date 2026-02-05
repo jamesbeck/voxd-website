@@ -1026,8 +1026,17 @@ export default async function PublicPitchPage({
               {/* Pricing Structure */}
               <div className="space-y-4">
                 <h3 className="font-semibold text-gray-900">
-                  How Pricing Works
+                  {pitch.setupFee || pitch.monthlyFee
+                    ? "Indicative Pricing"
+                    : "How Pricing Works"}
                 </h3>
+                {(pitch.setupFee || pitch.monthlyFee) && (
+                  <p className="text-sm text-gray-500">
+                    The following ballpark figures give you an idea of the
+                    investment required. Final pricing will be confirmed after
+                    we discuss your specific requirements.
+                  </p>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div
                     className="p-4 rounded-lg border"
@@ -1040,10 +1049,24 @@ export default async function PublicPitchPage({
                       />
                       <p className="font-medium text-gray-900">Setup Fee</p>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      A one-time fee covering the initial build, configuration,
-                      and training of your custom AI chatbot.
-                    </p>
+                    {pitch.setupFee ? (
+                      <>
+                        <p
+                          className="text-2xl font-bold mb-1"
+                          style={{ color: brandColor }}
+                        >
+                          ~£{pitch.setupFee.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Indicative one-time fee
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-600">
+                        A one-time fee covering the initial build,
+                        configuration, and training of your custom AI chatbot.
+                      </p>
+                    )}
                   </div>
 
                   <div
@@ -1057,10 +1080,24 @@ export default async function PublicPitchPage({
                       />
                       <p className="font-medium text-gray-900">Monthly Fee</p>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      An ongoing fee covering hosting, maintenance, support, and
-                      continuous improvements to your chatbot.
-                    </p>
+                    {pitch.monthlyFee ? (
+                      <>
+                        <p
+                          className="text-2xl font-bold mb-1"
+                          style={{ color: brandColor }}
+                        >
+                          ~£{pitch.monthlyFee.toLocaleString()}/mo
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Indicative recurring fee
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-600">
+                        An ongoing fee covering hosting, maintenance, support,
+                        and continuous improvements to your chatbot.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

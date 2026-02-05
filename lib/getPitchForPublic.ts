@@ -27,6 +27,8 @@ export type PublicPitch = {
   generatedPitch: string | null;
   pitchHideSections: string[] | null;
   heroImageFileExtension: string | null;
+  setupFee: number | null;
+  monthlyFee: number | null;
   partnerId: string;
   partner: {
     name: string;
@@ -79,6 +81,8 @@ export const getPitchForPublic = async ({
       "quote.generatedPitch",
       "quote.pitchHideSections",
       "quote.heroImageFileExtension",
+      "quote.setupFee",
+      "quote.monthlyFee",
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
@@ -145,6 +149,8 @@ export const getPitchForPublic = async ({
     generatedPitch: quote.generatedPitch,
     pitchHideSections: quote.pitchHideSections,
     heroImageFileExtension: quote.heroImageFileExtension,
+    setupFee: quote.setupFee ?? null,
+    monthlyFee: quote.monthlyFee ?? null,
     partnerId: quote.partnerId,
     partner: {
       name: quote.partnerName,
