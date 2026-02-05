@@ -125,9 +125,7 @@ export default async function Page({
               </Link>
             </TabsTrigger>
             <TabsTrigger value="data" asChild>
-              <Link href={`/admin/sessions/${sessionId}?tab=data`}>
-                Data
-              </Link>
+              <Link href={`/admin/sessions/${sessionId}?tab=data`}>Data</Link>
             </TabsTrigger>
           </TabsList>
 
@@ -256,7 +254,10 @@ export default async function Page({
           <Container>
             <H2>Session Data</H2>
             {session.data ? (
-              <SessionJsonDataEditor sessionId={sessionId} initialData={session.data} />
+              <SessionJsonDataEditor
+                sessionId={sessionId}
+                initialData={session.data}
+              />
             ) : (
               <div className="space-y-4">
                 <p className="text-muted-foreground">

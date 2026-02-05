@@ -40,7 +40,7 @@ const AgentsTable = ({ organisationId }: { organisationId: string }) => {
         return value
           ? `${format(value, "dd/MM/yyyy HH:mm")} (${formatDistance(
               value,
-              new Date()
+              new Date(),
             )})`
           : "Never";
       },

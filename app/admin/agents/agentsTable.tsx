@@ -40,7 +40,7 @@ const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
       downloadLink.href = pngUrl;
       downloadLink.download = `${selectedAgentName.replace(
         /[^a-z0-9]/gi,
-        "_"
+        "_",
       )}_whatsapp_qr.png`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
@@ -104,7 +104,7 @@ const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
         return value
           ? `${format(value, "dd/MM/yyyy HH:mm")} (${formatDistance(
               value,
-              new Date()
+              new Date(),
             )})`
           : "Never";
       },
