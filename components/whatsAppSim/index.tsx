@@ -65,7 +65,7 @@ export default function WhatsAppSim({
 
   const endTime = addSeconds(
     currentMessageTime,
-    messages.reduce((acc, message) => acc + message.time, 0)
+    messages.reduce((acc, message) => acc + message.time, 0),
   );
 
   return (
@@ -126,7 +126,7 @@ export default function WhatsAppSim({
                   style={{ objectFit: "contain" }}
                   className={cn(
                     "rounded-full",
-                    organizationLogoDarkBackground ? "bg-gray-800" : "bg-white"
+                    organizationLogoDarkBackground ? "bg-gray-800" : "bg-white",
                   )}
                 />
               ) : exampleId && logoFileExtension ? (
@@ -145,7 +145,11 @@ export default function WhatsAppSim({
               )}
             </div>
             <div className="flex flex-col space-y-[-2px] ml-[10px]">
-              <div className="text-[14px] font-bold">{businessName}</div>
+              <div className="text-[14px] font-bold">
+                {businessName.length > 24
+                  ? `${businessName.slice(0, 24)}...`
+                  : businessName}
+              </div>
               <div className="text-[12px] text-[#777]">
                 Business Organisation
               </div>
@@ -170,7 +174,7 @@ export default function WhatsAppSim({
               {messages.map((message, index) => {
                 currentMessageTime = addSeconds(
                   currentMessageTime,
-                  message.time
+                  message.time,
                 );
 
                 return (
@@ -191,7 +195,7 @@ export default function WhatsAppSim({
                 "absolute bottom-[5px] left-0 right-0 flex justify-center z-20 transition-opacity duration-300 group",
                 isAtTop && messages.length > 3
                   ? "opacity-100 animate-bounce-subtle"
-                  : "opacity-0 pointer-events-none"
+                  : "opacity-0 pointer-events-none",
               )}
             >
               <div className="relative">

@@ -86,16 +86,19 @@ const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
       label: "Sessions",
       name: "sessionCount",
       sort: true,
+      tooltip: "Live sessions only (excludes development)",
     },
     {
       label: "Messages",
       name: "messageCount",
       sort: true,
+      tooltip: "Messages from live sessions only (excludes development)",
     },
     {
       label: "Last Message",
       name: "lastMessageAt",
       sort: true,
+      tooltip: "Last message from live sessions only (excludes development)",
       format: (row: any) => {
         const value = row.lastMessageAt;
         return value
