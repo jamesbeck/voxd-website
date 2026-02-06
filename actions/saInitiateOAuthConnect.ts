@@ -52,7 +52,10 @@ const saInitiateOAuthConnect = async ({
 
     // Get the current partner domain for cross-domain redirect after OAuth
     const partner = await getPartnerFromHeaders();
-    const originDomain = partner?.domain || null;
+    const partnerDomain = partner?.domain || null;
+
+    // Generate callback URL using partner domain
+    const callbackUrl = getCallbackUrl(partnerDomain || undefined);
 
     // Store state in database with origin domain for redirect
     await db("oauthState").insert({
@@ -60,15 +63,15 @@ const saInitiateOAuthConnect = async ({
       adminUserId: accessToken.adminUserId,
       provider,
       scopes: scopeList.join(" "),
-      redirectUri: getCallbackUrl(),
+      redirectUri: callbackUrl,
       expiresAt,
-      metadata: originDomain ? { originDomain } : null,
+      metadata: partnerDomain ? { originDomain: partnerDomain } : null,
     });
 
     // Generate auth URL
     let authUrl: string;
     if (provider === "google") {
-      authUrl = getGoogleAuthUrl(state, credentials, scopeList);
+      authUrl = getGoogleAuthUrl(state, credentials, scopeList, callbackUrl);
     } else {
       return { success: false, error: "Unsupported provider" };
     }

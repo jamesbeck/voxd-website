@@ -102,13 +102,17 @@ export async function GET(request: NextRequest) {
       oauthState.metadata?.originDomain || null;
     const { errorPageUrl, successUrl } = getRedirectUrls(originDomain);
 
-    const { adminUserId, provider, scopes } = oauthState;
+    const { adminUserId, provider, scopes, redirectUri } = oauthState;
 
     // Get Google OAuth credentials from the user's organisation
     const credentials = await getGoogleCredentialsByAdminUserId(adminUserId);
 
-    // Exchange the code for tokens
-    const tokenResponse = await exchangeCodeForTokens(code, credentials);
+    // Exchange the code for tokens (must use same redirectUri that was sent to Google)
+    const tokenResponse = await exchangeCodeForTokens(
+      code,
+      credentials,
+      redirectUri,
+    );
 
     // Get user info from Google
     const userInfo = await getGoogleUserInfo(tokenResponse.access_token);

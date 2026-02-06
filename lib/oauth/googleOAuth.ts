@@ -44,9 +44,18 @@ export function generateState(): string {
 
 /**
  * Get the callback URL for Google OAuth
+ * If a partner domain is provided, uses that domain for the callback
  */
-export function getCallbackUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+export function getCallbackUrl(partnerDomain?: string): string {
+  let baseUrl: string;
+
+  if (partnerDomain) {
+    // Use https for partner domains (production)
+    baseUrl = `https://${partnerDomain}`;
+  } else {
+    baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  }
+
   return `${baseUrl}/api/auth/google/callback`;
 }
 
@@ -57,14 +66,17 @@ export function getGoogleAuthUrl(
   state: string,
   credentials: GoogleOAuthCredentials,
   scopes?: string[],
+  callbackUrl?: string,
 ): string {
   if (!credentials.clientId) {
     throw new Error("Google Client ID is not configured");
   }
 
+  const redirectUri = callbackUrl || getCallbackUrl();
+
   const params = new URLSearchParams({
     client_id: credentials.clientId,
-    redirect_uri: getCallbackUrl(),
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: (scopes || DEFAULT_SCOPES).join(" "),
     access_type: "offline", // Required for refresh token
@@ -81,10 +93,13 @@ export function getGoogleAuthUrl(
 export async function exchangeCodeForTokens(
   code: string,
   credentials: GoogleOAuthCredentials,
+  callbackUrl?: string,
 ): Promise<GoogleTokenResponse> {
   if (!credentials.clientId || !credentials.clientSecret) {
     throw new Error("Google OAuth credentials are not configured");
   }
+
+  const redirectUri = callbackUrl || getCallbackUrl();
 
   const response = await fetch(GOOGLE_TOKEN_URL, {
     method: "POST",
@@ -95,7 +110,7 @@ export async function exchangeCodeForTokens(
       code,
       client_id: credentials.clientId,
       client_secret: credentials.clientSecret,
-      redirect_uri: getCallbackUrl(),
+      redirect_uri: redirectUri,
       grant_type: "authorization_code",
     }),
   });
