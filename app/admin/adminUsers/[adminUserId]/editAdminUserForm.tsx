@@ -46,6 +46,7 @@ export default function EditAdminUserForm({
   email,
   partnerId,
   organisationId,
+  organisationName,
   canEditOrganisation,
   superAdmin,
 }: {
@@ -55,6 +56,7 @@ export default function EditAdminUserForm({
   email?: string;
   partnerId?: string;
   organisationId?: string;
+  organisationName?: string;
   canEditOrganisation: boolean;
   superAdmin: boolean;
 }) {
@@ -194,6 +196,7 @@ export default function EditAdminUserForm({
                     emptyMessage="No organisations found"
                     pageSize={50}
                     searchDebounceMs={300}
+                    initialLabel={organisationName}
                   />
                 </FormControl>
                 <FormMessage />
@@ -219,6 +222,7 @@ export default function EditAdminUserForm({
                     pageSize={50}
                     searchDebounceMs={300}
                     disabled
+                    initialLabel={organisationName}
                   />
                 </FormControl>
                 <FormMessage />

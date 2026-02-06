@@ -61,6 +61,7 @@ export default async function Page({
                 email={user.email}
                 partnerId={user.partnerId}
                 organisationId={user.organisationId}
+                organisationName={user.organisationName}
                 canEditOrganisation={token.superAdmin || token.partner}
                 superAdmin={token.superAdmin}
               />

@@ -26,7 +26,7 @@ import {
 export type Option = { label: string; value: string };
 
 type ServerAction = (
-  params: ServerActionReadParams
+  params: ServerActionReadParams,
 ) => Promise<ServerActionReadResponse>;
 
 type BaseProps = {
@@ -42,6 +42,7 @@ type BaseProps = {
   maxHeight?: number;
   searchDebounceMs?: number;
   pageSize?: number;
+  initialLabel?: string; // Label to display for the initial value if not found in loaded options
 };
 
 export type RHFFieldProps = {
@@ -73,8 +74,9 @@ export const RemoteSelect = React.forwardRef<
       maxHeight = 220,
       searchDebounceMs = 300,
       pageSize = 100,
+      initialLabel,
     },
-    ref
+    ref,
   ) => {
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = React.useState<Option[]>([]);
@@ -84,8 +86,9 @@ export const RemoteSelect = React.forwardRef<
     const [commandValue, setCommandValue] = React.useState("");
     const isMouseDownRef = React.useRef(false);
     // Store selected option to keep its label even when not in search results
+    // Initialize with initial value/label if provided
     const [selectedOption, setSelectedOption] = React.useState<Option | null>(
-      null
+      value && initialLabel ? { value, label: initialLabel } : null,
     );
 
     const loadOptions = React.useCallback(
@@ -117,7 +120,7 @@ export const RemoteSelect = React.forwardRef<
             // Update the selected option if it's in the results
             if (value) {
               const matchedOption = newOptions.find(
-                (opt) => opt.value === value
+                (opt) => opt.value === value,
               );
               if (matchedOption) {
                 setSelectedOption(matchedOption);
@@ -143,7 +146,7 @@ export const RemoteSelect = React.forwardRef<
         sortField,
         sortDirection,
         value,
-      ]
+      ],
     );
 
     // Load options on mount (only once)
@@ -219,7 +222,7 @@ export const RemoteSelect = React.forwardRef<
             className={cn(
               "w-full justify-between text-left min-h-10 h-auto py-2",
               !selectedOption && "text-muted-foreground",
-              className
+              className,
             )}
           >
             <span className="flex-1 truncate">
@@ -298,7 +301,7 @@ export const RemoteSelect = React.forwardRef<
         </PopoverContent>
       </Popover>
     );
-  }
+  },
 );
 
 RemoteSelect.displayName = "RemoteSelect";

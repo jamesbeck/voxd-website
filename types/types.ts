@@ -63,6 +63,7 @@ export interface AdminUser {
   partnerId?: string;
   superAdmin?: boolean;
   organisationId?: string;
+  organisationName?: string; // Joined from organisation table
   createdAt?: Date;
 }
 
