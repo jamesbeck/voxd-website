@@ -7,6 +7,7 @@ import {
   encryptToken,
   decryptToken,
 } from "@/lib/oauth/googleOAuth";
+import { getGoogleCredentialsByAdminUserId } from "@/lib/getOrganisationGoogleCredentials";
 
 interface RefreshOAuthTokenParams {
   oauthAccountId: string;
@@ -40,10 +41,15 @@ const saRefreshOAuthToken = async ({
     // Decrypt the refresh token
     const refreshToken = decryptToken(oauthAccount.refreshTokenEncrypted);
 
+    // Get Google OAuth credentials from the user's organisation
+    const credentials = await getGoogleCredentialsByAdminUserId(
+      oauthAccount.adminUserId,
+    );
+
     // Refresh based on provider
     let tokenResponse;
     if (oauthAccount.provider === "google") {
-      tokenResponse = await googleRefreshAccessToken(refreshToken);
+      tokenResponse = await googleRefreshAccessToken(refreshToken, credentials);
     } else {
       return { success: false, error: "Unsupported provider" };
     }

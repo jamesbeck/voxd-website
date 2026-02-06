@@ -7,6 +7,7 @@ import {
 } from "@/lib/oauth/googleOAuth";
 import { addLog } from "@/lib/addLog";
 import partners from "@/generated/partners.json";
+import { getGoogleCredentialsByAdminUserId } from "@/lib/getOrganisationGoogleCredentials";
 
 /**
  * Validate that a domain is a known partner domain to prevent open redirects
@@ -103,8 +104,11 @@ export async function GET(request: NextRequest) {
 
     const { adminUserId, provider, scopes } = oauthState;
 
+    // Get Google OAuth credentials from the user's organisation
+    const credentials = await getGoogleCredentialsByAdminUserId(adminUserId);
+
     // Exchange the code for tokens
-    const tokenResponse = await exchangeCodeForTokens(code);
+    const tokenResponse = await exchangeCodeForTokens(code, credentials);
 
     // Get user info from Google
     const userInfo = await getGoogleUserInfo(tokenResponse.access_token);

@@ -1,9 +1,13 @@
 import crypto from "crypto";
+import { GoogleOAuthCredentials } from "@/lib/getOrganisationGoogleCredentials";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_REVOKE_URL = "https://oauth2.googleapis.com/revoke";
 const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
+
+// Re-export for convenience
+export type { GoogleOAuthCredentials };
 
 // Default scopes for Google Calendar read/write
 const DEFAULT_SCOPES = [
@@ -49,14 +53,17 @@ export function getCallbackUrl(): string {
 /**
  * Generate the Google OAuth authorization URL
  */
-export function getGoogleAuthUrl(state: string, scopes?: string[]): string {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  if (!clientId) {
-    throw new Error("GOOGLE_CLIENT_ID environment variable is not set");
+export function getGoogleAuthUrl(
+  state: string,
+  credentials: GoogleOAuthCredentials,
+  scopes?: string[],
+): string {
+  if (!credentials.clientId) {
+    throw new Error("Google Client ID is not configured");
   }
 
   const params = new URLSearchParams({
-    client_id: clientId,
+    client_id: credentials.clientId,
     redirect_uri: getCallbackUrl(),
     response_type: "code",
     scope: (scopes || DEFAULT_SCOPES).join(" "),
@@ -73,11 +80,9 @@ export function getGoogleAuthUrl(state: string, scopes?: string[]): string {
  */
 export async function exchangeCodeForTokens(
   code: string,
+  credentials: GoogleOAuthCredentials,
 ): Promise<GoogleTokenResponse> {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
+  if (!credentials.clientId || !credentials.clientSecret) {
     throw new Error("Google OAuth credentials are not configured");
   }
 
@@ -88,8 +93,8 @@ export async function exchangeCodeForTokens(
     },
     body: new URLSearchParams({
       code,
-      client_id: clientId,
-      client_secret: clientSecret,
+      client_id: credentials.clientId,
+      client_secret: credentials.clientSecret,
       redirect_uri: getCallbackUrl(),
       grant_type: "authorization_code",
     }),
@@ -108,11 +113,9 @@ export async function exchangeCodeForTokens(
  */
 export async function refreshAccessToken(
   refreshToken: string,
+  credentials: GoogleOAuthCredentials,
 ): Promise<GoogleTokenResponse> {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
+  if (!credentials.clientId || !credentials.clientSecret) {
     throw new Error("Google OAuth credentials are not configured");
   }
 
@@ -123,8 +126,8 @@ export async function refreshAccessToken(
     },
     body: new URLSearchParams({
       refresh_token: refreshToken,
-      client_id: clientId,
-      client_secret: clientSecret,
+      client_id: credentials.clientId,
+      client_secret: credentials.clientSecret,
       grant_type: "refresh_token",
     }),
   });

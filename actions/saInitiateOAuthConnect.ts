@@ -10,6 +10,7 @@ import {
   getCallbackUrl,
 } from "@/lib/oauth/googleOAuth";
 import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
+import { getOrganisationGoogleCredentials } from "@/lib/getOrganisationGoogleCredentials";
 
 interface InitiateOAuthConnectParams {
   provider: "google";
@@ -30,7 +31,19 @@ const saInitiateOAuthConnect = async ({
     return { success: false, error: "Unauthorized" };
   }
 
+  if (!accessToken.organisationId) {
+    return {
+      success: false,
+      error: "You must belong to an organisation to connect OAuth accounts",
+    };
+  }
+
   try {
+    // Get Google OAuth credentials from the organisation
+    const credentials = await getOrganisationGoogleCredentials(
+      accessToken.organisationId,
+    );
+
     const state = generateState();
     const scopeList = scopes || getDefaultScopes();
 
@@ -55,7 +68,7 @@ const saInitiateOAuthConnect = async ({
     // Generate auth URL
     let authUrl: string;
     if (provider === "google") {
-      authUrl = getGoogleAuthUrl(state, scopeList);
+      authUrl = getGoogleAuthUrl(state, credentials, scopeList);
     } else {
       return { success: false, error: "Unsupported provider" };
     }
