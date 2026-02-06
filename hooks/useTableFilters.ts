@@ -78,7 +78,7 @@ export function useTableFilters({
       if (hasNonDefault) {
         localStorage.setItem(
           `table-filters-${tableId}`,
-          JSON.stringify(nonDefaultValues)
+          JSON.stringify(nonDefaultValues),
         );
       } else {
         // Remove from localStorage if all values are defaults

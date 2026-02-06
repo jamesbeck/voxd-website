@@ -97,7 +97,7 @@ export default function EditSpecificationForm({
 
       setSaving(false);
     },
-    [quoteId, form, router]
+    [quoteId, form, router],
   );
 
   // Debounced save handler
@@ -128,9 +128,9 @@ export default function EditSpecificationForm({
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Read Only</AlertTitle>
             <AlertDescription>
-              The specification cannot be edited because this quote has
-              already been submitted for pricing. To make changes, the quote
-              must be put back into Draft status.
+              The specification cannot be edited because this quote has already
+              been submitted for pricing. To make changes, the quote must be put
+              back into Draft status.
             </AlertDescription>
           </Alert>
         )}
@@ -197,9 +197,9 @@ export default function EditSpecificationForm({
               <FormDescription>
                 What data sources will the chatbot need to access and what
                 systems or APIs need to be integrated? Examples include
-                client-supplied documents, manually created knowledge base,
-                CRM systems, accountancy packages, back office systems, or
-                bespoke external systems.
+                client-supplied documents, manually created knowledge base, CRM
+                systems, accountancy packages, back office systems, or bespoke
+                external systems.
               </FormDescription>
               <FormMessage />
             </FormItem>

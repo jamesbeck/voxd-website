@@ -40,7 +40,7 @@ const OrganisationsTable = ({
           ]
         : []),
     ],
-    [isSuperAdmin, userPartnerId]
+    [isSuperAdmin, userPartnerId],
   );
 
   // Use the table filters hook with localStorage persistence

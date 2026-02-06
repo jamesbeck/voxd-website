@@ -149,7 +149,7 @@ const QuotesTable = ({
           ]
         : []),
     ],
-    [organisationId, partnerId, isSuperAdmin, userPartnerId]
+    [organisationId, partnerId, isSuperAdmin, userPartnerId],
   );
 
   // Use the table filters hook with localStorage persistence
@@ -174,7 +174,8 @@ const QuotesTable = ({
             sort: true,
             format: (row: any) => {
               const name = row.organisationName || "";
-              const displayName = name.length > 40 ? `${name.slice(0, 40)}...` : name;
+              const displayName =
+                name.length > 40 ? `${name.slice(0, 40)}...` : name;
               const link = (
                 <Link
                   href={`/admin/organisations/${row.organisationId}`}
@@ -187,9 +188,7 @@ const QuotesTable = ({
               return (
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger asChild>
-                      {link}
-                    </TooltipTrigger>
+                    <TooltipTrigger asChild>{link}</TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">{name}</p>
                     </TooltipContent>

@@ -118,9 +118,7 @@ export default async function Page({
                   <div className="flex justify-end mb-4">
                     <NewQuoteButton organisationId={organisation.id} />
                   </div>
-                  <QuotesTable
-                    organisationId={organisation.id}
-                  />
+                  <QuotesTable organisationId={organisation.id} />
                 </Container>
               </TabsContent>
             ) : null}

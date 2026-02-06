@@ -39,7 +39,7 @@ interface SelectFilterProps {
 
 function SelectFilter({ filter, value, onChange }: SelectFilterProps) {
   const [options, setOptions] = useState<TableFilterOption[]>(
-    filter.options || []
+    filter.options || [],
   );
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(!!filter.options);

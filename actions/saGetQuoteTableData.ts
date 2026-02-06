@@ -34,11 +34,7 @@ const saGetQuoteTableData = async ({
   const base = db("quote")
     .leftJoin("organisation", "organisation.id", "quote.organisationId")
     .leftJoin("partner", "partner.id", "organisation.partnerId")
-    .leftJoin(
-      "adminUser as owner",
-      "owner.id",
-      "quote.createdByAdminUserId",
-    )
+    .leftJoin("adminUser as owner", "owner.id", "quote.createdByAdminUserId")
     .groupBy("quote.id", "organisation.id", "partner.id", "owner.id")
     .where((qb) => {
       if (search) {

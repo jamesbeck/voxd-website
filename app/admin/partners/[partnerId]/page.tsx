@@ -63,10 +63,7 @@ export default async function Page({
               />
             </TabsContent>
             <TabsContent value="quotes">
-              <QuotesTable
-                partnerId={partner.id}
-                isSuperAdmin={true}
-              />
+              <QuotesTable partnerId={partner.id} isSuperAdmin={true} />
             </TabsContent>
             {/* <TabsContent value="sessions">
               <H2>Sessions</H2>
