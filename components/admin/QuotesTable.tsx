@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import DataTable from "@/components/adminui/Table";
+import TableFilters from "@/components/adminui/TableFilters";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +13,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
+import saGetPartnerAdminUsers from "@/actions/saGetPartnerAdminUsers";
+import saGetAllPartners from "@/actions/saGetAllPartners";
+import { useTableFilters } from "@/hooks/useTableFilters";
+import { TableFilterConfig } from "@/types/types";
 import { format, isToday, isPast, startOfDay } from "date-fns";
 
 const getStatusBadge = (status: string) => {
@@ -76,21 +78,20 @@ const getStatusBadge = (status: string) => {
 
 interface QuotesTableProps {
   organisationId?: string;
+  /** Fixed partner filter - when set, hides partner dropdown and always filters by this partner */
+  partnerId?: string;
   isSuperAdmin?: boolean;
   userPartnerId?: string | null;
-  showPartnerToggle?: boolean;
 }
 
 const QuotesTable = ({
   organisationId,
+  partnerId,
   isSuperAdmin,
   userPartnerId,
-  showPartnerToggle = true,
 }: QuotesTableProps) => {
-  const [showOnlyMyPartner, setShowOnlyMyPartner] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>("open");
-
-  const statusTabs = [
+  // Status filter options
+  const statusOptions = [
     { value: "open", label: "Open Quotes" },
     { value: "Draft", label: "Draft" },
     { value: "Pitched to Client", label: "Pitched" },
@@ -102,6 +103,67 @@ const QuotesTable = ({
     { value: "all", label: "All Quotes" },
   ];
 
+  // Define filter configuration
+  const filterConfig: TableFilterConfig[] = useMemo(
+    () => [
+      // Status filter (always shown)
+      {
+        name: "statusFilter",
+        label: "Status",
+        type: "select",
+        defaultValue: "open",
+        placeholder: "All Statuses",
+        options: statusOptions,
+      },
+      // Partner filter (only for super admins, not on organisation page, not when partnerId prop is set)
+      ...(isSuperAdmin && !organisationId && !partnerId
+        ? [
+            {
+              name: "partnerId",
+              label: "Partner",
+              type: "select" as const,
+              // Default to logged-in user's partner
+              defaultValue: userPartnerId || "",
+              placeholder: "All Partners",
+              loadOptions: async () => {
+                const result = await saGetAllPartners();
+                return result.success && result.data ? result.data : [];
+              },
+            },
+          ]
+        : []),
+      // Owner filter (only if not filtered by organisation)
+      ...(!organisationId
+        ? [
+            {
+              name: "ownerId",
+              label: "Owner",
+              type: "select" as const,
+              defaultValue: "",
+              placeholder: "All Owners",
+              loadOptions: async () => {
+                const result = await saGetPartnerAdminUsers();
+                return result.success && result.data ? result.data : [];
+              },
+            },
+          ]
+        : []),
+    ],
+    [organisationId, partnerId, isSuperAdmin, userPartnerId]
+  );
+
+  // Use the table filters hook with localStorage persistence
+  const {
+    values: filterValues,
+    setValue: setFilterValue,
+    clearAll: clearFilters,
+    hasActiveFilters,
+    filterKey,
+  } = useTableFilters({
+    tableId: "admin-quotes",
+    filters: filterConfig,
+  });
+
   const columns = [
     // Only show Organisation column if not filtered by organisation
     ...(!organisationId
@@ -110,17 +172,23 @@ const QuotesTable = ({
             label: "Organisation",
             name: "organisationName",
             sort: true,
-            linkTo: (row: any) => `/admin/organisations/${row.organisationId}`,
             format: (row: any) => {
               const name = row.organisationName || "";
-              if (name.length <= 40) return name;
+              const displayName = name.length > 40 ? `${name.slice(0, 40)}...` : name;
+              const link = (
+                <Link
+                  href={`/admin/organisations/${row.organisationId}`}
+                  className="hover:underline"
+                >
+                  {displayName}
+                </Link>
+              );
+              if (name.length <= 40) return link;
               return (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="cursor-help">
-                        {name.slice(0, 40)}...
-                      </span>
+                      {link}
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs">{name}</p>
@@ -159,12 +227,6 @@ const QuotesTable = ({
       name: "status",
       sort: true,
       format: (row: any) => getStatusBadge(row.status),
-    },
-    {
-      label: "Created At",
-      name: "createdAt",
-      sort: true,
-      format: (row: any) => format(new Date(row.createdAt), "dd/MM/yyyy") || "",
     },
     {
       label: "Next Action Date",
@@ -240,6 +302,23 @@ const QuotesTable = ({
           },
         ]
       : []),
+    // Only show Owner column if not filtered by organisation
+    ...(!organisationId
+      ? [
+          {
+            label: "Owner",
+            name: "ownerName",
+            sort: true,
+            format: (row: any) => row.ownerName || "-",
+          },
+        ]
+      : []),
+    {
+      label: "Created At",
+      name: "createdAt",
+      sort: true,
+      format: (row: any) => format(new Date(row.createdAt), "dd/MM/yyyy") || "",
+    },
   ];
 
   const actions = (row: any) => {
@@ -252,40 +331,34 @@ const QuotesTable = ({
 
   const getDataParams = {
     ...(organisationId ? { organisationId } : {}),
-    ...(isSuperAdmin && showOnlyMyPartner && userPartnerId
-      ? { partnerId: userPartnerId }
+    // Use fixed partnerId prop if set, otherwise use filter value (super admin only - server enforces this)
+    ...(partnerId
+      ? { partnerId }
+      : filterValues.partnerId
+        ? { partnerId: filterValues.partnerId as string }
+        : {}),
+    // Add status filter if not "all"
+    ...(filterValues.statusFilter && filterValues.statusFilter !== "all"
+      ? { statusFilter: filterValues.statusFilter as string }
       : {}),
-    ...(statusFilter !== "all" ? { statusFilter } : {}),
+    // Add owner filter if set
+    ...(filterValues.ownerId
+      ? { ownerId: filterValues.ownerId as string }
+      : {}),
   };
 
   return (
     <>
-      <Tabs
-        value={statusFilter}
-        onValueChange={setStatusFilter}
-        className="mb-4"
-      >
-        <TabsList className="flex-wrap h-auto gap-1">
-          {statusTabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-      {isSuperAdmin && !organisationId && showPartnerToggle && (
-        <div className="flex items-center space-x-2 mb-4">
-          <Switch
-            id="partner-filter"
-            checked={showOnlyMyPartner}
-            onCheckedChange={setShowOnlyMyPartner}
-          />
-          <Label htmlFor="partner-filter">Show only my partner</Label>
-        </div>
-      )}
+      <TableFilters
+        filters={filterConfig}
+        values={filterValues}
+        onChange={setFilterValue}
+        onClear={clearFilters}
+        hasActiveFilters={hasActiveFilters}
+      />
       <DataTable
         tableId="admin-quotes"
-        key={`${showOnlyMyPartner}-${statusFilter}`}
+        key={filterKey}
         getData={saGetQuoteTableData}
         getDataParams={
           Object.keys(getDataParams).length > 0 ? getDataParams : undefined

@@ -4,8 +4,14 @@ import H1 from "@/components/adminui/H1";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import OrganisationsTable from "./organisationsTable";
 import NewOrganisationButton from "@/components/admin/NewOrganisationButton";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page() {
+  const accessToken = await verifyAccessToken();
+
+  const isSuperAdmin = accessToken?.superAdmin ?? false;
+  const userPartnerId = accessToken?.partnerId ?? null;
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -20,7 +26,10 @@ export default async function Page() {
         <NewOrganisationButton />
       </div>
 
-      <OrganisationsTable />
+      <OrganisationsTable
+        isSuperAdmin={isSuperAdmin}
+        userPartnerId={userPartnerId}
+      />
     </Container>
   );
 }

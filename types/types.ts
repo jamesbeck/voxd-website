@@ -26,6 +26,33 @@ export type ServerActionReadParams<TExtra = object> = {
   sortDirection?: "asc" | "desc";
 } & TExtra;
 
+// Table Filter Types
+export type TableFilterOption = {
+  label: string;
+  value: string;
+};
+
+export type TableFilterType = "select" | "switch";
+
+export type TableFilterConfig = {
+  /** Unique identifier for the filter, used as the key in filter values */
+  name: string;
+  /** Display label for the filter */
+  label: string;
+  /** Type of filter UI to render */
+  type: TableFilterType;
+  /** Default value for the filter */
+  defaultValue: string | boolean;
+  /** Static options for select filters */
+  options?: TableFilterOption[];
+  /** Async function to load options (for select filters with dynamic data) */
+  loadOptions?: () => Promise<TableFilterOption[]>;
+  /** Placeholder text for select filters */
+  placeholder?: string;
+};
+
+export type TableFilterValues = Record<string, string | boolean>;
+
 export type Roles = "admin" | "organisation" | "partner";
 
 // Admin users - users who log into the admin dashboard

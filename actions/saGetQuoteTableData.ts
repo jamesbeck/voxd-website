@@ -16,10 +16,12 @@ const saGetQuoteTableData = async ({
   organisationId,
   partnerId,
   statusFilter,
+  ownerId,
 }: ServerActionReadParams & {
   organisationId?: string;
   partnerId?: string;
   statusFilter?: string;
+  ownerId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -32,7 +34,12 @@ const saGetQuoteTableData = async ({
   const base = db("quote")
     .leftJoin("organisation", "organisation.id", "quote.organisationId")
     .leftJoin("partner", "partner.id", "organisation.partnerId")
-    .groupBy("quote.id", "organisation.id", "partner.id")
+    .leftJoin(
+      "adminUser as owner",
+      "owner.id",
+      "quote.createdByAdminUserId",
+    )
+    .groupBy("quote.id", "organisation.id", "partner.id", "owner.id")
     .where((qb) => {
       if (search) {
         qb.where("organisation.name", "ilike", `%${search}%`);
@@ -61,6 +68,11 @@ const saGetQuoteTableData = async ({
   // Allow superAdmins to filter by a specific partnerId
   if (accessToken?.superAdmin && partnerId) {
     base.where("organisation.partnerId", partnerId);
+  }
+
+  // Filter by owner (createdByAdminUserId)
+  if (ownerId) {
+    base.where("quote.createdByAdminUserId", ownerId);
   }
 
   //count query
@@ -105,6 +117,7 @@ const saGetQuoteTableData = async ({
       "partner.name as partnerName",
       "partner.id as partnerId",
       "lastViewed.lastViewedAt",
+      "owner.name as ownerName",
     )
 
     // .select([db.raw('COUNT("agent"."id")::int as "agentCount"')])

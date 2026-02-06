@@ -73,37 +73,31 @@ export default function DataTable<TExtra extends object = object>({
   const debouncedSearchTerm = useDebounce(searchValue, 300);
   const [page, setPage] = useState(1);
 
-  // Get initial sort from localStorage if tableId is provided
-  const getInitialSort = (): {
-    field: string | undefined;
-    direction: "asc" | "desc";
-  } => {
-    if (tableId && typeof window !== "undefined") {
+  // Initialize sort with defaults (don't read localStorage during render to avoid hydration mismatch)
+  const [sortField, setSortField] = useState<string | undefined>(
+    defaultSort?.name || columns[0]?.name,
+  );
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+    defaultSort?.direction || "asc",
+  );
+
+  // Load sort preferences from localStorage after hydration
+  useEffect(() => {
+    if (tableId) {
       try {
         const stored = localStorage.getItem(`table-sort-${tableId}`);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed?.field && parsed?.direction) {
-            return { field: parsed.field, direction: parsed.direction };
+            setSortField(parsed.field);
+            setSortDirection(parsed.direction);
           }
         }
       } catch {
         // Ignore parse errors
       }
     }
-    return {
-      field: defaultSort?.name || columns[0]?.name,
-      direction: defaultSort?.direction || "asc",
-    };
-  };
-
-  const initialSort = getInitialSort();
-  const [sortField, setSortField] = useState<string | undefined>(
-    initialSort.field,
-  );
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
-    initialSort.direction,
-  );
+  }, [tableId]);
   const [loading, setLoading] = useState(true);
   const currentRequestRef = useRef<symbol | null>(null);
 
@@ -187,19 +181,24 @@ export default function DataTable<TExtra extends object = object>({
   // Rendered table component
   return (
     <div className="flex flex-col gap-4">
-      <Input
-        type="text"
-        placeholder="Search..."
-        onChange={(e) => {
-          setSearchValue(e.target.value);
-        }}
-        value={searchValue}
-      />
-      {response?.success && (
-        <p className="text-sm text-muted-foreground">
-          Showing {response.data.length} of {response.totalAvailable} records
-        </p>
-      )}
+      <div className="flex items-center justify-between gap-4">
+        {response?.success ? (
+          <p className="text-sm text-muted-foreground">
+            Showing {response.data.length} of {response.totalAvailable} records
+          </p>
+        ) : (
+          <div />
+        )}
+        <Input
+          type="text"
+          placeholder="Search..."
+          onChange={(e) => {
+            setSearchValue(e.target.value);
+          }}
+          value={searchValue}
+          className="w-64"
+        />
+      </div>
       <div className="overflow-hidden rounded-md border relative">
         {loading && (
           <Spinner className="h-8 w-8 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2" />

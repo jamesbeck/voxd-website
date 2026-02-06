@@ -64,9 +64,8 @@ export default async function Page({
             </TabsContent>
             <TabsContent value="quotes">
               <QuotesTable
-                userPartnerId={partner.id}
+                partnerId={partner.id}
                 isSuperAdmin={true}
-                showPartnerToggle={false}
               />
             </TabsContent>
             {/* <TabsContent value="sessions">

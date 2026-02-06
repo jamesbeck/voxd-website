@@ -120,7 +120,6 @@ export default async function Page({
                   </div>
                   <QuotesTable
                     organisationId={organisation.id}
-                    showPartnerToggle={false}
                   />
                 </Container>
               </TabsContent>

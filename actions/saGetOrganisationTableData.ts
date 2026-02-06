@@ -13,7 +13,10 @@ const saGetOrganisationTableData = async ({
   pageSize = 100,
   sortField = "id",
   sortDirection = "asc",
-}: ServerActionReadParams): Promise<ServerActionReadResponse> => {
+  partnerId,
+}: ServerActionReadParams & {
+  partnerId?: string;
+}): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
   const base = db("organisation")
@@ -36,9 +39,14 @@ const saGetOrganisationTableData = async ({
     });
   }
 
-  //if partner is logged in, restrict to their organisations
+  //if partner is logged in (not super admin), restrict to their organisations
   if (accessToken?.partner && !accessToken.superAdmin) {
     base.where("organisation.partnerId", accessToken!.partnerId);
+  }
+
+  // Allow superAdmins to filter by a specific partnerId
+  if (accessToken?.superAdmin && partnerId) {
+    base.where("organisation.partnerId", partnerId);
   }
 
   //count query
