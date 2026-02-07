@@ -53,7 +53,7 @@ export default function Conversation({
       <div className="h-[600px] rounded-xl border bg-muted/30 shadow-sm overflow-y-auto p-4 space-y-3">
         {messages.map((message: any, index: number) => {
           //split text on line breaks
-          const textSplitOnLineBreaks = message.text.split("\n");
+          const textSplitOnLineBreaks = message.text?.split("\n") ?? [];
 
           // Calculate time since previous message
           const previousMessage = index > 0 ? messages[index - 1] : null;
@@ -203,14 +203,14 @@ export default function Conversation({
                           <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
                             <Type className="h-3.5 w-3.5" />
                             <span className="text-[11px]">
-                              {message.text.length}
+                              {message.text?.length ?? 0}
                             </span>
                           </div>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p className="font-medium">Character Count</p>
                           <p className="text-xs opacity-70">
-                            {message.text.length} characters
+                            {message.text?.length ?? 0} characters
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -252,14 +252,14 @@ export default function Conversation({
                           <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
                             <Type className="h-3.5 w-3.5" />
                             <span className="text-[11px]">
-                              {message.text.length}
+                              {message.text?.length ?? 0}
                             </span>
                           </div>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p className="font-medium">Character Count</p>
                           <p className="text-xs opacity-70">
-                            {message.text.length} characters
+                            {message.text?.length ?? 0} characters
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -313,14 +313,14 @@ export default function Conversation({
                           <div className="flex items-center gap-1 text-primary-foreground/70 hover:text-primary-foreground transition-colors cursor-default">
                             <Type className="h-3.5 w-3.5" />
                             <span className="text-[11px]">
-                              {message.text.length}
+                              {message.text?.length ?? 0}
                             </span>
                           </div>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p className="font-medium">Character Count</p>
                           <p className="text-xs opacity-70">
-                            {message.text.length} characters
+                            {message.text?.length ?? 0} characters
                           </p>
                         </TooltipContent>
                       </Tooltip>
