@@ -27,7 +27,7 @@ export default async function saUpdateWabaApp({
 
     // Get the current WABA for logging
     const waba = await db("waba")
-      .leftJoin("app as currentApp", "waba.appId", "currentApp.id")
+      .leftJoin("metaApp as currentApp", "waba.appId", "currentApp.id")
       .where("waba.id", wabaId)
       .select("waba.*", "currentApp.name as currentAppName")
       .first();
