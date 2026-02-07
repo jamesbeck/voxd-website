@@ -44,7 +44,7 @@ export default function EditSpecificationForm({
   isSuperAdmin?: boolean;
 }) {
   const isReadOnly =
-    !isSuperAdmin && status !== "Draft" && status !== "Pitched to Client";
+    !isSuperAdmin && status !== "Draft" && status !== "Concept Sent to Client";
   const [saving, setSaving] = useState(false);
   const router = useRouter();
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);

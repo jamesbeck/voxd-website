@@ -23,10 +23,10 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case "Draft":
       return <Badge variant="secondary">{status}</Badge>;
-    case "Pitched to Client":
+    case "Concept Sent to Client":
       return (
         <Badge className="bg-cyan-500 text-white border-transparent">
-          Pitched to Client
+          Concept Sent to Client
         </Badge>
       );
     case "Sent to Voxd for Cost Pricing":
@@ -94,7 +94,7 @@ const QuotesTable = ({
   const statusOptions = [
     { value: "open", label: "Open Quotes" },
     { value: "Draft", label: "Draft" },
-    { value: "Pitched to Client", label: "Pitched" },
+    { value: "Concept Sent to Client", label: "Concept Sent" },
     { value: "Sent to Voxd for Cost Pricing", label: "Sent to Voxd" },
     { value: "Cost Pricing Received from Voxd", label: "Pricing Received" },
     { value: "Proposal with Client", label: "With Client" },

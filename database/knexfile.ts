@@ -4,7 +4,7 @@ const config: Record<string, Knex.Config> = {
   production: {
     client: "pg",
     connection: {
-      connectionString: process.env.PRODUCTION_DATABASE_URL,
+      connectionString: process.env.DATABASE_URL,
     },
     searchPath: "public",
     pool: {
@@ -19,7 +19,7 @@ const config: Record<string, Knex.Config> = {
   development: {
     client: "pg",
     connection: {
-      connectionString: process.env.PRODUCTION_DATABASE_URL,
+      connectionString: process.env.DATABASE_URL,
     },
     searchPath: "public",
     pool: {

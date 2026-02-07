@@ -56,18 +56,18 @@ ${partnerName} provides a powerful, enterprise-ready platform for delivering int
 - Custom back-office and accounting systems
 - Real-time data synchronisation`;
 
-const saGenerateQuotePitch = async ({
+const saGenerateQuoteConcept = async ({
   quoteId,
   extraPrompt,
   mode = "scratch",
   existingIntroduction,
-  existingPitch,
+  existingConcept,
 }: {
   quoteId: string;
   extraPrompt?: string;
   mode?: "scratch" | "amend";
   existingIntroduction?: string;
-  existingPitch?: string;
+  existingConcept?: string;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return { success: false, error: "Quote ID is required" };
@@ -111,7 +111,7 @@ const saGenerateQuotePitch = async ({
     return {
       success: false,
       error:
-        "Please add some specification details before generating the pitch",
+        "Please add some specification details before generating the concept",
     };
   }
 
@@ -139,15 +139,15 @@ ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 
     // Build amend-specific context if in amend mode
     const isAmendMode =
-      mode === "amend" && existingIntroduction && existingPitch;
+      mode === "amend" && existingIntroduction && existingConcept;
 
-    // Generate the pitch introduction
+    // Generate the concept introduction
     const introSystemPrompt = isAmendMode
       ? `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
 ${partnerContext}
 
-Your task is to AMEND an existing pitch introduction based on the user's instructions. You have the existing introduction and should modify it according to their specific requests while maintaining the overall structure and purpose.
+Your task is to AMEND an existing concept introduction based on the user's instructions. You have the existing introduction and should modify it according to their specific requests while maintaining the overall structure and purpose.
 
 The introduction should:
 - Be friendly and welcoming, addressing the client by their organisation name
@@ -162,7 +162,7 @@ IMPORTANT RULES:
 - Do NOT assume we have had any prior conversations or meetings
 - Do NOT ask any questions - this is not a consultation or discovery session
 - Do NOT include example conversations or WhatsApp message flows
-- This is a written pitch document, not a live presentation
+- This is a written concept document, not a live presentation
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
@@ -177,7 +177,7 @@ ${extraPrompt || "Please improve and refine the existing content."}`
 
 ${partnerContext}
 
-Your task is to write a warm, engaging INTRODUCTION for a pitch to a potential client. This introduction should:
+Your task is to write a warm, engaging INTRODUCTION for a concept to a potential client. This introduction should:
 - Be friendly and welcoming, addressing the client by their organisation name
 - Acknowledge their business and industry based on the background provided
 - Express genuine excitement about the potential to help transform their customer communications
@@ -190,31 +190,31 @@ IMPORTANT RULES:
 - Do NOT assume we have had any prior conversations or meetings
 - Do NOT ask any questions - this is not a consultation or discovery session
 - Do NOT include example conversations or WhatsApp message flows
-- This is a written pitch document, not a live presentation
+- This is a written concept document, not a live presentation
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
 Write in Markdown format. Use **bold** for emphasis where appropriate. Do not use headings - this will be displayed under an "Introduction" heading.${extraPrompt ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}` : ""}`;
 
     const introPrompt = isAmendMode
-      ? `Please amend the existing pitch introduction for the following client based on the amendment instructions provided:\n\n${specificationContext}`
-      : `Please write a pitch introduction for the following client:\n\n${specificationContext}`;
+      ? `Please amend the existing concept introduction for the following client based on the amendment instructions provided:\n\n${specificationContext}`
+      : `Please write a concept introduction for the following client:\n\n${specificationContext}`;
 
-    const { text: pitchIntro } = await generateText({
+    const { text: conceptIntro } = await generateText({
       model: openai("gpt-5.2"),
       system: introSystemPrompt,
       prompt: introPrompt,
     });
 
-    // Build the main pitch system prompt
-    const mainPitchSystemPrompt = isAmendMode
+    // Build the main concept system prompt
+    const mainConceptSystemPrompt = isAmendMode
       ? `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
 
 ${partnerContext}
 
-Your task is to AMEND an existing pitch based on the user's instructions. You have the existing pitch and should modify it according to their specific requests while maintaining the overall structure and coverage of key themes.
+Your task is to AMEND an existing concept based on the user's instructions. You have the existing concept and should modify it according to their specific requests while maintaining the overall structure and coverage of key themes.
 
-The pitch should cover themes like:
+The concept should cover themes like:
 - What a chatbot could do for their business
 - Saving money and time while improving customer experience
 - Getting ahead of the competition with AI
@@ -231,14 +231,14 @@ IMPORTANT RULES:
 - Do NOT ask any questions - this is not a consultation or discovery session
 - Do NOT include example conversations or WhatsApp message flows (these will be handled separately)
 - Do NOT include mock-ups or sample dialogues
-- This is a written pitch document, not a live presentation
+- This is a written concept document, not a live presentation
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-Structure the pitch with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy.
+Structure the concept with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy.
 
-EXISTING PITCH TO AMEND:
-${existingPitch}
+EXISTING CONCEPT TO AMEND:
+${existingConcept}
 
 USER'S AMENDMENT INSTRUCTIONS:
 ${extraPrompt || "Please improve and refine the existing content."}`
@@ -246,7 +246,7 @@ ${extraPrompt || "Please improve and refine the existing content."}`
 
 ${partnerContext}
 
-Your task is to write a compelling, persuasive PITCH that helps the client understand how a WhatsApp AI chatbot could transform their business. Based on their background and industry, you should cover the key themes below. However, you have creative freedom to choose appropriate section headings that fit the specific context and industry of this client. Don't feel constrained to use the exact headings below - adapt them to sound natural and relevant for this particular business.
+Your task is to write a compelling, persuasive concept that helps the client understand how a WhatsApp AI chatbot could transform their business. Based on their background and industry, you should cover the key themes below. However, you have creative freedom to choose appropriate section headings that fit the specific context and industry of this client. Don't feel constrained to use the exact headings below - adapt them to sound natural and relevant for this particular business.
 
 **Key themes to address (use appropriate headings for the context):**
 
@@ -311,49 +311,49 @@ IMPORTANT RULES:
 - Do NOT ask any questions - this is not a consultation or discovery session
 - Do NOT include example conversations or WhatsApp message flows (these will be handled separately)
 - Do NOT include mock-ups or sample dialogues
-- This is a written pitch document, not a live presentation
+- This is a written concept document, not a live presentation
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-Structure the pitch with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
+Structure the concept with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
 
 Make sure to tailor every section to their specific industry and needs based on the background information provided.${extraPrompt ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}` : ""}`;
 
-    const mainPitchPrompt = isAmendMode
-      ? `Please amend the existing pitch for the following client based on the amendment instructions provided:\n\n${specificationContext}`
-      : `Please write a pitch for the following client:\n\n${specificationContext}`;
+    const mainConceptPrompt = isAmendMode
+      ? `Please amend the existing concept for the following client based on the amendment instructions provided:\n\n${specificationContext}`
+      : `Please write a concept for the following client:\n\n${specificationContext}`;
 
-    // Generate the main pitch
-    const { text: pitch } = await generateText({
+    // Generate the main concept
+    const { text: concept } = await generateText({
       model: openai("gpt-5.2"),
-      system: mainPitchSystemPrompt,
-      prompt: mainPitchPrompt,
+      system: mainConceptSystemPrompt,
+      prompt: mainConceptPrompt,
     });
 
-    if (!pitchIntro || !pitch) {
-      return { success: false, error: "Failed to generate pitch content" };
+    if (!conceptIntro || !concept) {
+      return { success: false, error: "Failed to generate concept content" };
     }
 
     // Save the generated content to the database
     await db("quote").where({ id: quoteId }).update({
-      generatedPitchIntroduction: pitchIntro,
-      generatedPitch: pitch,
+      generatedConceptIntroduction: conceptIntro,
+      generatedConcept: concept,
     });
 
     return {
       success: true,
       data: {
-        generatedPitchIntroduction: pitchIntro,
-        generatedPitch: pitch,
+        generatedConceptIntroduction: conceptIntro,
+        generatedConcept: concept,
       },
     };
   } catch (error) {
-    console.error("Error generating quote pitch:", error);
+    console.error("Error generating quote concept:", error);
     return {
       success: false,
-      error: "Failed to generate pitch. Please try again.",
+      error: "Failed to generate concept. Please try again.",
     };
   }
 };
 
-export default saGenerateQuotePitch;
+export default saGenerateQuoteConcept;

@@ -8,7 +8,7 @@ import knex from "knex";
 // Create database connection using production database URL
 const db = knex({
   client: "pg",
-  connection: process.env.PRODUCTION_DATABASE_URL,
+  connection: process.env.DATABASE_URL,
 });
 
 async function generateMissingFeatureBodies() {

@@ -3,7 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saMarkQuotePitchedToClient = async ({
+const saMarkQuoteConceptSentToClient = async ({
   quoteId,
 }: {
   quoteId: string;
@@ -28,20 +28,20 @@ const saMarkQuotePitchedToClient = async ({
     };
   }
 
-  // Only allow marking as pitched from Draft status
+  // Only allow marking as concept sent from Draft status
   if (existingQuote.status !== "Draft") {
     return {
       success: false,
-      error: "Quote can only be marked as pitched when in 'Draft' status",
+      error: "Quote can only be marked as concept sent when in 'Draft' status",
     };
   }
 
-  // Update the quote status to 'Pitched to Client'
+  // Update the quote status to 'Concept Sent to Client'
   await db("quote").where({ id: quoteId }).update({
-    status: "Pitched to Client",
+    status: "Concept Sent to Client",
   });
 
   return { success: true };
 };
 
-export default saMarkQuotePitchedToClient;
+export default saMarkQuoteConceptSentToClient;

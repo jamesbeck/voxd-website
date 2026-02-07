@@ -5,7 +5,7 @@ import { Check, X } from "lucide-react";
 
 const steps = [
   { key: "Draft", label: "Draft" },
-  { key: "Pitched to Client", label: "Pitched to Client" },
+  { key: "Concept Sent to Client", label: "Concept Sent to Client" },
   {
     key: "Sent to Voxd for Cost Pricing",
     label: "Sent to Voxd for Cost Pricing",

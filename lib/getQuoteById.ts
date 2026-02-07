@@ -33,10 +33,10 @@ export type Quote = {
   createdByAdminUserId: string | null;
   ownerName: string | null;
   ownerEmail: string | null;
-  generatedPitchIntroduction: string | null;
-  generatedPitch: string | null;
-  pitchPersonalMessage: string | null;
-  pitchHideSections: string[] | null;
+  generatedConceptIntroduction: string | null;
+  generatedConcept: string | null;
+  conceptPersonalMessage: string | null;
+  conceptHideSections: string[] | null;
   generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
   proposalPersonalMessage: string | null;

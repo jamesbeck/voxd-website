@@ -3,18 +3,18 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saUpdateQuotePitch = async ({
+const saUpdateQuoteConcept = async ({
   quoteId,
-  pitchPersonalMessage,
-  generatedPitchIntroduction,
-  generatedPitch,
-  pitchHideSections,
+  conceptPersonalMessage,
+  generatedConceptIntroduction,
+  generatedConcept,
+  conceptHideSections,
 }: {
   quoteId: string;
-  pitchPersonalMessage?: string;
-  generatedPitchIntroduction?: string;
-  generatedPitch?: string;
-  pitchHideSections?: string[];
+  conceptPersonalMessage?: string;
+  generatedConceptIntroduction?: string;
+  generatedConcept?: string;
+  conceptHideSections?: string[];
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -37,13 +37,14 @@ const saUpdateQuotePitch = async ({
 
   // Build update object with only provided values
   const updateData: Record<string, any> = {};
-  if (pitchPersonalMessage !== undefined)
-    updateData.pitchPersonalMessage = pitchPersonalMessage;
-  if (generatedPitchIntroduction !== undefined)
-    updateData.generatedPitchIntroduction = generatedPitchIntroduction;
-  if (generatedPitch !== undefined) updateData.generatedPitch = generatedPitch;
-  if (pitchHideSections !== undefined)
-    updateData.pitchHideSections = pitchHideSections;
+  if (conceptPersonalMessage !== undefined)
+    updateData.conceptPersonalMessage = conceptPersonalMessage;
+  if (generatedConceptIntroduction !== undefined)
+    updateData.generatedConceptIntroduction = generatedConceptIntroduction;
+  if (generatedConcept !== undefined)
+    updateData.generatedConcept = generatedConcept;
+  if (conceptHideSections !== undefined)
+    updateData.conceptHideSections = conceptHideSections;
 
   if (Object.keys(updateData).length === 0) {
     return { success: true }; // Nothing to update
@@ -54,4 +55,4 @@ const saUpdateQuotePitch = async ({
   return { success: true };
 };
 
-export default saUpdateQuotePitch;
+export default saUpdateQuoteConcept;

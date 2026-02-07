@@ -28,7 +28,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import EditProposalForm from "./EditProposalForm";
 import EditQuoteTitleDialog from "./EditQuoteTitleDialog";
 import EditBackgroundForm from "./EditBackgroundForm";
-import EditPitchForm from "./EditPitchForm";
+import EditConceptForm from "./EditConceptForm";
 import QuoteViewsTable from "./QuoteViewsTable";
 import QuoteHeroImageTab from "./QuoteHeroImageTab";
 import QuoteActionsTab from "./QuoteActionsTab";
@@ -110,9 +110,9 @@ export default async function Page({
                     Specification
                   </Link>
                 </TabsTrigger>
-                <TabsTrigger value="pitch" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=pitch`}>
-                    Pitch
+                <TabsTrigger value="concept" asChild>
+                  <Link href={`/admin/quotes/${quote.id}?tab=concept`}>
+                    Concept
                   </Link>
                 </TabsTrigger>
                 <TabsTrigger value="proposal" asChild>
@@ -259,13 +259,15 @@ export default async function Page({
                 isSuperAdmin={isSuperAdmin}
               />
             </TabsContent>
-            <TabsContent value="pitch">
-              <EditPitchForm
+            <TabsContent value="concept">
+              <EditConceptForm
                 quoteId={quote.id}
-                pitchPersonalMessage={quote.pitchPersonalMessage}
-                generatedPitchIntroduction={quote.generatedPitchIntroduction}
-                generatedPitch={quote.generatedPitch}
-                pitchHideSections={quote.pitchHideSections}
+                conceptPersonalMessage={quote.conceptPersonalMessage}
+                generatedConceptIntroduction={
+                  quote.generatedConceptIntroduction
+                }
+                generatedConcept={quote.generatedConcept}
+                conceptHideSections={quote.conceptHideSections}
               />
             </TabsContent>
             <TabsContent value="proposal">

@@ -35,15 +35,15 @@ const saUpdateQuote = async ({
     };
   }
 
-  // Only allow editing specification fields when the quote is in Draft or Pitched to Client status
+  // Only allow editing specification fields when the quote is in Draft or Concept Sent to Client status
   if (
     existingQuote.status !== "Draft" &&
-    existingQuote.status !== "Pitched to Client"
+    existingQuote.status !== "Concept Sent to Client"
   ) {
     return {
       success: false,
       error:
-        "Specification can only be edited when the quote is in 'Draft' or 'Pitched to Client' status",
+        "Specification can only be edited when the quote is in 'Draft' or 'Concept Sent to Client' status",
     };
   }
 

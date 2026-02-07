@@ -6,7 +6,7 @@ import { isPreviewBot } from "@/lib/isPreviewBot";
 
 type RecordQuoteViewParams = {
   quoteId: string;
-  documentViewed: "pitch" | "quote";
+  documentViewed: "concept" | "quote";
   ipAddress: string | null;
   userAgent: string | null;
   loggedInEmail?: string | null;

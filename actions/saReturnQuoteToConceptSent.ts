@@ -3,7 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 
-const saReturnQuoteToPitched = async ({
+const saReturnQuoteToConceptSent = async ({
   quoteId,
 }: {
   quoteId: string;
@@ -29,16 +29,16 @@ const saReturnQuoteToPitched = async ({
     return {
       success: false,
       error:
-        "Quote must be in 'Sent to Voxd for Cost Pricing' or 'Cost Pricing Received from Voxd' status to return to Pitched to Client",
+        "Quote must be in 'Sent to Voxd for Cost Pricing' or 'Cost Pricing Received from Voxd' status to return to Concept Sent to Client",
     };
   }
 
   // Update quote status
   await db("quote")
     .where({ id: quoteId })
-    .update({ status: "Pitched to Client" });
+    .update({ status: "Concept Sent to Client" });
 
   return { success: true };
 };
 
-export default saReturnQuoteToPitched;
+export default saReturnQuoteToConceptSent;

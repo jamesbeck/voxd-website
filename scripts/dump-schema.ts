@@ -5,12 +5,10 @@ import { join } from "path";
 // Load environment variables
 import "dotenv/config";
 
-const DATABASE_URL = process.env.PRODUCTION_DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
-  console.error(
-    "Error: PRODUCTION_DATABASE_URL environment variable is not set"
-  );
+  console.error("Error: DATABASE_URL environment variable is not set");
   process.exit(1);
 }
 
@@ -31,7 +29,7 @@ try {
     {
       encoding: "utf-8",
       maxBuffer: 50 * 1024 * 1024, // 50MB buffer
-    }
+    },
   );
 
   writeFileSync(outputFile, schema);

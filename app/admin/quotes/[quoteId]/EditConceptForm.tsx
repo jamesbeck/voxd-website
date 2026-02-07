@@ -19,8 +19,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
-import saUpdateQuotePitch from "@/actions/saUpdateQuotePitch";
-import saGenerateQuotePitch from "@/actions/saGenerateQuotePitch";
+import saUpdateQuoteConcept from "@/actions/saUpdateQuoteConcept";
+import saGenerateQuoteConcept from "@/actions/saGenerateQuoteConcept";
 import { Sparkles, AlertCircle } from "lucide-react";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -53,27 +53,27 @@ import {
 import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
-  generatedPitchIntroduction: z.string().optional(),
-  generatedPitch: z.string().optional(),
-  pitchHideSections: z.array(z.string()).optional(),
+  generatedConceptIntroduction: z.string().optional(),
+  generatedConcept: z.string().optional(),
+  conceptHideSections: z.array(z.string()).optional(),
 });
 
 const personalMessageSchema = z.object({
-  pitchPersonalMessage: z.string().optional(),
+  conceptPersonalMessage: z.string().optional(),
 });
 
-export default function EditPitchForm({
+export default function EditConceptForm({
   quoteId,
-  pitchPersonalMessage,
-  generatedPitchIntroduction,
-  generatedPitch,
-  pitchHideSections,
+  conceptPersonalMessage,
+  generatedConceptIntroduction,
+  generatedConcept,
+  conceptHideSections,
 }: {
   quoteId: string;
-  pitchPersonalMessage: string | null;
-  generatedPitchIntroduction: string | null;
-  generatedPitch: string | null;
-  pitchHideSections: string[] | null;
+  conceptPersonalMessage: string | null;
+  generatedConceptIntroduction: string | null;
+  generatedConcept: string | null;
+  conceptHideSections: string[] | null;
 }) {
   const [loading, setLoading] = useState(false);
   const [loadingPersonalMessage, setLoadingPersonalMessage] = useState(false);
@@ -90,25 +90,25 @@ export default function EditPitchForm({
   const personalMessageForm = useForm<z.infer<typeof personalMessageSchema>>({
     resolver: zodResolver(personalMessageSchema),
     defaultValues: {
-      pitchPersonalMessage: pitchPersonalMessage || "",
+      conceptPersonalMessage: conceptPersonalMessage || "",
     },
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      generatedPitchIntroduction: generatedPitchIntroduction || "",
-      generatedPitch: generatedPitch || "",
-      pitchHideSections: pitchHideSections || [],
+      generatedConceptIntroduction: generatedConceptIntroduction || "",
+      generatedConcept: generatedConcept || "",
+      conceptHideSections: conceptHideSections || [],
     },
   });
 
-  async function savePitchHideSections(hideSections: string[]) {
+  async function saveConceptHideSections(hideSections: string[]) {
     setSavingSections(true);
 
-    const response = await saUpdateQuotePitch({
+    const response = await saUpdateQuoteConcept({
       quoteId: quoteId,
-      pitchHideSections: hideSections,
+      conceptHideSections: hideSections,
     });
 
     if (!response.success) {
@@ -124,18 +124,18 @@ export default function EditPitchForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdateQuotePitch({
+    const response = await saUpdateQuoteConcept({
       quoteId: quoteId,
-      generatedPitchIntroduction: values.generatedPitchIntroduction,
-      generatedPitch: values.generatedPitch,
-      pitchHideSections: values.pitchHideSections,
+      generatedConceptIntroduction: values.generatedConceptIntroduction,
+      generatedConcept: values.generatedConcept,
+      conceptHideSections: values.conceptHideSections,
     });
 
     if (!response.success) {
       setLoading(false);
 
       if (response.error) {
-        toast.error("There was an error updating the pitch");
+        toast.error("There was an error updating the concept");
 
         form.setError("root", {
           type: "manual",
@@ -145,7 +145,7 @@ export default function EditPitchForm({
     }
 
     if (response.success) {
-      toast.success("Pitch updated successfully");
+      toast.success("Concept updated successfully");
       router.refresh();
     }
 
@@ -157,9 +157,9 @@ export default function EditPitchForm({
   ) {
     setLoadingPersonalMessage(true);
 
-    const response = await saUpdateQuotePitch({
+    const response = await saUpdateQuoteConcept({
       quoteId: quoteId,
-      pitchPersonalMessage: values.pitchPersonalMessage,
+      conceptPersonalMessage: values.conceptPersonalMessage,
     });
 
     if (!response.success) {
@@ -184,41 +184,41 @@ export default function EditPitchForm({
   }
 
   const hasContent =
-    form.getValues("generatedPitchIntroduction") ||
-    form.getValues("generatedPitch");
+    form.getValues("generatedConceptIntroduction") ||
+    form.getValues("generatedConcept");
 
-  async function generatePitch() {
+  async function generateConcept() {
     setShowPromptDialog(false);
     setGenerating(true);
 
-    const response = await saGenerateQuotePitch({
+    const response = await saGenerateQuoteConcept({
       quoteId,
       extraPrompt: extraPrompt.trim() || undefined,
       mode: generationMode,
       existingIntroduction:
         generationMode === "amend"
-          ? form.getValues("generatedPitchIntroduction")
+          ? form.getValues("generatedConceptIntroduction")
           : undefined,
-      existingPitch:
+      existingConcept:
         generationMode === "amend"
-          ? form.getValues("generatedPitch")
+          ? form.getValues("generatedConcept")
           : undefined,
     });
 
     if (!response.success) {
-      toast.error(response.error || "Failed to generate pitch");
+      toast.error(response.error || "Failed to generate concept");
       setGenerating(false);
       return;
     }
 
     // Update form values with new content
     form.setValue(
-      "generatedPitchIntroduction",
-      response.data.generatedPitchIntroduction || "",
+      "generatedConceptIntroduction",
+      response.data.generatedConceptIntroduction || "",
     );
-    form.setValue("generatedPitch", response.data.generatedPitch || "");
+    form.setValue("generatedConcept", response.data.generatedConcept || "");
 
-    toast.success("Pitch generated! Review and save when ready.");
+    toast.success("Concept generated! Review and save when ready.");
     setGenerating(false);
     router.refresh();
   }
@@ -246,9 +246,9 @@ export default function EditPitchForm({
           onInteractOutside={(e) => e.preventDefault()}
         >
           <DialogHeader>
-            <DialogTitle>Generating Pitch</DialogTitle>
+            <DialogTitle>Generating Concept</DialogTitle>
             <DialogDescription>
-              Please wait while we generate your pitch. This may take a minute
+              Please wait while we generate your concept. This may take a minute
               or two...
             </DialogDescription>
           </DialogHeader>
@@ -263,7 +263,7 @@ export default function EditPitchForm({
           <AlertDialogHeader>
             <AlertDialogTitle>Replace existing content?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will replace your existing pitch introduction and pitch
+              This will replace your existing concept introduction and concept
               content with newly generated content. This action cannot be
               undone.
             </AlertDialogDescription>
@@ -280,9 +280,10 @@ export default function EditPitchForm({
       <Dialog open={showPromptDialog} onOpenChange={setShowPromptDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Generate Pitch</DialogTitle>
+            <DialogTitle>Generate Concept</DialogTitle>
             <DialogDescription>
-              Add optional instructions to customise how the pitch is generated.
+              Add optional instructions to customise how the concept is
+              generated.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -307,8 +308,8 @@ export default function EditPitchForm({
                 </Select>
                 <p className="text-xs text-muted-foreground">
                   {generationMode === "scratch"
-                    ? "This will replace the existing pitch with entirely new content."
-                    : "This will modify the existing pitch based on your instructions."}
+                    ? "This will replace the existing concept with entirely new content."
+                    : "This will modify the existing concept based on your instructions."}
                 </p>
               </div>
             )}
@@ -323,7 +324,7 @@ export default function EditPitchForm({
                 placeholder={
                   generationMode === "amend"
                     ? "e.g. make the tone more formal, add more focus on security features"
-                    : "e.g. write the pitch for a non-technical layman"
+                    : "e.g. write the concept for a non-technical layman"
                 }
                 value={extraPrompt}
                 onChange={(e) => setExtraPrompt(e.target.value)}
@@ -331,7 +332,7 @@ export default function EditPitchForm({
               />
               <p className="text-xs text-muted-foreground">
                 {generationMode === "amend"
-                  ? "Describe how you want the existing pitch to be modified."
+                  ? "Describe how you want the existing concept to be modified."
                   : "This is optional. Leave blank to use the default generation."}
               </p>
             </div>
@@ -348,7 +349,7 @@ export default function EditPitchForm({
             >
               Cancel
             </Button>
-            <Button type="button" onClick={generatePitch}>
+            <Button type="button" onClick={generateConcept}>
               <Sparkles className="h-4 w-4 mr-2" />
               Generate
             </Button>
@@ -361,7 +362,7 @@ export default function EditPitchForm({
         <div>
           <h3 className="text-lg font-semibold">Personal Message</h3>
           <p className="text-sm text-muted-foreground">
-            Add an optional personal message at the top of the pitch
+            Add an optional personal message at the top of the concept
           </p>
         </div>
 
@@ -372,12 +373,12 @@ export default function EditPitchForm({
           >
             <FormField
               control={personalMessageForm.control}
-              name="pitchPersonalMessage"
+              name="conceptPersonalMessage"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter a personal message to include at the top of the pitch..."
+                      placeholder="Enter a personal message to include at the top of the concept..."
                       {...field}
                       rows={4}
                     />
@@ -418,7 +419,7 @@ export default function EditPitchForm({
         <Form {...form}>
           <FormField
             control={form.control}
-            name="pitchHideSections"
+            name="conceptHideSections"
             render={() => (
               <FormItem>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -433,7 +434,7 @@ export default function EditPitchForm({
                     <FormField
                       key={section.id}
                       control={form.control}
-                      name="pitchHideSections"
+                      name="conceptHideSections"
                       render={({ field }) => {
                         const isHidden = field.value?.includes(section.id);
                         return (
@@ -453,7 +454,7 @@ export default function EditPitchForm({
                                     newHidden = [...currentHidden, section.id];
                                   }
                                   field.onChange(newHidden);
-                                  savePitchHideSections(newHidden);
+                                  saveConceptHideSections(newHidden);
                                 }}
                               />
                             </FormControl>
@@ -475,21 +476,21 @@ export default function EditPitchForm({
 
       <hr className="my-8" />
 
-      {/* Pitch Content Section */}
+      {/* Concept Content Section */}
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold">Pitch Content</h3>
+          <h3 className="text-lg font-semibold">Concept Content</h3>
           <p className="text-sm text-muted-foreground">
-            Manage the introduction and main pitch content
+            Manage the introduction and main concept content
           </p>
         </div>
 
         {!hasContent && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>No pitch content yet</AlertTitle>
+            <AlertTitle>No concept content yet</AlertTitle>
             <AlertDescription>
-              Click the button below to generate a pitch using AI, or add
+              Click the button below to generate a concept using AI, or add
               content manually.
             </AlertDescription>
           </Alert>
@@ -507,7 +508,7 @@ export default function EditPitchForm({
             ) : (
               <Sparkles className="mr-2 h-4 w-4" />
             )}
-            Generate Pitch
+            Generate Concept
           </Button>
         </div>
 
@@ -515,19 +516,19 @@ export default function EditPitchForm({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
-              name="generatedPitchIntroduction"
+              name="generatedConceptIntroduction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pitch Introduction</FormLabel>
+                  <FormLabel>Concept Introduction</FormLabel>
                   <FormControl>
                     <SimpleMarkdownEditor
                       value={field.value || ""}
                       onChange={field.onChange}
-                      placeholder="Enter the pitch introduction..."
+                      placeholder="Enter the concept introduction..."
                     />
                   </FormControl>
                   <FormDescription>
-                    A brief introduction that sets the stage for the pitch.
+                    A brief introduction that sets the stage for the concept.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -537,25 +538,26 @@ export default function EditPitchForm({
             <div className="flex justify-end">
               <Button type="submit" disabled={loading}>
                 {loading && <Spinner className="mr-2" />}
-                Save Pitch Content
+                Save Concept Content
               </Button>
             </div>
 
             <FormField
               control={form.control}
-              name="generatedPitch"
+              name="generatedConcept"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pitch</FormLabel>
+                  <FormLabel>Concept</FormLabel>
                   <FormControl>
                     <SimpleMarkdownEditor
                       value={field.value || ""}
                       onChange={field.onChange}
-                      placeholder="Enter the pitch content..."
+                      placeholder="Enter the concept content..."
                     />
                   </FormControl>
                   <FormDescription>
-                    The main pitch content that sells the project to the client.
+                    The main concept content that sells the project to the
+                    client.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -577,7 +579,7 @@ export default function EditPitchForm({
             <div className="flex justify-end">
               <Button type="submit" disabled={loading}>
                 {loading && <Spinner className="mr-2" />}
-                Save Pitch Content
+                Save Concept Content
               </Button>
             </div>
           </form>

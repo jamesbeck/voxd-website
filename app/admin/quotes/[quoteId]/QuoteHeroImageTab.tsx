@@ -173,7 +173,8 @@ export default function QuoteHeroImageTab({
         <h2 className="text-lg font-semibold mb-2">Quote Hero Image</h2>
         <p className="text-sm text-muted-foreground">
           Upload a hero image for this quote or generate one using AI. The hero
-          image will be displayed as the banner on the proposal and pitch pages.
+          image will be displayed as the banner on the proposal and concept
+          pages.
         </p>
       </div>
 
@@ -278,7 +279,7 @@ export default function QuoteHeroImageTab({
           <Label>OG Image Preview (with logo overlay)</Label>
           <p className="text-xs text-muted-foreground">
             This image is used for social media previews when sharing
-            pitch/proposal links.
+            concept/proposal links.
           </p>
           <div className="border rounded-lg p-4 bg-muted/30">
             <Image

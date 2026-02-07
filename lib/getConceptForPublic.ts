@@ -1,6 +1,6 @@
 import db from "../database/db";
 
-export type PublicPitchConversation = {
+export type PublicConceptConversation = {
   id: string;
   description: string;
   startTime: string;
@@ -12,7 +12,7 @@ export type PublicPitchConversation = {
   }[];
 };
 
-export type PublicPitch = {
+export type PublicConcept = {
   id: string;
   title: string;
   createdAt: string;
@@ -22,10 +22,10 @@ export type PublicPitch = {
   organisationLogoFileExtension: string | null;
   organisationLogoDarkBackground: boolean;
   status: string;
-  pitchPersonalMessage: string | null;
-  generatedPitchIntroduction: string | null;
-  generatedPitch: string | null;
-  pitchHideSections: string[] | null;
+  conceptPersonalMessage: string | null;
+  generatedConceptIntroduction: string | null;
+  generatedConcept: string | null;
+  conceptHideSections: string[] | null;
   heroImageFileExtension: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
@@ -44,14 +44,14 @@ export type PublicPitch = {
     name: string | null;
     email: string | null;
   } | null;
-  exampleConversations: PublicPitchConversation[];
+  exampleConversations: PublicConceptConversation[];
 };
 
-export const getPitchForPublic = async ({
+export const getConceptForPublic = async ({
   quoteId,
 }: {
   quoteId: string;
-}): Promise<PublicPitch | null> => {
+}): Promise<PublicConcept | null> => {
   // Determine if quoteId is a short link (6 chars, uppercase letters and numbers) or UUID
   const isShortLink = /^[A-Z0-9]{6}$/.test(quoteId);
 
@@ -76,10 +76,10 @@ export const getPitchForPublic = async ({
       "quote.createdAt",
       "quote.shortLinkId",
       "quote.status",
-      "quote.pitchPersonalMessage",
-      "quote.generatedPitchIntroduction",
-      "quote.generatedPitch",
-      "quote.pitchHideSections",
+      "quote.conceptPersonalMessage",
+      "quote.generatedConceptIntroduction",
+      "quote.generatedConcept",
+      "quote.conceptHideSections",
       "quote.heroImageFileExtension",
       "quote.setupFee",
       "quote.monthlyFee",
@@ -144,10 +144,10 @@ export const getPitchForPublic = async ({
     organisationLogoDarkBackground:
       quote.organisationLogoDarkBackground ?? false,
     status: quote.status,
-    pitchPersonalMessage: quote.pitchPersonalMessage,
-    generatedPitchIntroduction: quote.generatedPitchIntroduction,
-    generatedPitch: quote.generatedPitch,
-    pitchHideSections: quote.pitchHideSections,
+    conceptPersonalMessage: quote.conceptPersonalMessage,
+    generatedConceptIntroduction: quote.generatedConceptIntroduction,
+    generatedConcept: quote.generatedConcept,
+    conceptHideSections: quote.conceptHideSections,
     heroImageFileExtension: quote.heroImageFileExtension,
     setupFee: quote.setupFee ?? null,
     monthlyFee: quote.monthlyFee ?? null,
@@ -176,4 +176,4 @@ export const getPitchForPublic = async ({
   };
 };
 
-export default getPitchForPublic;
+export default getConceptForPublic;

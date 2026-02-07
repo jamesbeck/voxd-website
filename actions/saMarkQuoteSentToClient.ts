@@ -31,17 +31,17 @@ const saMarkQuoteSentToClient = async ({
   }
 
   // Allow marking as proposal with client from "Cost Pricing Received from Voxd" status
-  // Or from "Draft" or "Pitched to Client" status if skipFromDraft is true (for superAdmins)
+  // Or from "Draft" or "Concept Sent to Client" status if skipFromDraft is true (for superAdmins)
   const allowedStatuses = ["Cost Pricing Received from Voxd"];
   if (skipFromDraft) {
-    allowedStatuses.push("Draft", "Pitched to Client");
+    allowedStatuses.push("Draft", "Concept Sent to Client");
   }
 
   if (!allowedStatuses.includes(existingQuote.status)) {
     return {
       success: false,
       error: skipFromDraft
-        ? "Quote can only be marked as proposal with client when in 'Draft', 'Pitched to Client', or 'Cost Pricing Received from Voxd' status"
+        ? "Quote can only be marked as proposal with client when in 'Draft', 'Concept Sent to Client', or 'Cost Pricing Received from Voxd' status"
         : "Quote can only be marked as proposal with client when in 'Cost Pricing Received from Voxd' status",
     };
   }

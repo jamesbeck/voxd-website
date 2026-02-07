@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 import Alert from "@/components/admin/Alert";
 import { Spinner } from "@/components/ui/spinner";
 import saSubmitQuoteForCostPricing from "@/actions/saSubmitQuoteForCostPricing";
-import saMarkQuotePitchedToClient from "@/actions/saMarkQuotePitchedToClient";
+import saMarkQuoteConceptSentToClient from "@/actions/saMarkQuoteConceptSentToClient";
 import saDeleteQuote from "@/actions/saDeleteQuote";
 import saReopenQuote from "@/actions/saReopenQuote";
 import saReturnQuoteToDraft from "@/actions/saReturnQuoteToDraft";
-import saReturnQuoteToPitched from "@/actions/saReturnQuoteToPitched";
+import saReturnQuoteToConceptSent from "@/actions/saReturnQuoteToConceptSent";
 import saReturnQuoteToCostPricingReceived from "@/actions/saReturnQuoteToCostPricingReceived";
 import saMarkQuoteSentToClient from "@/actions/saMarkQuoteSentToClient";
 import saCloseQuote from "@/actions/saCloseQuote";
@@ -52,10 +52,11 @@ export default function QuoteActions({
   isSuperAdmin?: boolean;
 }) {
   const [isSubmittingForPricing, setIsSubmittingForPricing] = useState(false);
-  const [isPitching, setIsPitching] = useState(false);
+  const [isSendingConcept, setIsSendingConcept] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReturningToDraft, setIsReturningToDraft] = useState(false);
-  const [isReturningToPitched, setIsReturningToPitched] = useState(false);
+  const [isReturningToConceptSent, setIsReturningToConceptSent] =
+    useState(false);
   const [isReturningToCostPricing, setIsReturningToCostPricing] =
     useState(false);
   const [isMarkingSentToClient, setIsMarkingSentToClient] = useState(false);
@@ -66,38 +67,39 @@ export default function QuoteActions({
 
   const router = useRouter();
 
-  // SuperAdmins can also "Mark as Proposal with Client" from Draft or Pitched to Client status
-  const canPitchToClient = status === "Draft";
+  // SuperAdmins can also "Mark as Proposal with Client" from Draft or Concept Sent to Client status
+  const canSendConceptToClient = status === "Draft";
   const canSubmitForPricing =
-    status === "Draft" || status === "Pitched to Client";
+    status === "Draft" || status === "Concept Sent to Client";
   const canReturnToDraft =
     status !== "Draft" && status !== "Closed Won" && status !== "Closed Lost";
-  const canReturnToPitched =
+  const canReturnToConceptSent =
     status === "Sent to Voxd for Cost Pricing" ||
     status === "Cost Pricing Received from Voxd";
   const canMarkSentToClient =
     status === "Cost Pricing Received from Voxd" ||
-    ((status === "Draft" || status === "Pitched to Client") && isSuperAdmin);
+    ((status === "Draft" || status === "Concept Sent to Client") &&
+      isSuperAdmin);
   const canClose = status === "Proposal with Client";
   const canReturnToCostPricing = status === "Proposal with Client";
   const canReopen = status === "Closed Won" || status === "Closed Lost";
 
-  const pitchToClient = async () => {
-    setIsPitching(true);
-    const saResponse = await saMarkQuotePitchedToClient({ quoteId });
+  const sendConceptToClient = async () => {
+    setIsSendingConcept(true);
+    const saResponse = await saMarkQuoteConceptSentToClient({ quoteId });
 
     if (!saResponse.success) {
       toast.error(
-        `Error Marking as Pitched: ${
-          saResponse.error || "There was an error marking as pitched"
+        `Error Sending Concept: ${
+          saResponse.error || "There was an error sending the concept"
         }`,
       );
-      setIsPitching(false);
+      setIsSendingConcept(false);
       return;
     }
     // If successful
-    toast.success(`Successfully marked ${name} as pitched to client`);
-    setIsPitching(false);
+    toast.success(`Successfully sent ${name} concept to client`);
+    setIsSendingConcept(false);
     router.refresh();
   };
 
@@ -157,22 +159,23 @@ export default function QuoteActions({
     router.refresh();
   };
 
-  const returnToPitched = async () => {
-    setIsReturningToPitched(true);
-    const saResponse = await saReturnQuoteToPitched({ quoteId });
+  const returnToConceptSent = async () => {
+    setIsReturningToConceptSent(true);
+    const saResponse = await saReturnQuoteToConceptSent({ quoteId });
 
     if (!saResponse.success) {
       toast.error(
-        `Error Returning to Pitched: ${
-          saResponse.error || "There was an error returning to pitched status"
+        `Error Returning to Concept Sent: ${
+          saResponse.error ||
+          "There was an error returning to concept sent status"
         }`,
       );
-      setIsReturningToPitched(false);
+      setIsReturningToConceptSent(false);
       return;
     }
     // If successful
-    toast.success(`Successfully returned ${name} to pitched status`);
-    setIsReturningToPitched(false);
+    toast.success(`Successfully returned ${name} to concept sent status`);
+    setIsReturningToConceptSent(false);
     router.refresh();
   };
 
@@ -180,7 +183,7 @@ export default function QuoteActions({
     setIsMarkingSentToClient(true);
     const saResponse = await saMarkQuoteSentToClient({
       quoteId,
-      skipFromDraft: status === "Draft" || status === "Pitched to Client",
+      skipFromDraft: status === "Draft" || status === "Concept Sent to Client",
     });
 
     if (!saResponse.success) {
@@ -277,17 +280,17 @@ export default function QuoteActions({
 
   return (
     <div className="flex items-center gap-2">
-      {canPitchToClient && (
+      {canSendConceptToClient && (
         <Alert
-          title={`Mark ${name} as Pitched`}
-          description="Are you sure you want to mark this quote as pitched to the client?"
-          actionText="Mark as Pitched"
-          onAction={pitchToClient}
+          title={`Send ${name} Concept to Client`}
+          description="Are you sure you want to send this concept to the client?"
+          actionText="Send Concept"
+          onAction={sendConceptToClient}
           destructive={false}
         >
           <Button className="cursor-pointer" size="sm">
-            {isPitching ? <Spinner /> : null}
-            Mark as Pitched
+            {isSendingConcept ? <Spinner /> : null}
+            Send Concept
           </Button>
         </Alert>
       )}
@@ -362,25 +365,25 @@ export default function QuoteActions({
         <DropdownMenuContent align="end">
           <DropdownMenuItem asChild className="cursor-pointer">
             <a
-              href={`/pitches/${shortLinkId}`}
+              href={`/concepts/${shortLinkId}`}
               target="_blank"
               rel="noopener noreferrer"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              View Pitch
+              View Concept
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
               navigator.clipboard.writeText(
-                `${window.location.origin}/pitches/${shortLinkId}`,
+                `${window.location.origin}/concepts/${shortLinkId}`,
               );
-              toast.success("Pitch link copied to clipboard");
+              toast.success("Concept link copied to clipboard");
             }}
             className="cursor-pointer"
           >
             <Copy className="h-4 w-4 mr-2" />
-            Copy Pitch Link
+            Copy Concept Link
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild className="cursor-pointer">
@@ -429,25 +432,25 @@ export default function QuoteActions({
               </Alert>
             </>
           )}
-          {canReturnToPitched && (
+          {canReturnToConceptSent && (
             <>
               <Alert
-                title="Return to Pitched to Client"
-                description="Are you sure you want to return this quote to 'Pitched to Client' status?"
-                actionText="Return to Pitched"
-                onAction={returnToPitched}
+                title="Return to Concept Sent to Client"
+                description="Are you sure you want to return this quote to 'Concept Sent to Client' status?"
+                actionText="Return to Concept Sent"
+                onAction={returnToConceptSent}
                 destructive={false}
               >
                 <DropdownMenuItem
                   onSelect={(e) => e.preventDefault()}
                   className="cursor-pointer"
                 >
-                  {isReturningToPitched ? (
+                  {isReturningToConceptSent ? (
                     <Spinner className="h-4 w-4 mr-2" />
                   ) : (
                     <Undo2 className="h-4 w-4 mr-2" />
                   )}
-                  Return to Pitched to Client
+                  Return to Concept Sent to Client
                 </DropdownMenuItem>
               </Alert>
             </>

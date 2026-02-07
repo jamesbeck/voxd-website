@@ -53,7 +53,7 @@ When working with database-related code in this project:
 Quotes progress through the following stages (stored as plain English strings in the `quote.status` column):
 
 1. **Draft** - Initial state when a quote is created. The partner is drafting the specification and details.
-2. **Pitched to Client** - The quote has been pitched to the client and we're waiting for their interest before proceeding with Voxd pricing.
+2. **Concept Sent to Client** - The concept has been sent to the client and we're waiting for their interest before proceeding with Voxd pricing.
 3. **Sent to Voxd for Cost Pricing** - The partner has submitted the quote to Voxd for cost pricing review.
 4. **Cost Pricing Received from Voxd** - Voxd has provided cost pricing (setupFeeVoxdCost, monthlyFeeVoxdCost). The partner can now set their client-facing prices.
 5. **Proposal with Client** - The formal proposal has been sent to the end client for review.

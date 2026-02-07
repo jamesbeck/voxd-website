@@ -146,7 +146,7 @@ const QuoteViewsTable = ({ quoteId }: { quoteId: string }) => {
                   row.documentViewed === "quote" ? "default" : "secondary"
                 }
               >
-                {row.documentViewed === "quote" ? "Proposal" : "Pitch"}
+                {row.documentViewed === "quote" ? "Proposal" : "Concept"}
               </Badge>
             ),
           },
