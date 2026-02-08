@@ -5,9 +5,28 @@ const getMessages = async ({ sessionId }: { sessionId: string }) => {
     .where({ sessionId })
     .orderBy("createdAt", "asc");
 
+  // Fetch files for user messages
+  const files = await db("file")
+    .select(
+      "id",
+      "userMessageId",
+      "type",
+      "mimeType",
+      "originalFilename",
+      "wasabiUrl",
+      "fileSize",
+      "width",
+      "height",
+    )
+    .whereIn(
+      "userMessageId",
+      userMessages.map((m) => m.id),
+    );
+
   const userMessagesWithRole = userMessages.map((m) => ({
     ...m,
     role: "user",
+    files: files.filter((f) => f.userMessageId === m.id),
   }));
 
   const assistantMessages = await db("assistantMessage")

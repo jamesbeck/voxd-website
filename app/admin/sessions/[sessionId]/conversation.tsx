@@ -14,6 +14,7 @@ import {
 import { Bot, Clock, Cog, Coins, Type, Wrench } from "lucide-react";
 import MessageActions from "./MessageActions";
 import ReactMarkdown from "react-markdown";
+import MessageAttachments from "./MessageAttachments";
 
 type Ticket = {
   id: string;
@@ -86,6 +87,10 @@ export default function Conversation({
                           ? ` • ${message.userName}`
                           : "")}
                   </div>
+
+                  {message.role === "user" && message.files?.length > 0 && (
+                    <MessageAttachments files={message.files} />
+                  )}
 
                   <div className="text-sm prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-p:leading-relaxed">
                     <ReactMarkdown>{message.text}</ReactMarkdown>
