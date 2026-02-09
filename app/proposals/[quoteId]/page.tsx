@@ -944,7 +944,8 @@ export default async function PublicQuotePage({
                     style={{ color: brandColor }}
                   />
                   <span>
-                    12 month initial contract term, then rolling monthly
+                    {quote.contractLength || 12} month initial contract term,
+                    then rolling monthly
                   </span>
                 </div>
               </div>
@@ -960,12 +961,12 @@ export default async function PublicQuotePage({
                 />
                 <div>
                   <p className="font-medium text-gray-900">
-                    30 minutes FREE each month
+                    {quote.freeMonthlyMinutes || 30} minutes FREE each month
                   </p>
                   <p className="text-sm text-gray-600 mt-1">
-                    Every month includes half an hour of complimentary time for
-                    tweaks and amendments to keep your chatbot performing at its
-                    best.
+                    Every month includes {quote.freeMonthlyMinutes || 30}{" "}
+                    minutes of complimentary time for tweaks and amendments to
+                    keep your chatbot performing at its best.
                   </p>
                 </div>
               </div>

@@ -26,6 +26,8 @@ const formSchema = z.object({
   setupFeeVoxdCost: z.string(),
   monthlyFeeVoxdCost: z.string(),
   buildDays: z.string(),
+  freeMonthlyMinutes: z.string(),
+  contractLength: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -37,6 +39,8 @@ export default function EditPricingForm({
   setupFeeVoxdCost,
   monthlyFeeVoxdCost,
   buildDays,
+  freeMonthlyMinutes,
+  contractLength,
   isSuperAdmin,
   isOwnerPartner,
 }: {
@@ -46,6 +50,8 @@ export default function EditPricingForm({
   setupFeeVoxdCost: number | null;
   monthlyFeeVoxdCost: number | null;
   buildDays: number | null;
+  freeMonthlyMinutes: number | null;
+  contractLength: number | null;
   isSuperAdmin: boolean;
   isOwnerPartner: boolean;
 }) {
@@ -63,6 +69,8 @@ export default function EditPricingForm({
       setupFeeVoxdCost: setupFeeVoxdCost?.toString() ?? "",
       monthlyFeeVoxdCost: monthlyFeeVoxdCost?.toString() ?? "",
       buildDays: buildDays?.toString() ?? "",
+      freeMonthlyMinutes: freeMonthlyMinutes?.toString() ?? "",
+      contractLength: contractLength?.toString() ?? "",
     },
   });
 
@@ -79,6 +87,8 @@ export default function EditPricingForm({
       setupFeeVoxdCost: parseValue(values.setupFeeVoxdCost),
       monthlyFeeVoxdCost: parseValue(values.monthlyFeeVoxdCost),
       buildDays: parseValue(values.buildDays),
+      freeMonthlyMinutes: parseValue(values.freeMonthlyMinutes),
+      contractLength: parseValue(values.contractLength),
     });
 
     if (!response.success) {
@@ -202,6 +212,50 @@ export default function EditPricingForm({
                   </FormControl>
                   <FormDescription>
                     Voxd&apos;s monthly cost (Voxd only)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="freeMonthlyMinutes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Free Monthly Minutes</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...field}
+                      disabled={!canEditAdminFields}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Free minutes included per month (Voxd only)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="contractLength"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contract Length (months)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...field}
+                      disabled={!canEditAdminFields}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Contract length in months (Voxd only)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

@@ -46,6 +46,8 @@ export type Quote = {
   nextActionDate: string | null;
   shortLinkId: string;
   buildDays: number | null;
+  freeMonthlyMinutes: number | null;
+  contractLength: number | null;
 };
 
 export const getQuoteById = async ({

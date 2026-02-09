@@ -289,6 +289,8 @@ export default async function Page({
                 setupFeeVoxdCost={quote.setupFeeVoxdCost}
                 monthlyFeeVoxdCost={quote.monthlyFeeVoxdCost}
                 buildDays={quote.buildDays}
+                freeMonthlyMinutes={quote.freeMonthlyMinutes}
+                contractLength={quote.contractLength}
                 isSuperAdmin={isSuperAdmin}
                 isOwnerPartner={isOwnerPartner}
               />
