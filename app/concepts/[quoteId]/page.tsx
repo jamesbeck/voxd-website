@@ -1118,8 +1118,8 @@ export default async function PublicConceptPage({
                     />
                     <span>
                       <strong>LLM costs</strong> – You pay your AI provider
-                      directly for message processing (typically fractions of a
-                      penny per conversation)
+                      directly for message processing (typically a few pence per
+                      conversation)
                     </span>
                   </div>
                   <div className="flex items-start gap-2">

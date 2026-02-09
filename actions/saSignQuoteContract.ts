@@ -225,7 +225,9 @@ const saSignQuoteContract = async ({
                   <td style="padding: 20px;">
                     <h3 style="margin: 0 0 15px 0; color: #1e40af; font-size: 16px; font-weight: 600;">Next Steps</h3>
                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                      ${existingQuote.partnerGoCardlessMandateLink ? `<tr>
+                      ${
+                        existingQuote.partnerGoCardlessMandateLink
+                          ? `<tr>
                         <td style="padding: 8px 0; vertical-align: top; width: 24px;">
                           <span style="color: #1e40af; font-size: 16px;">1.</span>
                         </td>
@@ -234,10 +236,12 @@ const saSignQuoteContract = async ({
                           Please sign the Direct Debit mandate to enable monthly billing:<br>
                           <a href="${existingQuote.partnerGoCardlessMandateLink}" style="color: #2563eb; text-decoration: none;">${existingQuote.partnerGoCardlessMandateLink}</a>
                         </td>
-                      </tr>` : ''}
+                      </tr>`
+                          : ""
+                      }
                       <tr>
                         <td style="padding: 8px 0; vertical-align: top; width: 24px;">
-                          <span style="color: #1e40af; font-size: 16px;">${existingQuote.partnerGoCardlessMandateLink ? '2.' : '1.'}</span>
+                          <span style="color: #1e40af; font-size: 16px;">${existingQuote.partnerGoCardlessMandateLink ? "2." : "1."}</span>
                         </td>
                         <td style="padding: 8px 0; color: #555555; font-size: 14px; line-height: 1.5;">
                           <strong>Pay Setup Fee</strong><br>
@@ -310,11 +314,15 @@ CONFIRMATIONS MADE
 
 NEXT STEPS
 ----------
-${existingQuote.partnerGoCardlessMandateLink ? `1. SET UP DIRECT DEBIT
+${
+  existingQuote.partnerGoCardlessMandateLink
+    ? `1. SET UP DIRECT DEBIT
 Please sign the Direct Debit mandate to enable monthly billing:
 ${existingQuote.partnerGoCardlessMandateLink}
 
-2. PAY SETUP FEE` : '1. PAY SETUP FEE'}
+2. PAY SETUP FEE`
+    : "1. PAY SETUP FEE"
+}
 You will shortly receive an invoice for the setup fee. Please pay this by bank transfer to the account details provided on the invoice.
 
 LEGAL NOTICE
