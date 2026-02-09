@@ -160,7 +160,7 @@
         {
           "id": "client.content_responsibility",
           "title": "Content, Policies and Disclosures",
-          "text": "The Client is responsible for prompts, scripts, training data, workflows, and business rules used with the chatbot, and for any end-user disclosures and consents required by law or platform policies (including making clear when users are interacting with an automated system where required).",
+          "text": "The Client is responsible approving for prompts, scripts, training data, workflows, and business rules used with the chatbot, and for any end-user disclosures and consents required by law or platform policies (including making clear when users are interacting with an automated system where required).",
           "children": []
         },
         {
@@ -220,7 +220,7 @@
         {
           "id": "ai.no_warranties",
           "title": "No Warranty on AI Outputs",
-          "text": "To the fullest extent permitted by law, {{company.shortName}} makes no warranties about AI Outputs (including accuracy, completeness, reliability, legality, or fitness for purpose).",
+          "text": "{{company.shortName}} makes no warranties about AI Outputs (including accuracy, completeness, reliability, legality, or fitness for purpose).",
           "children": []
         },
         {
@@ -244,7 +244,7 @@
         {
           "id": "ai.prompt_injection",
           "title": "Prompt Injection and Manipulation",
-          "text": "End users may try to manipulate AI behaviour (e.g., prompt injection). {{company.shortName}} is not responsible for AI Outputs resulting from such attempts. The Client is responsible for implementing safeguards, policies and business rules to mitigate these risks.",
+          "text": "End users may try to manipulate AI behaviour (e.g., prompt injection). {{company.shortName}} is not responsible for AI Outputs resulting from such attempts.",
           "children": []
         }
       ]
@@ -322,7 +322,7 @@
         {
           "id": "change.process",
           "title": "How Changes Work",
-          "text": "Change requests should be submitted via the client portal. Any included change allowance and any hourly rates for additional work are as set out in the Order Form.",
+          "text": "Change requests should be submitted via the client portal.",
           "children": []
         }
       ]
