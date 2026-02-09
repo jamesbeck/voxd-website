@@ -3,7 +3,7 @@
     "documentType": "schedule",
     "scheduleNumber": 2,
     "title": "Service Level Agreement (SLA)",
-    "parentDocument": "2026-01-18.json",
+    "parentDocument": "currentTerms.json",
     "companyName": "Voxd AI LTD",
     "version": "1.0.0",
     "status": "published",

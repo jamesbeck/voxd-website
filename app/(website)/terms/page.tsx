@@ -1,7 +1,7 @@
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/websiteui/container";
 import H2 from "@/components/websiteui/h2";
-import termsData from "@/terms/2025-12-15.json";
+import termsData from "@/terms/currentTerms.json";
 import Link from "next/link";
 
 interface Clause {
@@ -34,7 +34,7 @@ interface Schedule {
 function resolveReferences(
   text: string,
   sections: Section[],
-  schedules: Schedule[]
+  schedules: Schedule[],
 ): React.ReactNode {
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
@@ -61,7 +61,7 @@ function resolveReferences(
             className="text-primary hover:underline font-medium"
           >
             Section {sectionIndex + 1}
-          </a>
+          </a>,
         );
       } else {
         parts.push(`Section [${id}]`);
@@ -77,7 +77,7 @@ function resolveReferences(
             className="text-primary hover:underline font-medium"
           >
             Schedule {scheduleNum}
-          </Link>
+          </Link>,
         );
       } else {
         parts.push(`Schedule ${id}`);

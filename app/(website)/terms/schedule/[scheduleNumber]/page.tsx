@@ -1,7 +1,7 @@
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/websiteui/container";
 import H2 from "@/components/websiteui/h2";
-import termsData from "@/terms/2025-12-15.json";
+import termsData from "@/terms/currentTerms.json";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import fs from "fs";
