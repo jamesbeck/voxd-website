@@ -278,6 +278,7 @@ export default async function Page({
                   quote.generatedProposalIntroduction
                 }
                 generatedSpecification={quote.generatedSpecification}
+                proposalHideSections={quote.proposalHideSections}
               />
             </TabsContent>
             <TabsContent value="pricing">

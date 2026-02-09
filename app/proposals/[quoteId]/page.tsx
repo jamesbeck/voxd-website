@@ -176,7 +176,8 @@ export default async function PublicQuotePage({
       : []),
     { id: "introduction", label: "Introduction", icon: "FileText" as const },
     { id: "specification", label: "Specification", icon: "BookOpen" as const },
-    ...(quote.exampleConversations.length > 0
+    ...(!quote.proposalHideSections?.includes("examples") &&
+    quote.exampleConversations.length > 0
       ? [
           {
             id: "examples",
@@ -185,16 +186,24 @@ export default async function PublicQuotePage({
           },
         ]
       : []),
-    {
-      id: "portal",
-      label: "Management Portal",
-      icon: "LayoutDashboard" as const,
-    },
-    {
-      id: "service",
-      label: `The ${quote.partner.name} Service`,
-      icon: "Wrench" as const,
-    },
+    ...(!quote.proposalHideSections?.includes("portal")
+      ? [
+          {
+            id: "portal",
+            label: "Management Portal",
+            icon: "LayoutDashboard" as const,
+          },
+        ]
+      : []),
+    ...(!quote.proposalHideSections?.includes("service")
+      ? [
+          {
+            id: "service",
+            label: `The ${quote.partner.name} Service`,
+            icon: "Wrench" as const,
+          },
+        ]
+      : []),
     ...(quote.setupFee !== null || quote.monthlyFee !== null
       ? [{ id: "pricing", label: "Investment", icon: "FileCheck" as const }]
       : []),
@@ -475,11 +484,12 @@ export default async function PublicQuotePage({
           </section>
 
           {/* Example Conversations Section */}
-          {quote.exampleConversations.length > 0 && (
-            <section
-              id="examples"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-            >
+          {!quote.proposalHideSections?.includes("examples") &&
+            quote.exampleConversations.length > 0 && (
+              <section
+                id="examples"
+                className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+              >
               <div className="flex items-start gap-3">
                 <div
                   className="p-2 rounded-lg"
@@ -512,14 +522,15 @@ export default async function PublicQuotePage({
                   quote.organisationLogoDarkBackground
                 }
               />
-            </section>
-          )}
+              </section>
+            )}
 
           {/* Voxd Portal Section */}
-          <section
-            id="portal"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
+          {!quote.proposalHideSections?.includes("portal") && (
+            <section
+              id="portal"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            >
             <div className="flex items-start gap-3">
               <div
                 className="p-2 rounded-lg"
@@ -697,13 +708,15 @@ export default async function PublicQuotePage({
                 </div>
               </div>
             </div>
-          </section>
+            </section>
+          )}
 
           {/* The Voxd Service Section */}
-          <section
-            id="service"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
+          {!quote.proposalHideSections?.includes("service") && (
+            <section
+              id="service"
+              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            >
             <div className="flex items-start gap-3">
               <div
                 className="p-2 rounded-lg"
@@ -842,7 +855,8 @@ export default async function PublicQuotePage({
                 </div>
               </div>
             </div>
-          </section>
+            </section>
+          )}
 
           {/* Pricing Section */}
           {(quote.setupFee !== null || quote.monthlyFee !== null) && (
@@ -1027,7 +1041,14 @@ export default async function PublicQuotePage({
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    Sign contract and direct debit mandate
+                    Sign contract
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <CheckCircle
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    Sign direct debit mandate
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-600">
                     <CheckCircle
@@ -1063,14 +1084,17 @@ export default async function PublicQuotePage({
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    Share LLM API key with {quote.partner.name}
+                    Setup and verify an account with your chosen LLM provider
+                    and share an API key with {quote.partner.name} (we can help
+                    with this too)
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-600">
                     <CheckCircle
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    Share external systems access details or data
+                    Share external systems access details or data, or provide an
+                    IT or admin contact that can help
                   </li>
                 </ul>
               </div>

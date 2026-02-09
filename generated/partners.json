@@ -18,7 +18,8 @@
     "legalName": null,
     "companyNumber": null,
     "registeredAddress": null,
-    "legalEmail": null
+    "legalEmail": null,
+    "goCardlessMandateLink": null
   },
   {
     "id": "019bc6e1-d178-7da3-8b62-1f9da6ff456b",
@@ -39,7 +40,8 @@
     "legalName": null,
     "companyNumber": null,
     "registeredAddress": null,
-    "legalEmail": null
+    "legalEmail": null,
+    "goCardlessMandateLink": null
   },
   {
     "id": "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
@@ -60,7 +62,8 @@
     "legalName": "Voxd AI Ltd",
     "companyNumber": "16911937",
     "registeredAddress": "Wharf Cottage, Daneway, Sapperton, Gloucestershire, England, GL7 6LN",
-    "legalEmail": "james.beck@voxd.ai"
+    "legalEmail": "james.beck@voxd.ai",
+    "goCardlessMandateLink": null
   },
   {
     "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
@@ -81,6 +84,7 @@
     "legalName": "Chatfox Ltd",
     "companyNumber": "16875330",
     "registeredAddress": "20 Wenlock Road, London, England, N1 7GU",
-    "legalEmail": "james@chatfox.ai"
+    "legalEmail": "james@chatfox.ai",
+    "goCardlessMandateLink": null
   }
 ]

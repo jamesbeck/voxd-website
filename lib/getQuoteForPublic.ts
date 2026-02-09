@@ -28,6 +28,7 @@ export type PublicQuote = {
   proposalPersonalMessage: string | null;
   generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
+  proposalHideSections: string[] | null;
   setupFee: number | null;
   monthlyFee: number | null;
   buildDays: number | null;
@@ -89,6 +90,7 @@ export const getQuoteForPublic = async ({
       "quote.proposalPersonalMessage",
       "quote.generatedProposalIntroduction",
       "quote.generatedSpecification",
+      "quote.proposalHideSections",
       "quote.setupFee",
       "quote.monthlyFee",
       "quote.buildDays",
@@ -166,6 +168,7 @@ export const getQuoteForPublic = async ({
     proposalPersonalMessage: quote.proposalPersonalMessage,
     generatedProposalIntroduction: quote.generatedProposalIntroduction,
     generatedSpecification: quote.generatedSpecification,
+    proposalHideSections: quote.proposalHideSections,
     setupFee: quote.setupFee,
     monthlyFee: quote.monthlyFee,
     buildDays: quote.buildDays,

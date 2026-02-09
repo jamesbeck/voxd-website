@@ -40,6 +40,7 @@ export type Quote = {
   generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
   proposalPersonalMessage: string | null;
+  proposalHideSections: string[] | null;
   heroImageFileExtension: string | null; // Hero image file extension for quote
   nextAction: string | null;
   nextActionDate: string | null;

@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import saUpdateQuoteProposal from "@/actions/saUpdateQuoteProposal";
 import saGenerateQuoteProposal from "@/actions/saGenerateQuoteProposal";
 import { Sparkles, AlertCircle } from "lucide-react";
@@ -55,6 +56,7 @@ const formSchema = z.object({
   proposalPersonalMessage: z.string().optional(),
   generatedProposalIntroduction: z.string().optional(),
   generatedSpecification: z.string().optional(),
+  proposalHideSections: z.array(z.string()).optional(),
 });
 
 export default function EditProposalForm({
@@ -62,14 +64,17 @@ export default function EditProposalForm({
   proposalPersonalMessage,
   generatedProposalIntroduction,
   generatedSpecification,
+  proposalHideSections,
 }: {
   quoteId: string;
   proposalPersonalMessage: string | null;
   generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
+  proposalHideSections: string[] | null;
 }) {
   const [loading, setLoading] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [savingSections, setSavingSections] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPromptDialog, setShowPromptDialog] = useState(false);
   const [extraPrompt, setExtraPrompt] = useState("");
@@ -84,8 +89,27 @@ export default function EditProposalForm({
       proposalPersonalMessage: proposalPersonalMessage || "",
       generatedProposalIntroduction: generatedProposalIntroduction || "",
       generatedSpecification: generatedSpecification || "",
+      proposalHideSections: proposalHideSections || [],
     },
   });
+
+  async function saveProposalHideSections(hideSections: string[]) {
+    setSavingSections(true);
+
+    const response = await saUpdateQuoteProposal({
+      quoteId: quoteId,
+      proposalHideSections: hideSections,
+    });
+
+    if (!response.success) {
+      toast.error("Failed to update section visibility");
+    } else {
+      toast.success("Section visibility updated");
+      router.refresh();
+    }
+
+    setSavingSections(false);
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
@@ -294,6 +318,67 @@ export default function EditProposalForm({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Section Visibility Section */}
+      <div className="space-y-2">
+        <h3 className="text-base font-semibold">Section Visibility</h3>
+
+        <Form {...form}>
+          <FormField
+            control={form.control}
+            name="proposalHideSections"
+            render={() => (
+              <FormItem>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {[
+                    { id: "examples", label: "Example Conversations" },
+                    { id: "portal", label: "Management Portal" },
+                    { id: "service", label: "Partner Service" },
+                  ].map((section) => (
+                    <FormField
+                      key={section.id}
+                      control={form.control}
+                      name="proposalHideSections"
+                      render={({ field }) => {
+                        const isHidden = field.value?.includes(section.id);
+                        return (
+                          <FormItem className="flex flex-row items-center gap-2 rounded border px-3 py-2">
+                            <FormControl>
+                              <Switch
+                                checked={!isHidden}
+                                disabled={savingSections}
+                                onCheckedChange={(checked) => {
+                                  const currentHidden = field.value || [];
+                                  let newHidden: string[];
+                                  if (checked) {
+                                    newHidden = currentHidden.filter(
+                                      (id) => id !== section.id,
+                                    );
+                                  } else {
+                                    newHidden = [...currentHidden, section.id];
+                                  }
+                                  field.onChange(newHidden);
+                                  saveProposalHideSections(newHidden);
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm cursor-pointer font-normal">
+                              {section.label}
+                            </FormLabel>
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </Form>
+      </div>
+
+      <hr className="my-8" />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

@@ -8,11 +8,13 @@ const saUpdateQuoteProposal = async ({
   proposalPersonalMessage,
   generatedProposalIntroduction,
   generatedSpecification,
+  proposalHideSections,
 }: {
   quoteId: string;
   proposalPersonalMessage?: string;
   generatedProposalIntroduction?: string;
   generatedSpecification?: string;
+  proposalHideSections?: string[];
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -41,6 +43,8 @@ const saUpdateQuoteProposal = async ({
     updateData.generatedProposalIntroduction = generatedProposalIntroduction;
   if (generatedSpecification !== undefined)
     updateData.generatedSpecification = generatedSpecification;
+  if (proposalHideSections !== undefined)
+    updateData.proposalHideSections = proposalHideSections;
 
   if (Object.keys(updateData).length === 0) {
     return { success: true }; // Nothing to update
