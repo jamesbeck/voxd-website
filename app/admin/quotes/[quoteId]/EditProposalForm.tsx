@@ -53,10 +53,13 @@ import {
 import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
-  proposalPersonalMessage: z.string().optional(),
   generatedProposalIntroduction: z.string().optional(),
   generatedSpecification: z.string().optional(),
   proposalHideSections: z.array(z.string()).optional(),
+});
+
+const personalMessageSchema = z.object({
+  proposalPersonalMessage: z.string().optional(),
 });
 
 export default function EditProposalForm({
@@ -73,6 +76,7 @@ export default function EditProposalForm({
   proposalHideSections: string[] | null;
 }) {
   const [loading, setLoading] = useState(false);
+  const [loadingPersonalMessage, setLoadingPersonalMessage] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [savingSections, setSavingSections] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -83,10 +87,16 @@ export default function EditProposalForm({
   );
   const router = useRouter();
 
+  const personalMessageForm = useForm<z.infer<typeof personalMessageSchema>>({
+    resolver: zodResolver(personalMessageSchema),
+    defaultValues: {
+      proposalPersonalMessage: proposalPersonalMessage || "",
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      proposalPersonalMessage: proposalPersonalMessage || "",
       generatedProposalIntroduction: generatedProposalIntroduction || "",
       generatedSpecification: generatedSpecification || "",
       proposalHideSections: proposalHideSections || [],
@@ -116,7 +126,6 @@ export default function EditProposalForm({
 
     const response = await saUpdateQuoteProposal({
       quoteId: quoteId,
-      proposalPersonalMessage: values.proposalPersonalMessage,
       generatedProposalIntroduction: values.generatedProposalIntroduction,
       generatedSpecification: values.generatedSpecification,
     });
@@ -140,6 +149,37 @@ export default function EditProposalForm({
     }
 
     setLoading(false);
+  }
+
+  async function onSubmitPersonalMessage(
+    values: z.infer<typeof personalMessageSchema>,
+  ) {
+    setLoadingPersonalMessage(true);
+
+    const response = await saUpdateQuoteProposal({
+      quoteId: quoteId,
+      proposalPersonalMessage: values.proposalPersonalMessage,
+    });
+
+    if (!response.success) {
+      setLoadingPersonalMessage(false);
+
+      if (response.error) {
+        toast.error("There was an error updating the personal message");
+
+        personalMessageForm.setError("root", {
+          type: "manual",
+          message: response.error,
+        });
+      }
+    }
+
+    if (response.success) {
+      toast.success("Personal message updated successfully");
+      router.refresh();
+    }
+
+    setLoadingPersonalMessage(false);
   }
 
   async function regenerateProposal() {
@@ -319,6 +359,61 @@ export default function EditProposalForm({
         </DialogContent>
       </Dialog>
 
+      {/* Personal Message Section */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Personal Message</h3>
+          <p className="text-sm text-muted-foreground">
+            Add an optional personal message at the top of the proposal
+          </p>
+        </div>
+
+        <Form {...personalMessageForm}>
+          <form
+            onSubmit={personalMessageForm.handleSubmit(onSubmitPersonalMessage)}
+            className="space-y-4"
+          >
+            <FormField
+              control={personalMessageForm.control}
+              name="proposalPersonalMessage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter a personal message to include at the top of the proposal..."
+                      {...field}
+                      rows={4}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {personalMessageForm.formState.errors.root && (
+              <div className="max-w-xl">
+                <Alert variant="destructive">
+                  <AlertCircle />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {personalMessageForm.formState.errors.root.message}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loadingPersonalMessage}>
+                {loadingPersonalMessage && <Spinner className="mr-2" />}
+                Save Personal Message
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+
+      <hr className="my-8" />
+
       {/* Section Visibility Section */}
       <div className="space-y-2">
         <h3 className="text-base font-semibold">Section Visibility</h3>
@@ -380,119 +475,105 @@ export default function EditProposalForm({
 
       <hr className="my-8" />
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="proposalPersonalMessage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Personal Message</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter a personal message to include at the top of the proposal..."
-                    {...field}
-                    rows={4}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Optionally, add a personal message to the proposal.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
+      {/* Proposal Content Section */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Proposal Content</h3>
+          <p className="text-sm text-muted-foreground">
+            Manage the introduction and detailed specification content
+          </p>
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGenerateClick}
+            disabled={regenerating}
+          >
+            {regenerating ? (
+              <Spinner className="mr-2 h-4 w-4" />
+            ) : (
+              <Sparkles className="mr-2 h-4 w-4" />
             )}
-          />
-
-          {!hasContent && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No proposal generated yet</AlertTitle>
-              <AlertDescription>
-                The proposal will be automatically generated when you save the
-                specification. You can also click the button below to generate
-                it now.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGenerateClick}
-              disabled={regenerating}
-            >
-              {regenerating ? (
-                <Spinner className="mr-2 h-4 w-4" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              Generate with AI
-            </Button>
-          </div>
-
-          <FormField
-            control={form.control}
-            name="generatedProposalIntroduction"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Introduction</FormLabel>
-                <FormControl>
-                  <SimpleMarkdownEditor
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                    placeholder="Enter the introduction..."
-                  />
-                </FormControl>
-                <FormDescription>
-                  A warm, professional introduction that welcomes the client and
-                  sets the stage for the proposal.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="generatedSpecification"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Detailed Specification</FormLabel>
-                <FormControl>
-                  <SimpleMarkdownEditor
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                    placeholder="Enter the detailed specification..."
-                  />
-                </FormControl>
-                <FormDescription>
-                  A comprehensive, professional specification that expands on
-                  the client's requirements.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {form.formState.errors.root && (
-            <div className="max-w-xl">
-              <Alert variant="destructive">
-                <AlertCircle />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  {form.formState.errors.root.message}
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-
-          <Button type="submit" disabled={loading}>
-            {loading && <Spinner className="mr-2" />}
-            Save Changes
+            Generate Proposal
           </Button>
-        </form>
-      </Form>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="generatedProposalIntroduction"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Introduction</FormLabel>
+                  <FormControl>
+                    <SimpleMarkdownEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter the introduction..."
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    A warm, professional introduction that welcomes the client and
+                    sets the stage for the proposal.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loading}>
+                {loading && <Spinner className="mr-2" />}
+                Save Proposal Content
+              </Button>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="generatedSpecification"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Detailed Specification</FormLabel>
+                  <FormControl>
+                    <SimpleMarkdownEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter the detailed specification..."
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    A comprehensive, professional specification that expands on
+                    the client's requirements.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {form.formState.errors.root && (
+              <div className="max-w-xl">
+                <Alert variant="destructive">
+                  <AlertCircle />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>
+                    {form.formState.errors.root.message}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loading}>
+                {loading && <Spinner className="mr-2" />}
+                Save Proposal Content
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </>
   );
 }

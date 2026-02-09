@@ -37,6 +37,7 @@ import {
   Mail,
   ArrowRight,
   Briefcase,
+  Gift,
 } from "lucide-react";
 import { getConceptForPublic } from "@/lib/getConceptForPublic";
 import { getCaseStudiesByPartnerId } from "@/lib/getCaseStudiesByPartnerId";
@@ -1143,6 +1144,27 @@ export default async function PublicConceptPage({
                       features beyond the initial scope are quoted separately
                     </span>
                   </div>
+                </div>
+              </div>
+
+              {/* Free Time Highlight */}
+              <div
+                className="flex items-start gap-3 p-4 rounded-lg"
+                style={{ backgroundColor: `${brandColor}10` }}
+              >
+                <Gift
+                  className="h-5 w-5 mt-0.5 flex-shrink-0"
+                  style={{ color: brandColor }}
+                />
+                <div>
+                  <p className="font-medium text-gray-900">
+                    {concept.freeMonthlyMinutes || 30} minutes FREE each month
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Every month includes {concept.freeMonthlyMinutes || 30} minutes of complimentary time for
+                    tweaks and amendments to keep your chatbot performing at its
+                    best.
+                  </p>
                 </div>
               </div>
 

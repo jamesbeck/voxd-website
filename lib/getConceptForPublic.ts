@@ -29,6 +29,7 @@ export type PublicConcept = {
   heroImageFileExtension: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
+  freeMonthlyMinutes: number | null;
   partnerId: string;
   partner: {
     name: string;
@@ -83,6 +84,7 @@ export const getConceptForPublic = async ({
       "quote.heroImageFileExtension",
       "quote.setupFee",
       "quote.monthlyFee",
+      "quote.freeMonthlyMinutes",
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
@@ -151,6 +153,7 @@ export const getConceptForPublic = async ({
     heroImageFileExtension: quote.heroImageFileExtension,
     setupFee: quote.setupFee ?? null,
     monthlyFee: quote.monthlyFee ?? null,
+    freeMonthlyMinutes: quote.freeMonthlyMinutes ?? null,
     partnerId: quote.partnerId,
     partner: {
       name: quote.partnerName,
