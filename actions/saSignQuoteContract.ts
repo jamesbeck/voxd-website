@@ -74,7 +74,7 @@ const saSignQuoteContract = async ({
       "partner.companyNumber as partnerCompanyNumber",
       "partner.registeredAddress as partnerRegisteredAddress",
       "adminUser.name as ownerName",
-      "adminUser.email as ownerEmail"
+      "adminUser.email as ownerEmail",
     )
     .first();
 
