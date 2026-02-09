@@ -10,12 +10,14 @@ const saUpdateQuotePricing = async ({
   monthlyFee,
   setupFeeVoxdCost,
   monthlyFeeVoxdCost,
+  buildDays,
 }: {
   quoteId: string;
   setupFee?: number | null;
   monthlyFee?: number | null;
   setupFeeVoxdCost?: number | null;
   monthlyFeeVoxdCost?: number | null;
+  buildDays?: number | null;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -61,12 +63,13 @@ const saUpdateQuotePricing = async ({
     if (monthlyFee !== undefined) updateData.monthlyFee = monthlyFee;
   }
 
-  // Only super admins can update the Voxd cost fields
+  // Only super admins can update the Voxd cost fields and buildDays
   if (isSuperAdmin) {
     if (setupFeeVoxdCost !== undefined)
       updateData.setupFeeVoxdCost = setupFeeVoxdCost;
     if (monthlyFeeVoxdCost !== undefined)
       updateData.monthlyFeeVoxdCost = monthlyFeeVoxdCost;
+    if (buildDays !== undefined) updateData.buildDays = buildDays;
   }
 
   if (Object.keys(updateData).length === 0) {

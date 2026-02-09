@@ -14,9 +14,7 @@ import {
   Clock,
   Rocket,
   BookOpen,
-  HelpCircle,
   FileCheck,
-  ArrowRight,
   MessageSquare,
   LayoutDashboard,
   Smartphone,
@@ -164,6 +162,13 @@ export default async function PublicQuotePage({
       }`
     : null;
 
+  // Calculate build days - default to 3 if not set or zero
+  const effectiveBuildDays =
+    quote.buildDays && quote.buildDays > 0 ? quote.buildDays : 3;
+  const buildEndDay = 2 + effectiveBuildDays;
+  const testStartDay = buildEndDay + 1;
+  const testEndDay = buildEndDay + effectiveBuildDays;
+
   const sections = [
     ...(quote.proposalPersonalMessage
       ? [{ id: "welcome", label: "Welcome", icon: "Mail" as const }]
@@ -193,7 +198,6 @@ export default async function PublicQuotePage({
       ? [{ id: "pricing", label: "Investment", icon: "FileCheck" as const }]
       : []),
     { id: "next-steps", label: "Next Steps", icon: "Rocket" as const },
-    { id: "resources", label: "Resources", icon: "HelpCircle" as const },
     { id: "terms", label: "Terms & Conditions", icon: "FileText" as const },
     { id: "sign-contract", label: "Sign Contract", icon: "FileCheck" as const },
   ];
@@ -1079,7 +1083,7 @@ export default async function PublicQuotePage({
                   2
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-3">
-                  Day 2 – Build
+                  Day 2 to {buildEndDay} – Build
                 </h3>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2 text-sm text-gray-600">
@@ -1087,7 +1091,22 @@ export default async function PublicQuotePage({
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    {quote.partner.name} builds your custom chatbot
+                    {quote.partner.name} builds your custom chatbot tailored to
+                    your specific requirements
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <Clock
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    Connect your chatbot to WhatsApp Business
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <Clock
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    Integrate with your business systems and data sources
                   </li>
                 </ul>
               </div>
@@ -1098,10 +1117,10 @@ export default async function PublicQuotePage({
                   className="absolute -left-3 top-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
                   style={{ backgroundColor: brandColor }}
                 >
-                  3
+                  {testStartDay}
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-3">
-                  Day 3 – Test
+                  Day {testStartDay} to {testEndDay} – Test
                 </h3>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2 text-sm text-gray-600">
@@ -1109,7 +1128,22 @@ export default async function PublicQuotePage({
                       className="h-4 w-4 mt-0.5 flex-shrink-0"
                       style={{ color: brandColor }}
                     />
-                    Test your chatbot and provide feedback
+                    Test your chatbot thoroughly with real-world scenarios
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <Clock
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    Provide feedback on responses, tone, and behaviour
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-gray-600">
+                    <Clock
+                      className="h-4 w-4 mt-0.5 flex-shrink-0"
+                      style={{ color: brandColor }}
+                    />
+                    {quote.partner.name} makes quick amendments based on your
+                    feedback
                   </li>
                 </ul>
               </div>
@@ -1127,45 +1161,6 @@ export default async function PublicQuotePage({
                   Your AI chatbot goes live and starts helping your customers.
                 </p>
               </div>
-            </div>
-          </section>
-
-          {/* Resources Section */}
-          <section
-            id="resources"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <HelpCircle className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Resources</h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  Learn more about our platform
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link
-                href="/"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">How It Works</span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
-
-              <Link
-                href="/faq"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">FAQ</span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
             </div>
           </section>
 

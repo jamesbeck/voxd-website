@@ -11,7 +11,6 @@ import {
   MessageSquare,
   FileCheck,
   Rocket,
-  HelpCircle,
   Mail,
 } from "lucide-react";
 
@@ -23,7 +22,6 @@ const iconMap = {
   MessageSquare,
   FileCheck,
   Rocket,
-  HelpCircle,
   Mail,
 } as const;
 

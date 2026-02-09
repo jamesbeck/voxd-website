@@ -25,6 +25,7 @@ const formSchema = z.object({
   monthlyFee: z.string(),
   setupFeeVoxdCost: z.string(),
   monthlyFeeVoxdCost: z.string(),
+  buildDays: z.string(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -35,6 +36,7 @@ export default function EditPricingForm({
   monthlyFee,
   setupFeeVoxdCost,
   monthlyFeeVoxdCost,
+  buildDays,
   isSuperAdmin,
   isOwnerPartner,
 }: {
@@ -43,6 +45,7 @@ export default function EditPricingForm({
   monthlyFee: number | null;
   setupFeeVoxdCost: number | null;
   monthlyFeeVoxdCost: number | null;
+  buildDays: number | null;
   isSuperAdmin: boolean;
   isOwnerPartner: boolean;
 }) {
@@ -59,6 +62,7 @@ export default function EditPricingForm({
       monthlyFee: monthlyFee?.toString() ?? "",
       setupFeeVoxdCost: setupFeeVoxdCost?.toString() ?? "",
       monthlyFeeVoxdCost: monthlyFeeVoxdCost?.toString() ?? "",
+      buildDays: buildDays?.toString() ?? "",
     },
   });
 
@@ -74,6 +78,7 @@ export default function EditPricingForm({
       monthlyFee: parseValue(values.monthlyFee),
       setupFeeVoxdCost: parseValue(values.setupFeeVoxdCost),
       monthlyFeeVoxdCost: parseValue(values.monthlyFeeVoxdCost),
+      buildDays: parseValue(values.buildDays),
     });
 
     if (!response.success) {
@@ -156,50 +161,82 @@ export default function EditPricingForm({
         </div>
 
         {/* Admin-only editable fields (visible to partners but not editable) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="setupFeeVoxdCost"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Setup Fee (Voxd Cost)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    {...field}
-                    disabled={!canEditAdminFields}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Voxd&apos;s cost for setup (Voxd only)
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-medium mb-4">Voxd Costs</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="setupFeeVoxdCost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Setup Fee (Voxd Cost)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...field}
+                      disabled={!canEditAdminFields}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Voxd&apos;s cost for setup (Voxd only)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="monthlyFeeVoxdCost"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Monthly Fee (Voxd Cost)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    {...field}
-                    disabled={!canEditAdminFields}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Voxd&apos;s monthly cost (Voxd only)
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="monthlyFeeVoxdCost"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Monthly Fee (Voxd Cost)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...field}
+                      disabled={!canEditAdminFields}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Voxd&apos;s monthly cost (Voxd only)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* Build Days - Separated section, visible to all, editable by super admin only */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-medium mb-4">Build Estimate</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="buildDays"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Build Days</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      {...field}
+                      disabled={!canEditAdminFields}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    The number of days required to build this chatbot and its
+                    integrations (Voxd only)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         {canEditPartnerFields && (
