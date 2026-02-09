@@ -5,10 +5,10 @@
     "title": "Service Level Agreement (SLA)",
     "parentDocument": "currentTerms.json",
     "companyName": "Voxd AI LTD",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "status": "published",
     "jurisdiction": "England and Wales",
-    "lastUpdated": "2026-01-18"
+    "lastUpdated": "2026-02-09"
   },
   "sections": [
     {
@@ -18,13 +18,13 @@
         {
           "id": "sla.scope.core_services",
           "title": "Core Services",
-          "text": "This Service Level Agreement applies to chatbot applications, logic, workflows, integrations, and infrastructure developed and operated by the Company, together with operational monitoring and support of those services.",
+          "text": "This Service Level Agreement applies only to chatbot applications, logic, workflows, integrations, and infrastructure operated directly by Voxd (\"Core Services\").",
           "children": []
         },
         {
           "id": "sla.scope.exclusions",
           "title": "Excluded Services",
-          "text": "This Service Level Agreement does not apply to services, platforms, or systems not owned or controlled by the Company.",
+          "text": "This SLA does not apply to services, platforms, models, messaging channels, or systems not owned or controlled by Voxd, including Third-Party Services and client-owned systems.",
           "children": []
         }
       ]
@@ -36,13 +36,13 @@
         {
           "id": "sla.uptime.commitment",
           "title": "Uptime Commitment",
-          "text": "The Company commits to providing 99.9 percent uptime for the Core Services measured on a monthly basis, excluding Permitted Downtime.",
+          "text": "Voxd aims to provide 99.9% uptime for the Core Services measured monthly, excluding Permitted Downtime.",
           "children": []
         },
         {
           "id": "sla.uptime.calculation",
           "title": "Uptime Calculation",
-          "text": "Uptime is calculated as the total available minutes in a calendar month minus downtime minutes, divided by the total available minutes, multiplied by one hundred.",
+          "text": "Uptime is calculated as total minutes in a calendar month minus downtime minutes, divided by total minutes, multiplied by 100. Downtime applies only where Core Services are unavailable due to Voxd-controlled infrastructure.",
           "children": []
         }
       ]
@@ -53,44 +53,38 @@
       "clauses": [
         {
           "id": "sla.third_party.dependencies",
-          "title": "Third-Party Platforms",
-          "text": "The Services rely on third-party platforms and providers including but not limited to Meta, WhatsApp, large language model providers, and client-owned platform accounts.",
+          "title": "Third-Party Dependencies",
+          "text": "The Services depend on third-party platforms including (without limitation) Meta/WhatsApp, AI model providers, hosting providers, and client-managed accounts.",
           "children": []
         },
         {
           "id": "sla.third_party.responsibility",
-          "title": "Responsibility for Third Parties",
-          "text": "The Client acknowledges that it maintains a direct contractual relationship with such third-party providers and that their availability, performance, policies, limitations, outages, degradations, suspensions, or failures are outside the Company’s control and do not constitute downtime or a breach of this Service Level Agreement.",
+          "title": "No Responsibility for Third Parties",
+          "text": "Availability, performance, policy enforcement, rate limits, outages, suspensions, or failures of Third-Party Services are outside Voxd’s control and do not count as downtime or SLA breach.",
           "children": []
         }
       ]
     },
     {
       "id": "sla_external_systems",
-      "title": "Client-Owned and Third-Party APIs",
+      "title": "Client-Owned and External Systems",
       "clauses": [
         {
           "id": "sla.external_systems.definition",
           "title": "External Systems",
-          "text": "Where the Services integrate with client-owned or third-party systems, software, databases, or application programming interfaces, such systems are referred to as External Systems.",
+          "text": "Client-owned or third-party systems, APIs, databases, or software integrated with the Services are \"External Systems\".",
           "children": []
         },
         {
           "id": "sla.external_systems.no_guarantee",
-          "title": "No Guarantee for External Systems",
-          "text": "The Company does not guarantee the availability, response time, performance, accuracy, or data integrity of External Systems, and issues arising from External Systems do not count as service downtime.",
+          "title": "No Guarantees",
+          "text": "Voxd does not guarantee availability, performance, accuracy, or data integrity of External Systems. Issues arising from External Systems do not constitute downtime.",
           "children": []
         },
         {
           "id": "sla.external_systems.data",
           "title": "Data Responsibility",
-          "text": "The Company is not responsible for data loss, duplication, corruption, or inconsistency caused by External Systems unless directly and solely caused by the Core Services.",
-          "children": []
-        },
-        {
-          "id": "sla.external_systems.best_effort",
-          "title": "Best Effort Integrations",
-          "text": "Integrations with External Systems are provided on a best-effort basis unless expressly agreed otherwise in writing.",
+          "text": "Voxd is not responsible for data loss or corruption originating from External Systems unless directly and solely caused by Voxd’s Core Services.",
           "children": []
         }
       ]
@@ -102,7 +96,7 @@
         {
           "id": "sla.permitted_downtime.exclusions",
           "title": "Excluded Downtime",
-          "text": "Permitted Downtime includes downtime caused by third-party platforms, External Systems, client configuration errors, unauthorised changes, client-provided data or credentials, rate limiting or policy enforcement by third parties, force majeure events, scheduled maintenance, and emergency security updates.",
+          "text": "Permitted Downtime includes scheduled maintenance, emergency security work, third-party outages, External System failures, client misconfiguration, unauthorised changes, rate limiting, platform enforcement, force majeure events, or Client-caused issues.",
           "children": []
         }
       ]
@@ -114,13 +108,7 @@
         {
           "id": "sla.maintenance.notice",
           "title": "Maintenance Notice",
-          "text": "Planned maintenance will, where reasonably possible, be notified at least forty-eight hours in advance and will typically be scheduled outside normal business hours.",
-          "children": []
-        },
-        {
-          "id": "sla.maintenance.exclusion",
-          "title": "Maintenance Exclusion",
-          "text": "Scheduled maintenance does not count as service downtime.",
+          "text": "Where reasonably practicable, Voxd will give at least 48 hours’ notice of planned maintenance and schedule it outside normal UK business hours.",
           "children": []
         }
       ]
@@ -132,31 +120,31 @@
         {
           "id": "sla.support.scope",
           "title": "Support Scope",
-          "text": "Support includes assistance with service availability issues, errors or unexpected behaviour in the Core Services, and reasonable assistance in diagnosing issues involving third-party platforms or External Systems.",
+          "text": "Support covers availability issues and errors in Core Services, and reasonable assistance diagnosing third-party or External System issues.",
           "children": []
         },
         {
           "id": "sla.support.exclusions",
           "title": "Support Exclusions",
-          "text": "Support does not include new feature development, significant functional changes, or ongoing support or maintenance of External Systems.",
+          "text": "Support excludes feature development, major functional changes, and maintenance of External Systems.",
           "children": []
         }
       ]
     },
     {
       "id": "sla_support_hours",
-      "title": "Support Hours and Response",
+      "title": "Support Hours",
       "clauses": [
         {
           "id": "sla.support.hours",
-          "title": "Support Hours",
-          "text": "Support hours are Monday to Friday from 09:00 to 17:00 London time, excluding public holidays in England and Wales.",
+          "title": "Hours",
+          "text": "Support hours are Monday to Friday, 09:00–17:00 UK time, excluding public holidays in England and Wales.",
           "children": []
         },
         {
           "id": "sla.support.response_time",
-          "title": "Response Time",
-          "text": "The Company commits to an initial response within eight working hours of receiving a valid support request during support hours. An initial response means acknowledgment and initial assessment and does not guarantee resolution within that timeframe.",
+          "title": "Initial Response",
+          "text": "Voxd will aim to provide an initial response within 8 business hours during support hours. Initial response means acknowledgement and assessment, not resolution.",
           "children": []
         }
       ]
@@ -168,13 +156,13 @@
         {
           "id": "sla.client.accounts",
           "title": "Third-Party Accounts",
-          "text": "The Client is responsible for maintaining valid and active third-party accounts required for the Services.",
+          "text": "The Client must maintain valid third-party accounts required for the Services.",
           "children": []
         },
         {
           "id": "sla.client.external_systems",
-          "title": "External Systems Management",
-          "text": "The Client must ensure that External Systems are properly licensed, documented, accessible, and maintained, and must notify the Company in advance of any changes that may affect the Services.",
+          "title": "External Systems",
+          "text": "The Client must ensure External Systems are properly maintained and notify Voxd of changes that may affect the Services.",
           "children": []
         }
       ]
@@ -186,7 +174,7 @@
         {
           "id": "sla.service_credits.exclusive_remedy",
           "title": "Exclusive Remedy",
-          "text": "Service credits, if expressly agreed in writing, shall be the sole and exclusive remedy for failure to meet the uptime commitment. Unless explicitly stated, no service credits apply under this Service Level Agreement.",
+          "text": "Where service credits are expressly agreed in writing, they are the Client’s sole and exclusive remedy for failure to meet uptime commitments. No service credits apply unless explicitly stated in an Order Form.",
           "children": []
         }
       ]
@@ -197,14 +185,14 @@
       "clauses": [
         {
           "id": "sla.data.security_measures",
-          "title": "Security Measures",
-          "text": "The Company will implement reasonable technical and organisational measures to protect systems under its control.",
+          "title": "Security",
+          "text": "Voxd implements reasonable technical and organisational measures for systems under its control.",
           "children": []
         },
         {
           "id": "sla.data.third_party",
           "title": "Third-Party Security",
-          "text": "The Company is not responsible for security incidents or data loss originating from third-party platforms or External Systems.",
+          "text": "Voxd is not responsible for security incidents originating from Third-Party Services or External Systems.",
           "children": []
         }
       ]
@@ -216,7 +204,19 @@
         {
           "id": "sla.exclusions.beta",
           "title": "Excluded Services",
-          "text": "This Service Level Agreement does not apply to beta, experimental, trial, or free services, or to issues caused by misuse, abuse, or unsupported configurations.",
+          "text": "This SLA does not apply to beta, experimental, trial, or free services, or to issues caused by misuse or unsupported configurations.",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "sla_liability_alignment",
+      "title": "Liability Alignment",
+      "clauses": [
+        {
+          "id": "sla.liability.alignment",
+          "title": "Alignment with Terms",
+          "text": "This SLA is subject to the limitations, exclusions, and remedies set out in the main Terms. Nothing in this SLA increases Voxd’s liability beyond what is stated in the Terms.",
           "children": []
         }
       ]
