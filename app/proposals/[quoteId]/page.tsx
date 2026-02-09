@@ -973,7 +973,7 @@ export default async function PublicQuotePage({
               {/* Additional Changes */}
               <p className="text-sm text-gray-500">
                 Additional changes and amendments beyond the included free time
-                are charged at £100/hour.
+                will be quoted on a case-by-case basis.
               </p>
 
               {/* LLM Costs Sub-section */}
@@ -983,8 +983,7 @@ export default async function PublicQuotePage({
                   You will be charged directly by your LLM provider for AI
                   generation. Costs vary depending on many factors including the
                   size and complexity of each request. However, the average
-                  conversation across our entire network costs less than a tenth
-                  of a penny (£0.001).
+                  conversation across our entire network costs around 5p.
                 </p>
               </div>
 

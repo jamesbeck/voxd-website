@@ -73,6 +73,7 @@ const saSignQuoteContract = async ({
       "partner.legalName as partnerLegalName",
       "partner.companyNumber as partnerCompanyNumber",
       "partner.registeredAddress as partnerRegisteredAddress",
+      "partner.goCardlessMandateLink as partnerGoCardlessMandateLink",
       "adminUser.name as ownerName",
       "adminUser.email as ownerEmail",
     )
@@ -209,7 +210,41 @@ const saSignQuoteContract = async ({
                     <span style="color: #16a34a; font-size: 16px;">✓</span>
                   </td>
                   <td style="padding: 8px 0; color: #555555; font-size: 14px; line-height: 1.5;">
-                    Agreed to <a href="https://${partnerDomain}/terms" style="color: #2563eb; text-decoration: none;">Terms of Service</a> and <a href="https://${partnerDomain}/privacy" style="color: #2563eb; text-decoration: none;">Privacy Policy</a>
+                    Agreed to Terms of Service
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Next Steps -->
+          <tr>
+            <td style="padding: 20px 40px;">
+              <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <h3 style="margin: 0 0 15px 0; color: #1e40af; font-size: 16px; font-weight: 600;">Next Steps</h3>
+                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                      ${existingQuote.partnerGoCardlessMandateLink ? `<tr>
+                        <td style="padding: 8px 0; vertical-align: top; width: 24px;">
+                          <span style="color: #1e40af; font-size: 16px;">1.</span>
+                        </td>
+                        <td style="padding: 8px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+                          <strong>Set up Direct Debit</strong><br>
+                          Please sign the Direct Debit mandate to enable monthly billing:<br>
+                          <a href="${existingQuote.partnerGoCardlessMandateLink}" style="color: #2563eb; text-decoration: none;">${existingQuote.partnerGoCardlessMandateLink}</a>
+                        </td>
+                      </tr>` : ''}
+                      <tr>
+                        <td style="padding: 8px 0; vertical-align: top; width: 24px;">
+                          <span style="color: #1e40af; font-size: 16px;">${existingQuote.partnerGoCardlessMandateLink ? '2.' : '1.'}</span>
+                        </td>
+                        <td style="padding: 8px 0; color: #555555; font-size: 14px; line-height: 1.5;">
+                          <strong>Pay Setup Fee</strong><br>
+                          You will shortly receive an invoice for the setup fee. Please pay this by bank transfer to the account details provided on the invoice.
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
@@ -271,7 +306,16 @@ IP Address: ${ipAddress || "Not recorded"}
 CONFIRMATIONS MADE
 ------------------
 ✓ Confirmed authority to sign on behalf of ${existingQuote.organisationName}
-✓ Agreed to Terms of Service and Privacy Policy
+✓ Agreed to Terms of Service
+
+NEXT STEPS
+----------
+${existingQuote.partnerGoCardlessMandateLink ? `1. SET UP DIRECT DEBIT
+Please sign the Direct Debit mandate to enable monthly billing:
+${existingQuote.partnerGoCardlessMandateLink}
+
+2. PAY SETUP FEE` : '1. PAY SETUP FEE'}
+You will shortly receive an invoice for the setup fee. Please pay this by bank transfer to the account details provided on the invoice.
 
 LEGAL NOTICE
 ------------
