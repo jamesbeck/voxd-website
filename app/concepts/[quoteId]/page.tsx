@@ -1161,9 +1161,9 @@ export default async function PublicConceptPage({
                     {concept.freeMonthlyMinutes || 30} minutes FREE each month
                   </p>
                   <p className="text-sm text-gray-600 mt-1">
-                    Every month includes {concept.freeMonthlyMinutes || 30} minutes of complimentary time for
-                    tweaks and amendments to keep your chatbot performing at its
-                    best.
+                    Every month includes {concept.freeMonthlyMinutes || 30}{" "}
+                    minutes of complimentary time for tweaks and amendments to
+                    keep your chatbot performing at its best.
                   </p>
                 </div>
               </div>

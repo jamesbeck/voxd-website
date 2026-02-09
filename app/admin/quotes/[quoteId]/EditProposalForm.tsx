@@ -516,8 +516,8 @@ export default function EditProposalForm({
                     />
                   </FormControl>
                   <FormDescription>
-                    A warm, professional introduction that welcomes the client and
-                    sets the stage for the proposal.
+                    A warm, professional introduction that welcomes the client
+                    and sets the stage for the proposal.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
