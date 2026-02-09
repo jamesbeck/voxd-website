@@ -289,7 +289,7 @@ export default async function PublicQuotePage({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-gray-400" />
                   <div>
@@ -316,12 +316,12 @@ export default async function PublicQuotePage({
                     <p className="text-gray-500">Prepared By</p>
                     <p className="font-medium text-gray-900">
                       {quote.createdBy?.name || quote.partner.name}
+                      {quote.createdBy?.email && (
+                        <span className="text-gray-500 text-xs font-normal ml-1">
+                          ({quote.createdBy.email})
+                        </span>
+                      )}
                     </p>
-                    {quote.createdBy?.email && (
-                      <p className="text-gray-500 text-xs">
-                        {quote.createdBy.email}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -376,7 +376,7 @@ export default async function PublicQuotePage({
 
             {/* Only show metadata grid if there's no personal message section */}
             {!quote.proposalPersonalMessage && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 text-sm">
                   <Calendar className="h-4 w-4 text-gray-400" />
                   <div>
@@ -403,12 +403,12 @@ export default async function PublicQuotePage({
                     <p className="text-gray-500">Prepared By</p>
                     <p className="font-medium text-gray-900">
                       {quote.createdBy?.name || quote.partner.name}
+                      {quote.createdBy?.email && (
+                        <span className="text-gray-500 text-xs font-normal ml-1">
+                          ({quote.createdBy.email})
+                        </span>
+                      )}
                     </p>
-                    {quote.createdBy?.email && (
-                      <p className="text-gray-500 text-xs">
-                        {quote.createdBy.email}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
