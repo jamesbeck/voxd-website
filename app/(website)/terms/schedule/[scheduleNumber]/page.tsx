@@ -2,6 +2,8 @@ import H1 from "@/components/adminui/H1";
 import Container from "@/components/websiteui/container";
 import H2 from "@/components/websiteui/h2";
 import termsData from "@/terms/currentTerms.json";
+import { applyCompanyInfo } from "@/lib/terms/applyCompanyInfo";
+import { VOXD_COMPANY_INFO } from "@/lib/terms/companyInfo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import fs from "fs";
@@ -163,7 +165,8 @@ export default async function SchedulePage({
   let scheduleData: ScheduleData;
   try {
     const fileContent = fs.readFileSync(schedulePath, "utf-8");
-    scheduleData = JSON.parse(fileContent);
+    const rawData = JSON.parse(fileContent);
+    scheduleData = applyCompanyInfo(rawData, VOXD_COMPANY_INFO);
   } catch {
     notFound();
   }
@@ -189,7 +192,7 @@ export default async function SchedulePage({
         <p className="text-sm text-gray-600">
           <strong>Part of:</strong>{" "}
           <Link href="/terms" className="text-primary hover:underline">
-            Voxd Terms of Service
+            {VOXD_COMPANY_INFO.shortName} Terms of Service
           </Link>
         </p>
         <p className="text-sm text-gray-600">

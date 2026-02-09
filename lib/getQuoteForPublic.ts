@@ -36,6 +36,10 @@ export type PublicQuote = {
     colour: string | null;
     domain: string | null;
     logoFileExtension: string | null;
+    legalName: string | null;
+    companyNumber: string | null;
+    registeredAddress: string | null;
+    legalEmail: string | null;
   };
   createdBy: {
     name: string | null;
@@ -88,6 +92,10 @@ export const getQuoteForPublic = async ({
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
+      "partner.legalName as partnerLegalName",
+      "partner.companyNumber as partnerCompanyNumber",
+      "partner.registeredAddress as partnerRegisteredAddress",
+      "partner.legalEmail as partnerLegalEmail",
       "adminUser.name as createdByName",
       "adminUser.email as createdByEmail",
     )
@@ -152,6 +160,10 @@ export const getQuoteForPublic = async ({
       colour: quote.partnerColour,
       domain: quote.partnerDomain,
       logoFileExtension: quote.partnerLogoFileExtension,
+      legalName: quote.partnerLegalName,
+      companyNumber: quote.partnerCompanyNumber,
+      registeredAddress: quote.partnerRegisteredAddress,
+      legalEmail: quote.partnerLegalEmail,
     },
     createdBy:
       quote.createdByName || quote.createdByEmail

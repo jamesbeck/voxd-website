@@ -43,6 +43,7 @@ import ExampleConversationsAccordion from "@/components/ExampleConversationsAcco
 import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
+import ProposalTermsSection from "./ProposalTermsSection";
 
 export async function generateMetadata({
   params,
@@ -193,6 +194,7 @@ export default async function PublicQuotePage({
       : []),
     { id: "next-steps", label: "Next Steps", icon: "Rocket" as const },
     { id: "resources", label: "Resources", icon: "HelpCircle" as const },
+    { id: "terms", label: "Terms & Conditions", icon: "FileText" as const },
     { id: "sign-contract", label: "Sign Contract", icon: "FileCheck" as const },
   ];
 
@@ -1164,18 +1166,20 @@ export default async function PublicQuotePage({
                 <span className="font-medium text-gray-900">FAQ</span>
                 <ArrowRight className="h-4 w-4 text-gray-400" />
               </Link>
-
-              <Link
-                href="/terms"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
-              >
-                <span className="font-medium text-gray-900">
-                  Terms & Conditions
-                </span>
-                <ArrowRight className="h-4 w-4 text-gray-400" />
-              </Link>
             </div>
           </section>
+
+          {/* Terms & Conditions Section */}
+          <ProposalTermsSection
+            brandColor={brandColor}
+            partner={{
+              name: quote.partner.name,
+              legalName: quote.partner.legalName,
+              companyNumber: quote.partner.companyNumber,
+              registeredAddress: quote.partner.registeredAddress,
+              legalEmail: quote.partner.legalEmail,
+            }}
+          />
 
           {/* CTA Section */}
           <section

@@ -4,7 +4,7 @@
     "scheduleNumber": 2,
     "title": "Service Level Agreement (SLA)",
     "parentDocument": "currentTerms.json",
-    "companyName": "Voxd AI LTD",
+    "companyName": "{{company.name}}",
     "version": "1.1.0",
     "status": "published",
     "jurisdiction": "England and Wales",
@@ -18,13 +18,13 @@
         {
           "id": "sla.scope.core_services",
           "title": "Core Services",
-          "text": "This Service Level Agreement applies only to chatbot applications, logic, workflows, integrations, and infrastructure operated directly by Voxd (\"Core Services\").",
+          "text": "This Service Level Agreement applies only to chatbot applications, logic, workflows, integrations, and infrastructure operated directly by {{company.shortName}} (\"Core Services\").",
           "children": []
         },
         {
           "id": "sla.scope.exclusions",
           "title": "Excluded Services",
-          "text": "This SLA does not apply to services, platforms, models, messaging channels, or systems not owned or controlled by Voxd, including Third-Party Services and client-owned systems.",
+          "text": "This SLA does not apply to services, platforms, models, messaging channels, or systems not owned or controlled by {{company.shortName}}, including Third-Party Services and client-owned systems.",
           "children": []
         }
       ]
@@ -36,13 +36,13 @@
         {
           "id": "sla.uptime.commitment",
           "title": "Uptime Commitment",
-          "text": "Voxd aims to provide 99.9% uptime for the Core Services measured monthly, excluding Permitted Downtime.",
+          "text": "{{company.shortName}} aims to provide 99.9% uptime for the Core Services measured monthly, excluding Permitted Downtime.",
           "children": []
         },
         {
           "id": "sla.uptime.calculation",
           "title": "Uptime Calculation",
-          "text": "Uptime is calculated as total minutes in a calendar month minus downtime minutes, divided by total minutes, multiplied by 100. Downtime applies only where Core Services are unavailable due to Voxd-controlled infrastructure.",
+          "text": "Uptime is calculated as total minutes in a calendar month minus downtime minutes, divided by total minutes, multiplied by 100. Downtime applies only where Core Services are unavailable due to {{company.shortName}}-controlled infrastructure.",
           "children": []
         }
       ]
@@ -60,7 +60,7 @@
         {
           "id": "sla.third_party.responsibility",
           "title": "No Responsibility for Third Parties",
-          "text": "Availability, performance, policy enforcement, rate limits, outages, suspensions, or failures of Third-Party Services are outside Voxd’s control and do not count as downtime or SLA breach.",
+          "text": "Availability, performance, policy enforcement, rate limits, outages, suspensions, or failures of Third-Party Services are outside {{company.shortName}}’s control and do not count as downtime or SLA breach.",
           "children": []
         }
       ]
@@ -78,13 +78,13 @@
         {
           "id": "sla.external_systems.no_guarantee",
           "title": "No Guarantees",
-          "text": "Voxd does not guarantee availability, performance, accuracy, or data integrity of External Systems. Issues arising from External Systems do not constitute downtime.",
+          "text": "{{company.shortName}} does not guarantee availability, performance, accuracy, or data integrity of External Systems. Issues arising from External Systems do not constitute downtime.",
           "children": []
         },
         {
           "id": "sla.external_systems.data",
           "title": "Data Responsibility",
-          "text": "Voxd is not responsible for data loss or corruption originating from External Systems unless directly and solely caused by Voxd’s Core Services.",
+          "text": "{{company.shortName}} is not responsible for data loss or corruption originating from External Systems unless directly and solely caused by {{company.shortName}}’s Core Services.",
           "children": []
         }
       ]
@@ -108,7 +108,7 @@
         {
           "id": "sla.maintenance.notice",
           "title": "Maintenance Notice",
-          "text": "Where reasonably practicable, Voxd will give at least 48 hours’ notice of planned maintenance and schedule it outside normal UK business hours.",
+          "text": "Where reasonably practicable, {{company.shortName}} will give at least 48 hours’ notice of planned maintenance and schedule it outside normal UK business hours.",
           "children": []
         }
       ]
@@ -144,7 +144,7 @@
         {
           "id": "sla.support.response_time",
           "title": "Initial Response",
-          "text": "Voxd will aim to provide an initial response within 8 business hours during support hours. Initial response means acknowledgement and assessment, not resolution.",
+          "text": "{{company.shortName}} will aim to provide an initial response within 8 business hours during support hours. Initial response means acknowledgement and assessment, not resolution.",
           "children": []
         }
       ]
@@ -162,7 +162,7 @@
         {
           "id": "sla.client.external_systems",
           "title": "External Systems",
-          "text": "The Client must ensure External Systems are properly maintained and notify Voxd of changes that may affect the Services.",
+          "text": "The Client must ensure External Systems are properly maintained and notify {{company.shortName}} of changes that may affect the Services.",
           "children": []
         }
       ]
@@ -186,13 +186,13 @@
         {
           "id": "sla.data.security_measures",
           "title": "Security",
-          "text": "Voxd implements reasonable technical and organisational measures for systems under its control.",
+          "text": "{{company.shortName}} implements reasonable technical and organisational measures for systems under its control.",
           "children": []
         },
         {
           "id": "sla.data.third_party",
           "title": "Third-Party Security",
-          "text": "Voxd is not responsible for security incidents originating from Third-Party Services or External Systems.",
+          "text": "{{company.shortName}} is not responsible for security incidents originating from Third-Party Services or External Systems.",
           "children": []
         }
       ]
@@ -216,7 +216,7 @@
         {
           "id": "sla.liability.alignment",
           "title": "Alignment with Terms",
-          "text": "This SLA is subject to the limitations, exclusions, and remedies set out in the main Terms. Nothing in this SLA increases Voxd’s liability beyond what is stated in the Terms.",
+          "text": "This SLA is subject to the limitations, exclusions, and remedies set out in the main Terms. Nothing in this SLA increases {{company.shortName}}’s liability beyond what is stated in the Terms.",
           "children": []
         }
       ]

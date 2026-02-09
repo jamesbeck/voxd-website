@@ -14,7 +14,11 @@
     "sendEmailFromDomain": "voxd.ai",
     "logoFileExtension": "png",
     "salesBotName": null,
-    "salesBotAgentId": null
+    "salesBotAgentId": null,
+    "legalName": null,
+    "companyNumber": null,
+    "registeredAddress": null,
+    "legalEmail": null
   },
   {
     "id": "019bc6e1-d178-7da3-8b62-1f9da6ff456b",
@@ -31,24 +35,11 @@
     "sendEmailFromDomain": "voxd.ai",
     "logoFileExtension": "png",
     "salesBotName": null,
-    "salesBotAgentId": null
-  },
-  {
-    "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
-    "name": "ChatFox",
-    "billingAddressLine1": null,
-    "billingAddressLine2": null,
-    "billingCity": null,
-    "billingState": null,
-    "billingPostcode": null,
-    "billingCountry": null,
-    "billingEmails": null,
-    "domain": "portal.chatfox.ai",
-    "colour": "081d35",
-    "sendEmailFromDomain": "chatfox.ai",
-    "logoFileExtension": "svg",
-    "salesBotName": "Basil",
-    "salesBotAgentId": "019b7e21-1fcc-744d-849c-fb5ded6f6802"
+    "salesBotAgentId": null,
+    "legalName": null,
+    "companyNumber": null,
+    "registeredAddress": null,
+    "legalEmail": null
   },
   {
     "id": "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
@@ -65,6 +56,31 @@
     "sendEmailFromDomain": "voxd.ai",
     "logoFileExtension": "svg",
     "salesBotName": "Clive",
-    "salesBotAgentId": "01994d3e-b028-7c19-8aa0-3762438868aa"
+    "salesBotAgentId": "01994d3e-b028-7c19-8aa0-3762438868aa",
+    "legalName": "Voxd AI Ltd",
+    "companyNumber": "16911937",
+    "registeredAddress": "Wharf Cottage, Daneway, Sapperton, Gloucestershire, England, GL7 6LN",
+    "legalEmail": "james.beck@voxd.ai"
+  },
+  {
+    "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
+    "name": "ChatFox",
+    "billingAddressLine1": null,
+    "billingAddressLine2": null,
+    "billingCity": null,
+    "billingState": null,
+    "billingPostcode": null,
+    "billingCountry": null,
+    "billingEmails": null,
+    "domain": "portal.chatfox.ai",
+    "colour": "081d35",
+    "sendEmailFromDomain": "chatfox.ai",
+    "logoFileExtension": "svg",
+    "salesBotName": "Basil",
+    "salesBotAgentId": "019b7e21-1fcc-744d-849c-fb5ded6f6802",
+    "legalName": "Chatfox Ltd",
+    "companyNumber": "16875330",
+    "registeredAddress": "20 Wenlock Road, London, England, N1 7GU",
+    "legalEmail": "james@chatfox.ai"
   }
 ]

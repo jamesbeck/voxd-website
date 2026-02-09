@@ -1,7 +1,7 @@
 {
   "meta": {
     "documentType": "terms_and_conditions",
-    "companyName": "Voxd AI LTD",
+    "companyName": "{{company.name}}",
     "version": "1.1.0",
     "status": "published",
     "jurisdiction": "England and Wales",
@@ -24,8 +24,8 @@
     "terms": [
       {
         "key": "Company",
-        "definedTerm": "Voxd",
-        "description": "Voxd AI LTD (company number 16911937) incorporated in England and Wales."
+        "definedTerm": "{{company.shortName}}",
+        "description": "{{company.name}} (company number {{company.number}}) incorporated in England and Wales."
       },
       {
         "key": "Client",
@@ -45,7 +45,7 @@
       {
         "key": "ThirdPartyServices",
         "definedTerm": "Third-Party Services",
-        "description": "Services or platforms not owned or controlled by Voxd (e.g., WhatsApp/Meta, LLM providers, hosting, client systems)."
+        "description": "Services or platforms not owned or controlled by {{company.shortName}} (e.g., WhatsApp/Meta, LLM providers, hosting, client systems)."
       },
       {
         "key": "AIOutputs",
@@ -70,25 +70,25 @@
       {
         "key": "GoLiveDate",
         "definedTerm": "Go-Live Date",
-        "description": "The date the chatbot is ready for live deployment, as confirmed by Voxd."
+        "description": "The date the chatbot is ready for live deployment, as confirmed by {{company.shortName}}."
       }
     ]
   },
   "sections": [
     {
       "id": "about_the_company",
-      "title": "About Voxd",
+      "title": "About {{company.shortName}}",
       "clauses": [
         {
           "id": "about.company_identity",
           "title": "Company Identity",
-          "text": "Voxd AI LTD is a company incorporated in England and Wales with company registration number 16911937.",
+          "text": "{{company.name}} is a company incorporated in England and Wales with company registration number {{company.number}}.",
           "children": []
         },
         {
           "id": "about.registered_office",
           "title": "Registered and Trading Address",
-          "text": "Wharf Cottage, Daneway, Sapperton, Gloucestershire, GL7 6LN.",
+          "text": "{{company.address}}.",
           "children": []
         },
         {
@@ -100,13 +100,13 @@
         {
           "id": "about.support",
           "title": "Support and Communications",
-          "text": "Support and change requests should be submitted via the Voxd client portal. Voxd may also respond by email where appropriate, but the portal is the primary channel for tracking requests and delivery.",
+          "text": "Support and change requests should be submitted via the {{company.shortName}} client portal. {{company.shortName}} may also respond by email where appropriate, but the portal is the primary channel for tracking requests and delivery.",
           "children": []
         },
         {
           "id": "about.legal_contact",
           "title": "Legal Notices",
-          "text": "Legal notices may be sent to james.beck@voxd.ai (or any updated address notified by Voxd).",
+          "text": "Legal notices may be sent to {{company.legalEmail}} (or any updated address notified by {{company.shortName}}).",
           "children": []
         }
       ]
@@ -117,32 +117,32 @@
       "clauses": [
         {
           "id": "scope.general",
-          "title": "What Voxd Provides",
-          "text": "Voxd provides chatbot configuration, setup and integration services in line with the Order Form and information supplied by the Client.",
+          "title": "What {{company.shortName}} Provides",
+          "text": "{{company.shortName}} provides chatbot configuration, setup and integration services in line with the Order Form and information supplied by the Client.",
           "children": []
         },
         {
           "id": "scope.configuration_only",
           "title": "Third-Party Components",
-          "text": "Unless expressly agreed in the Order Form, Voxd does not supply the underlying AI model(s), WhatsApp/Meta services, third-party platforms, or the Client’s internal systems. These are Third-Party Services.",
+          "text": "Unless expressly agreed in the Order Form, {{company.shortName}} does not supply the underlying AI model(s), WhatsApp/Meta services, third-party platforms, or the Client’s internal systems. These are Third-Party Services.",
           "children": []
         },
         {
           "id": "scope.client_specifications",
           "title": "Client Inputs",
-          "text": "Voxd relies on the Client’s information, requirements and materials. Voxd is not responsible for issues caused by inaccurate, incomplete or unlawful Client inputs.",
+          "text": "{{company.shortName}} relies on the Client’s information, requirements and materials. {{company.shortName}} is not responsible for issues caused by inaccurate, incomplete or unlawful Client inputs.",
           "children": []
         },
         {
           "id": "scope.no_advice",
           "title": "No Professional Advice",
-          "text": "Voxd does not provide legal, regulatory, financial, medical, or other professional advice. The Services are not designed to replace professional judgement.",
+          "text": "{{company.shortName}} does not provide legal, regulatory, financial, medical, or other professional advice. The Services are not designed to replace professional judgement.",
           "children": []
         },
         {
           "id": "scope.no_outcomes",
           "title": "No Guaranteed Outcomes",
-          "text": "Voxd does not guarantee business outcomes, revenue, cost savings, or that AI Outputs will be accurate or suitable for any purpose.",
+          "text": "{{company.shortName}} does not guarantee business outcomes, revenue, cost savings, or that AI Outputs will be accurate or suitable for any purpose.",
           "children": []
         }
       ]
@@ -201,8 +201,8 @@
         },
         {
           "id": "acceptable_use.voxd_rights",
-          "title": "Voxd’s Right to Protect the Service",
-          "text": "Voxd may suspend or restrict the Services if necessary to protect the Services, comply with law/platform rules, address security risk, or where the Client’s use creates material legal or reputational risk.",
+          "title": "{{company.shortName}}’s Right to Protect the Service",
+          "text": "{{company.shortName}} may suspend or restrict the Services if necessary to protect the Services, comply with law/platform rules, address security risk, or where the Client’s use creates material legal or reputational risk.",
           "children": []
         }
       ]
@@ -220,7 +220,7 @@
         {
           "id": "ai.no_warranties",
           "title": "No Warranty on AI Outputs",
-          "text": "To the fullest extent permitted by law, Voxd makes no warranties about AI Outputs (including accuracy, completeness, reliability, legality, or fitness for purpose).",
+          "text": "To the fullest extent permitted by law, {{company.shortName}} makes no warranties about AI Outputs (including accuracy, completeness, reliability, legality, or fitness for purpose).",
           "children": []
         },
         {
@@ -232,19 +232,19 @@
         {
           "id": "ai.no_liability_outputs",
           "title": "No Liability for Reliance on AI Outputs",
-          "text": "AI Outputs are generated by third-party AI models and may be incorrect or inappropriate. Voxd is not responsible for losses caused by the Client’s or any end user’s use of or reliance on AI Outputs or for decisions made based on them (including where outputs are inaccurate, misleading, incomplete, offensive, or fail to follow the Client’s preferred tone or instructions). Voxd remains responsible for delivering the Services (configuration/integration) with reasonable skill and care.",
+          "text": "AI Outputs are generated by third-party AI models and may be incorrect or inappropriate. {{company.shortName}} is not responsible for losses caused by the Client’s or any end user’s use of or reliance on AI Outputs or for decisions made based on them (including where outputs are inaccurate, misleading, incomplete, offensive, or fail to follow the Client’s preferred tone or instructions). {{company.shortName}} remains responsible for delivering the Services (configuration/integration) with reasonable skill and care.",
           "children": []
         },
         {
           "id": "ai.underlying_llm_provider",
           "title": "Model Provider Responsibility",
-          "text": "Where the chatbot uses AI models provided by third parties, those providers control model behaviour, safety filters, pricing, availability and policies. Voxd is not responsible for changes or issues in third-party model behaviour or availability.",
+          "text": "Where the chatbot uses AI models provided by third parties, those providers control model behaviour, safety filters, pricing, availability and policies. {{company.shortName}} is not responsible for changes or issues in third-party model behaviour or availability.",
           "children": []
         },
         {
           "id": "ai.prompt_injection",
           "title": "Prompt Injection and Manipulation",
-          "text": "End users may try to manipulate AI behaviour (e.g., prompt injection). Voxd is not responsible for AI Outputs resulting from such attempts. The Client is responsible for implementing safeguards, policies and business rules to mitigate these risks.",
+          "text": "End users may try to manipulate AI behaviour (e.g., prompt injection). {{company.shortName}} is not responsible for AI Outputs resulting from such attempts. The Client is responsible for implementing safeguards, policies and business rules to mitigate these risks.",
           "children": []
         }
       ]
@@ -256,19 +256,19 @@
         {
           "id": "thirdparty.general",
           "title": "Use of Third Parties",
-          "text": "The Services may rely on or integrate with Third-Party Services. Voxd does not control Third-Party Services.",
+          "text": "The Services may rely on or integrate with Third-Party Services. {{company.shortName}} does not control Third-Party Services.",
           "children": []
         },
         {
           "id": "thirdparty.no_liability",
           "title": "No Liability for Third-Party Services",
-          "text": "To the fullest extent permitted by law, Voxd is not liable for Third-Party Service outages, changes, delays, restrictions, suspensions, or pricing/billing decisions made by third parties.",
+          "text": "To the fullest extent permitted by law, {{company.shortName}} is not liable for Third-Party Service outages, changes, delays, restrictions, suspensions, or pricing/billing decisions made by third parties.",
           "children": []
         },
         {
           "id": "thirdparty.api_changes",
           "title": "Third-Party Changes",
-          "text": "Third-Party Services may change APIs or requirements at any time. If changes require work to keep integrations operating, Voxd may quote for additional work unless the Order Form states otherwise.",
+          "text": "Third-Party Services may change APIs or requirements at any time. If changes require work to keep integrations operating, {{company.shortName}} may quote for additional work unless the Order Form states otherwise.",
           "children": []
         }
       ]
@@ -286,7 +286,7 @@
         {
           "id": "fees.setup",
           "title": "Setup Fees",
-          "text": "Setup fees (if any) are payable in advance. Voxd is not required to start work until setup fees are received in cleared funds.",
+          "text": "Setup fees (if any) are payable in advance. {{company.shortName}} is not required to start work until setup fees are received in cleared funds.",
           "children": []
         },
         {
@@ -304,13 +304,13 @@
         {
           "id": "fees.late_payment",
           "title": "Late Payment",
-          "text": "If payment is overdue, Voxd may suspend the Services on notice where reasonably practicable. Voxd may charge statutory interest and reasonable recovery costs under the Late Payment of Commercial Debts (Interest) Act 1998.",
+          "text": "If payment is overdue, {{company.shortName}} may suspend the Services on notice where reasonably practicable. {{company.shortName}} may charge statutory interest and reasonable recovery costs under the Late Payment of Commercial Debts (Interest) Act 1998.",
           "children": []
         },
         {
           "id": "fees.price_changes",
           "title": "Fee Changes",
-          "text": "Voxd will give at least 30 days’ notice of changes to recurring Fees. Fees will not increase during an agreed Initial Term except where expressly stated in the Order Form.",
+          "text": "{{company.shortName}} will give at least 30 days’ notice of changes to recurring Fees. Fees will not increase during an agreed Initial Term except where expressly stated in the Order Form.",
           "children": []
         }
       ]
@@ -357,8 +357,8 @@
         },
         {
           "id": "termination.by_voxd",
-          "title": "Termination by Voxd for Risk",
-          "text": "Voxd may terminate immediately if the Client becomes insolvent, repeatedly fails to pay Fees, or uses the Services in a way that creates material legal, security, platform-policy, or reputational risk.",
+          "title": "Termination by {{company.shortName}} for Risk",
+          "text": "{{company.shortName}} may terminate immediately if the Client becomes insolvent, repeatedly fails to pay Fees, or uses the Services in a way that creates material legal, security, platform-policy, or reputational risk.",
           "children": []
         },
         {
@@ -382,7 +382,7 @@
         {
           "id": "refunds.policy",
           "title": "Refund Policy",
-          "text": "Setup Fees are non-refundable once work begins. Monthly Fees are billed in advance and non-refundable, except where Voxd terminates for convenience without Client breach (in which case Voxd will refund any unused prepaid Monthly Fees for the period after termination takes effect).",
+          "text": "Setup Fees are non-refundable once work begins. Monthly Fees are billed in advance and non-refundable, except where {{company.shortName}} terminates for convenience without Client breach (in which case {{company.shortName}} will refund any unused prepaid Monthly Fees for the period after termination takes effect).",
           "children": []
         }
       ]
@@ -400,7 +400,7 @@
         {
           "id": "gdpr.roles",
           "title": "Roles",
-          "text": "Unless agreed otherwise in writing, the Client is the controller and Voxd is the processor.",
+          "text": "Unless agreed otherwise in writing, the Client is the controller and {{company.shortName}} is the processor.",
           "children": []
         },
         {
@@ -417,20 +417,20 @@
       "clauses": [
         {
           "id": "ip.ownership",
-          "title": "Voxd IP",
-          "text": "Voxd (and its licensors) owns all intellectual property in the Services, including underlying software, tooling, templates, configurations, methodologies and know-how, except where expressly stated otherwise.",
+          "title": "{{company.shortName}} IP",
+          "text": "{{company.shortName}} (and its licensors) owns all intellectual property in the Services, including underlying software, tooling, templates, configurations, methodologies and know-how, except where expressly stated otherwise.",
           "children": []
         },
         {
           "id": "ip.ai_outputs_ownership",
           "title": "AI Outputs",
-          "text": "As between Voxd and the Client, the Client owns any rights it may have in AI Outputs generated for the Client through use of the Services, subject to payment of Fees and compliance with these Terms.",
+          "text": "As between {{company.shortName}} and the Client, the Client owns any rights it may have in AI Outputs generated for the Client through use of the Services, subject to payment of Fees and compliance with these Terms.",
           "children": []
         },
         {
           "id": "ip.no_warranty_originality",
           "title": "No Originality or Non-Infringement Warranty",
-          "text": "AI Outputs may be similar to outputs generated for others. Voxd does not warrant that AI Outputs are original, unique, or non-infringing.",
+          "text": "AI Outputs may be similar to outputs generated for others. {{company.shortName}} does not warrant that AI Outputs are original, unique, or non-infringing.",
           "children": []
         },
         {
@@ -466,13 +466,13 @@
         {
           "id": "liability.ai_outputs_exclusion",
           "title": "AI Reliance Exclusion",
-          "text": "Without limiting the above, Voxd is not liable for losses arising from the Client’s or any end user’s use of or reliance on AI Outputs.",
+          "text": "Without limiting the above, {{company.shortName}} is not liable for losses arising from the Client’s or any end user’s use of or reliance on AI Outputs.",
           "children": []
         },
         {
           "id": "liability.cap",
           "title": "Liability Cap",
-          "text": "Voxd’s total liability arising out of or in connection with the Services (whether in contract, tort, negligence, misrepresentation, or otherwise) is capped at the total Fees paid by the Client in the 12 months before the event giving rise to the claim (or such other cap stated in the Order Form).",
+          "text": "{{company.shortName}}’s total liability arising out of or in connection with the Services (whether in contract, tort, negligence, misrepresentation, or otherwise) is capped at the total Fees paid by the Client in the 12 months before the event giving rise to the claim (or such other cap stated in the Order Form).",
           "children": []
         },
         {
@@ -490,19 +490,19 @@
         {
           "id": "indemnity.scope",
           "title": "Client Indemnity",
-          "text": "The Client will indemnify Voxd (including its directors, officers, employees and contractors) against third-party claims, losses, damages, penalties, fines and reasonable legal costs to the extent the claim arises from: (a) the Client’s deployment, publication, or reliance on AI Outputs; (b) Client Materials, instructions, workflows or configurations supplied by or on behalf of the Client; (c) the Client’s breach of law, regulation or platform policies in connection with the Services; or (d) misuse of the Services by the Client, its staff, contractors or end users.",
+          "text": "The Client will indemnify {{company.shortName}} (including its directors, officers, employees and contractors) against third-party claims, losses, damages, penalties, fines and reasonable legal costs to the extent the claim arises from: (a) the Client’s deployment, publication, or reliance on AI Outputs; (b) Client Materials, instructions, workflows or configurations supplied by or on behalf of the Client; (c) the Client’s breach of law, regulation or platform policies in connection with the Services; or (d) misuse of the Services by the Client, its staff, contractors or end users.",
           "children": []
         },
         {
           "id": "indemnity.fairness_limit",
           "title": "Fairness Limiter",
-          "text": "The Client is not required to indemnify Voxd to the extent a claim is directly caused by Voxd’s breach of these Terms or failure to provide the Services with reasonable skill and care.",
+          "text": "The Client is not required to indemnify {{company.shortName}} to the extent a claim is directly caused by {{company.shortName}}’s breach of these Terms or failure to provide the Services with reasonable skill and care.",
           "children": []
         },
         {
           "id": "indemnity.process",
           "title": "Indemnity Process",
-          "text": "Voxd will notify the Client of any claim as soon as reasonably practicable and will reasonably cooperate with the Client in the defence or settlement of the claim at the Client’s expense. Voxd may participate in the defence with its own counsel at its own cost.",
+          "text": "{{company.shortName}} will notify the Client of any claim as soon as reasonably practicable and will reasonably cooperate with the Client in the defence or settlement of the claim at the Client’s expense. {{company.shortName}} may participate in the defence with its own counsel at its own cost.",
           "children": []
         }
       ]
@@ -526,7 +526,7 @@
         {
           "id": "changes.right",
           "title": "Updates",
-          "text": "Voxd may update these Terms by giving the Client at least 30 days’ written notice (via the client portal or email). If an update materially disadvantages the Client, the Client may terminate by written notice before the change takes effect, and the existing Terms will apply until termination. Changes will not apply retroactively to an Order Form already in an Initial Term unless required by law or platform policy.",
+          "text": "{{company.shortName}} may update these Terms by giving the Client at least 30 days’ written notice (via the client portal or email). If an update materially disadvantages the Client, the Client may terminate by written notice before the change takes effect, and the existing Terms will apply until termination. Changes will not apply retroactively to an Order Form already in an Initial Term unless required by law or platform policy.",
           "children": []
         }
       ]

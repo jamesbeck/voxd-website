@@ -4,7 +4,7 @@
     "scheduleNumber": 1,
     "title": "Data Processing Addendum (UK GDPR)",
     "parentDocument": "currentTerms.json",
-    "companyName": "Voxd AI LTD",
+    "companyName": "{{company.name}}",
     "version": "1.1.0",
     "status": "published",
     "jurisdiction": "England and Wales",
@@ -35,7 +35,7 @@
             {
               "id": "dpa.definitions.subprocessor",
               "title": "Sub-processor",
-              "text": "\"Sub-processor\" means any third party engaged by Voxd to process Personal Data on behalf of the Client.",
+              "text": "\"Sub-processor\" means any third party engaged by {{company.shortName}} to process Personal Data on behalf of the Client.",
               "children": []
             }
           ]
@@ -49,19 +49,19 @@
         {
           "id": "dpa.roles.acknowledgement",
           "title": "Acknowledgement of Roles",
-          "text": "For the purposes of the UK GDPR, the Client is the Controller of Personal Data processed in connection with the Services and Voxd is the Processor, unless otherwise agreed in writing.",
+          "text": "For the purposes of the UK GDPR, the Client is the Controller of Personal Data processed in connection with the Services and {{company.shortName}} is the Processor, unless otherwise agreed in writing.",
           "children": []
         },
         {
           "id": "dpa.roles.instructions",
           "title": "Processing on Instructions",
-          "text": "Voxd shall process Personal Data only on documented instructions from the Client, including as set out in the Terms and this Schedule, unless required to do otherwise by applicable law.",
+          "text": "{{company.shortName}} shall process Personal Data only on documented instructions from the Client, including as set out in the Terms and this Schedule, unless required to do otherwise by applicable law.",
           "children": []
         },
         {
           "id": "dpa.roles.ai_acknowledgement",
           "title": "AI Acknowledgement",
-          "text": "The Client acknowledges that Voxd does not control the content of AI model outputs and processes Personal Data solely to provide the Services as configured and instructed by the Client.",
+          "text": "The Client acknowledges that {{company.shortName}} does not control the content of AI model outputs and processes Personal Data solely to provide the Services as configured and instructed by the Client.",
           "children": []
         }
       ]
@@ -108,8 +108,8 @@
       "clauses": [
         {
           "id": "dpa.processor.obligations",
-          "title": "Voxd’s Obligations",
-          "text": "Voxd shall:",
+          "title": "{{company.shortName}}’s Obligations",
+          "text": "{{company.shortName}} shall:",
           "children": [
             {
               "id": "dpa.processor.instructions",
@@ -140,7 +140,7 @@
         {
           "id": "dpa.processor.client_responsibility",
           "title": "Client Responsibility for Lawfulness",
-          "text": "Voxd does not determine the purposes of processing and relies on the Client to ensure its instructions comply with applicable data protection laws.",
+          "text": "{{company.shortName}} does not determine the purposes of processing and relies on the Client to ensure its instructions comply with applicable data protection laws.",
           "children": []
         }
       ]
@@ -152,13 +152,13 @@
         {
           "id": "dpa.subprocessing.authorisation",
           "title": "General Authorisation",
-          "text": "The Client authorises Voxd to engage Sub-processors for provision of the Services, including hosting, infrastructure, AI and messaging providers.",
+          "text": "The Client authorises {{company.shortName}} to engage Sub-processors for provision of the Services, including hosting, infrastructure, AI and messaging providers.",
           "children": []
         },
         {
           "id": "dpa.subprocessing.obligations",
           "title": "Sub-processor Obligations",
-          "text": "Voxd shall ensure Sub-processors are subject to data protection obligations substantially similar to those in this Schedule.",
+          "text": "{{company.shortName}} shall ensure Sub-processors are subject to data protection obligations substantially similar to those in this Schedule.",
           "children": []
         },
         {
@@ -170,7 +170,7 @@
         {
           "id": "dpa.subprocessing.changes",
           "title": "Changes to Sub-processors",
-          "text": "Voxd may add or replace Sub-processors from time to time and will provide prior notice of material changes where reasonably practicable. The Client may object on reasonable data protection grounds within 14 days, and the parties will discuss a resolution in good faith.",
+          "text": "{{company.shortName}} may add or replace Sub-processors from time to time and will provide prior notice of material changes where reasonably practicable. The Client may object on reasonable data protection grounds within 14 days, and the parties will discuss a resolution in good faith.",
           "children": []
         }
       ]
@@ -188,7 +188,7 @@
         {
           "id": "dpa.transfers.safeguards",
           "title": "Safeguards",
-          "text": "Voxd shall ensure appropriate safeguards such as the UK International Data Transfer Agreement or other approved mechanisms are in place.",
+          "text": "{{company.shortName}} shall ensure appropriate safeguards such as the UK International Data Transfer Agreement or other approved mechanisms are in place.",
           "children": []
         }
       ]
@@ -200,7 +200,7 @@
         {
           "id": "dpa.security.measures",
           "title": "Security",
-          "text": "Voxd shall implement technical and organisational measures designed to provide security appropriate to risk.",
+          "text": "{{company.shortName}} shall implement technical and organisational measures designed to provide security appropriate to risk.",
           "children": []
         },
         {
@@ -218,13 +218,13 @@
         {
           "id": "dpa.breaches.notification",
           "title": "Notification",
-          "text": "Voxd shall notify the Client without undue delay after becoming aware of a Personal Data Breach affecting Personal Data processed on the Client’s behalf.",
+          "text": "{{company.shortName}} shall notify the Client without undue delay after becoming aware of a Personal Data Breach affecting Personal Data processed on the Client’s behalf.",
           "children": []
         },
         {
           "id": "dpa.breaches.assistance",
           "title": "Assistance",
-          "text": "Voxd shall provide reasonable assistance to enable the Client to comply with UK GDPR breach notification obligations.",
+          "text": "{{company.shortName}} shall provide reasonable assistance to enable the Client to comply with UK GDPR breach notification obligations.",
           "children": []
         }
       ]
@@ -236,13 +236,13 @@
         {
           "id": "dpa.assistance.scope",
           "title": "Scope",
-          "text": "Taking into account the nature of processing, Voxd shall provide reasonable assistance with data subject requests, regulatory inquiries, data protection impact assessments (DPIAs), and consultations with the UK Information Commissioner’s Office where required.",
+          "text": "Taking into account the nature of processing, {{company.shortName}} shall provide reasonable assistance with data subject requests, regulatory inquiries, data protection impact assessments (DPIAs), and consultations with the UK Information Commissioner’s Office where required.",
           "children": []
         },
         {
           "id": "dpa.assistance.fees",
           "title": "Fees",
-          "text": "Voxd may charge reasonable fees for assistance requiring material effort or outside the scope of the Services.",
+          "text": "{{company.shortName}} may charge reasonable fees for assistance requiring material effort or outside the scope of the Services.",
           "children": []
         }
       ]
@@ -254,13 +254,13 @@
         {
           "id": "dpa.retention.termination",
           "title": "Deletion or Return",
-          "text": "On termination, Voxd shall delete or return Personal Data at the Client’s option, subject to applicable law.",
+          "text": "On termination, {{company.shortName}} shall delete or return Personal Data at the Client’s option, subject to applicable law.",
           "children": []
         },
         {
           "id": "dpa.retention.exceptions",
           "title": "Exceptions",
-          "text": "Voxd may retain Personal Data where required by law or for legitimate purposes such as backups or dispute resolution, and such data will remain protected and deleted in accordance with Voxd’s standard retention policies.",
+          "text": "{{company.shortName}} may retain Personal Data where required by law or for legitimate purposes such as backups or dispute resolution, and such data will remain protected and deleted in accordance with {{company.shortName}}’s standard retention policies.",
           "children": []
         }
       ]
@@ -272,7 +272,7 @@
         {
           "id": "dpa.audits.right",
           "title": "Audit Right",
-          "text": "The Client may audit Voxd’s compliance once per 12 months on reasonable notice.",
+          "text": "The Client may audit {{company.shortName}}’s compliance once per 12 months on reasonable notice.",
           "children": []
         },
         {
@@ -284,13 +284,13 @@
         {
           "id": "dpa.audits.alternative",
           "title": "Alternative Evidence",
-          "text": "Voxd may satisfy audit requests by providing certifications or third-party audit reports where available.",
+          "text": "{{company.shortName}} may satisfy audit requests by providing certifications or third-party audit reports where available.",
           "children": []
         },
         {
           "id": "dpa.audits.costs",
           "title": "Audit Costs",
-          "text": "The Client bears its own audit costs and shall reimburse Voxd for reasonable time spent supporting any audit.",
+          "text": "The Client bears its own audit costs and shall reimburse {{company.shortName}} for reasonable time spent supporting any audit.",
           "children": []
         }
       ]

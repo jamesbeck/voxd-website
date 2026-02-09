@@ -1,7 +1,9 @@
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/websiteui/container";
 import H2 from "@/components/websiteui/h2";
-import termsData from "@/terms/currentTerms.json";
+import termsDataRaw from "@/terms/currentTerms.json";
+import { applyCompanyInfo } from "@/lib/terms/applyCompanyInfo";
+import { VOXD_COMPANY_INFO } from "@/lib/terms/companyInfo";
 import Link from "next/link";
 
 interface Clause {
@@ -226,6 +228,7 @@ function TableOfContents({
 }
 
 export default function Terms() {
+  const termsData = applyCompanyInfo(termsDataRaw, VOXD_COMPANY_INFO);
   const { meta, definitions, sections } = termsData as {
     meta: {
       documentType: string;
@@ -247,7 +250,9 @@ export default function Terms() {
 
   return (
     <Container>
-      <H1 className="text-center mb-8">Voxd Terms of Service</H1>
+      <H1 className="text-center mb-8">
+        {VOXD_COMPANY_INFO.shortName} Terms of Service
+      </H1>
 
       {/* Meta Information */}
       <div className="bg-gray-50 p-6 rounded-lg mb-10">
