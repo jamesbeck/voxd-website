@@ -42,6 +42,7 @@ import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
 import ProposalTermsSection from "./ProposalTermsSection";
+import SignContractForm from "./SignContractForm";
 
 export async function generateMetadata({
   params,
@@ -1176,30 +1177,16 @@ export default async function PublicQuotePage({
             }}
           />
 
-          {/* CTA Section */}
-          <section
-            id="sign-contract"
-            className="rounded-xl p-6 text-center space-y-4 scroll-mt-8"
-            style={{ backgroundColor: `${brandColor}10` }}
-          >
-            <h2 className="text-xl font-bold text-gray-900">
-              Ready to proceed?
-            </h2>
-            <p className="text-gray-600">
-              Click below to sign the contract and set up your direct debit
-              mandate.
-            </p>
-            <button
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-white font-semibold transition-opacity hover:opacity-90"
-              style={{ backgroundColor: brandColor }}
-            >
-              <FileCheck className="h-5 w-5" />
-              Sign Contract & Setup Payment
-            </button>
-            <p className="text-xs text-gray-500">
-              You&apos;ll be redirected to our secure signing portal.
-            </p>
-          </section>
+          {/* Sign Contract Section */}
+          <SignContractForm
+            quoteId={quote.id}
+            brandColor={brandColor}
+            partnerName={quote.partner.name}
+            organisationName={quote.organisationName}
+            ipAddress={ipAddress}
+            userAgent={userAgent}
+            existingSignOff={quote.signOff}
+          />
 
           {/* Footer */}
           <footer className="text-center py-8 text-sm text-gray-500">

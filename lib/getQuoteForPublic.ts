@@ -47,6 +47,13 @@ export type PublicQuote = {
     email: string | null;
   } | null;
   exampleConversations: PublicQuoteConversation[];
+  signOff: {
+    name: string | null;
+    email: string | null;
+    position: string | null;
+    date: string | null;
+    ipAddress: string | null;
+  } | null;
 };
 
 export const getQuoteForPublic = async ({
@@ -100,6 +107,11 @@ export const getQuoteForPublic = async ({
       "partner.legalEmail as partnerLegalEmail",
       "adminUser.name as createdByName",
       "adminUser.email as createdByEmail",
+      "quote.signOffName",
+      "quote.signOffEmail",
+      "quote.signOffPosition",
+      "quote.signOffDate",
+      "quote.signOffIPAddress",
     )
     .first();
 
@@ -176,6 +188,16 @@ export const getQuoteForPublic = async ({
           }
         : null,
     exampleConversations: parsedConversations,
+    signOff:
+      quote.signOffName || quote.signOffEmail
+        ? {
+            name: quote.signOffName,
+            email: quote.signOffEmail,
+            position: quote.signOffPosition,
+            date: quote.signOffDate,
+            ipAddress: quote.signOffIPAddress,
+          }
+        : null,
   };
 };
 
