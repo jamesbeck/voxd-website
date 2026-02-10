@@ -42,7 +42,8 @@ const saCloseQuote = async ({
   if (outcome === "won" && existingQuote.status !== "Proposal with Client") {
     return {
       success: false,
-      error: "Quote can only be closed as won when in 'Proposal with Client' status",
+      error:
+        "Quote can only be closed as won when in 'Proposal with Client' status",
     };
   }
 
