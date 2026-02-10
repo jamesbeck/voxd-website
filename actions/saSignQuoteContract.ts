@@ -67,9 +67,11 @@ const saSignQuoteContract = async ({
     .select(
       "quote.*",
       "organisation.name as organisationName",
+      "partner.id as partnerId",
       "partner.name as partnerName",
       "partner.domain as partnerDomain",
       "partner.sendEmailFromDomain",
+      "partner.salesEmail as partnerSalesEmail",
       "partner.legalName as partnerLegalName",
       "partner.companyNumber as partnerCompanyNumber",
       "partner.registeredAddress as partnerRegisteredAddress",
@@ -110,6 +112,17 @@ const saSignQuoteContract = async ({
   // Send confirmation email
   const emailFromDomain = existingQuote.sendEmailFromDomain || "voxd.ai";
   const partnerDomain = existingQuote.partnerDomain || "voxd.ai";
+
+  // Get all partner admin users for BCC
+  const partnerAdmins = existingQuote.partnerId
+    ? await db("adminUser")
+        .where("partnerId", existingQuote.partnerId)
+        .whereNotNull("email")
+        .select("email")
+    : [];
+  const partnerAdminEmails = partnerAdmins.map(
+    (admin: { email: string }) => admin.email,
+  );
   const proposalUrl = `https://${partnerDomain}/proposals/${quoteId}`;
   const formattedDate = signOffDate.toLocaleString("en-GB", {
     day: "numeric",
@@ -338,12 +351,17 @@ This is an automated confirmation email. Please retain this email for your recor
 
   try {
     await sendgrid.send({
-      from: existingQuote.ownerEmail
-        ? `${existingQuote.ownerName || existingQuote.partnerName} <${existingQuote.ownerEmail}>`
-        : `${existingQuote.partnerName} <noreply@${emailFromDomain}>`,
-      replyTo: existingQuote.ownerEmail || `support@${emailFromDomain}`,
+      from: existingQuote.partnerSalesEmail
+        ? `${existingQuote.partnerName} <${existingQuote.partnerSalesEmail}>`
+        : existingQuote.ownerEmail
+          ? `${existingQuote.ownerName || existingQuote.partnerName} <${existingQuote.ownerEmail}>`
+          : `${existingQuote.partnerName} <noreply@${emailFromDomain}>`,
+      replyTo:
+        existingQuote.partnerSalesEmail ||
+        existingQuote.ownerEmail ||
+        `support@${emailFromDomain}`,
       to: [recipientEmail],
-      bcc: ["james.beck@voxd.ai"],
+      bcc: ["james.beck@voxd.ai", ...partnerAdminEmails],
       subject: `Contract Signed: ${existingQuote.title}`,
       html: emailHtml,
       text: emailText,
