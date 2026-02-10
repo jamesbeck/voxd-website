@@ -2,10 +2,10 @@
   "meta": {
     "documentType": "terms_and_conditions",
     "companyName": "{{company.name}}",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "status": "published",
     "jurisdiction": "England and Wales",
-    "lastUpdated": "2026-02-09",
+    "lastUpdated": "2026-02-10",
     "schedules": [
       {
         "scheduleNumber": 1,
@@ -158,6 +158,12 @@
           "children": []
         },
         {
+          "id": "client.regulatory_compliance",
+          "title": "Regulatory Compliance",
+          "text": "The Client is responsible for assessing whether use of the Services complies with sector-specific laws, regulations, or guidance applicable to its business (including any AI-related regulations).",
+          "children": []
+        },
+        {
           "id": "client.content_responsibility",
           "title": "Content, Policies and Disclosures",
           "text": "The Client is responsible approving for prompts, scripts, training data, workflows, and business rules used with the chatbot, and for any end-user disclosures and consents required by law or platform policies (including making clear when users are interacting with an automated system where required).",
@@ -202,7 +208,7 @@
         {
           "id": "acceptable_use.voxd_rights",
           "title": "{{company.shortName}}’s Right to Protect the Service",
-          "text": "{{company.shortName}} may suspend or restrict the Services if necessary to protect the Services, comply with law/platform rules, address security risk, or where the Client’s use creates material legal or reputational risk.",
+          "text": "{{company.shortName}} may suspend or restrict the Services if necessary to protect the Services, comply with law/platform rules, address security risk, or where the Client's use creates material legal or reputational risk. {{company.shortName}} has no obligation to continue providing the Services during any investigation or suspension period. Fees remain payable during any suspension caused by the Client's breach or suspected breach.",
           "children": []
         }
       ]
@@ -324,6 +330,18 @@
           "title": "How Changes Work",
           "text": "Change requests should be submitted via the client portal.",
           "children": []
+        },
+        {
+          "id": "change.assessment",
+          "title": "Assessment and Charges",
+          "text": "Change requests are subject to assessment, may be chargeable, and may affect delivery timelines.",
+          "children": []
+        },
+        {
+          "id": "change.no_obligation",
+          "title": "No Obligation to Accept",
+          "text": "{{company.shortName}} is not obliged to accept change requests.",
+          "children": []
         }
       ]
     },
@@ -371,6 +389,12 @@
           "id": "termination.effect",
           "title": "Effect of Termination",
           "text": "On termination, the Client’s right to use the Services ends. Termination does not affect rights and obligations accrued before termination.",
+          "children": []
+        },
+        {
+          "id": "termination.survival",
+          "title": "Survival",
+          "text": "Clauses relating to limitation of liability, indemnity, confidentiality, intellectual property, data protection, governing law, and any accrued rights and obligations survive termination of this agreement.",
           "children": []
         }
       ]
