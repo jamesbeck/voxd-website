@@ -16,6 +16,7 @@ export function proxy(request: NextRequest) {
   const isAdminPath = request.nextUrl.pathname.startsWith("/admin");
   const isProposalsPath = request.nextUrl.pathname.startsWith("/proposals");
   const isConceptsPath = request.nextUrl.pathname.startsWith("/concepts");
+  const isPitchesPath = request.nextUrl.pathname.startsWith("/pitches"); // Legacy redirect to /concepts
   const isExamplesPath = request.nextUrl.pathname.startsWith("/examples");
   const isIFramesPath = request.nextUrl.pathname.startsWith("/iframes");
   const isGuidesPath = request.nextUrl.pathname.startsWith("/guides");
@@ -28,6 +29,7 @@ export function proxy(request: NextRequest) {
     !isAdminPath && // Not on admin
     !isProposalsPath && // Not on proposals (public proposal pages)
     !isConceptsPath && // Not on concepts (public concept pages)
+    !isPitchesPath && // Not on pitches (legacy redirect to concepts)
     !isExamplesPath && // Not on examples (public example pages)
     !isIFramesPath && // Not on iframes (public iframe pages)
     !isGuidesPath; // Not on guides (public guide pages)
