@@ -31,6 +31,7 @@ import {
   RotateCcw,
   RotateCw,
   Undo2,
+  XCircle,
 } from "lucide-react";
 import ChangeOwnerDialog from "./ChangeOwnerDialog";
 
@@ -478,6 +479,25 @@ export default function QuoteActions({
               </Alert>
             </>
           )}
+          <Alert
+            title={`Mark ${name} as Closed Lost`}
+            description="Are you sure you want to mark this quote as closed lost? This will close the quote."
+            actionText="Mark as Closed Lost"
+            onAction={closeQuoteLost}
+            destructive={true}
+          >
+            <DropdownMenuItem
+              onSelect={(e) => e.preventDefault()}
+              className="cursor-pointer text-destructive"
+            >
+              {isClosingLost ? (
+                <Spinner className="h-4 w-4 mr-2" />
+              ) : (
+                <XCircle className="h-4 w-4 mr-2 text-destructive" />
+              )}
+              Mark as Closed Lost
+            </DropdownMenuItem>
+          </Alert>
           {canReopen && (
             <>
               <DropdownMenuSeparator />
