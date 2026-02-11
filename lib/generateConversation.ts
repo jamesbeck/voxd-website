@@ -44,7 +44,7 @@ const generateConversation = async ({
       startTime: z
         .string()
         .describe(
-          "The start time of the chat as a string (HH:mm). Make this realistic based on the action, e.g. if the user is ordering food, it should be around lunch/dinner time."
+          "The start time of the chat as a string (HH:mm). Make this realistic based on the action, e.g. if the user is ordering food, it should be around lunch/dinner time.",
         ),
       messages: z.array(
         z.object({
@@ -53,16 +53,16 @@ const generateConversation = async ({
           annotation: z
             .string()
             .describe(
-              "A short annotation for the message, around 20 words. Describe what the bot is doing in the message. ONLY annotate the 'assistant' messages, not the user messages."
+              "A short annotation for the message, around 20 words. Describe what the bot is doing in the message. ONLY annotate the 'assistant' messages, not the user messages.",
             )
             .nullable()
             .optional(),
           time: z
             .number()
             .describe(
-              "A realistic number of seconds that has elapsed since the last message. Most messages will be quick, around 30 seconds. But some messages will be sent when certain events happen or when the user takes a long time to respond. Put together a realistic timeline for these messages."
+              "A realistic number of seconds that has elapsed since the last message. Most messages will be quick, around 30 seconds. But some messages will be sent when certain events happen or when the user takes a long time to respond. Put together a realistic timeline for these messages.",
             ),
-        })
+        }),
       ),
     }),
     prompt: `
@@ -74,7 +74,7 @@ const generateConversation = async ({
 
         Messages should be no longer than around 150 words.
 
-        The user always sends the first message.
+        The use will normally send the first message but the bot may send and outbound marketing message or notification.
 
         Please return each message as HTML. Only use the following tags <p>, <a>, <ul>/<li>, <ol>/<li>, <b>, <i>, <br/>.
 
