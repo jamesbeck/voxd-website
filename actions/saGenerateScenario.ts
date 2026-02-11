@@ -194,6 +194,8 @@ Generate a single, concise scenario description (2-3 sentences) that:
 
 IMPORTANT: Write a textual DESCRIPTION of the scenario, NOT a script or dialogue. Do NOT use formats like "Client: ... Bot: ..." or any back-and-forth conversation format. Instead, describe the situation in prose, e.g., "A customer wants to reschedule their appointment for next week because they have a conflict."
 
+Most often, the user will send the first message but the bot may also send an outbound marketing message or notification that starts the conversation.
+
 Return ONLY the scenario description text, nothing else.`,
     });
 
