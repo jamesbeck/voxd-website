@@ -652,8 +652,8 @@ export default async function PublicConceptPage({
                     How It Works
                   </h2>
                   <p className="text-gray-500 text-sm mt-1">
-                    ages flow from your customers through WhatsApp, to our AI,
-                    and back — with real-time access to all your business
+                    Messages flow from your customers through WhatsApp, to our
+                    AI, and back — with real-time access to all your business
                     systems.
                   </p>
                 </div>
