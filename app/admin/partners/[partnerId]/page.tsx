@@ -53,6 +53,15 @@ export default async function Page({
                 domain={partner.domain}
                 colour={partner.colour}
                 openAiApiKey={partner.openAiApiKey}
+                sendEmailFromDomain={partner.sendEmailFromDomain}
+                salesBotName={partner.salesBotName}
+                legalName={partner.legalName}
+                companyNumber={partner.companyNumber}
+                registeredAddress={partner.registeredAddress}
+                legalEmail={partner.legalEmail}
+                goCardlessMandateLink={partner.goCardlessMandateLink}
+                salesEmail={partner.salesEmail}
+                accountsEmail={partner.accountsEmail}
               />
             </TabsContent>
             <TabsContent value="logo">

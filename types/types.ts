@@ -100,6 +100,16 @@ export interface Partner {
   domain: string;
   openAiApiKey?: string;
   logoFileExtension?: string | null;
+  sendEmailFromDomain?: string;
+  salesBotName?: string;
+  salesBotAgentId?: string;
+  legalName?: string;
+  companyNumber?: string;
+  registeredAddress?: string;
+  legalEmail?: string;
+  goCardlessMandateLink?: string;
+  salesEmail?: string;
+  accountsEmail?: string;
 }
 
 export interface Example {

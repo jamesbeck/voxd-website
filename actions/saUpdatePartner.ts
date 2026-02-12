@@ -10,12 +10,30 @@ const saUpdatePartner = async ({
   domain,
   colour,
   openAiApiKey,
+  sendEmailFromDomain,
+  salesBotName,
+  legalName,
+  companyNumber,
+  registeredAddress,
+  legalEmail,
+  goCardlessMandateLink,
+  salesEmail,
+  accountsEmail,
 }: {
   partnerId: string;
   name?: string;
   domain?: string;
   colour?: string;
   openAiApiKey?: string;
+  sendEmailFromDomain?: string;
+  salesBotName?: string;
+  legalName?: string;
+  companyNumber?: string;
+  registeredAddress?: string;
+  legalEmail?: string;
+  goCardlessMandateLink?: string;
+  salesEmail?: string;
+  accountsEmail?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -51,6 +69,15 @@ const saUpdatePartner = async ({
     domain,
     colour,
     openAiApiKey,
+    sendEmailFromDomain,
+    salesBotName,
+    legalName,
+    companyNumber,
+    registeredAddress,
+    legalEmail,
+    goCardlessMandateLink,
+    salesEmail,
+    accountsEmail,
   });
 
   return { success: true };

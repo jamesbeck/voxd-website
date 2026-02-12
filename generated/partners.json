@@ -2,13 +2,6 @@
   {
     "id": "019a6ec7-43b1-7da4-a2d8-8c84acb387b4",
     "name": "Voxd",
-    "billingAddressLine1": null,
-    "billingAddressLine2": null,
-    "billingCity": null,
-    "billingState": null,
-    "billingPostcode": null,
-    "billingCountry": null,
-    "billingEmails": null,
     "domain": "voxd.ai",
     "colour": "00a9ff",
     "sendEmailFromDomain": "voxd.ai",
@@ -20,18 +13,29 @@
     "registeredAddress": "Wharf Cottage, Daneway, Sapperton, Gloucestershire, England, GL7 6LN",
     "legalEmail": "james.beck@voxd.ai",
     "goCardlessMandateLink": null,
-    "salesEmail": "sales@voxd.ai"
+    "salesEmail": "sales@voxd.ai",
+    "accountsEmail": null
+  },
+  {
+    "id": "019c50d2-0f1d-7913-9603-81046f1ad28a",
+    "name": "Pricify",
+    "domain": "chat.pricify.co.uk",
+    "colour": "#4eabe9",
+    "sendEmailFromDomain": null,
+    "logoFileExtension": "svg",
+    "salesBotName": null,
+    "salesBotAgentId": null,
+    "legalName": null,
+    "companyNumber": null,
+    "registeredAddress": null,
+    "legalEmail": null,
+    "goCardlessMandateLink": null,
+    "salesEmail": null,
+    "accountsEmail": null
   },
   {
     "id": "019bb1f6-dbc5-7266-bd2c-57aa890d776e",
     "name": "The Growth Architect",
-    "billingAddressLine1": null,
-    "billingAddressLine2": null,
-    "billingCity": null,
-    "billingState": null,
-    "billingPostcode": null,
-    "billingCountry": null,
-    "billingEmails": null,
     "domain": "chat.thegrowtharchitect.co.uk",
     "colour": "111111",
     "sendEmailFromDomain": "voxd.ai",
@@ -43,18 +47,12 @@
     "registeredAddress": null,
     "legalEmail": null,
     "goCardlessMandateLink": null,
-    "salesEmail": null
+    "salesEmail": null,
+    "accountsEmail": null
   },
   {
     "id": "019bc6e1-d178-7da3-8b62-1f9da6ff456b",
     "name": "Technolink",
-    "billingAddressLine1": null,
-    "billingAddressLine2": null,
-    "billingCity": null,
-    "billingState": null,
-    "billingPostcode": null,
-    "billingCountry": null,
-    "billingEmails": null,
     "domain": "technolink.voxd.ai",
     "colour": "081d35",
     "sendEmailFromDomain": "voxd.ai",
@@ -66,18 +64,12 @@
     "registeredAddress": null,
     "legalEmail": null,
     "goCardlessMandateLink": null,
-    "salesEmail": null
+    "salesEmail": null,
+    "accountsEmail": null
   },
   {
     "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
     "name": "ChatFox",
-    "billingAddressLine1": null,
-    "billingAddressLine2": null,
-    "billingCity": null,
-    "billingState": null,
-    "billingPostcode": null,
-    "billingCountry": null,
-    "billingEmails": null,
     "domain": "portal.chatfox.ai",
     "colour": "081d35",
     "sendEmailFromDomain": "chatfox.ai",
@@ -89,6 +81,7 @@
     "registeredAddress": "20 Wenlock Road, London, England, N1 7GU",
     "legalEmail": "james@chatfox.ai",
     "goCardlessMandateLink": "https://pay.gocardless.com/BRT00049BMEM23B",
-    "salesEmail": "sales@chatfox.ai"
+    "salesEmail": "sales@chatfox.ai",
+    "accountsEmail": null
   }
 ]
