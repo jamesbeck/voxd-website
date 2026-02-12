@@ -152,7 +152,7 @@
         {
           "id": "dpa.subprocessing.authorisation",
           "title": "General Authorisation",
-          "text": "The Client authorises {{company.shortName}} to engage Sub-processors for provision of the Services, including hosting, infrastructure, AI and messaging providers.",
+          "text": "The Client authorises {{company.shortName}} to engage Sub-processors for provision of the Services. Sub-processors may include hosting, infrastructure, AI, messaging providers and delivery or technical service partners engaged to support the Services.",
           "children": []
         },
         {

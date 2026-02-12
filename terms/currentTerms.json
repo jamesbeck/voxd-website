@@ -122,6 +122,12 @@
           "children": []
         },
         {
+          "id": "scope.delivery",
+          "title": "Delivery and Responsibility",
+          "text": "{{company.shortName}} may deliver the Services using its own personnel and/or approved third-party service providers. {{company.shortName}} remains responsible to the Client for delivery of the Services in accordance with these Terms.",
+          "children": []
+        },
+        {
           "id": "scope.configuration_only",
           "title": "Third-Party Components",
           "text": "Unless expressly agreed in the Order Form, {{company.shortName}} does not supply the underlying AI model(s), WhatsApp/Meta services, third-party platforms, or the Client’s internal systems. These are Third-Party Services.",
