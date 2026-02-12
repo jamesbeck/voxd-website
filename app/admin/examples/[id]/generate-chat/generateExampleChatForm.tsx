@@ -14,7 +14,8 @@ import {
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import saGenerateExampleConversation from "@/actions/saGenerateExampleConversation";
+import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
+import saGenerateExampleConversationById from "@/actions/saGenerateExampleConversationById";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -42,18 +43,40 @@ export default function GenereateExampleForm({
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
-    const response = await saGenerateExampleConversation({
-      prompt: values.prompt,
-      exampleId: exampleId,
+
+    // Create pending conversation
+    const createResponse = await saCreatePendingExampleConversations({
+      exampleId,
+      prompts: [values.prompt],
     });
 
-    if (response.success) {
-      toast.success("Conversation generated successfully");
-      router.push(`/admin/examples/${exampleId}`);
-    } else {
-      toast.error(response.error || "Failed to generate conversation");
+    if (!createResponse.success) {
+      toast.error(createResponse.error || "Failed to create conversation");
+      setLoading(false);
+      return;
     }
 
+    if (!createResponse.data?.conversationIds) {
+      toast.error("Failed to create conversation");
+      setLoading(false);
+      return;
+    }
+
+    const conversationId = createResponse.data.conversationIds[0];
+
+    // Generate the conversation content
+    const generateResponse = await saGenerateExampleConversationById({
+      conversationId,
+    });
+
+    if (!generateResponse.success) {
+      toast.error(generateResponse.error || "Failed to generate conversation");
+      setLoading(false);
+      return;
+    }
+
+    toast.success("Conversation generated successfully");
+    router.push(`/admin/examples/${exampleId}`);
     setLoading(false);
   }
 

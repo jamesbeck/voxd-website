@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -27,14 +27,14 @@ import {
   Check,
   Sparkles,
 } from "lucide-react";
-import saGenerateQuoteExampleConversation from "@/actions/saGenerateQuoteExampleConversation";
-import saGenerateExampleConversation from "@/actions/saGenerateExampleConversation";
 import saGenerateScenario from "@/actions/saGenerateScenario";
 import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
 import saDeleteExampleConversation from "@/actions/saDeleteExampleConversation";
 import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConversation";
 import saUpdateExampleConversation from "@/actions/saUpdateExampleConversation";
 import saReorderExampleConversations from "@/actions/saReorderExampleConversations";
+import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
+import saGenerateExampleConversationById from "@/actions/saGenerateExampleConversationById";
 import WhatsAppSim from "@/components/whatsAppSim";
 import {
   DndContext,
@@ -61,6 +61,7 @@ type ExampleConversation = {
   description: string;
   prompt: string;
   startTime: string;
+  generating?: boolean;
   messages: {
     role: "user" | "assistant";
     content: string;
@@ -91,12 +92,14 @@ function SortableConversationItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: conversation.id });
+  } = useSortable({ id: conversation.id, disabled: conversation.generating });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const isGenerating = conversation.generating;
 
   return (
     <div
@@ -108,54 +111,97 @@ function SortableConversationItem({
           ? "border-primary bg-primary/5"
           : "border-border hover:border-primary/50 hover:bg-muted/50",
         isDragging && "opacity-50 shadow-lg",
+        isGenerating && "opacity-70",
       )}
     >
       <div
-        {...attributes}
-        {...listeners}
-        className="flex items-center px-2 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        {...(isGenerating ? {} : attributes)}
+        {...(isGenerating ? {} : listeners)}
+        className={cn(
+          "flex items-center px-2 text-muted-foreground",
+          isGenerating
+            ? "cursor-not-allowed"
+            : "cursor-grab active:cursor-grabbing hover:text-foreground",
+        )}
         suppressHydrationWarning
       >
-        <GripVertical className="h-4 w-4" />
+        {isGenerating ? (
+          <Spinner className="h-4 w-4" />
+        ) : (
+          <GripVertical className="h-4 w-4" />
+        )}
       </div>
-      <button onClick={onSelect} className="flex-1 text-left p-4">
-        <p className="font-medium text-sm">{conversation.description}</p>
+      <button
+        onClick={isGenerating ? undefined : onSelect}
+        className={cn("flex-1 text-left p-4", isGenerating && "cursor-default")}
+        disabled={isGenerating}
+      >
+        <p className="font-medium text-sm">
+          {isGenerating ? (
+            <span className="flex items-center gap-2">
+              <Spinner className="h-3 w-3" />
+              Generating conversation...
+            </span>
+          ) : (
+            conversation.description
+          )}
+        </p>
         <p className="text-muted-foreground text-xs mt-1 line-clamp-2">
           {conversation.prompt}
         </p>
-        <p className="text-muted-foreground text-xs mt-2">
-          {conversation.messages.length} messages • Starts at{" "}
-          {conversation.startTime}
-        </p>
+        {!isGenerating && (
+          <p className="text-muted-foreground text-xs mt-2">
+            {conversation.messages.length} messages • Starts at{" "}
+            {conversation.startTime}
+          </p>
+        )}
       </button>
       <div className="flex flex-col gap-1 p-2 border-l">
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onEdit();
+            if (!isGenerating) onEdit();
           }}
-          className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+          className={cn(
+            "p-1.5 rounded-md text-muted-foreground",
+            isGenerating
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-muted hover:text-foreground",
+          )}
           title="Edit conversation"
+          disabled={isGenerating}
         >
           <Pencil className="h-4 w-4" />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onEmbed();
+            if (!isGenerating) onEmbed();
           }}
-          className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+          className={cn(
+            "p-1.5 rounded-md text-muted-foreground",
+            isGenerating
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-muted hover:text-foreground",
+          )}
           title="Get embed code"
+          disabled={isGenerating}
         >
           <Code2 className="h-4 w-4" />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDelete();
+            if (!isGenerating) onDelete();
           }}
-          className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+          className={cn(
+            "p-1.5 rounded-md text-muted-foreground",
+            isGenerating
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-destructive/10 hover:text-destructive",
+          )}
           title="Delete conversation"
+          disabled={isGenerating}
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -180,10 +226,13 @@ export default function ExampleConversationsTab({
 }: ExampleConversationsTabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [generatingScenario, setGeneratingScenario] = useState(false);
-  const [prompt, setPrompt] = useState("");
+  const [generatingScenarios, setGeneratingScenarios] = useState(false);
+  const [prompts, setPrompts] = useState<string[]>([""]);
   const [conversations, setConversations] =
     useState<ExampleConversation[]>(initialConversations);
+  const [generatingIds, setGeneratingIds] = useState<string[]>(() =>
+    initialConversations.filter((c) => c.generating).map((c) => c.id),
+  );
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(initialConversations.length > 0 ? initialConversations[0].id : null);
@@ -202,15 +251,47 @@ export default function ExampleConversationsTab({
   const [editStartTime, setEditStartTime] = useState("");
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Set origin on mount
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
 
+  // Poll for updates when there are generating conversations
+  useEffect(() => {
+    if (generatingIds.length > 0) {
+      // Start polling every 5 seconds
+      pollIntervalRef.current = setInterval(() => {
+        router.refresh();
+      }, 5000);
+    } else {
+      // Stop polling when no conversations are generating
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, [generatingIds.length, router]);
+
   // Sync local state with props when they change
   useEffect(() => {
     setConversations(initialConversations);
+    // Update generatingIds based on refreshed data
+    setGeneratingIds((prev) => {
+      const stillGenerating = initialConversations
+        .filter((c) => c.generating)
+        .map((c) => c.id);
+      // Keep IDs that are still generating according to new data
+      return prev.filter((id) => stillGenerating.includes(id));
+    });
   }, [initialConversations]);
 
   const sensors = useSensors(
@@ -249,47 +330,108 @@ export default function ExampleConversationsTab({
     (c) => c.id === selectedConversationId,
   );
 
-  const handleGenerateScenario = async () => {
-    setGeneratingScenario(true);
+  const handleGenerateScenarios = async () => {
+    setGeneratingScenarios(true);
 
     const response = await saGenerateScenario(
-      quoteId ? { quoteId } : { exampleId: exampleId! },
+      quoteId
+        ? { quoteId, count: prompts.length }
+        : { exampleId: exampleId!, count: prompts.length },
     );
 
     if (!response.success) {
-      toast.error(response.error || "Failed to generate scenario");
-      setGeneratingScenario(false);
+      toast.error(response.error || "Failed to generate scenarios");
+      setGeneratingScenarios(false);
       return;
     }
 
-    setPrompt(response.data!.scenario);
-    toast.success("Scenario generated successfully");
-    setGeneratingScenario(false);
+    if (response.data?.scenarios) {
+      const scenarios = response.data.scenarios as string[];
+      const newPrompts = prompts.map((_, i) => scenarios[i] || "");
+      setPrompts(newPrompts);
+      toast.success(
+        `Generated ${scenarios.length} scenario${scenarios.length > 1 ? "s" : ""} successfully`,
+      );
+    }
+
+    setGeneratingScenarios(false);
+  };
+
+  const addPrompt = () => {
+    if (prompts.length < 5) {
+      setPrompts([...prompts, ""]);
+    }
+  };
+
+  const addMaxPrompts = () => {
+    setPrompts([...Array(5)].map((_, i) => prompts[i] || ""));
+  };
+
+  const removePrompt = (index: number) => {
+    if (prompts.length > 1) {
+      setPrompts(prompts.filter((_, i) => i !== index));
+    }
+  };
+
+  const updatePrompt = (index: number, value: string) => {
+    setPrompts(prompts.map((p, i) => (i === index ? value : p)));
   };
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast.error("Please enter a conversation description");
+    const validPrompts = prompts.filter((p) => p.trim());
+
+    if (validPrompts.length === 0) {
+      toast.error("Please enter at least one conversation scenario");
       return;
     }
 
     setLoading(true);
 
-    const response = quoteId
-      ? await saGenerateQuoteExampleConversation({ quoteId, prompt })
-      : await saGenerateExampleConversation({ exampleId: exampleId!, prompt });
+    // Create pending conversation records
+    const response = await saCreatePendingExampleConversations(
+      quoteId
+        ? { quoteId, prompts: validPrompts }
+        : { exampleId: exampleId!, prompts: validPrompts },
+    );
 
     if (!response.success) {
-      toast.error(response.error || "Failed to generate conversation");
+      toast.error(response.error || "Failed to create conversations");
       setLoading(false);
       return;
     }
 
-    toast.success("Conversation generated successfully");
-    setLoading(false);
+    const conversationIds = response.data!.conversationIds as string[];
+
+    // Add pending conversations to local state immediately
+    const pendingConversations: ExampleConversation[] = validPrompts.map(
+      (prompt, i) => ({
+        id: conversationIds[i],
+        description: "Generating...",
+        prompt,
+        startTime: "--:--",
+        messages: [],
+        generating: true,
+      }),
+    );
+
+    setConversations((prev) => [...prev, ...pendingConversations]);
+    setGeneratingIds((prev) => [...prev, ...conversationIds]);
+
+    // Close dialog and reset
     setIsOpen(false);
-    setPrompt("");
-    router.refresh();
+    setPrompts([""]);
+    setLoading(false);
+
+    toast.success(
+      `Generating ${validPrompts.length} conversation${validPrompts.length > 1 ? "s" : ""}...`,
+    );
+
+    // Fire off generation requests in background (no await)
+    for (const conversationId of conversationIds) {
+      saGenerateExampleConversationById({ conversationId }).catch((error) => {
+        console.error("Background generation error:", error);
+      });
+    }
   };
 
   const handleDelete = async () => {
@@ -394,53 +536,109 @@ export default function ExampleConversationsTab({
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog
+          open={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            if (!open) {
+              setPrompts([""]);
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Generate Conversation
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-4xl">
             <DialogHeader>
-              <DialogTitle>Generate Example Conversation</DialogTitle>
+              <DialogTitle>
+                Generate Example Conversation{prompts.length > 1 ? "s" : ""}
+              </DialogTitle>
               <DialogDescription>
-                Describe the scenario you want the conversation to demonstrate.
-                The AI will generate a realistic chat between a user and the
-                chatbot based on your specification.
+                Describe the scenario{prompts.length > 1 ? "s" : ""} you want
+                the conversation{prompts.length > 1 ? "s" : ""} to demonstrate.
+                The AI will generate realistic chat
+                {prompts.length > 1 ? "s" : ""} between a user and the chatbot
+                based on your specification{prompts.length > 1 ? "s" : ""}.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="prompt">Conversation Scenario</Label>
+              {prompts.map((prompt, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor={`prompt-${index}`}>
+                      Scenario {prompts.length > 1 ? index + 1 : ""}
+                    </Label>
+                    {prompts.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removePrompt(index)}
+                        disabled={loading || generatingScenarios}
+                        className="h-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                  <Textarea
+                    id={`prompt-${index}`}
+                    placeholder="e.g. A customer asking about product availability and then placing an order..."
+                    value={prompt}
+                    onChange={(e) => updatePrompt(index, e.target.value)}
+                    className="h-[60px]"
+                  />
+                </div>
+              ))}
+
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex gap-2">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
-                    onClick={handleGenerateScenario}
-                    disabled={generatingScenario || loading}
+                    onClick={addPrompt}
+                    disabled={
+                      prompts.length >= 5 || loading || generatingScenarios
+                    }
                     className="h-8"
                   >
-                    {generatingScenario ? (
-                      <>
-                        <Spinner className="mr-2 h-3.5 w-3.5" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                        Generate one for me
-                      </>
-                    )}
+                    <Plus className="h-3.5 w-3.5 mr-1.5" />
+                    Add another
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={addMaxPrompts}
+                    disabled={
+                      prompts.length >= 5 || loading || generatingScenarios
+                    }
+                    className="h-8"
+                  >
+                    Add max (5)
                   </Button>
                 </div>
-                <Textarea
-                  id="prompt"
-                  placeholder="e.g. A customer asking about product availability and then placing an order..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  className="h-[150px]"
-                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleGenerateScenarios}
+                  disabled={generatingScenarios || loading}
+                  className="h-8"
+                >
+                  {generatingScenarios ? (
+                    <>
+                      <Spinner className="mr-2 h-3.5 w-3.5" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                      Generate {prompts.length} scenario
+                      {prompts.length > 1 ? "s" : ""} for me
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
             <DialogFooter>
@@ -451,7 +649,10 @@ export default function ExampleConversationsTab({
               >
                 Cancel
               </Button>
-              <Button onClick={handleGenerate} disabled={loading}>
+              <Button
+                onClick={handleGenerate}
+                disabled={loading || generatingScenarios}
+              >
                 {loading && <Spinner className="mr-2" />}
                 Generate
               </Button>

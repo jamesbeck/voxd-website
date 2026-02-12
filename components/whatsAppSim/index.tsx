@@ -60,8 +60,15 @@ export default function WhatsAppSim({
 
   // convert start time string to a new date with the time set
   let currentMessageTime = new Date();
-  currentMessageTime.setHours(parseInt(startTime.split(":")[0]));
-  currentMessageTime.setMinutes(parseInt(startTime.split(":")[1]));
+  const timeParts = startTime?.split(":") || [];
+  const hours = parseInt(timeParts[0]);
+  const minutes = parseInt(timeParts[1]);
+
+  // Handle invalid time values (e.g., "--:--" for generating conversations)
+  if (!isNaN(hours) && !isNaN(minutes)) {
+    currentMessageTime.setHours(hours);
+    currentMessageTime.setMinutes(minutes);
+  }
 
   const endTime = addSeconds(
     currentMessageTime,

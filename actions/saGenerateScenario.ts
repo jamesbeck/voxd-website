@@ -6,7 +6,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
-type GenerateScenarioParams =
+type GenerateScenarioParams = (
   | {
       exampleId: string;
       quoteId?: never;
@@ -14,12 +14,22 @@ type GenerateScenarioParams =
   | {
       quoteId: string;
       exampleId?: never;
-    };
+    }
+) & {
+  count?: number;
+};
 
 const saGenerateScenario = async (
   params: GenerateScenarioParams,
 ): Promise<ServerActionResponse> => {
-  const { exampleId, quoteId } = params;
+  const { exampleId, quoteId, count = 1 } = params;
+
+  if (count < 1 || count > 5) {
+    return {
+      success: false,
+      error: "Count must be between 1 and 5",
+    };
+  }
 
   if (!exampleId && !quoteId) {
     return {
@@ -182,29 +192,65 @@ ${
     ? `Here are the existing scenarios that have already been created:
 ${existingScenarios.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
-Please generate a NEW scenario that is DIFFERENT from these existing ones.`
-    : "This will be the first scenario."
+Please generate NEW scenarios that are DIFFERENT from these existing ones.`
+    : "These will be the first scenarios."
 }
 
-Generate a single, concise scenario description (2-3 sentences) that:
-1. Describes a realistic situation where a user would interact with this chatbot
-2. Is different from any existing scenarios
-3. Relates to the chatbot's capabilities based on the specification
-4. Is specific enough to guide conversation generation but not overly detailed
+Generate ${count} concise scenario description${count > 1 ? "s" : ""} (2-3 sentences each) that:
+1. Describe${count > 1 ? "" : "s"} realistic situation${count > 1 ? "s" : ""} where a user would interact with this chatbot
+2. ${count > 1 ? "Are each different from any existing scenarios and from each other" : "Is different from any existing scenarios"}
+3. Relate${count > 1 ? "" : "s"} to the chatbot's capabilities based on the specification
+4. ${count > 1 ? "Are" : "Is"} specific enough to guide conversation generation but not overly detailed
 
-IMPORTANT: Write a textual DESCRIPTION of the scenario, NOT a script or dialogue. Do NOT use formats like "Client: ... Bot: ..." or any back-and-forth conversation format. Instead, describe the situation in prose, e.g., "A customer wants to reschedule their appointment for next week because they have a conflict."
+IMPORTANT: Write textual DESCRIPTIONS of the scenarios, NOT scripts or dialogues. Do NOT use formats like "Client: ... Bot: ..." or any back-and-forth conversation format. Instead, describe the situation in prose, e.g., "A customer wants to reschedule their appointment for next week because they have a conflict."
 
 Most often, the user will send the first message but the bot may also send an outbound marketing message or notification that starts the conversation.
 
-Return ONLY the scenario description text, nothing else.`,
+${count > 1 ? `Return ONLY a JSON array of ${count} scenario strings, like: ["scenario 1", "scenario 2", ...]` : "Return ONLY the scenario description text, nothing else."}`,
     });
 
-    return {
-      success: true,
-      data: {
-        scenario: text.trim(),
-      },
-    };
+    if (count === 1) {
+      return {
+        success: true,
+        data: {
+          scenario: text.trim(),
+          scenarios: [text.trim()],
+        },
+      };
+    }
+
+    // Parse the JSON array for multiple scenarios
+    try {
+      const cleanedText = text
+        .trim()
+        .replace(/^```json\n?|```$/g, "")
+        .trim();
+      const scenarios = JSON.parse(cleanedText) as string[];
+
+      if (!Array.isArray(scenarios) || scenarios.length === 0) {
+        throw new Error("Invalid response format");
+      }
+
+      return {
+        success: true,
+        data: {
+          scenarios: scenarios.map((s) => s.trim()),
+        },
+      };
+    } catch {
+      // Fallback: try to split by newlines if JSON parsing fails
+      const lines = text
+        .split("\n")
+        .map((l) => l.replace(/^\d+\.\s*/, "").trim())
+        .filter((l) => l.length > 0);
+
+      return {
+        success: true,
+        data: {
+          scenarios: lines.slice(0, count),
+        },
+      };
+    }
   } catch (error) {
     console.error("Error generating scenario:", error);
     return {

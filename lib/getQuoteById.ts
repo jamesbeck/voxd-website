@@ -5,6 +5,7 @@ export type QuoteConversation = {
   description: string;
   prompt: string;
   startTime: string;
+  generating?: boolean;
   messages: {
     role: "user" | "assistant";
     content: string;
@@ -76,7 +77,15 @@ export const getQuoteById = async ({
   // Order by "order" field first (nulls last), then by id for consistent ordering
   const conversations = await db("exampleConversation")
     .where("quoteId", quoteId)
-    .select("id", "description", "prompt", "startTime", "messages", "order")
+    .select(
+      "id",
+      "description",
+      "prompt",
+      "startTime",
+      "messages",
+      "order",
+      "generating",
+    )
     .orderByRaw('"order" IS NULL, "order" ASC, id ASC');
 
   // Parse the messages JSON for each conversation

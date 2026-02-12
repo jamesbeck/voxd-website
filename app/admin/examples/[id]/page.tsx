@@ -50,6 +50,7 @@ export default async function ExamplesPage({
       description?: string;
       prompt?: string;
       startTime?: string;
+      generating?: boolean;
       messages:
         | string
         | { role: string; content: string; time: number; annotation: string }[];
@@ -58,11 +59,12 @@ export default async function ExamplesPage({
       description: conv.description || "",
       prompt: conv.prompt || "",
       startTime: conv.startTime || "09:00",
+      generating: conv.generating || false,
       messages:
         typeof conv.messages === "string"
           ? JSON.parse(conv.messages)
           : conv.messages,
-    })
+    }),
   );
 
   return (
