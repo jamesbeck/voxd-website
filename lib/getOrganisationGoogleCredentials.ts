@@ -1,13 +1,20 @@
 import db from "@/database/db";
 
+// Fallback organisation for Google OAuth credentials when an org doesn't have its own
+const FALLBACK_GOOGLE_CREDENTIALS_ORG_ID =
+  "019bbc67-4206-7902-9d37-491bd81f4eab";
+export const FALLBACK_CALLBACK_DOMAIN = "voxd.ai";
+
 export interface GoogleOAuthCredentials {
   clientId: string;
   clientSecret: string;
+  isFallback: boolean;
 }
 
 /**
- * Get Google OAuth credentials for an organisation
- * Throws an error if credentials are not configured
+ * Get Google OAuth credentials for an organisation.
+ * If the organisation doesn't have credentials configured, falls back to
+ * the default Voxd organisation's credentials.
  */
 export async function getOrganisationGoogleCredentials(
   organisationId: string,
@@ -21,16 +28,33 @@ export async function getOrganisationGoogleCredentials(
     throw new Error("Organisation not found");
   }
 
-  if (!organisation.googleClientId || !organisation.googleClientSecret) {
-    throw new Error(
-      "Google OAuth credentials are not configured for this organisation",
-    );
+  if (organisation.googleClientId && organisation.googleClientSecret) {
+    return {
+      clientId: organisation.googleClientId,
+      clientSecret: organisation.googleClientSecret,
+      isFallback: false,
+    };
   }
 
-  return {
-    clientId: organisation.googleClientId,
-    clientSecret: organisation.googleClientSecret,
-  };
+  // Fall back to the default Voxd organisation's credentials
+  if (organisationId !== FALLBACK_GOOGLE_CREDENTIALS_ORG_ID) {
+    const fallbackOrg = await db("organisation")
+      .where({ id: FALLBACK_GOOGLE_CREDENTIALS_ORG_ID })
+      .select("googleClientId", "googleClientSecret")
+      .first();
+
+    if (fallbackOrg?.googleClientId && fallbackOrg?.googleClientSecret) {
+      return {
+        clientId: fallbackOrg.googleClientId,
+        clientSecret: fallbackOrg.googleClientSecret,
+        isFallback: true,
+      };
+    }
+  }
+
+  throw new Error(
+    "Google OAuth credentials are not configured for this organisation",
+  );
 }
 
 /**

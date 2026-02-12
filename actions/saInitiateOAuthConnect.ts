@@ -10,7 +10,10 @@ import {
   getCallbackUrl,
 } from "@/lib/oauth/googleOAuth";
 import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
-import { getOrganisationGoogleCredentials } from "@/lib/getOrganisationGoogleCredentials";
+import {
+  getOrganisationGoogleCredentials,
+  FALLBACK_CALLBACK_DOMAIN,
+} from "@/lib/getOrganisationGoogleCredentials";
 
 interface InitiateOAuthConnectParams {
   provider: "google";
@@ -54,8 +57,12 @@ const saInitiateOAuthConnect = async ({
     const partner = await getPartnerFromHeaders();
     const partnerDomain = partner?.domain || null;
 
-    // Generate callback URL using partner domain
-    const callbackUrl = getCallbackUrl(partnerDomain || undefined);
+    // When using fallback credentials, use the fallback callback domain
+    // so the redirect URI matches what's registered in the fallback org's Google Cloud project
+    const callbackDomain = credentials.isFallback
+      ? FALLBACK_CALLBACK_DOMAIN
+      : partnerDomain || undefined;
+    const callbackUrl = getCallbackUrl(callbackDomain);
 
     // Store state in database with origin domain for redirect
     await db("oauthState").insert({
