@@ -26,9 +26,11 @@ function formatCommentForEmail(comment: string): string {
 const saAddSupportTicketComment = async ({
   ticketId,
   comment,
+  reopenTicket = false,
 }: {
   ticketId: string;
   comment: string;
+  reopenTicket?: boolean;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -43,7 +45,7 @@ const saAddSupportTicketComment = async ({
       this.on("agent.organisationId", "=", "organisation.id").orOn(
         "supportTicket.organisationId",
         "=",
-        "organisation.id"
+        "organisation.id",
       );
     })
     .leftJoin("partner", "organisation.partnerId", "partner.id")
@@ -58,7 +60,7 @@ const saAddSupportTicketComment = async ({
       "partner.domain as partnerDomain",
       "partner.name as partnerName",
       "partner.sendEmailFromDomain",
-      "agent.niceName as agentName"
+      "agent.niceName as agentName",
     )
     .first();
 
@@ -86,10 +88,10 @@ const saAddSupportTicketComment = async ({
   }
 
   try {
-    // Check if ticket is closed and reopen it
+    // Check if ticket is closed and should be reopened
     const wasClosed = ticket.status?.toLowerCase() === "closed";
 
-    if (wasClosed) {
+    if (wasClosed && reopenTicket) {
       await db("supportTicket")
         .where("id", ticketId)
         .update({ status: "Open" });
@@ -98,7 +100,7 @@ const saAddSupportTicketComment = async ({
       await addLog({
         adminUserId: accessToken.adminUserId,
         event: "Update Support Ticket Status",
-        description: `Ticket #${ticket.ticketNumber} automatically reopened from Closed to Open due to new comment`,
+        description: `Ticket #${ticket.ticketNumber} manually reopened from Closed to Open via comment submission`,
         data: {
           entityType: "supportTicket",
           entityId: ticketId,
@@ -114,8 +116,8 @@ const saAddSupportTicketComment = async ({
       })
       .returning(["id", "createdAt"]);
 
-    // If ticket was closed, add a system comment about status change
-    if (wasClosed) {
+    // If ticket was closed and reopened, add a system comment about status change
+    if (wasClosed && reopenTicket) {
       await db("supportTicketComment").insert({
         supportTicketId: ticketId,
         adminUserId: accessToken.adminUserId,
@@ -167,7 +169,7 @@ const saAddSupportTicketComment = async ({
 
         // Add specifically mentioned users (excluding __ALL__)
         const specificUserIds = mentionedUserIds.filter(
-          (id) => id !== "__ALL__"
+          (id) => id !== "__ALL__",
         );
         if (specificUserIds.length > 0) {
           const mentionedUsers = await db("adminUser")
@@ -185,7 +187,7 @@ const saAddSupportTicketComment = async ({
 
       // Remove the commenter from recipients so they don't get notified of their own comment
       const finalRecipients = recipients.filter(
-        (email) => email !== commenter?.email
+        (email) => email !== commenter?.email,
       );
 
       // Only send email if there are recipients after filtering
@@ -280,7 +282,7 @@ const saAddSupportTicketComment = async ({
       // Log but don't fail the comment creation if email fails
       console.error(
         "Failed to send support ticket comment notification email:",
-        emailError
+        emailError,
       );
     }
 

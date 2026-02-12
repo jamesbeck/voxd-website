@@ -15,13 +15,20 @@ import {
 } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { Send, User, AlertCircle } from "lucide-react";
+import { Send, User } from "lucide-react";
 import saGetSupportTicketComments from "@/actions/saGetSupportTicketComments";
 import saAddSupportTicketComment from "@/actions/saAddSupportTicketComment";
 import MentionTextarea, {
   renderCommentWithMentions,
 } from "@/components/inputs/MentionTextarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Comment = {
   id: string;
@@ -46,6 +53,7 @@ export default function TicketComments({
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [reopenTicket, setReopenTicket] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -83,6 +91,7 @@ export default function TicketComments({
     const result = await saAddSupportTicketComment({
       ticketId,
       comment: values.comment,
+      reopenTicket,
     });
 
     setSubmitting(false);
@@ -94,6 +103,7 @@ export default function TicketComments({
 
     toast.success("Comment added");
     form.reset();
+    setReopenTicket(false);
     fetchComments();
   }
 
@@ -147,15 +157,6 @@ export default function TicketComments({
 
       {/* Add comment form */}
       <div className="border-t pt-6">
-        {ticketStatus?.toLowerCase() === "closed" && (
-          <Alert className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              This ticket is closed. Adding a comment will automatically reopen
-              it.
-            </AlertDescription>
-          </Alert>
-        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -176,7 +177,37 @@ export default function TicketComments({
               )}
             />
 
-            <div className="flex justify-end">
+            <div className="flex justify-end items-center gap-4">
+              {ticketStatus?.toLowerCase() === "closed" && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="reopenTicket"
+                          checked={reopenTicket}
+                          onCheckedChange={(checked) =>
+                            setReopenTicket(checked === true)
+                          }
+                        />
+                        <Label
+                          htmlFor="reopenTicket"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          Re-open ticket
+                        </Label>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-[280px]">
+                      <p>
+                        Check this box to reopen the ticket when submitting your
+                        comment. Only reopen if you believe the work isn't
+                        complete.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
                   <>
