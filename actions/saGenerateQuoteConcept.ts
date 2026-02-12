@@ -154,7 +154,7 @@ The introduction should:
 - Acknowledge their business and industry based on the background provided
 - Express genuine excitement about the potential to help transform their customer communications
 - Set the stage for explaining how AI chatbots can benefit their specific business
-- Be around 2-3 paragraphs
+- Be no more than 2 paragraphs
 - Be conversational but professional
 
 IMPORTANT RULES:
@@ -182,7 +182,7 @@ Your task is to write a warm, engaging INTRODUCTION for a concept to a potential
 - Acknowledge their business and industry based on the background provided
 - Express genuine excitement about the potential to help transform their customer communications
 - Set the stage for explaining how AI chatbots can benefit their specific business
-- Be around 2-3 paragraphs
+- Be no more than 2 paragraphs
 - Be conversational but professional
 
 IMPORTANT RULES:

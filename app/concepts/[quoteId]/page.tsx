@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { format } from "date-fns";
 import { verifyIdToken } from "@/lib/auth/verifyToken";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import {
   FileText,
-  Calendar,
   Building,
   User,
   Lightbulb,
@@ -42,7 +40,6 @@ import {
 import { getConceptForPublic } from "@/lib/getConceptForPublic";
 import { getCaseStudiesByPartnerId } from "@/lib/getCaseStudiesByPartnerId";
 import FloatingTableOfContents from "./FloatingTableOfContents";
-import JumpToExamplesButton from "./JumpToExamplesButton";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import WhatsAppQRCode from "@/components/WhatsAppQRCode";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
@@ -178,10 +175,10 @@ export default async function PublicConceptPage({
   const sections = [
     { id: "welcome", label: "Welcome", icon: "Mail" as const },
     { id: "introduction", label: "Introduction", icon: "FileText" as const },
-    { id: "concept", label: "The Concept", icon: "Lightbulb" as const },
     ...(concept.exampleConversations.length > 0
       ? [{ id: "examples", label: "Examples", icon: "MessageSquare" as const }]
       : []),
+    { id: "concept", label: "The Concept", icon: "Lightbulb" as const },
     ...(caseStudies.length > 0
       ? [
           {
@@ -300,17 +297,7 @@ export default async function PublicConceptPage({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 text-sm">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                <div>
-                  <p className="text-gray-500">Date Created</p>
-                  <p className="font-medium text-gray-900">
-                    {format(new Date(concept.createdAt), "dd MMMM yyyy")}
-                  </p>
-                </div>
-              </div>
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center gap-3 text-sm">
                 <Building className="h-4 w-4 text-gray-400" />
                 <div>
@@ -337,56 +324,33 @@ export default async function PublicConceptPage({
               </div>
             </div>
 
-            {/* Jump to examples CTA - only show if there are example conversations */}
-            {concept.exampleConversations.length > 0 && (
+            {/* Questions - Only show if partner has salesBot configured */}
+            {concept.salesBot && (
               <div
                 className="rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 style={{ backgroundColor: `${brandColor}08` }}
               >
-                <p className="text-gray-700 text-sm">
-                  Read below for the full concept, or skip straight to see the
-                  chatbot in action.
-                </p>
-                <JumpToExamplesButton brandColor={brandColor} />
-              </div>
-            )}
-
-            {/* Questions - Only show if partner has salesBot configured */}
-            {concept.salesBot && (
-              <div
-                className="border-t pt-6 space-y-4"
-                style={{ borderColor: `${brandColor}20` }}
-              >
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Questions?
-                  </h3>
-                  <p className="text-gray-500 text-sm mt-1">
-                    Talk to {concept.salesBot.name}...
-                  </p>
-                </div>
-
-                <p className="text-gray-600">
-                  Have questions about this concept or want to learn more? Chat
-                  with {concept.salesBot.name} on WhatsApp - he&apos;s ready to
-                  help you explore how an AI chatbot could work for your
-                  business.
-                </p>
-
-                <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <WhatsAppQRCode
-                    url={`https://wa.me/${concept.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${concept.shortLinkId}`)}`}
-                    size={120}
-                  />
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm text-gray-500 text-center sm:text-left">
-                      Scan the QR code or click the button below
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                  <div
+                    title={`Scan or click to start chatting to ${concept.salesBot.name}`}
+                  >
+                    <WhatsAppQRCode
+                      url={`https://wa.me/${concept.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${concept.shortLinkId}`)}`}
+                      size={100}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-4 text-center sm:text-left sm:pt-1">
+                    <p className="text-gray-600 text-base">
+                      Have questions about this concept? Chat with{" "}
+                      {concept.salesBot.name} on WhatsApp - he&apos;s ready to
+                      help you explore how an AI chatbot could work for your
+                      business.
                     </p>
                     <a
                       href={`https://wa.me/${concept.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${concept.shortLinkId}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90 self-center sm:self-start"
                       style={{ backgroundColor: brandColor }}
                     >
                       <MessageSquare className="h-5 w-5" />
@@ -457,39 +421,6 @@ export default async function PublicConceptPage({
             </div>
           </section>
 
-          {/* Concept Section */}
-          <section
-            id="concept"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <Lightbulb className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">The Concept</h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  How AI can transform your customer communications
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {concept.generatedConcept ? (
-                <div className="prose prose-gray max-w-none">
-                  <MarkdownContent content={concept.generatedConcept} />
-                </div>
-              ) : (
-                <p className="text-gray-500 italic">
-                  Concept details are being finalised. Please check back soon.
-                </p>
-              )}
-            </div>
-          </section>
-
           {/* Example Conversations Section */}
           {concept.exampleConversations.length > 0 && (
             <section
@@ -530,6 +461,39 @@ export default async function PublicConceptPage({
               />
             </section>
           )}
+
+          {/* Concept Section */}
+          <section
+            id="concept"
+            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="p-2 rounded-lg"
+                style={{ backgroundColor: `${brandColor}15` }}
+              >
+                <Lightbulb className="h-6 w-6" style={{ color: brandColor }} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">The Concept</h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  How AI can transform your customer communications
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {concept.generatedConcept ? (
+                <div className="prose prose-gray max-w-none">
+                  <MarkdownContent content={concept.generatedConcept} />
+                </div>
+              ) : (
+                <p className="text-gray-500 italic">
+                  Concept details are being finalised. Please check back soon.
+                </p>
+              )}
+            </div>
+          </section>
 
           {/* Case Studies Section */}
           {caseStudies.length > 0 &&
