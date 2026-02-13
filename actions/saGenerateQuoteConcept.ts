@@ -19,6 +19,7 @@ ${partnerName} provides a powerful, enterprise-ready platform for delivering int
 **AI Agent Capabilities**
 - Rich contextual prompting with conversation history
 - User data and historical context (preferences, previous orders)
+- Includes image and file handling, allowing customers to send photos, documents, and more that the AI can understand and respond to
 - Real-time integration with external systems (CRM, back-office)
 - Access to unlimited knowledge sources (FAQs, policies, product catalogues)
 - Tool-enabled intelligence for querying and updating systems
@@ -235,7 +236,7 @@ IMPORTANT RULES:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-Structure the concept with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy.
+Structure the concept with clear Markdown headings (## for main sections and ### for subsections). Use bullet points where appropriate. Be enthusiastic but not pushy.
 
 EXISTING CONCEPT TO AMEND:
 ${existingConcept}
@@ -315,7 +316,7 @@ IMPORTANT RULES:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-Structure the concept with clear Markdown headings (## for main sections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
+Structure the concept with clear Markdown headings (## for main sections and ### for subsections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
 
 Make sure to tailor every section to their specific industry and needs based on the background information provided.${extraPrompt ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}` : ""}`;
 

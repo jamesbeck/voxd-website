@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import {
-  FileText,
   Building,
   User,
   Lightbulb,
@@ -174,7 +173,6 @@ export default async function PublicConceptPage({
 
   const sections = [
     { id: "welcome", label: "Welcome", icon: "Mail" as const },
-    { id: "introduction", label: "Introduction", icon: "FileText" as const },
     ...(concept.exampleConversations.length > 0
       ? [{ id: "examples", label: "Examples", icon: "MessageSquare" as const }]
       : []),
@@ -324,65 +322,7 @@ export default async function PublicConceptPage({
               </div>
             </div>
 
-            {/* Questions - Only show if partner has salesBot configured */}
-            {concept.salesBot && (
-              <div
-                className="rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                style={{ backgroundColor: `${brandColor}08` }}
-              >
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-                  <div
-                    title={`Scan or click to start chatting to ${concept.salesBot.name}`}
-                  >
-                    <WhatsAppQRCode
-                      url={`https://wa.me/${concept.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${concept.shortLinkId}`)}`}
-                      size={100}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-4 text-center sm:text-left sm:pt-1">
-                    <p className="text-gray-600 text-base">
-                      Have questions about this concept? Chat with{" "}
-                      {concept.salesBot.name} on WhatsApp - he&apos;s ready to
-                      help you explore how an AI chatbot could work for your
-                      business.
-                    </p>
-                    <a
-                      href={`https://wa.me/${concept.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${concept.shortLinkId}`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90 self-center sm:self-start"
-                      style={{ backgroundColor: brandColor }}
-                    >
-                      <MessageSquare className="h-5 w-5" />
-                      Chat with {concept.salesBot.name} on WhatsApp
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
-          </section>
-
-          {/* Introduction Section */}
-          <section
-            id="introduction"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
-          >
-            <div className="flex items-start gap-3">
-              <div
-                className="p-2 rounded-lg"
-                style={{ backgroundColor: `${brandColor}15` }}
-              >
-                <FileText className="h-6 w-6" style={{ color: brandColor }} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Introduction
-                </h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  Overview of the AI chatbot concept
-                </p>
-              </div>
-            </div>
+            <hr className="border-0 h-px" style={{ backgroundColor: `${brandColor}20` }} />
 
             {/* Personal message from salesperson */}
             {concept.conceptPersonalMessage && (
@@ -1250,6 +1190,41 @@ export default async function PublicConceptPage({
                     )}
                   </div>
                 </div>
+
+                {concept.salesBot && (
+                  <div
+                    className="mt-4 rounded-lg p-4 flex flex-col sm:flex-row items-center gap-4"
+                    style={{ backgroundColor: `${brandColor}08` }}
+                  >
+                    <div
+                      className="shrink-0"
+                      title={`Scan or click to start chatting to ${concept.salesBot.name}`}
+                    >
+                      <WhatsAppQRCode
+                        url={`https://wa.me/${concept.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${concept.shortLinkId}`)}`}
+                        size={100}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-3 text-center sm:text-left">
+                      <p className="text-gray-600 text-base">
+                        Have questions about this concept? Chat with{" "}
+                        {concept.salesBot.name} on WhatsApp - he&apos;s ready to
+                        help you explore how an AI chatbot could work for your
+                        business.
+                      </p>
+                      <a
+                        href={`https://wa.me/${concept.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about concept ${concept.shortLinkId}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90 self-center sm:self-start"
+                        style={{ backgroundColor: brandColor }}
+                      >
+                        <MessageSquare className="h-5 w-5" />
+                        Chat with {concept.salesBot.name} on WhatsApp
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <p className="text-sm text-gray-500">

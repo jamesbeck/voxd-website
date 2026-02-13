@@ -14,6 +14,7 @@ ${partnerName} provides WhatsApp-based AI chatbot services that help businesses 
 2. **Message Processing**: Incoming messages are saved to our database and queued for processing
 3. **AI-Powered Responses**: Each message is sent to an LLM (Large Language Model) along with:
    - An agent-specific prompt customized for the business
+   - Any attached media (images, documents) that the AI can understand and include in the conversation context
    - Full conversation history
    - User data and history (name, previous orders, etc.)
    - Relevant information from external applications (user account details, addresses, etc.)
