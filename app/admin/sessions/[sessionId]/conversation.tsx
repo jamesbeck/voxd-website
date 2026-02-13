@@ -56,7 +56,9 @@ export default function Conversation({
       {paused && (
         <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-4">
           <p className="text-sm font-medium text-red-800">
-            This session is paused, the agent will not respond to messages. You can resume the session using the button above, or reply manually using the form below.
+            This session is paused, the agent will not respond to messages. You
+            can resume the session using the button above, or reply manually
+            using the form below.
           </p>
         </div>
       )}
