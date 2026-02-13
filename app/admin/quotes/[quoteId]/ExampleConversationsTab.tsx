@@ -26,6 +26,7 @@ import {
   Copy,
   Check,
   Sparkles,
+  ImagePlus,
 } from "lucide-react";
 import saGenerateScenario from "@/actions/saGenerateScenario";
 import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
@@ -33,6 +34,7 @@ import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConv
 import saReorderExampleConversations from "@/actions/saReorderExampleConversations";
 import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
 import saGenerateExampleConversationById from "@/actions/saGenerateExampleConversationById";
+import saUploadConversationMessageImage from "@/actions/saUploadConversationMessageImage";
 import WhatsAppSim from "@/components/whatsAppSim";
 import {
   DndContext,
@@ -241,6 +243,11 @@ export default function ExampleConversationsTab({
   const [editDescription, setEditDescription] = useState("");
   const [editStartTime, setEditStartTime] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploadingImageIndex, setUploadingImageIndex] = useState<number | null>(
+    null,
+  );
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingImageIndexRef = useRef<number | null>(null);
   const [generatingIds, setGeneratingIds] = useState<string[]>([]);
   const router = useRouter();
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -964,6 +971,32 @@ export default function ExampleConversationsTab({
                         </div>
                       </div>
                     )}
+                    {message.role === "user" && !message.imageUrl && (
+                      <div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={uploadingImageIndex === index}
+                          onClick={() => {
+                            pendingImageIndexRef.current = index;
+                            imageInputRef.current?.click();
+                          }}
+                          className="text-xs"
+                        >
+                          {uploadingImageIndex === index ? (
+                            <>
+                              <Spinner className="h-3.5 w-3.5 mr-1" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <ImagePlus className="h-3.5 w-3.5 mr-1" />
+                              Attach Image
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1000,6 +1033,54 @@ export default function ExampleConversationsTab({
               Save Changes
             </Button>
           </DialogFooter>
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              const messageIndex = pendingImageIndexRef.current;
+              if (!file || messageIndex === null || !editConversation) return;
+              e.target.value = "";
+              setUploadingImageIndex(messageIndex);
+              try {
+                const reader = new FileReader();
+                const base64 = await new Promise<string>((resolve, reject) => {
+                  reader.onload = () => {
+                    const result = reader.result as string;
+                    resolve(result.split(",")[1]);
+                  };
+                  reader.onerror = reject;
+                  reader.readAsDataURL(file);
+                });
+                const ext = file.name.split(".").pop() || "png";
+                const result = await saUploadConversationMessageImage({
+                  conversationId: editConversation.id,
+                  messageIndex,
+                  fileBase64: base64,
+                  fileExtension: ext,
+                });
+                if (result.success && result.data?.imageUrl) {
+                  setEditMessages((prev) =>
+                    prev.map((msg, i) =>
+                      i === messageIndex
+                        ? { ...msg, imageUrl: result.data.imageUrl }
+                        : msg,
+                    ),
+                  );
+                  toast.success("Image attached");
+                } else if (!result.success) {
+                  toast.error(result.error || "Failed to upload image");
+                }
+              } catch {
+                toast.error("Failed to upload image");
+              } finally {
+                setUploadingImageIndex(null);
+                pendingImageIndexRef.current = null;
+              }
+            }}
+          />
         </DialogContent>
       </Dialog>
     </div>
