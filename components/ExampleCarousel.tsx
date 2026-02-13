@@ -114,6 +114,7 @@ export default function ExampleCarousel({ examples }: ExampleCarouselProps) {
                                 content: m.content,
                                 time: m.time,
                                 annotation: m.annotation || "",
+                                imageUrl: m.imageUrl,
                               }))}
                               businessName={example.businessName}
                               startTime={firstConversation.startTime}

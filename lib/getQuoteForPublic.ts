@@ -146,11 +146,13 @@ export const getQuoteForPublic = async ({
         content: string;
         time: number;
         annotation?: string | null;
+        imageUrl?: string;
       }) => ({
         role: m.role,
         content: m.content,
         time: m.time,
         annotation: m.annotation || null,
+        imageUrl: m.imageUrl,
       }),
     ),
   }));

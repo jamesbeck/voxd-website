@@ -28,6 +28,7 @@ export default function WhatsAppSim({
     content: string;
     time: number;
     annotation: string;
+    imageUrl?: string;
   }[];
   businessName: string;
   startTime: string;
@@ -191,6 +192,7 @@ export default function WhatsAppSim({
                     text={message.content}
                     time={format(currentMessageTime, "HH:mm")}
                     annotation={message.annotation}
+                    imageUrl={message.imageUrl}
                   />
                 );
               })}

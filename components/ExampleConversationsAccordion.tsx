@@ -19,6 +19,7 @@ type Conversation = {
     content: string;
     time: number;
     annotation: string | null;
+    imageUrl?: string;
   }[];
 };
 
@@ -42,7 +43,7 @@ export default function ExampleConversationsAccordion({
   organizationLogoDarkBackground?: boolean;
 }) {
   const [openId, setOpenId] = useState<string | null>(
-    conversations.length > 0 ? conversations[0].id : null
+    conversations.length > 0 ? conversations[0].id : null,
   );
 
   const toggleItem = (id: string) => {
@@ -66,7 +67,7 @@ export default function ExampleConversationsAccordion({
                 "flex items-center justify-between p-4 rounded-lg border transition-colors",
                 openId === conversation.id
                   ? "bg-gray-50 border-gray-200"
-                  : "bg-white border-gray-200 hover:bg-gray-50"
+                  : "bg-white border-gray-200 hover:bg-gray-50",
               )}
             >
               <span className="font-medium text-gray-900 text-left">
@@ -75,7 +76,7 @@ export default function ExampleConversationsAccordion({
               <ChevronDown
                 className={cn(
                   "h-5 w-5 text-gray-400 transition-transform",
-                  openId === conversation.id && "rotate-180"
+                  openId === conversation.id && "rotate-180",
                 )}
               />
             </div>
@@ -88,6 +89,7 @@ export default function ExampleConversationsAccordion({
                   content: m.content,
                   time: m.time,
                   annotation: m.annotation || "",
+                  imageUrl: m.imageUrl,
                 }))}
                 businessName={businessName}
                 startTime={conversation.startTime}

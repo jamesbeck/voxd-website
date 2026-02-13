@@ -65,6 +65,7 @@ type ExampleConversation = {
     content: string;
     annotation: string | null;
     time: number;
+    imageUrl?: string;
   }[];
 };
 
@@ -679,6 +680,7 @@ export default function ExampleConversationsTab({
                   content: m.content,
                   time: m.time,
                   annotation: m.annotation || "",
+                  imageUrl: m.imageUrl,
                 }))}
                 businessName={organisationName}
                 startTime={selectedConversation.startTime}
@@ -926,6 +928,40 @@ export default function ExampleConversationsTab({
                           placeholder="Brief description of what the bot is doing"
                           className="text-sm"
                         />
+                      </div>
+                    )}
+                    {message.role === "user" && message.imageUrl && (
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          User Image
+                        </Label>
+                        <div className="flex items-start gap-3">
+                          <img
+                            src={message.imageUrl}
+                            alt="User shared photo"
+                            className="w-20 h-20 rounded-md object-cover border"
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditMessages((prev) =>
+                                prev.map((msg, i) =>
+                                  i === index
+                                    ? {
+                                        ...msg,
+                                        imageUrl: undefined,
+                                      }
+                                    : msg,
+                                ),
+                              );
+                            }}
+                            className="text-xs text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-1" />
+                            Remove Image
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

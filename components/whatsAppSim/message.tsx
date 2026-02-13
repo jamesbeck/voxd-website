@@ -8,9 +8,26 @@ import {
 import { useRef } from "react";
 import { useInView } from "motion/react";
 
-const InnerMessage = ({ text, time }: { text: string; time: string }) => {
+const InnerMessage = ({
+  text,
+  time,
+  imageUrl,
+}: {
+  text: string;
+  time: string;
+  imageUrl?: string;
+}) => {
   return (
     <>
+      {imageUrl && (
+        <div className="mt-[2px] mb-[6px]">
+          <img
+            src={imageUrl}
+            alt="User shared photo"
+            className="rounded-[12px] w-full max-w-[220px] h-auto"
+          />
+        </div>
+      )}
       <div
         dangerouslySetInnerHTML={{ __html: text }}
         className="flex flex-col gap-2 text-left [word-break:break-word] [overflow-wrap:anywhere]"
@@ -31,11 +48,13 @@ export default function Message({
   text,
   time,
   annotation,
+  imageUrl,
 }: {
   role: string;
   text: string;
   time: string;
   annotation: string;
+  imageUrl?: string;
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, {
@@ -68,7 +87,7 @@ export default function Message({
       <div
         className={cn(
           role === "user" ? "flex justify-end" : "flex justify-start",
-          "relative w-full"
+          "relative w-full",
         )}
       >
         <div
@@ -76,22 +95,15 @@ export default function Message({
             "relative max-w-[80%] min-w-0 px-[10px] py-[6px] text-[13px] rounded-[14px] border-[1px] after:content-[''] after:absolute after:bottom-0  after:w-0 after:h-0 after:border-[12px] after:border-transparent  after:border-b-0 after:border-l-0  after:rotate-60",
             role === "user"
               ? "bg-wauserbg after:border-t-wauserbg after:left-full after:-ml-[10px] after:-mb-[4px]"
-              : "bg-waagentbg after:border-t-waagentbg after:scale-x-[-1] after:left-0 after:-ml-[6px] after:-mb-[0px]"
+              : "bg-waagentbg after:border-t-waagentbg after:scale-x-[-1] after:left-0 after:-ml-[6px] after:-mb-[0px]",
           )}
           id="message"
         >
           <div className="hidden md:block">
-            <Tooltip
-              // onOpenChange={(open) => {
-              //   if (role === "assistant") {
-              //     setTooltipOpen(open);
-              //   }
-              // }}
-              open={isInView && role === "assistant"}
-            >
+            <Tooltip open={isInView && role === "assistant"}>
               <TooltipTrigger>
                 <div ref={ref}>
-                  <InnerMessage text={text} time={time} />
+                  <InnerMessage text={text} time={time} imageUrl={imageUrl} />
                 </div>
               </TooltipTrigger>
               <TooltipContent className="w-[200px]" side="right">
@@ -102,7 +114,7 @@ export default function Message({
 
           <div className="block md:hidden">
             <div>
-              <InnerMessage text={text} time={time} />
+              <InnerMessage text={text} time={time} imageUrl={imageUrl} />
             </div>
           </div>
         </div>

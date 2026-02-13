@@ -40,7 +40,7 @@ export const getExampleForPublic = async ({
   let query = db("example").leftJoin(
     "partner",
     "example.partnerId",
-    "partner.id"
+    "partner.id",
   );
 
   if (exampleId) {
@@ -64,7 +64,7 @@ export const getExampleForPublic = async ({
       "partner.name as partnerName",
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
-      "partner.logoFileExtension as partnerLogoFileExtension"
+      "partner.logoFileExtension as partnerLogoFileExtension",
     )
     .first();
 
@@ -92,12 +92,14 @@ export const getExampleForPublic = async ({
         content: string;
         time: number;
         annotation?: string | null;
+        imageUrl?: string;
       }) => ({
         role: m.role,
         content: m.content,
         time: m.time,
         annotation: m.annotation || null,
-      })
+        imageUrl: m.imageUrl,
+      }),
     ),
   }));
 

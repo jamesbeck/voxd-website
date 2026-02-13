@@ -7,6 +7,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { emitEvent } from "@/lib/events/eventEmitter";
+import saGenerateConversationImages from "./saGenerateConversationImages";
 
 const saGenerateExampleConversationById = async ({
   conversationId,
@@ -154,6 +155,18 @@ ${quote.otherNotes || "Not specified"}
               time: z
                 .number()
                 .describe("Seconds elapsed since the last message."),
+              hasImage: z
+                .boolean()
+                .optional()
+                .describe(
+                  "Set to true if the user would realistically attach a photo with this message (e.g. showing damage, sharing a product photo, sending a receipt). Only include when it genuinely fits the scenario.",
+                ),
+              imagePrompt: z
+                .string()
+                .optional()
+                .describe(
+                  "When hasImage is true, provide a detailed visual description of the photo the user would send, suitable for AI image generation. Describe it as a realistic phone photo (e.g. 'A slightly blurry phone photo of a cracked laptop screen on a wooden desk'). Keep it concise but descriptive.",
+                ),
             }),
             z.object({
               role: z.literal("assistant"),
@@ -185,6 +198,8 @@ ${quote.otherNotes || "Not specified"}
 
         Please return each message as HTML. Only use the following tags <p>, <a>, <ul>/<li>, <ol>/<li>, <b>, <i>, <br/>.
 
+        When the conversation naturally warrants a user sending a photo via WhatsApp (e.g. showing damage to a product, sharing a photo of an item, sending a receipt or document photo), you may set hasImage to true on that user message and provide an imagePrompt describing the realistic phone photo the user would send. Only include images when it genuinely fits the scenario — most conversations won't need images. Not every conversation should have images.
+
         Here's the scenario for the chat: ${conversation.prompt}
 
         Here's the specification for the bot:
@@ -192,14 +207,32 @@ ${quote.otherNotes || "Not specified"}
       `,
     });
 
+    // Save the generated conversation text first (keep generating=true while images are processed)
     await db("exampleConversation")
       .where("id", conversationId)
       .update({
         messages: JSON.stringify(object.messages),
         description: object.summary,
         startTime: object.startTime,
-        generating: false,
       });
+
+    // Check if any user messages have images to generate
+    const hasImages = object.messages.some(
+      (msg) =>
+        msg.role === "user" && "hasImage" in msg && msg.hasImage === true,
+    );
+
+    if (hasImages) {
+      await saGenerateConversationImages({
+        conversationId,
+        openAiApiKey: openAiApiKey!,
+      });
+    }
+
+    // Mark generation as complete
+    await db("exampleConversation")
+      .where("id", conversationId)
+      .update({ generating: false });
 
     // Emit success event
     emitEvent(accessToken.adminUserId, {

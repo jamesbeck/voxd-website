@@ -133,6 +133,7 @@ export interface Example {
       content: string;
       time: number;
       annotation: string;
+      imageUrl?: string;
     }[];
     description: string;
     startTime: string;

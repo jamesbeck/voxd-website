@@ -11,6 +11,7 @@ interface Message {
   content: string;
   time: number;
   annotation: string | null;
+  imageUrl?: string;
 }
 
 interface Conversation {
@@ -73,6 +74,7 @@ export default function ConversationCarousel({
                   content: m.content,
                   time: m.time,
                   annotation: m.annotation || "",
+                  imageUrl: m.imageUrl,
                 }))}
                 businessName={businessName}
                 startTime={conversation.startTime}
