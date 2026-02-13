@@ -31,16 +31,11 @@ const saGenerateConversationImages = async ({
 
   const messages = conversation.messages || [];
 
-  // Find user messages that have hasImage=true but no imageUrl yet
+  // Find messages that have hasImage=true but no imageUrl yet
   const imageMessages: { index: number; imagePrompt: string }[] = [];
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
-    if (
-      msg.role === "user" &&
-      msg.hasImage === true &&
-      msg.imagePrompt &&
-      !msg.imageUrl
-    ) {
+    if (msg.hasImage === true && msg.imagePrompt && !msg.imageUrl) {
       imageMessages.push({ index: i, imagePrompt: msg.imagePrompt });
     }
   }

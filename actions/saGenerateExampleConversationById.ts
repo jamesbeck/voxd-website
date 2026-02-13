@@ -199,6 +199,36 @@ ${quote.otherNotes || "Not specified"}
               time: z
                 .number()
                 .describe("Seconds elapsed since the last message."),
+              hasImage: z
+                .boolean()
+                .optional()
+                .describe(
+                  "Set to true if the bot would realistically send a photo in this message (e.g. sending a product photo, a floorplan image, a photo of a property). Only include when it genuinely fits the scenario.",
+                ),
+              imagePrompt: z
+                .string()
+                .optional()
+                .describe(
+                  "When hasImage is true, provide a detailed visual description of the photo the bot would send, suitable for AI image generation. Keep it concise but descriptive.",
+                ),
+              hasFile: z
+                .boolean()
+                .optional()
+                .describe(
+                  "Set to true if the bot would realistically send a file in this message (e.g. sending a pricelist PDF, a brochure, a floorplan document, a report). Only include when it genuinely fits the scenario.",
+                ),
+              fileName: z
+                .string()
+                .optional()
+                .describe(
+                  "When hasFile is true, provide a realistic filename for the document (e.g. 'Pricelist_2026.pdf', 'Property_Brochure.pdf', 'Floorplan_Unit_4B.pdf').",
+                ),
+              fileSize: z
+                .string()
+                .optional()
+                .describe(
+                  "When hasFile is true, provide a realistic human-readable file size string (e.g. '2.4 MB', '156 KB', '1.1 MB').",
+                ),
             }),
           ]),
         ),
@@ -218,7 +248,11 @@ ${quote.otherNotes || "Not specified"}
 
         When the conversation naturally warrants a user sending a photo via WhatsApp (e.g. showing damage to a product, sharing a photo of an item, sending a receipt or document photo), you may set hasImage to true on that user message and provide an imagePrompt describing the realistic phone photo the user would send. Only include images when it genuinely fits the scenario — most conversations won't need images. Not every conversation should have images.
 
+        The bot can also send photos to the user. When the conversation naturally warrants the bot sending a photo (e.g. sharing a product image, sending a photo of a property, showing a floorplan image), you may set hasImage to true on the assistant message and provide an imagePrompt.
+
         When the conversation naturally warrants a user sending a non-image file via WhatsApp (e.g. a PDF invoice, a spreadsheet, a contract, a CV/resume, a report), you may set hasFile to true on that user message and provide a realistic fileName and fileSize. The fileName should look like a real document name with the correct extension (e.g. 'Invoice_March_2026.pdf', 'Q4_Report.xlsx'). The fileSize should be a realistic human-readable size string (e.g. '2.4 MB', '156 KB'). Only include files when genuinely relevant — most conversations won't have file attachments. A message should not have both an image and a file.
+
+        The bot can also send files to the user (e.g. sending a pricelist, a brochure, a floorplan PDF, a contract). When the bot would realistically send a document, set hasFile to true on the assistant message with a realistic fileName and fileSize.
 
         Here's the scenario for the chat: ${conversation.prompt}
 
@@ -236,10 +270,9 @@ ${quote.otherNotes || "Not specified"}
         startTime: object.startTime,
       });
 
-    // Check if any user messages have images to generate
+    // Check if any messages have images to generate
     const hasImages = object.messages.some(
-      (msg) =>
-        msg.role === "user" && "hasImage" in msg && msg.hasImage === true,
+      (msg) => "hasImage" in msg && msg.hasImage === true,
     );
 
     if (hasImages) {

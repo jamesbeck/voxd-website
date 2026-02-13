@@ -942,10 +942,10 @@ export default function ExampleConversationsTab({
                         />
                       </div>
                     )}
-                    {message.role === "user" && message.imageUrl && (
+                    {message.imageUrl && (
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">
-                          User Image
+                          Image
                         </Label>
                         <div className="flex items-start gap-3">
                           <img
@@ -976,7 +976,7 @@ export default function ExampleConversationsTab({
                         </div>
                       </div>
                     )}
-                    {message.role === "user" && !message.imageUrl && (
+                    {!message.imageUrl && (
                       <div>
                         <Button
                           variant="outline"
@@ -1002,7 +1002,7 @@ export default function ExampleConversationsTab({
                         </Button>
                       </div>
                     )}
-                    {message.role === "user" && message.fileName && (
+                    {message.fileName && (
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground">
                           File Attachment
@@ -1045,7 +1045,7 @@ export default function ExampleConversationsTab({
                         </div>
                       </div>
                     )}
-                    {message.role === "user" && !message.fileName && (
+                    {!message.fileName && (
                       <div className="space-y-1">
                         <Button
                           variant="outline"
@@ -1070,7 +1070,7 @@ export default function ExampleConversationsTab({
                         </Button>
                       </div>
                     )}
-                    {message.role === "user" && message.fileName && (
+                    {message.fileName && (
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
                           <Label className="text-xs text-muted-foreground">
