@@ -322,7 +322,10 @@ export default async function PublicConceptPage({
               </div>
             </div>
 
-            <hr className="border-0 h-px" style={{ backgroundColor: `${brandColor}20` }} />
+            <hr
+              className="border-0 h-px"
+              style={{ backgroundColor: `${brandColor}20` }}
+            />
 
             {/* Personal message from salesperson */}
             {concept.conceptPersonalMessage && (
