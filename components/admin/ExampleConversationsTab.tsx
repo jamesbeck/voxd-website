@@ -27,6 +27,7 @@ import {
   Check,
   Sparkles,
   ImagePlus,
+  FileText,
 } from "lucide-react";
 import saGenerateScenario from "@/actions/saGenerateScenario";
 import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
@@ -70,6 +71,8 @@ type ExampleConversation = {
     annotation: string | null;
     time: number;
     imageUrl?: string;
+    fileName?: string;
+    fileSize?: string;
   }[];
 };
 
@@ -718,6 +721,8 @@ export default function ExampleConversationsTab({
                   time: m.time,
                   annotation: m.annotation || "",
                   imageUrl: m.imageUrl,
+                  fileName: m.fileName,
+                  fileSize: m.fileSize,
                 }))}
                 businessName={businessName}
                 startTime={selectedConversation.startTime}
@@ -1025,6 +1030,104 @@ export default function ExampleConversationsTab({
                             </>
                           )}
                         </Button>
+                      </div>
+                    )}
+                    {message.role === "user" && message.fileName && (
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          File Attachment
+                        </Label>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2 rounded-md border px-3 py-2 bg-muted/50">
+                            <FileText className="h-4 w-4 text-red-500 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-xs font-medium truncate">
+                                {message.fileName}
+                              </div>
+                              {message.fileSize && (
+                                <div className="text-[10px] text-muted-foreground">
+                                  {message.fileSize}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditMessages((prev) =>
+                                prev.map((msg, i) =>
+                                  i === index
+                                    ? {
+                                        ...msg,
+                                        fileName: undefined,
+                                        fileSize: undefined,
+                                      }
+                                    : msg,
+                                ),
+                              );
+                            }}
+                            className="text-xs text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-1" />
+                            Remove File
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    {message.role === "user" && !message.fileName && (
+                      <div className="space-y-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditMessages((prev) =>
+                              prev.map((msg, i) =>
+                                i === index
+                                  ? {
+                                      ...msg,
+                                      fileName: "document.pdf",
+                                      fileSize: "1.2 MB",
+                                    }
+                                  : msg,
+                              ),
+                            );
+                          }}
+                          className="text-xs"
+                        >
+                          <FileText className="h-3.5 w-3.5 mr-1" />
+                          Attach File
+                        </Button>
+                      </div>
+                    )}
+                    {message.role === "user" && message.fileName && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">
+                            File Name
+                          </Label>
+                          <Input
+                            value={message.fileName}
+                            onChange={(e) =>
+                              updateMessage(index, "fileName", e.target.value)
+                            }
+                            placeholder="document.pdf"
+                            className="text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">
+                            File Size
+                          </Label>
+                          <Input
+                            value={message.fileSize || ""}
+                            onChange={(e) =>
+                              updateMessage(index, "fileSize", e.target.value)
+                            }
+                            placeholder="2.4 MB"
+                            className="text-sm"
+                          />
+                        </div>
                       </div>
                     )}
                   </div>

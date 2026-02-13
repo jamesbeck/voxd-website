@@ -7,15 +7,27 @@ import {
 } from "@/components/ui/tooltip";
 import { useRef } from "react";
 import { useInView } from "motion/react";
+import { FileText } from "lucide-react";
+
+const getFileExtension = (fileName: string) => {
+  const ext = fileName.split(".").pop()?.toUpperCase() || "";
+  return ext;
+};
 
 const InnerMessage = ({
   text,
   time,
   imageUrl,
+  fileName,
+  fileSize,
+  role,
 }: {
   text: string;
   time: string;
   imageUrl?: string;
+  fileName?: string;
+  fileSize?: string;
+  role?: string;
 }) => {
   return (
     <>
@@ -26,6 +38,32 @@ const InnerMessage = ({
             alt="User shared photo"
             className="rounded-[12px] w-full max-w-[220px] h-auto"
           />
+        </div>
+      )}
+      {fileName && (
+        <div className="mt-[2px] mb-[8px] max-w-[210px]">
+          <div
+            className={cn(
+              "rounded-[10px] px-[10px] py-[8px] flex items-center gap-[10px] min-w-0",
+              role === "user" ? "bg-[#c5e8ba]" : "bg-[#f0f0f0]",
+            )}
+          >
+            <div className="flex-shrink-0">
+              <div className="w-[34px] h-[40px] bg-white rounded-[4px] flex items-center justify-center border border-gray-200">
+                <FileText className="w-[18px] h-[18px] text-red-500" />
+              </div>
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <div className="text-[12.5px] font-medium text-[#111] truncate leading-tight">
+                {fileName}
+              </div>
+              <div className="text-[11px] text-[#667781] mt-[1px]">
+                {fileSize || ""}
+                {fileSize && fileName.includes(".") ? " · " : ""}
+                {fileName.includes(".") ? getFileExtension(fileName) : ""}
+              </div>
+            </div>
+          </div>
         </div>
       )}
       <div
@@ -49,12 +87,16 @@ export default function Message({
   time,
   annotation,
   imageUrl,
+  fileName,
+  fileSize,
 }: {
   role: string;
   text: string;
   time: string;
   annotation: string;
   imageUrl?: string;
+  fileName?: string;
+  fileSize?: string;
 }) {
   const ref = useRef(null);
   const isInView = useInView(ref, {
@@ -103,7 +145,14 @@ export default function Message({
             <Tooltip open={isInView && role === "assistant"}>
               <TooltipTrigger>
                 <div ref={ref}>
-                  <InnerMessage text={text} time={time} imageUrl={imageUrl} />
+                  <InnerMessage
+                    text={text}
+                    time={time}
+                    imageUrl={imageUrl}
+                    fileName={fileName}
+                    fileSize={fileSize}
+                    role={role}
+                  />
                 </div>
               </TooltipTrigger>
               <TooltipContent className="w-[200px]" side="right">
@@ -114,7 +163,14 @@ export default function Message({
 
           <div className="block md:hidden">
             <div>
-              <InnerMessage text={text} time={time} imageUrl={imageUrl} />
+              <InnerMessage
+                text={text}
+                time={time}
+                imageUrl={imageUrl}
+                fileName={fileName}
+                fileSize={fileSize}
+                role={role}
+              />
             </div>
           </div>
         </div>

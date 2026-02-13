@@ -134,6 +134,8 @@ export interface Example {
       time: number;
       annotation: string;
       imageUrl?: string;
+      fileName?: string;
+      fileSize?: string;
     }[];
     description: string;
     startTime: string;

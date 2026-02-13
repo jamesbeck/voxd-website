@@ -39,6 +39,8 @@ export default async function ExampleConversationIframePage({
           time: m.time,
           annotation: m.annotation || "",
           imageUrl: m.imageUrl,
+          fileName: m.fileName,
+          fileSize: m.fileSize,
         }))}
         businessName={businessName}
         startTime={conversation.startTime}

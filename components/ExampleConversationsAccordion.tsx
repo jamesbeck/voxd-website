@@ -20,6 +20,8 @@ type Conversation = {
     time: number;
     annotation: string | null;
     imageUrl?: string;
+    fileName?: string;
+    fileSize?: string;
   }[];
 };
 
@@ -90,6 +92,8 @@ export default function ExampleConversationsAccordion({
                   time: m.time,
                   annotation: m.annotation || "",
                   imageUrl: m.imageUrl,
+                  fileName: m.fileName,
+                  fileSize: m.fileSize,
                 }))}
                 businessName={businessName}
                 startTime={conversation.startTime}

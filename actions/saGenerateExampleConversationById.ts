@@ -167,6 +167,24 @@ ${quote.otherNotes || "Not specified"}
                 .describe(
                   "When hasImage is true, provide a detailed visual description of the photo the user would send, suitable for AI image generation. Describe it as a realistic phone photo (e.g. 'A slightly blurry phone photo of a cracked laptop screen on a wooden desk'). Keep it concise but descriptive.",
                 ),
+              hasFile: z
+                .boolean()
+                .optional()
+                .describe(
+                  "Set to true if the user would realistically attach a non-image file with this message (e.g. sending a PDF invoice, a spreadsheet, a contract, a CV/resume). Only include when it genuinely fits the scenario.",
+                ),
+              fileName: z
+                .string()
+                .optional()
+                .describe(
+                  "When hasFile is true, provide a realistic filename for the attached document (e.g. 'Invoice_2026_March.pdf', 'Annual_Report.xlsx', 'Contract_v2.docx').",
+                ),
+              fileSize: z
+                .string()
+                .optional()
+                .describe(
+                  "When hasFile is true, provide a realistic human-readable file size string (e.g. '2.4 MB', '156 KB', '1.1 MB').",
+                ),
             }),
             z.object({
               role: z.literal("assistant"),
@@ -199,6 +217,8 @@ ${quote.otherNotes || "Not specified"}
         Please return each message as HTML. Only use the following tags <p>, <a>, <ul>/<li>, <ol>/<li>, <b>, <i>, <br/>.
 
         When the conversation naturally warrants a user sending a photo via WhatsApp (e.g. showing damage to a product, sharing a photo of an item, sending a receipt or document photo), you may set hasImage to true on that user message and provide an imagePrompt describing the realistic phone photo the user would send. Only include images when it genuinely fits the scenario — most conversations won't need images. Not every conversation should have images.
+
+        When the conversation naturally warrants a user sending a non-image file via WhatsApp (e.g. a PDF invoice, a spreadsheet, a contract, a CV/resume, a report), you may set hasFile to true on that user message and provide a realistic fileName and fileSize. The fileName should look like a real document name with the correct extension (e.g. 'Invoice_March_2026.pdf', 'Q4_Report.xlsx'). The fileSize should be a realistic human-readable size string (e.g. '2.4 MB', '156 KB'). Only include files when genuinely relevant — most conversations won't have file attachments. A message should not have both an image and a file.
 
         Here's the scenario for the chat: ${conversation.prompt}
 

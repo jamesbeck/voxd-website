@@ -12,6 +12,8 @@ interface Message {
   time: number;
   annotation: string | null;
   imageUrl?: string;
+  fileName?: string;
+  fileSize?: string;
 }
 
 interface Conversation {
@@ -75,6 +77,8 @@ export default function ConversationCarousel({
                   time: m.time,
                   annotation: m.annotation || "",
                   imageUrl: m.imageUrl,
+                  fileName: m.fileName,
+                  fileSize: m.fileSize,
                 }))}
                 businessName={businessName}
                 startTime={conversation.startTime}

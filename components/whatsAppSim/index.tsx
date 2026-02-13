@@ -29,6 +29,8 @@ export default function WhatsAppSim({
     time: number;
     annotation: string;
     imageUrl?: string;
+    fileName?: string;
+    fileSize?: string;
   }[];
   businessName: string;
   startTime: string;
@@ -193,6 +195,8 @@ export default function WhatsAppSim({
                     time={format(currentMessageTime, "HH:mm")}
                     annotation={message.annotation}
                     imageUrl={message.imageUrl}
+                    fileName={message.fileName}
+                    fileSize={message.fileSize}
                   />
                 );
               })}
