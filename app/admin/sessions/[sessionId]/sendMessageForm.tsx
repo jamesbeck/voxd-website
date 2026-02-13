@@ -19,7 +19,10 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import saSendMessage from "@/actions/saSendMessage";
+import saPauseSession from "@/actions/saPauseSession";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   message: z.string().nonempty("Message is required"),
@@ -28,11 +31,14 @@ const formSchema = z.object({
 export default function NewQuoteForm({
   sessionId,
   lastMessageFromUserSecondsAgo,
+  paused,
 }: {
   sessionId: string;
   lastMessageFromUserSecondsAgo: number | null;
+  paused: boolean;
 }) {
   const [loading, setLoading] = useState(false);
+  const [pauseAfterSend, setPauseAfterSend] = useState(true);
   const router = useRouter();
 
   //has it been longer than 24 hours since the last message from user
@@ -88,7 +94,16 @@ export default function NewQuoteForm({
     }
 
     if (response.success) {
-      toast.success(`Message sent successfully!`);
+      if (pauseAfterSend && !paused) {
+        const pauseResponse = await saPauseSession({ sessionId });
+        if (!pauseResponse.success) {
+          toast.error("Message sent but failed to pause session");
+        } else {
+          toast.success("Message sent and session paused");
+        }
+      } else {
+        toast.success("Message sent successfully!");
+      }
       router.refresh();
       form.reset();
     }
@@ -167,13 +182,33 @@ export default function NewQuoteForm({
                 </p>
               )}
             </div>
-            <Button
-              type="submit"
-              disabled={loading || hasBeenLongerThan24Hours}
-            >
-              {loading && <Spinner />}
-              Submit
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                type="submit"
+                disabled={loading || hasBeenLongerThan24Hours}
+              >
+                {loading && <Spinner />}
+                Submit
+              </Button>
+              {!paused && (
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="pauseAfterSend"
+                    checked={pauseAfterSend}
+                    onCheckedChange={(checked) =>
+                      setPauseAfterSend(checked === true)
+                    }
+                    disabled={loading || hasBeenLongerThan24Hours}
+                  />
+                  <Label
+                    htmlFor="pauseAfterSend"
+                    className="text-sm text-muted-foreground cursor-pointer"
+                  >
+                    Pause session after sending
+                  </Label>
+                </div>
+              )}
+            </div>
           </form>
         </Form>
       </CardContent>

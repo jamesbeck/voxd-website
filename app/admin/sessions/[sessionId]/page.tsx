@@ -161,6 +161,7 @@ export default async function Page({
               sessionId={sessionId}
               agentId={agent.id}
               ticketsByMessage={ticketsByMessage || {}}
+              paused={session.paused}
             />
           </Container>
         </TabsContent>

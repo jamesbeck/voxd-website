@@ -34,11 +34,13 @@ export default function Conversation({
   sessionId,
   agentId,
   ticketsByMessage,
+  paused,
 }: {
   messages: any[];
   sessionId: string;
   agentId: string;
   ticketsByMessage: TicketsByMessage;
+  paused: boolean;
 }) {
   const lastMessageFromUser = messages
     .slice()
@@ -51,6 +53,13 @@ export default function Conversation({
 
   return (
     <>
+      {paused && (
+        <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-4">
+          <p className="text-sm font-medium text-red-800">
+            This session is paused, the agent will not respond to messages. You can resume the session using the button above, or reply manually using the form below.
+          </p>
+        </div>
+      )}
       <div className="h-[600px] rounded-xl border bg-muted/30 shadow-sm overflow-y-auto p-4 space-y-3">
         {messages.map((message: any, index: number) => {
           //split text on line breaks
@@ -361,6 +370,7 @@ export default function Conversation({
       <SendMessageForm
         sessionId={sessionId}
         lastMessageFromUserSecondsAgo={lastMessageFromUserSecondsAgo}
+        paused={paused}
       />
     </>
   );
