@@ -99,8 +99,11 @@ export default function Conversation({
                           : "")}
                   </div>
 
-                  {message.role === "user" && message.files?.length > 0 && (
-                    <MessageAttachments files={message.files} />
+                  {message.files?.length > 0 && (
+                    <MessageAttachments
+                      files={message.files}
+                      variant={message.role === "user" ? "primary" : "muted"}
+                    />
                   )}
 
                   <div className="text-sm prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-p:leading-relaxed">

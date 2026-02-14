@@ -45,9 +45,27 @@ const getMessages = async ({ sessionId }: { sessionId: string }) => {
     toolCalls.map((tc) => tc.id),
   );
 
+  const assistantFiles = await db("file")
+    .select(
+      "id",
+      "assistantMessageId",
+      "type",
+      "mimeType",
+      "originalFilename",
+      "wasabiUrl",
+      "fileSize",
+      "width",
+      "height",
+    )
+    .whereIn(
+      "assistantMessageId",
+      assistantMessages.map((m) => m.id),
+    );
+
   const assistantMessagesWithRole = assistantMessages.map((m) => ({
     ...m,
     role: "assistant",
+    files: assistantFiles.filter((f) => f.assistantMessageId === m.id),
     toolCalls: toolCalls
       .filter((tc) => tc.assistantMessageId === m.id)
       .map((tc) => ({
@@ -67,9 +85,27 @@ const getMessages = async ({ sessionId }: { sessionId: string }) => {
     )
     .orderBy("createdAt", "asc");
 
+  const manualFiles = await db("file")
+    .select(
+      "id",
+      "manualMessageId",
+      "type",
+      "mimeType",
+      "originalFilename",
+      "wasabiUrl",
+      "fileSize",
+      "width",
+      "height",
+    )
+    .whereIn(
+      "manualMessageId",
+      manualMessages.map((m) => m.id),
+    );
+
   const manualMessagesWithRole = manualMessages.map((m) => ({
     ...m,
     role: "manual",
+    files: manualFiles.filter((f) => f.manualMessageId === m.id),
   }));
 
   const messages = [

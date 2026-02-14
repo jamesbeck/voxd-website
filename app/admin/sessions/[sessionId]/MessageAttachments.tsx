@@ -15,8 +15,10 @@ type FileAttachment = {
 
 export default function MessageAttachments({
   files,
+  variant = "primary",
 }: {
   files: FileAttachment[];
+  variant?: "primary" | "muted";
 }) {
   if (!files || files.length === 0) return null;
 
@@ -73,9 +75,19 @@ export default function MessageAttachments({
               href={file.wasabiUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                variant === "primary"
+                  ? "bg-white/10 hover:bg-white/20"
+                  : "bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20"
+              }`}
             >
-              <span className="text-primary-foreground/70">
+              <span
+                className={
+                  variant === "primary"
+                    ? "text-primary-foreground/70"
+                    : "text-muted-foreground"
+                }
+              >
                 {getFileIcon(file.type)}
               </span>
               <div className="flex flex-col min-w-0">
@@ -83,7 +95,13 @@ export default function MessageAttachments({
                   {file.originalFilename || "Attached file"}
                 </span>
                 {file.fileSize && (
-                  <span className="text-[10px] text-primary-foreground/60">
+                  <span
+                    className={`text-[10px] ${
+                      variant === "primary"
+                        ? "text-primary-foreground/60"
+                        : "text-muted-foreground/70"
+                    }`}
+                  >
                     {formatBytes(file.fileSize)}
                   </span>
                 )}
