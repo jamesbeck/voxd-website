@@ -42,7 +42,7 @@ import FloatingTableOfContents from "./FloatingTableOfContents";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import WhatsAppQRCode from "@/components/WhatsAppQRCode";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
-import ExampleConversationsAccordion from "@/components/ExampleConversationsAccordion";
+import ExampleConversationsViewer from "@/components/ExampleConversationsViewer";
 import DataFlowDiagram from "@/components/websiteui/DataFlowDiagram";
 
 export async function generateMetadata({
@@ -209,7 +209,7 @@ export default async function PublicConceptPage({
     <div className="min-h-screen bg-gray-50">
       {/* Header with partner logo and organisation logo */}
       <header className="py-3 px-4 bg-white border-b fixed top-0 left-0 right-0 z-50">
-        <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center gap-4 md:gap-6 xl:justify-start xl:pl-[290px]">
+        <div className="max-w-5xl xl:max-w-[1380px] mx-auto flex items-center justify-center gap-4 md:gap-6 xl:justify-start xl:pl-[290px]">
           <Image
             src={logoUrl}
             alt={concept.partner.name}
@@ -269,12 +269,12 @@ export default async function PublicConceptPage({
       )}
 
       {/* Content wrapper with sidebar on desktop */}
-      <div className="max-w-3xl xl:max-w-6xl mx-auto px-4 py-8 xl:flex xl:items-start xl:gap-8">
+      <div className="max-w-5xl xl:max-w-[1380px] mx-auto px-4 py-8 xl:flex xl:items-start xl:gap-8">
         {/* Desktop sticky ToC */}
         <FloatingTableOfContents sections={sections} brandColor={brandColor} />
 
         {/* Main content */}
-        <main className="flex-1 max-w-3xl space-y-8">
+        <main className="flex-1 max-w-5xl space-y-8">
           {/* Welcome Section - always shown */}
           <section
             id="welcome"
@@ -394,7 +394,7 @@ export default async function PublicConceptPage({
                 </div>
               </div>
 
-              <ExampleConversationsAccordion
+              <ExampleConversationsViewer
                 conversations={concept.exampleConversations}
                 businessName={concept.organisationName}
                 brandColor={brandColor}

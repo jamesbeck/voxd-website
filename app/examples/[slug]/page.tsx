@@ -4,7 +4,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { FileText, MessageSquare } from "lucide-react";
 import { getExampleForPublic } from "@/lib/getExampleForPublic";
-import ExampleConversationsAccordion from "@/components/ExampleConversationsAccordion";
+import ExampleConversationsViewer from "@/components/ExampleConversationsViewer";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
 export async function generateMetadata({
@@ -211,7 +211,7 @@ export default async function ExamplesPage({
                 </div>
               </div>
 
-              <ExampleConversationsAccordion
+              <ExampleConversationsViewer
                 conversations={example.exampleConversations}
                 businessName={example.businessName}
                 brandColor={brandColor}

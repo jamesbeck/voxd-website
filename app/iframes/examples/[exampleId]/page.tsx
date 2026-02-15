@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getExampleForPublic } from "@/lib/getExampleForPublic";
-import ExampleConversationsAccordion from "@/components/ExampleConversationsAccordion";
+import ExampleConversationsViewer from "@/components/ExampleConversationsViewer";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
 export default async function ExampleIframePage({
@@ -44,7 +44,7 @@ export default async function ExampleIframePage({
               </p>
             </div>
 
-            <ExampleConversationsAccordion
+            <ExampleConversationsViewer
               conversations={example.exampleConversations}
               businessName={example.businessName}
               brandColor="#6366f1"
