@@ -153,7 +153,7 @@ export default function ProposalTermsSection({
   return (
     <section
       id="terms"
-      className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+      className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
     >
       <div className="flex items-start gap-3">
         <div

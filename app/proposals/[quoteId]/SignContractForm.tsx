@@ -107,7 +107,7 @@ export default function SignContractForm({
     return (
       <section
         id="sign-contract"
-        className="rounded-xl p-6 space-y-4 scroll-mt-8 bg-green-50 border border-green-200"
+        className="rounded-xl p-4 md:p-6 space-y-4 scroll-mt-8 bg-green-50 border border-green-200"
       >
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
@@ -191,7 +191,7 @@ export default function SignContractForm({
   return (
     <section
       id="sign-contract"
-      className="rounded-xl p-6 space-y-4 scroll-mt-8"
+      className="rounded-xl p-4 md:p-6 space-y-4 scroll-mt-8"
       style={{ backgroundColor: `${brandColor}10` }}
     >
       <div className="text-center space-y-2">

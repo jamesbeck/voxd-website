@@ -269,16 +269,16 @@ export default async function PublicConceptPage({
       )}
 
       {/* Content wrapper with sidebar on desktop */}
-      <div className="max-w-5xl xl:max-w-[1380px] mx-auto px-4 py-8 xl:flex xl:items-start xl:gap-8">
+      <div className="max-w-5xl xl:max-w-[1380px] mx-auto px-2 md:px-4 py-4 md:py-8 xl:flex xl:items-start xl:gap-8">
         {/* Desktop sticky ToC */}
         <FloatingTableOfContents sections={sections} brandColor={brandColor} />
 
         {/* Main content */}
-        <main className="flex-1 max-w-5xl space-y-8">
+        <main className="flex-1 max-w-5xl space-y-4 md:space-y-8">
           {/* Welcome Section - always shown */}
           <section
             id="welcome"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
           >
             <div className="flex items-start gap-3">
               <div
@@ -372,7 +372,7 @@ export default async function PublicConceptPage({
           {concept.exampleConversations.length > 0 && (
             <section
               id="examples"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+              className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
             >
               <div className="flex items-start gap-3">
                 <div
@@ -412,7 +412,7 @@ export default async function PublicConceptPage({
           {/* Concept Section */}
           <section
             id="concept"
-            className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+            className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
           >
             <div className="flex items-start gap-3">
               <div
@@ -450,7 +450,7 @@ export default async function PublicConceptPage({
             !concept.conceptHideSections?.includes("case-studies") && (
               <section
                 id="case-studies"
-                className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+                className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
               >
                 <div className="flex items-start gap-3">
                   <div
@@ -552,7 +552,7 @@ export default async function PublicConceptPage({
           {!concept.conceptHideSections?.includes("how-it-works") && (
             <section
               id="how-it-works"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+              className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
             >
               <div className="flex items-start gap-3">
                 <div
@@ -581,7 +581,7 @@ export default async function PublicConceptPage({
           {!concept.conceptHideSections?.includes("portal") && (
             <section
               id="portal"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+              className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
             >
               <div className="flex items-start gap-3">
                 <div
@@ -767,7 +767,7 @@ export default async function PublicConceptPage({
           {!concept.conceptHideSections?.includes("service") && (
             <section
               id="service"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+              className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
             >
               <div className="flex items-start gap-3">
                 <div
@@ -914,7 +914,7 @@ export default async function PublicConceptPage({
           {!concept.conceptHideSections?.includes("pricing") && (
             <section
               id="pricing"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+              className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
             >
               <div className="flex items-start gap-3">
                 <div
@@ -1118,7 +1118,7 @@ export default async function PublicConceptPage({
           {!concept.conceptHideSections?.includes("next-steps") && (
             <section
               id="next-steps"
-              className="bg-white rounded-xl shadow-sm p-6 space-y-6 scroll-mt-8"
+              className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
             >
               <div className="flex items-start gap-3">
                 <div
