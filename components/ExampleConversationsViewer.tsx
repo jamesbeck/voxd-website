@@ -112,7 +112,11 @@ export default function ExampleConversationsViewer({
             >
               <span
                 className="inline-flex items-center justify-center h-[18px] w-[18px] rounded-full text-white text-[10px] font-bold align-middle mr-1.5"
-                style={{ backgroundColor: brandColor, position: "relative", top: "-2px" }}
+                style={{
+                  backgroundColor: brandColor,
+                  position: "relative",
+                  top: "-2px",
+                }}
               >
                 {index + 1}
               </span>
@@ -137,10 +141,7 @@ export default function ExampleConversationsViewer({
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
             {conversations.map((conversation, index) => (
-              <div
-                key={conversation.id}
-                className="flex-[0_0_100%] min-w-0"
-              >
+              <div key={conversation.id} className="flex-[0_0_100%] min-w-0">
                 {/* Title above sim */}
                 <div className="text-center mb-3 px-2">
                   <p className="text-sm font-medium text-gray-700 line-clamp-2">

@@ -31,10 +31,10 @@ export async function generateMetadata({
   const ogImage = example.heroImageFileExtension
     ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}_og.${example.heroImageFileExtension}`
     : example.logoFileExtension
-    ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`
-    : example.partner.domain && example.partner.logoFileExtension
-    ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
-    : null;
+      ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`
+      : example.partner.domain && example.partner.logoFileExtension
+        ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
+        : null;
 
   // Get current host from request headers
   const headersList = await headers();
