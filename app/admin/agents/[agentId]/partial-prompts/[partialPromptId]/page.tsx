@@ -96,7 +96,7 @@ export default async function Page({
                     label: "Created",
                     value: format(
                       new Date(partialPrompt.createdAt),
-                      "dd/MM/yyyy HH:mm"
+                      "dd/MM/yyyy HH:mm",
                     ),
                     icon: <Calendar className="h-4 w-4" />,
                   },
@@ -104,19 +104,13 @@ export default async function Page({
                     label: "Updated",
                     value: format(
                       new Date(partialPrompt.updatedAt),
-                      "dd/MM/yyyy HH:mm"
+                      "dd/MM/yyyy HH:mm",
                     ),
                     icon: <Calendar className="h-4 w-4" />,
                   },
                 ].filter(Boolean) as DataItem[]
               }
             />
-            <div className="mt-6">
-              <H2>Text</H2>
-              <div className="bg-muted p-4 rounded-lg whitespace-pre-wrap font-mono text-sm">
-                {partialPrompt.text}
-              </div>
-            </div>
           </Container>
         </TabsContent>
 

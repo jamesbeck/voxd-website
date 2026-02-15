@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import saUpdatePartialPrompt from "@/actions/saUpdatePartialPrompt";
-import { Textarea } from "@/components/ui/textarea";
+import { SimpleMarkdownEditor } from "@/components/SimpleMarkdownEditor";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -91,10 +91,7 @@ export default function EditPartialPromptForm({
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 max-w-xl"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="name"
@@ -121,10 +118,10 @@ export default function EditPartialPromptForm({
             <FormItem>
               <FormLabel>Text</FormLabel>
               <FormControl>
-                <Textarea
+                <SimpleMarkdownEditor
+                  value={field.value}
+                  onChange={field.onChange}
                   placeholder="Enter the prompt text here..."
-                  rows={10}
-                  {...field}
                 />
               </FormControl>
               <FormDescription>
