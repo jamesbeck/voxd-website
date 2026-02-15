@@ -74,6 +74,8 @@ export default async function Page({
                   organisationId={organisation.id}
                   name={organisation.name}
                   webAddress={organisation.webAddress}
+                  isSuperAdmin={token.superAdmin}
+                  currentPartnerId={organisation.partnerId ?? null}
                 />
               )}
             </div>

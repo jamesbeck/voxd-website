@@ -28,17 +28,20 @@ import {
   UserCog,
   ExternalLink,
   Copy,
+  CopyPlus,
   RotateCcw,
   RotateCw,
   Undo2,
   XCircle,
 } from "lucide-react";
 import ChangeOwnerDialog from "./ChangeOwnerDialog";
+import CloneQuoteDialog from "./CloneQuoteDialog";
 
 export default function QuoteActions({
   quoteId,
   shortLinkId,
   name,
+  organisationName,
   status,
   canDelete,
   createdByAdminUserId,
@@ -47,6 +50,7 @@ export default function QuoteActions({
   quoteId: string;
   shortLinkId: string;
   name: string;
+  organisationName: string;
   status: string;
   canDelete: boolean;
   createdByAdminUserId: string | null;
@@ -65,6 +69,7 @@ export default function QuoteActions({
   const [isClosingLost, setIsClosingLost] = useState(false);
   const [isReopening, setIsReopening] = useState(false);
   const [changeOwnerOpen, setChangeOwnerOpen] = useState(false);
+  const [cloneDialogOpen, setCloneDialogOpen] = useState(false);
 
   const router = useRouter();
 
@@ -409,6 +414,7 @@ export default function QuoteActions({
             <Copy className="h-4 w-4 mr-2" />
             Copy Proposal Link
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           {canReturnToDraft && (
             <>
               <DropdownMenuSeparator />
@@ -500,7 +506,6 @@ export default function QuoteActions({
           </Alert>
           {canReopen && (
             <>
-              <DropdownMenuSeparator />
               <Alert
                 title="Re-open Quote"
                 description="Are you sure you want to re-open this quote? This will set the quote back to 'Proposal with Client' status."
@@ -522,6 +527,14 @@ export default function QuoteActions({
               </Alert>
             </>
           )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={() => setCloneDialogOpen(true)}
+            className="cursor-pointer"
+          >
+            <CopyPlus className="h-4 w-4 mr-2" />
+            Clone to Organisation
+          </DropdownMenuItem>
           {canDelete && (
             <>
               <DropdownMenuSeparator />
@@ -562,6 +575,14 @@ export default function QuoteActions({
         createdByAdminUserId={createdByAdminUserId}
         open={changeOwnerOpen}
         onOpenChange={setChangeOwnerOpen}
+      />
+
+      <CloneQuoteDialog
+        quoteId={quoteId}
+        quoteName={name}
+        organisationName={organisationName}
+        open={cloneDialogOpen}
+        onOpenChange={setCloneDialogOpen}
       />
     </div>
   );

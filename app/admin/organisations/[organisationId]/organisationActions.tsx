@@ -10,6 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 import saDeleteOrganisation from "@/actions/saDeleteOrganisation";
 import { saUpdateOrganisation } from "@/actions/saUpdateOrganisation";
 import { saSyncOrganisationFromWebsite } from "@/actions/saSyncOrganisationFromWebsite";
+import MoveToPartnerDialog from "./MoveToPartnerDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +36,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  ArrowRightLeftIcon,
   MoreHorizontalIcon,
   PencilIcon,
   RefreshCwIcon,
@@ -53,10 +55,14 @@ export default function OrganisationActions({
   organisationId,
   name,
   webAddress,
+  isSuperAdmin = false,
+  currentPartnerId = null,
 }: {
   organisationId: string;
   name: string;
   webAddress?: string;
+  isSuperAdmin?: boolean;
+  currentPartnerId?: string | null;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -64,6 +70,7 @@ export default function OrganisationActions({
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [moveToPartnerDialogOpen, setMoveToPartnerDialogOpen] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -86,7 +93,7 @@ export default function OrganisationActions({
     if (!response.success) {
       setIsUpdating(false);
       toast.error(
-        response.error || "There was an error updating the organisation"
+        response.error || "There was an error updating the organisation",
       );
 
       if (response.error) {
@@ -121,7 +128,7 @@ export default function OrganisationActions({
       toast.error(
         `Error Deleting Organisation: ${
           saResponse.error || "There was an error deleting the organisation"
-        }`
+        }`,
       );
       setIsDeleting(false);
       return;
@@ -145,7 +152,7 @@ export default function OrganisationActions({
 
     if (!response.success) {
       setSyncError(
-        response.error || "There was an error syncing from the website"
+        response.error || "There was an error syncing from the website",
       );
       setIsSyncing(false);
       return;
@@ -188,6 +195,14 @@ export default function OrganisationActions({
                 )}
                 Re-sync from Website
               </DropdownMenuItem>
+              {isSuperAdmin && (
+                <DropdownMenuItem
+                  onSelect={() => setMoveToPartnerDialogOpen(true)}
+                >
+                  <ArrowRightLeftIcon className="h-4 w-4" />
+                  Move to Partner
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <Alert
                 destructive
@@ -282,15 +297,15 @@ export default function OrganisationActions({
               {isSyncing
                 ? "Analysing Website"
                 : syncError
-                ? "Sync Failed"
-                : "Sync Complete"}
+                  ? "Sync Failed"
+                  : "Sync Complete"}
             </DialogTitle>
             <DialogDescription>
               {isSyncing
                 ? "Analysing the organisation's website to gather information..."
                 : syncError
-                ? syncError
-                : "Website analysis complete."}
+                  ? syncError
+                  : "Website analysis complete."}
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center justify-center py-4">
@@ -309,6 +324,13 @@ export default function OrganisationActions({
           </div>
         </DialogContent>
       </Dialog>
+
+      <MoveToPartnerDialog
+        organisationId={organisationId}
+        currentPartnerId={currentPartnerId}
+        open={moveToPartnerDialogOpen}
+        onOpenChange={setMoveToPartnerDialogOpen}
+      />
     </>
   );
 }

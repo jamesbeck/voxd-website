@@ -149,6 +149,7 @@ export default async function Page({
                   quoteId={quote.id}
                   shortLinkId={quote.shortLinkId}
                   name={quote.title}
+                  organisationName={quote.organisationName}
                   status={quote.status}
                   canDelete={isSuperAdmin || isOwnerPartner}
                   createdByAdminUserId={quote.createdByAdminUserId}

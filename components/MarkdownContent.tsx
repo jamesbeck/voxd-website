@@ -6,9 +6,14 @@ import { cn } from "@/lib/utils";
 interface MarkdownContentProps {
   content: string;
   className?: string;
+  brandColor?: string;
 }
 
-export function MarkdownContent({ content, className }: MarkdownContentProps) {
+export function MarkdownContent({
+  content,
+  className,
+  brandColor,
+}: MarkdownContentProps) {
   // Replace em dashes with spaced hyphens for better readability
   const processedContent = content.replace(/—/g, " - ");
 
@@ -23,7 +28,10 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-xl font-semibold text-gray-900 mt-5 mb-3 first:mt-0">
+            <h2
+              className="text-xl font-semibold text-gray-900 mt-5 mb-3 first:mt-0 border-l-4 pl-3"
+              style={{ borderLeftColor: brandColor || "var(--color-primary)" }}
+            >
               {children}
             </h2>
           ),

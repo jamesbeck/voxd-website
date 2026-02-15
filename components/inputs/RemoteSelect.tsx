@@ -246,6 +246,7 @@ export const RemoteSelect = React.forwardRef<
         <PopoverContent
           className="w-[var(--radix-popover-trigger-width)] p-0"
           align="start"
+          onWheel={(e) => e.stopPropagation()}
         >
           <Command
             shouldFilter={false}

@@ -337,7 +337,10 @@ export default async function PublicConceptPage({
                 }}
               >
                 <div className="prose prose-gray prose-sm max-w-none">
-                  <MarkdownContent content={concept.conceptPersonalMessage} />
+                  <MarkdownContent
+                    content={concept.conceptPersonalMessage}
+                    brandColor={brandColor}
+                  />
                 </div>
                 {concept.createdBy?.name && (
                   <p className="mt-4 text-gray-600 font-medium text-sm">
@@ -354,6 +357,7 @@ export default async function PublicConceptPage({
                 <div className="prose prose-gray max-w-none">
                   <MarkdownContent
                     content={concept.generatedConceptIntroduction}
+                    brandColor={brandColor}
                   />
                 </div>
               ) : (
@@ -428,7 +432,10 @@ export default async function PublicConceptPage({
             <div className="space-y-6">
               {concept.generatedConcept ? (
                 <div className="prose prose-gray max-w-none">
-                  <MarkdownContent content={concept.generatedConcept} />
+                  <MarkdownContent
+                    content={concept.generatedConcept}
+                    brandColor={brandColor}
+                  />
                 </div>
               ) : (
                 <p className="text-gray-500 italic">
