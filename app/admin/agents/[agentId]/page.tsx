@@ -33,6 +33,7 @@ import {
   FileText,
 } from "lucide-react";
 import ModelTab from "./modelTab";
+import JsonConfigEditor from "./JsonConfigEditor";
 
 export default async function Page({
   params,
@@ -114,6 +115,13 @@ export default async function Page({
                     Partial Prompts
                   </Link>
                 </TabsTrigger>
+                {!!token.superAdmin && (
+                  <TabsTrigger value="config" asChild>
+                    <Link href={`/admin/agents/${agentId}?tab=config`}>
+                      Config
+                    </Link>
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               {!!token.superAdmin && (
@@ -297,6 +305,26 @@ export default async function Page({
                     Create a new partial prompt for this agent.
                   </p>
                   <NewPartialPromptForm agentId={agentId} />
+                </Container>
+              </TabsContent>
+            )}
+            {!!token.superAdmin && (
+              <TabsContent value="config">
+                <Container>
+                  <H2>Agent Config</H2>
+                  {agent.config ? (
+                    <JsonConfigEditor
+                      agentId={agentId}
+                      initialData={agent.config}
+                    />
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-muted-foreground">
+                        No config stored for this agent.
+                      </p>
+                      <JsonConfigEditor agentId={agentId} initialData={{}} />
+                    </div>
+                  )}
                 </Container>
               </TabsContent>
             )}
