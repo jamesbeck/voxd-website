@@ -130,6 +130,7 @@ export default async function Page({
                   name={agent?.name || ""}
                   niceName={agent?.niceName || ""}
                   phoneNumber={agent?.phoneNumber || ""}
+                  organisationId={agent?.organisationId || ""}
                   tickets={tickets || []}
                 />
               )}

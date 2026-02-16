@@ -15,8 +15,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FlagIcon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import {
+  CopyIcon,
+  FlagIcon,
+  MoreHorizontalIcon,
+  Trash2Icon,
+} from "lucide-react";
 import Link from "next/link";
+import CloneAgentDialog from "./CloneAgentDialog";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
@@ -48,17 +54,20 @@ export default function AgentActions({
   name,
   niceName,
   phoneNumber,
+  organisationId,
   tickets,
 }: {
   agentId: string;
   name: string;
   niceName: string;
   phoneNumber: string;
+  organisationId: string;
   tickets: AgentTicket[];
 }) {
   const [isDeletingAgent, setIsDeletingAgent] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [cloneDialogOpen, setCloneDialogOpen] = useState(false);
   const qrRef = useRef<SVGSVGElement>(null);
 
   const router = useRouter();
@@ -86,7 +95,7 @@ export default function AgentActions({
       downloadLink.href = pngUrl;
       downloadLink.download = `${(niceName || name).replace(
         /[^a-z0-9]/gi,
-        "_"
+        "_",
       )}_whatsapp_qr.png`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
@@ -106,7 +115,7 @@ export default function AgentActions({
       toast.error(
         `Error Deleting Agent: ${
           saResponse.error || "There was an error deleting the agent"
-        }`
+        }`,
       );
       setIsDeletingAgent(false);
       return;
@@ -165,6 +174,10 @@ export default function AgentActions({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
+                <DropdownMenuItem onSelect={() => setCloneDialogOpen(true)}>
+                  <CopyIcon className="mr-2 h-4 w-4" />
+                  Clone Agent
+                </DropdownMenuItem>
                 <Alert
                   destructive
                   title={`Delete ${name}`}
@@ -190,6 +203,15 @@ export default function AgentActions({
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
         agentId={agentId}
+      />
+
+      <CloneAgentDialog
+        agentId={agentId}
+        name={name}
+        niceName={niceName}
+        organisationId={organisationId}
+        open={cloneDialogOpen}
+        onOpenChange={setCloneDialogOpen}
       />
 
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
