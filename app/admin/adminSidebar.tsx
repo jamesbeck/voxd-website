@@ -44,6 +44,11 @@ import {
 import { ChevronUp, User2 } from "lucide-react";
 import logout from "@/actions/saLogout";
 import { Roles } from "@/types/types";
+import { UserAgent } from "@/actions/saGetUserAgents";
+import {
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+} from "@/components/ui/sidebar";
 
 type MenuItem = {
   roles?: Roles[];
@@ -145,11 +150,13 @@ export default function AdminSidebar({
   email,
   superAdmin,
   partner,
+  agents = [],
   logoUrl,
 }: {
   email?: string;
   superAdmin?: boolean;
   partner?: boolean;
+  agents?: UserAgent[];
   logoUrl?: string;
 }) {
   const userRoles: Roles[] = [];
@@ -181,6 +188,10 @@ export default function AdminSidebar({
                 ) {
                   return null;
                 }
+
+                const showAgentSubItems =
+                  item.title === "Agents" && agents.length > 0;
+
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
@@ -189,6 +200,19 @@ export default function AdminSidebar({
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
+                    {showAgentSubItems && (
+                      <SidebarMenuSub>
+                        {agents.map((agent) => (
+                          <SidebarMenuSubItem key={agent.id}>
+                            <SidebarMenuSubButton asChild>
+                              <Link href={`/admin/agents/${agent.id}`}>
+                                <span>{agent.name}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    )}
                   </SidebarMenuItem>
                 );
               })}

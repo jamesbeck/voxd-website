@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import saGetUserAgents from "@/actions/saGetUserAgents";
 
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
@@ -33,6 +34,7 @@ export default async function RootLayout({
 }>) {
   const partner = await getPartnerFromHeaders();
   const accessToken = await verifyAccessToken();
+  const userAgents = await saGetUserAgents();
 
   return (
     <SidebarProvider>
@@ -45,6 +47,7 @@ export default async function RootLayout({
             email={accessToken?.email}
             superAdmin={accessToken?.superAdmin}
             partner={accessToken?.partner}
+            agents={userAgents}
             logoUrl={
               partner?.domain && partner?.logoFileExtension
                 ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}.${partner?.logoFileExtension}`
