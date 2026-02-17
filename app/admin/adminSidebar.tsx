@@ -206,7 +206,7 @@ export default function AdminSidebar({
                           <SidebarMenuSubItem key={agent.id}>
                             <SidebarMenuSubButton asChild>
                               <Link href={`/admin/agents/${agent.id}`}>
-                                <span>{agent.name}</span>
+                                <span>{agent.niceName || agent.name}</span>
                               </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>

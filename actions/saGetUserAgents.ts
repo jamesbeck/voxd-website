@@ -6,6 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 export type UserAgent = {
   id: string;
   name: string;
+  niceName: string | null;
 };
 
 const saGetUserAgents = async (): Promise<UserAgent[]> => {
@@ -16,7 +17,7 @@ const saGetUserAgents = async (): Promise<UserAgent[]> => {
   }
 
   const agents = await db("agent")
-    .select("agent.id", "agent.name")
+    .select("agent.id", "agent.name", "agent.niceName")
     .where("agent.organisationId", accessToken.organisationId)
     .orderBy("agent.name", "asc");
 
