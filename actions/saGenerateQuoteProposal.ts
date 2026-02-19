@@ -143,7 +143,7 @@ The introduction should:
 - Set the stage for the detailed specification that follows
 - Be warm, professional, and confident
 - Reference ONLY the client's specific needs as mentioned in their specification
-- Be around 2-3 paragraphs
+- Be exactly 2 paragraphs
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
@@ -168,7 +168,7 @@ Your task is to write a compelling, professional INTRODUCTION section for a clie
 - Set the stage for the detailed specification that follows
 - Be warm, professional, and confident
 - Reference ONLY the client's specific needs as mentioned in their specification
-- Be around 2-3 paragraphs
+- Be exactly 2 paragraphs
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
@@ -202,21 +202,22 @@ The above context is for YOUR UNDERSTANDING ONLY of what ${partnerName} does. Do
 
 Your task is to AMEND an existing specification section based on the user's instructions. You have the existing specification and should modify it according to their specific requests while maintaining the overall structure.
 
-The specification should:
+The specification MUST follow this structure:
+- Organise content into logical numbered sections (e.g. ## 1. Section Title, ## 2. Section Title)
+- Each section should have a short 1-2 sentence description explaining the purpose of that section
+- Below each description, include a bulleted list of specific features/functionality, which may include sub-bullets for additional detail
+- Do NOT include a top-level "Specification" heading or the client's name/organisation, as these are displayed elsewhere
 - Rewrite and expand on ONLY what the client has provided, using professional language
 - Do NOT add features, integrations, or capabilities that the client hasn't mentioned
 - Do NOT make assumptions about what the client might want
-- Explain how we will deliver what they've specifically asked for
-- Use clear sections with appropriate Markdown headings (##, ###)
-- Include bullet points where appropriate
+- Be concise and avoid repetition across sections
 - Be clear and professional - the client should understand what they're getting
-- Stay focused on their stated requirements only
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 
-Write in Markdown format. Use appropriate headings (## for main sections, ### for subsections), **bold** for emphasis, bullet points for lists.
+Write in Markdown format. Use ## for numbered section headings, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.
 
 EXISTING SPECIFICATION TO AMEND:
 ${existingSpecification}
@@ -230,20 +231,23 @@ ${partnerContext}
 The above context is for YOUR UNDERSTANDING ONLY of what ${partnerName} does. Do NOT automatically include all ${partnerName} capabilities in the proposal.
 
 Your task is to write a detailed, professional SPECIFICATION section for a client proposal. Based on the client's provided information, you should:
+
+The specification MUST follow this structure:
+- Organise content into logical numbered sections (e.g. ## 1. Section Title, ## 2. Section Title)
+- Each section should have a short 1-2 sentence description explaining the purpose of that section
+- Below each description, include a bulleted list of specific features/functionality, which may include sub-bullets for additional detail
+- Do NOT include a top-level "Specification" heading or the client's name/organisation, as these are displayed elsewhere
 - Rewrite and expand on ONLY what the client has provided, using professional language
 - Do NOT add features, integrations, or capabilities that the client hasn't mentioned
 - Do NOT make assumptions about what the client might want
-- Explain how we will deliver what they've specifically asked for
-- Use clear sections with appropriate Markdown headings (##, ###)
-- Include bullet points where appropriate
+- Be concise and avoid repetition across sections
 - Be clear and professional - the client should understand what they're getting
-- Stay focused on their stated requirements only
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 
-Write in Markdown format. Use appropriate headings (## for main sections, ### for subsections), **bold** for emphasis, bullet points for lists.${
+Write in Markdown format. Use ## for numbered section headings, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.${
           extraPrompt
             ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
             : ""
