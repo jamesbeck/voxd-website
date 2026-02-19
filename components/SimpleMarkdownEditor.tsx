@@ -47,7 +47,7 @@ export function SimpleMarkdownEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 [&_p]:mb-4 [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:mb-2 [&_h3]:text-xl [&_h3]:font-semibold [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-1",
+          "prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 [&_p]:mb-4 [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:mb-2 [&_h3]:text-xl [&_h3]:font-semibold [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-1 [&_ul_ul]:list-[circle] [&_ul_ul]:mt-1 [&_ul_ul]:mb-1 [&_ul_ul_ul]:list-[square]",
       },
     },
     onUpdate: ({ editor }) => {
@@ -190,22 +190,56 @@ export function SimpleMarkdownEditor({
   );
 }
 
+// Recursively convert a <ul> HTML string to markdown with indentation
+function convertUlToMarkdown(ulHtml: string, depth: number = 0): string {
+  const lines: string[] = [];
+  const indent = "  ".repeat(depth);
+
+  // Match each <li>...</li> including nested content
+  const liRegex = /<li>([\s\S]*?)<\/li>/g;
+  let liMatch;
+
+  while ((liMatch = liRegex.exec(ulHtml)) !== null) {
+    let liContent = liMatch[1];
+
+    // Check for nested <ul> inside this <li>
+    const nestedUlIndex = liContent.indexOf("<ul>");
+    if (nestedUlIndex !== -1) {
+      // Get the text before the nested <ul>
+      const textBefore = liContent.substring(0, nestedUlIndex).trim();
+      lines.push(`${indent}- ${textBefore}`);
+      // Extract the nested <ul>...</ul> and recursively process
+      const nestedUlMatch = liContent.match(/<ul>([\s\S]*)<\/ul>/);
+      if (nestedUlMatch) {
+        lines.push(convertUlToMarkdown(nestedUlMatch[0], depth + 1));
+      }
+    } else {
+      lines.push(`${indent}- ${liContent.trim()}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 // Simple HTML to Markdown conversion
 function htmlToMarkdown(html: string): string {
   let markdown = html;
 
   // Convert bullet lists first (before processing inline elements)
-  markdown = markdown.replace(/<ul>[\s\S]*?<\/ul>/g, (match) => {
-    const items = match.match(/<li>([\s\S]*?)<\/li>/g) || [];
-    return (
-      items
-        .map((item: string) => {
-          const content = item.replace(/<\/?li>/g, "").trim();
-          return "- " + content;
-        })
-        .join("\n") + "\n\n"
-    );
-  });
+  // Match outermost <ul>...</ul> blocks (not nested ones, those are handled recursively)
+  markdown = markdown.replace(
+    /<ul>([\s\S]*?)<\/ul>(?![\s\S]*?<\/li>)/g,
+    (match) => {
+      return convertUlToMarkdown(match) + "\n\n";
+    },
+  );
+
+  // Fallback: handle any remaining <ul> blocks that weren't caught
+  while (markdown.includes("<ul>")) {
+    markdown = markdown.replace(/<ul>([\s\S]*?)<\/ul>/g, (match) => {
+      return convertUlToMarkdown(match) + "\n\n";
+    });
+  }
 
   // Convert headings
   markdown = markdown.replace(/<h2>(.*?)<\/h2>/g, "## $1\n\n");
@@ -227,6 +261,13 @@ function htmlToMarkdown(html: string): string {
   return markdown;
 }
 
+// Get the indentation level of a markdown list line (number of 2-space indents)
+function getListIndent(line: string): number {
+  const match = line.match(/^(\s*)- /);
+  if (!match) return -1;
+  return Math.floor(match[1].length / 2);
+}
+
 // Simple Markdown to HTML conversion
 function markdownToHtml(markdown: string): string {
   if (!markdown) return "";
@@ -239,31 +280,56 @@ function markdownToHtml(markdown: string): string {
   // Convert italic (but not if it's a bullet marker)
   html = html.replace(/(?<!\*)\*(?!\*)([^*]+?)\*(?!\*)/g, "<em>$1</em>");
 
-  // Process lists: find consecutive lines starting with "- "
+  // Process lists with nested indentation support
   const lines = html.split("\n");
   const processed: string[] = [];
-  let inList = false;
+  let currentDepth = -1; // -1 means not in a list
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const indent = getListIndent(line);
 
-    if (line.trim().startsWith("- ")) {
-      const content = line.trim().substring(2); // Remove "- "
-      if (!inList) {
+    if (indent >= 0) {
+      const content = line.replace(/^\s*- /, "");
+
+      if (currentDepth === -1) {
+        // Start a new list
         processed.push("<ul>");
-        inList = true;
+        currentDepth = 0;
       }
+
+      if (indent > currentDepth) {
+        // Open nested lists for each level deeper
+        for (let d = currentDepth; d < indent; d++) {
+          processed.push("<ul>");
+        }
+      } else if (indent < currentDepth) {
+        // Close nested lists and their parent <li> for each level shallower
+        for (let d = currentDepth; d > indent; d--) {
+          processed.push("</ul>");
+        }
+      }
+
+      currentDepth = indent;
       processed.push(`<li>${content}</li>`);
     } else {
-      if (inList) {
+      // Close all open lists
+      if (currentDepth >= 0) {
+        for (let d = currentDepth; d > 0; d--) {
+          processed.push("</ul>");
+        }
         processed.push("</ul>");
-        inList = false;
+        currentDepth = -1;
       }
       processed.push(line);
     }
   }
 
-  if (inList) {
+  // Close any remaining open lists
+  if (currentDepth >= 0) {
+    for (let d = currentDepth; d > 0; d--) {
+      processed.push("</ul>");
+    }
     processed.push("</ul>");
   }
 
@@ -282,7 +348,8 @@ function markdownToHtml(markdown: string): string {
         !block ||
         block.startsWith("<h") ||
         block.startsWith("<ul") ||
-        block.includes("</ul>")
+        block.includes("</ul>") ||
+        block.includes("<li>")
       ) {
         return block;
       }

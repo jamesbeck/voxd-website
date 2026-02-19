@@ -46,12 +46,25 @@ export function MarkdownContent({
               {children}
             </p>
           ),
-          // Lists
-          ul: ({ children }) => (
-            <ul className="list-disc list-outside ml-6 mb-4 space-y-2 text-gray-600">
-              {children}
-            </ul>
-          ),
+          // Lists - nested ul gets different bullet styles via CSS on wrapper
+          ul: ({ children, node }) => {
+            // Check if this ul is nested inside a li (i.e. it's a sub-list)
+            const isNested =
+              node?.position?.start?.column && node.position.start.column > 1;
+            return (
+              <ul
+                className={cn(
+                  "list-outside text-gray-600",
+                  isNested
+                    ? "ml-5 mb-1 mt-1 space-y-1"
+                    : "list-disc ml-6 mb-4 space-y-2",
+                )}
+                style={isNested ? { listStyleType: "circle" } : undefined}
+              >
+                {children}
+              </ul>
+            );
+          },
           ol: ({ children }) => (
             <ol className="list-decimal list-outside ml-6 mb-4 space-y-2 text-gray-600">
               {children}
