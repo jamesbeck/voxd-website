@@ -2,7 +2,6 @@ import db from "../database/db";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
 import { z } from "zod";
-import { emitEvent } from "@/lib/events/eventEmitter";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 /**
@@ -35,11 +34,6 @@ export async function generateExampleConversation({
       .first();
     if (!example) {
       await markError(conversationId, "Example not found");
-      emitEvent(adminUserId, {
-        type: "conversation.error",
-        conversationId,
-        error: "Example not found",
-      });
       throw new Error("Example not found");
     }
 
@@ -68,11 +62,6 @@ export async function generateExampleConversation({
       .first();
     if (!quote) {
       await markError(conversationId, "Quote not found");
-      emitEvent(adminUserId, {
-        type: "conversation.error",
-        conversationId,
-        error: "Quote not found",
-      });
       throw new Error("Quote not found");
     }
     openAiApiKey = quote.openAiApiKey;
@@ -94,11 +83,6 @@ ${quote.otherNotes || "Not specified"}
 
   if (!openAiApiKey) {
     await markError(conversationId, "No API key configured");
-    emitEvent(adminUserId, {
-      type: "conversation.error",
-      conversationId,
-      error: "No OpenAI API key configured",
-    });
     throw new Error("No OpenAI API key configured");
   }
 
@@ -259,20 +243,9 @@ ${quote.otherNotes || "Not specified"}
     await db("exampleConversation")
       .where("id", conversationId)
       .update({ generating: false });
-
-    // Emit success event
-    emitEvent(adminUserId, {
-      type: "conversation.generated",
-      conversationId,
-    });
   } catch (error) {
     console.error("Error generating conversation:", error);
     await markError(conversationId, "Failed to generate");
-    emitEvent(adminUserId, {
-      type: "conversation.error",
-      conversationId,
-      error: "Failed to generate conversation",
-    });
     throw error;
   }
 }

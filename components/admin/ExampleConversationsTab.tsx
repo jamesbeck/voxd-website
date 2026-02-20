@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -36,6 +35,8 @@ import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConv
 import saUpdateExampleConversation from "@/actions/saUpdateExampleConversation";
 import saReorderExampleConversations from "@/actions/saReorderExampleConversations";
 import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
+import saPollExampleConversations from "@/actions/saPollExampleConversations";
+import type { PollConversationResult } from "@/actions/saPollExampleConversations";
 import saUploadConversationMessageImage from "@/actions/saUploadConversationMessageImage";
 import WhatsAppSim from "@/components/whatsAppSim";
 import {
@@ -260,7 +261,6 @@ export default function ExampleConversationsTab({
   );
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const pendingImageIndexRef = useRef<number | null>(null);
-  const router = useRouter();
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Set origin on mount
@@ -270,18 +270,60 @@ export default function ExampleConversationsTab({
 
   // Poll for updates when there are generating conversations
   useEffect(() => {
-    if (generatingIds.length > 0) {
-      // Start polling every 5 seconds
-      pollIntervalRef.current = setInterval(() => {
-        router.refresh();
-      }, 5000);
-    } else {
-      // Stop polling when no conversations are generating
+    if (generatingIds.length === 0) {
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
         pollIntervalRef.current = null;
       }
+      return;
     }
+
+    const poll = async () => {
+      const result = await saPollExampleConversations({
+        conversationIds: generatingIds,
+      });
+
+      if (!result.success || !result.data) return;
+
+      const polled = result.data as PollConversationResult[];
+      const completedIds: string[] = [];
+
+      for (const conv of polled) {
+        if (!conv.generating && conv.messages) {
+          completedIds.push(conv.id);
+
+          // Check if it was an error
+          if (conv.description?.startsWith("Error:")) {
+            toast.error(conv.description);
+          }
+
+          // Update the conversation in local state with full data
+          setConversations((prev) =>
+            prev.map((c) =>
+              c.id === conv.id
+                ? {
+                    ...c,
+                    generating: false,
+                    description: conv.description ?? c.description,
+                    startTime: conv.startTime ?? c.startTime,
+                    messages: conv.messages ?? c.messages,
+                  }
+                : c,
+            ),
+          );
+        }
+      }
+
+      if (completedIds.length > 0) {
+        setGeneratingIds((prev) =>
+          prev.filter((id) => !completedIds.includes(id)),
+        );
+      }
+    };
+
+    // Poll immediately, then every 3 seconds
+    poll();
+    pollIntervalRef.current = setInterval(poll, 3000);
 
     return () => {
       if (pollIntervalRef.current) {
@@ -289,20 +331,7 @@ export default function ExampleConversationsTab({
         pollIntervalRef.current = null;
       }
     };
-  }, [generatingIds.length, router]);
-
-  // Sync local state with props when they change
-  useEffect(() => {
-    setConversations(initialConversations);
-    // Update generatingIds based on refreshed data
-    setGeneratingIds((prev) => {
-      const stillGenerating = initialConversations
-        .filter((c) => c.generating)
-        .map((c) => c.id);
-      // Keep IDs that are still generating according to new data
-      return prev.filter((id) => stillGenerating.includes(id));
-    });
-  }, [initialConversations]);
+  }, [generatingIds]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -467,13 +496,15 @@ export default function ExampleConversationsTab({
     setDeleting(false);
     setDeleteId(null);
 
+    // Remove from local state
+    setConversations((prev) => prev.filter((c) => c.id !== deleteId));
+    setGeneratingIds((prev) => prev.filter((id) => id !== deleteId));
+
     // If we deleted the selected conversation, select the first remaining one
     if (selectedConversationId === deleteId) {
       const remaining = conversations.filter((c) => c.id !== deleteId);
       setSelectedConversationId(remaining.length > 0 ? remaining[0].id : null);
     }
-
-    router.refresh();
   };
 
   const openEditDialog = (conversation: ExampleConversation) => {
@@ -517,8 +548,22 @@ export default function ExampleConversationsTab({
 
     toast.success("Conversation saved");
     setSaving(false);
+
+    // Update conversation in local state
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === editConversation.id
+          ? {
+              ...c,
+              description: editDescription,
+              startTime: editStartTime,
+              messages: editMessages,
+            }
+          : c,
+      ),
+    );
+
     closeEditDialog();
-    router.refresh();
   };
 
   const updateMessage = (
