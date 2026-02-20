@@ -14,14 +14,14 @@ const blockSchema = z.object({
       title: z
         .string()
         .describe(
-          "A short descriptive title for this knowledge block (max 100 chars)"
+          "A short descriptive title for this knowledge block (max 100 chars)",
         ),
       content: z
         .string()
         .describe(
-          "The knowledge block content. Should be 300-1500 characters, self-contained and coherent"
+          "The knowledge block content. Should be 300-1500 characters, self-contained and coherent",
         ),
-    })
+    }),
   ),
 });
 
@@ -42,7 +42,7 @@ const saSmartImportKnowledgeBlocks = async ({
     .select(
       "knowledgeDocument.*",
       "agent.openAiApiKey",
-      "model.model as modelName"
+      "model.model as modelName",
     )
     .first();
 
@@ -60,8 +60,8 @@ const saSmartImportKnowledgeBlocks = async ({
     };
   }
 
-  // Use agent's configured model or fallback to gpt-4o-mini
-  const modelName = document.modelName || "gpt-4o-mini";
+  // Use agent's configured model or fallback to gpt-5.2
+  const modelName = document.modelName || "gpt-5.2";
 
   const openai = createOpenAI({ apiKey: document.openAiApiKey });
 
@@ -119,7 +119,7 @@ ${text}`,
     const result = await embedMany({
       model: openai.embedding("text-embedding-3-small"),
       values: blocks.map((b) =>
-        b.title ? `${b.title}\n\n${b.content}` : b.content
+        b.title ? `${b.title}\n\n${b.content}` : b.content,
       ),
     });
     embeddings = result.embeddings;

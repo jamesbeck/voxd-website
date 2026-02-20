@@ -6,6 +6,27 @@ import * as cheerio from "cheerio";
 import db from "../database/db";
 import sharp from "sharp";
 
+/** Headers that mimic a real browser to avoid WAF/CDN 403 blocks */
+const BROWSER_HEADERS: Record<string, string> = {
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  Accept:
+    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+  "Accept-Language": "en-GB,en;q=0.9,en-US;q=0.8",
+  "Accept-Encoding": "gzip, deflate, br",
+  "Cache-Control": "no-cache",
+  Pragma: "no-cache",
+  "Sec-Ch-Ua":
+    '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+  "Sec-Ch-Ua-Mobile": "?0",
+  "Sec-Ch-Ua-Platform": '"Windows"',
+  "Sec-Fetch-Dest": "document",
+  "Sec-Fetch-Mode": "navigate",
+  "Sec-Fetch-Site": "none",
+  "Sec-Fetch-User": "?1",
+  "Upgrade-Insecure-Requests": "1",
+};
+
 export interface SyncOrganisationFromWebsiteResult {
   success: boolean;
   about?: string;
@@ -125,7 +146,7 @@ const syncOrganisationFromWebsite = async ({
  */
 async function getAboutSummary(
   apiKey: string,
-  url: string
+  url: string,
 ): Promise<string | null> {
   const openai = new OpenAI({ apiKey });
 
@@ -172,18 +193,17 @@ If you cannot access the website or find relevant information, explain what the 
 }
 
 /**
- * Fetches the homepage HTML and uses GPT to find the logo URL
+ * Fetches the homepage HTML and uses multiple strategies to find the logo URL.
+ * Priority: 1) JSON-LD structured data, 2) Deterministic HTML heuristics, 3) GPT fallback
  */
 async function findLogoUrl(
   apiKey: string,
-  url: string
+  url: string,
 ): Promise<string | null> {
   // Fetch the homepage HTML
   const response = await fetch(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    },
+    headers: BROWSER_HEADERS,
+    redirect: "follow",
   });
 
   if (!response.ok) {
@@ -192,6 +212,185 @@ async function findLogoUrl(
 
   const html = await response.text();
 
+  // Strategy 1: Try JSON-LD structured data (most reliable, no AI needed)
+  const structuredDataLogo = findLogoFromStructuredData(html, url);
+  if (structuredDataLogo) {
+    return structuredDataLogo;
+  }
+
+  // Strategy 2: Try deterministic HTML heuristics (no AI needed)
+  const htmlLogo = findLogoFromHtml(html, url);
+  if (htmlLogo) {
+    return htmlLogo;
+  }
+
+  // Strategy 3: Fall back to GPT analysis
+  return findLogoWithGpt(apiKey, url, html);
+}
+
+/**
+ * Extracts logo URL from JSON-LD structured data (schema.org).
+ * Common on WordPress/Yoast sites and many modern websites.
+ */
+function findLogoFromStructuredData(
+  html: string,
+  baseUrl: string,
+): string | null {
+  const $ = cheerio.load(html);
+  const logoUrls: string[] = [];
+
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const jsonText = $(el).html();
+      if (!jsonText) return;
+      const data = JSON.parse(jsonText);
+      extractLogoUrlsFromJsonLd(data, logoUrls);
+    } catch {
+      // Skip malformed JSON-LD blocks
+    }
+  });
+
+  // Return the first valid image URL found
+  for (const logoUrl of logoUrls) {
+    const resolved = resolveUrl(logoUrl, baseUrl);
+    if (resolved && isImageUrl(resolved)) {
+      return resolved;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Recursively searches a JSON-LD object for logo URLs.
+ * Handles both "logo": "url" and "logo": { "url": "..." } formats,
+ * as well as @graph arrays.
+ */
+function extractLogoUrlsFromJsonLd(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any,
+  results: string[],
+): void {
+  if (!data || typeof data !== "object") return;
+
+  // Handle @graph arrays
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      extractLogoUrlsFromJsonLd(item, results);
+    }
+    return;
+  }
+
+  // Check for logo property
+  if (data.logo) {
+    if (typeof data.logo === "string") {
+      results.push(data.logo);
+    } else if (typeof data.logo === "object") {
+      if (data.logo.url) results.push(data.logo.url);
+      if (data.logo.contentUrl) results.push(data.logo.contentUrl);
+    }
+  }
+
+  // Recurse into nested objects (e.g. @graph, publisher, etc.)
+  for (const key of Object.keys(data)) {
+    if (key === "logo") continue; // Already handled above
+    if (typeof data[key] === "object" && data[key] !== null) {
+      extractLogoUrlsFromJsonLd(data[key], results);
+    }
+  }
+}
+
+/**
+ * Uses deterministic HTML heuristics to find the logo.
+ * Looks for img/a elements with "logo" in class/alt/src attributes,
+ * filtering out favicons and tiny icons.
+ */
+function findLogoFromHtml(html: string, baseUrl: string): string | null {
+  const $ = cheerio.load(html);
+  const candidates: { url: string; score: number }[] = [];
+
+  // Look for img elements with "logo" in their attributes
+  $(
+    'img[class*="logo" i], img[alt*="logo" i], img[src*="logo" i], img[data-src*="logo" i]',
+  ).each((_, el) => {
+    const src = $(el).attr("src") || $(el).attr("data-src");
+    if (!src) return;
+
+    const resolved = resolveUrl(src, baseUrl);
+    if (!resolved || !isImageUrl(resolved)) return;
+
+    // Skip favicons and tiny icons
+    if (isFaviconOrIcon(resolved, el, $)) return;
+
+    let score = 0;
+
+    // Higher score for "custom-logo" class (WordPress standard)
+    const className = $(el).attr("class") || "";
+    if (/custom-logo|site-logo|brand-logo/i.test(className)) score += 3;
+    if (/logo/i.test(className)) score += 2;
+
+    // Higher score if alt text contains the site name
+    const alt = $(el).attr("alt") || "";
+    if (alt && alt.length > 0 && /logo/i.test(alt)) score += 1;
+
+    // Higher score if inside header or nav
+    if (
+      $(el).closest('header, nav, [class*="header" i], [class*="navbar" i]')
+        .length > 0
+    ) {
+      score += 2;
+    }
+
+    // Higher score if wrapped in a home link
+    const parentLink = $(el).closest('a[href="/"], a[rel="home"]');
+    if (parentLink.length > 0) score += 2;
+
+    candidates.push({ url: resolved, score });
+  });
+
+  // Sort by score descending and return the best candidate
+  candidates.sort((a, b) => b.score - a.score);
+
+  // Only return if we have a reasonably confident match (score >= 3)
+  if (candidates.length > 0 && candidates[0].score >= 3) {
+    return candidates[0].url;
+  }
+
+  return null;
+}
+
+/**
+ * Checks if a URL/element looks like a favicon or tiny icon rather than a logo.
+ */
+function isFaviconOrIcon(
+  url: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  el: any,
+  $: cheerio.CheerioAPI,
+): boolean {
+  const lowerUrl = url.toLowerCase();
+  if (/favicon|\bicon\b/i.test(lowerUrl)) return true;
+
+  // Check for very small dimensions in the URL (e.g. 32x32, 16x16)
+  if (/(?:^|[^\d])(?:16|32|48)x(?:16|32|48)(?:[^\d]|$)/.test(lowerUrl))
+    return true;
+
+  // Check width/height attributes
+  const width = parseInt($(el).attr("width") || "0", 10);
+  const height = parseInt($(el).attr("height") || "0", 10);
+  if (width > 0 && width < 50 && height > 0 && height < 50) return true;
+
+  return false;
+}
+
+/**
+ * Falls back to GPT to analyze HTML and find the logo URL.
+ */
+async function findLogoWithGpt(
+  apiKey: string,
+  url: string,
+  html: string,
+): Promise<string | null> {
   // Extract only the relevant parts of the HTML for logo finding
   const relevantHtml = extractLogoRelevantHtml(html);
 
@@ -199,18 +398,27 @@ async function findLogoUrl(
   const openai = new OpenAI({ apiKey });
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-5.2",
     messages: [
       {
         role: "system",
         content: `You are an expert at analyzing HTML to find logo images. Your task is to find the organisation's main logo URL from the provided HTML snippets.
 
 The HTML has been pre-processed to include only relevant sections:
+- JSON-LD structured data (schema.org)
 - Meta tags (og:image, twitter:image, icons)
 - Header section
 - Elements with "logo" in their class, id, alt, or src attributes
 
-Look for the main company logo (not favicons unless nothing else is available).
+Priority order for identifying the logo:
+1. JSON-LD structured data "logo" property
+2. Images with "logo" in class/alt/src inside header or nav
+3. Images with "custom-logo" or "site-logo" class
+4. Other images with "logo" in their attributes
+5. og:image ONLY if it appears to be a logo (not a photo)
+
+Do NOT select og:image if it appears to be a photograph or banner image.
+Do NOT select favicons or tiny icons unless nothing else is available.
 
 Return ONLY the absolute URL of the logo image, nothing else. If the URL is relative, convert it to absolute using the base URL.
 If you cannot find a suitable logo, return exactly: null`,
@@ -240,6 +448,17 @@ Find the logo URL:`,
     new URL(result);
     return result;
   } catch {
+    // Try to extract a URL from the response text (GPT sometimes adds explanation)
+    const urlMatch = result.match(/https?:\/\/[^\s"'<>]+/i);
+    if (urlMatch) {
+      try {
+        new URL(urlMatch[0]);
+        return urlMatch[0];
+      } catch {
+        // fall through
+      }
+    }
+
     // If it's a relative URL, try to make it absolute
     try {
       const absoluteUrl = new URL(result, url).href;
@@ -251,19 +470,43 @@ Find the logo URL:`,
 }
 
 /**
+ * Resolves a URL (potentially relative) against a base URL.
+ * Returns null if the URL is invalid.
+ */
+function resolveUrl(url: string, baseUrl: string): string | null {
+  try {
+    return new URL(url, baseUrl).href;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Checks if a URL points to a common image format.
+ */
+function isImageUrl(url: string): boolean {
+  const pathname = new URL(url).pathname.toLowerCase();
+  return /\.(png|jpg|jpeg|gif|svg|webp|ico|avif)$/i.test(pathname);
+}
+
+/**
  * Downloads an image from a URL and uploads it to Wasabi storage
  * Returns both the file extension and whether the logo needs a dark background
  */
 async function downloadAndUploadLogo(
   organisationId: string,
-  logoUrl: string
+  logoUrl: string,
 ): Promise<{ extension: string; needsDarkBackground: boolean } | undefined> {
   // Fetch the image
   const response = await fetch(logoUrl, {
     headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      ...BROWSER_HEADERS,
+      Accept:
+        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      "Sec-Fetch-Dest": "image",
+      "Sec-Fetch-Mode": "no-cors",
     },
+    redirect: "follow",
   });
   if (!response.ok) {
     throw new Error(`Failed to fetch logo: ${response.status}`);
@@ -320,7 +563,7 @@ async function downloadAndUploadLogo(
       ACL: "public-read",
       ContentType: getContentType(ext),
       CacheControl: "public, max-age=31536000",
-    })
+    }),
   );
 
   return { extension: ext, needsDarkBackground };
@@ -335,7 +578,7 @@ function extractLogoRelevantHtml(html: string): string {
 
   // 1. Extract meta tags for og:image, twitter:image
   const metaTags = $(
-    'meta[property="og:image"], meta[name="twitter:image"], meta[property="og:logo"]'
+    'meta[property="og:image"], meta[name="twitter:image"], meta[property="og:logo"]',
   );
   if (metaTags.length > 0) {
     parts.push("<!-- Meta tags -->");
@@ -346,12 +589,24 @@ function extractLogoRelevantHtml(html: string): string {
 
   // 2. Extract link tags for icons/favicons
   const linkTags = $(
-    'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]'
+    'link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]',
   );
   if (linkTags.length > 0) {
     parts.push("\n<!-- Link/icon tags -->");
     linkTags.each((_, el) => {
       parts.push($.html(el));
+    });
+  }
+
+  // 2.5. Extract JSON-LD structured data (often contains explicit logo declarations)
+  const jsonLdScripts = $('script[type="application/ld+json"]');
+  if (jsonLdScripts.length > 0) {
+    parts.push("\n<!-- JSON-LD structured data -->");
+    jsonLdScripts.each((_, el) => {
+      const content = $(el).html();
+      if (content && content.length < 5000) {
+        parts.push(content);
+      }
     });
   }
 
@@ -367,7 +622,7 @@ function extractLogoRelevantHtml(html: string): string {
 
   // 4. Extract any elements with "logo" in class, id, alt, or src
   const logoElements = $(
-    '[class*="logo" i], [id*="logo" i], [alt*="logo" i], [src*="logo" i], [data-src*="logo" i]'
+    '[class*="logo" i], [id*="logo" i], [alt*="logo" i], [src*="logo" i], [data-src*="logo" i]',
   );
   if (logoElements.length > 0) {
     parts.push("\n<!-- Elements with 'logo' in attributes -->");
@@ -392,7 +647,7 @@ function extractLogoRelevantHtml(html: string): string {
 
   // 6. Look for SVGs that might be logos (in nav or header areas)
   const navSvgs = $(
-    "nav svg, header svg, [class*='brand'] svg, [class*='navbar'] svg"
+    "nav svg, header svg, [class*='brand'] svg, [class*='navbar'] svg",
   ).slice(0, 5);
   if (navSvgs.length > 0) {
     parts.push("\n<!-- SVGs in nav/header -->");
@@ -451,7 +706,7 @@ function getContentType(ext: string): string {
  */
 async function analyzeLogoBackground(
   buffer: Buffer,
-  extension: string
+  extension: string,
 ): Promise<boolean> {
   try {
     const image = sharp(buffer);
