@@ -15,7 +15,6 @@ import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
-import saGenerateExampleConversationById from "@/actions/saGenerateExampleConversationById";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -64,18 +63,16 @@ export default function GenereateExampleForm({
 
     const conversationId = createResponse.data.conversationIds[0];
 
-    // Generate the conversation content
-    const generateResponse = await saGenerateExampleConversationById({
-      conversationId,
+    // Fire off generation via API route (doesn't block server action queue)
+    fetch("/api/generate-conversation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId }),
+    }).catch((error) => {
+      console.error("Background generation error:", error);
     });
 
-    if (!generateResponse.success) {
-      toast.error(generateResponse.error || "Failed to generate conversation");
-      setLoading(false);
-      return;
-    }
-
-    toast.success("Conversation generated successfully");
+    toast.success("Generating conversation...");
     router.push(`/admin/examples/${exampleId}`);
     setLoading(false);
   }

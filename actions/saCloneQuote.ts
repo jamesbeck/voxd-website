@@ -7,7 +7,6 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { createQuoteOgWithLogo } from "@/lib/createQuoteOgWithLogo";
-import saGenerateExampleConversationById from "./saGenerateExampleConversationById";
 
 const cloneQuoteSchema = z.object({
   quoteId: z.string().min(1, "Quote ID is required"),
@@ -124,6 +123,7 @@ const saCloneQuote = async (input: {
     const openAiApiKey = sourceQuote.openAiApiKey;
 
     // --- AI rewriting ---
+    let rewrittenTitle = sourceQuote.title;
     let rewrittenObjectives = sourceQuote.objectives;
     let rewrittenDataSources = sourceQuote.dataSourcesAndIntegrations;
     let rewrittenOtherNotes = sourceQuote.otherNotes;
@@ -132,11 +132,19 @@ const saCloneQuote = async (input: {
     let rewrittenProposalIntro = null as string | null;
     let rewrittenSpecification = null as string | null;
 
+    const nameSubstitutionPrompt = `You are a helpful assistant. Your task is to take the provided text and replace any mentions of the organisation "${sourceOrgName}" with "${targetOrgName}". This includes:
+- The full organisation name ("${sourceOrgName}")
+- Any abbreviated or shortened forms of the name
+- Any obvious references, nicknames, or domain names that clearly refer to "${sourceOrgName}"
+
+Do not change anything else about the text - keep all other content, formatting, and structure exactly as it is. If the organisation name does not appear in the text in any form, return the text unchanged. Return only the updated text with no preamble or explanation.`;
+
     if (openAiApiKey) {
       const openai = createOpenAI({ apiKey: openAiApiKey });
 
-      // Simple name substitution for objectives, dataSources, otherNotes
+      // Name substitution for title, objectives, dataSources, otherNotes
       const fieldsToSubstitute = [
+        { value: sourceQuote.title, label: "title" },
         { value: sourceQuote.objectives, label: "objectives" },
         {
           value: sourceQuote.dataSourcesAndIntegrations,
@@ -150,9 +158,10 @@ const saCloneQuote = async (input: {
           try {
             const { text } = await generateText({
               model: openai("gpt-5.2"),
-              system: `You are a helpful assistant. Your task is to take the provided text and replace any mentions of "${sourceOrgName}" with "${targetOrgName}". Do not change anything else about the text - keep all other content, formatting, and structure exactly as it is. If the organisation name does not appear in the text, return the text unchanged. Return only the updated text with no preamble or explanation.`,
+              system: nameSubstitutionPrompt,
               prompt: field.value,
             });
+            if (field.label === "title") rewrittenTitle = text;
             if (field.label === "objectives") rewrittenObjectives = text;
             if (field.label === "dataSourcesAndIntegrations")
               rewrittenDataSources = text;
@@ -293,7 +302,7 @@ ${rewriteContext}`,
       .insert({
         organisationId: targetOrganisationId,
         status: "Draft",
-        title: sourceQuote.title,
+        title: rewrittenTitle,
         background: newBackground,
         objectives: rewrittenObjectives,
         dataSourcesAndIntegrations: rewrittenDataSources,
@@ -345,39 +354,49 @@ ${rewriteContext}`,
       console.error("Failed to generate OG image for cloned quote:", err);
     });
 
-    // --- Re-create example conversations (fire-and-forget) ---
+    // --- Re-create example conversations as pending rows ---
+    const pendingConversationIds: string[] = [];
     if (sourceConversations.length > 0) {
-      (async () => {
-        try {
-          for (const conv of sourceConversations) {
-            // Insert pending conversation
-            const [newConv] = await db("exampleConversation")
-              .insert({
-                quoteId: newQuoteId,
-                prompt: conv.prompt,
-                description: "Generating...",
-                startTime: "--:--",
-                messages: JSON.stringify([]),
-                generating: true,
-                order: conv.order,
-              })
-              .returning("id");
-
-            // Trigger generation (this handles image generation internally)
-            await saGenerateExampleConversationById({
-              conversationId: newConv.id,
+      for (const conv of sourceConversations) {
+        // Rewrite conversation prompt to replace source org name
+        let rewrittenPrompt = conv.prompt;
+        if (openAiApiKey && conv.prompt) {
+          try {
+            const openai = createOpenAI({ apiKey: openAiApiKey });
+            const { text } = await generateText({
+              model: openai("gpt-5.2"),
+              system: nameSubstitutionPrompt,
+              prompt: conv.prompt,
             });
+            rewrittenPrompt = text;
+          } catch (err) {
+            console.error(
+              "Error rewriting conversation prompt during clone:",
+              err,
+            );
           }
-        } catch (err) {
-          console.error(
-            "Error generating example conversations for cloned quote:",
-            err,
-          );
         }
-      })();
+
+        const [newConv] = await db("exampleConversation")
+          .insert({
+            quoteId: newQuoteId,
+            prompt: rewrittenPrompt,
+            description: "Generating...",
+            startTime: "--:--",
+            messages: JSON.stringify([]),
+            generating: true,
+            order: conv.order,
+          })
+          .returning("id");
+
+        pendingConversationIds.push(newConv.id);
+      }
     }
 
-    return { success: true, data: { id: newQuoteId } };
+    return {
+      success: true,
+      data: { id: newQuoteId, pendingConversationIds },
+    };
   } catch (error: any) {
     console.error("Error cloning quote:", error);
     return {

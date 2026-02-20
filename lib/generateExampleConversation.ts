@@ -1,37 +1,28 @@
-"use server";
-
 import db from "../database/db";
-import { ServerActionResponse } from "@/types/types";
-import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateObject } from "ai";
+import { generateObject, generateText } from "ai";
 import { z } from "zod";
 import { emitEvent } from "@/lib/events/eventEmitter";
-import saGenerateConversationImages from "./saGenerateConversationImages";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-const saGenerateExampleConversationById = async ({
+/**
+ * Core logic for generating an example conversation.
+ * Extracted from server action so it can be called from API routes
+ * and other server-side code without blocking the server action queue.
+ */
+export async function generateExampleConversation({
   conversationId,
+  adminUserId,
 }: {
   conversationId: string;
-}): Promise<ServerActionResponse> => {
-  if (!conversationId) {
-    return { success: false, error: "Conversation ID is required" };
-  }
-
-  const accessToken = await verifyAccessToken();
-  if (!accessToken.superAdmin && !accessToken.partner) {
-    return {
-      success: false,
-      error: "Only partners and super admins can generate conversations",
-    };
-  }
-
+  adminUserId: string;
+}) {
   const conversation = await db("exampleConversation")
     .where("id", conversationId)
     .first();
 
   if (!conversation) {
-    return { success: false, error: "Conversation not found" };
+    throw new Error("Conversation not found");
   }
 
   let openAiApiKey: string | null = null;
@@ -44,31 +35,23 @@ const saGenerateExampleConversationById = async ({
       .first();
     if (!example) {
       await markError(conversationId, "Example not found");
-      emitEvent(accessToken.adminUserId, {
+      emitEvent(adminUserId, {
         type: "conversation.error",
         conversationId,
         error: "Example not found",
       });
-      return { success: false, error: "Example not found" };
+      throw new Error("Example not found");
     }
-    if (accessToken.partner && !accessToken.superAdmin) {
-      if (example.partnerId !== accessToken.partnerId) {
-        await markError(conversationId, "Permission denied");
-        emitEvent(accessToken.adminUserId, {
-          type: "conversation.error",
-          conversationId,
-          error: "Permission denied",
-        });
-        return { success: false, error: "Permission denied" };
-      }
-    }
-    if (accessToken.partnerId) {
+
+    // Get partner's API key via example
+    if (example.partnerId) {
       const partner = await db("partner")
-        .where("id", accessToken.partnerId)
+        .where("id", example.partnerId)
         .select("openAiApiKey")
         .first();
       openAiApiKey = partner?.openAiApiKey || null;
     }
+
     context = example.body || "No specification provided";
     businessName = example.businessName || "the business";
   } else if (conversation.quoteId) {
@@ -85,24 +68,12 @@ const saGenerateExampleConversationById = async ({
       .first();
     if (!quote) {
       await markError(conversationId, "Quote not found");
-      emitEvent(accessToken.adminUserId, {
+      emitEvent(adminUserId, {
         type: "conversation.error",
         conversationId,
         error: "Quote not found",
       });
-      return { success: false, error: "Quote not found" };
-    }
-    const isSuperAdmin = accessToken.superAdmin;
-    const isOwnerPartner =
-      accessToken.partner && accessToken.partnerId === quote.partnerId;
-    if (!isSuperAdmin && !isOwnerPartner) {
-      await markError(conversationId, "Permission denied");
-      emitEvent(accessToken.adminUserId, {
-        type: "conversation.error",
-        conversationId,
-        error: "Permission denied",
-      });
-      return { success: false, error: "Permission denied" };
+      throw new Error("Quote not found");
     }
     openAiApiKey = quote.openAiApiKey;
     context = `
@@ -123,12 +94,12 @@ ${quote.otherNotes || "Not specified"}
 
   if (!openAiApiKey) {
     await markError(conversationId, "No API key configured");
-    emitEvent(accessToken.adminUserId, {
+    emitEvent(adminUserId, {
       type: "conversation.error",
       conversationId,
       error: "No OpenAI API key configured",
     });
-    return { success: false, error: "No OpenAI API key configured" };
+    throw new Error("No OpenAI API key configured");
   }
 
   try {
@@ -238,6 +209,8 @@ ${quote.otherNotes || "Not specified"}
 
         The business name is "${businessName}". You can reference this name in the conversation if/when relevant.
 
+        IMPORTANT: The business the chatbot belongs to is called "${businessName}". Never mention any other company or brand name as the business the bot represents. All references to the bot's parent company must use "${businessName}".
+
         Please try to make the chat as realistic as possible. The chat bot feels very human like.
 
         Messages should be no longer than around 150 words.
@@ -276,7 +249,7 @@ ${quote.otherNotes || "Not specified"}
     );
 
     if (hasImages) {
-      await saGenerateConversationImages({
+      await generateConversationImages({
         conversationId,
         openAiApiKey: openAiApiKey!,
       });
@@ -288,23 +261,125 @@ ${quote.otherNotes || "Not specified"}
       .update({ generating: false });
 
     // Emit success event
-    emitEvent(accessToken.adminUserId, {
+    emitEvent(adminUserId, {
       type: "conversation.generated",
       conversationId,
     });
-
-    return { success: true };
   } catch (error) {
     console.error("Error generating conversation:", error);
     await markError(conversationId, "Failed to generate");
-    emitEvent(accessToken.adminUserId, {
+    emitEvent(adminUserId, {
       type: "conversation.error",
       conversationId,
       error: "Failed to generate conversation",
     });
-    return { success: false, error: "Failed to generate conversation" };
+    throw error;
   }
-};
+}
+
+async function generateConversationImages({
+  conversationId,
+  openAiApiKey,
+}: {
+  conversationId: string;
+  openAiApiKey: string;
+}) {
+  const conversation = await db("exampleConversation")
+    .where("id", conversationId)
+    .first();
+
+  if (!conversation) {
+    return;
+  }
+
+  const messages = conversation.messages || [];
+
+  // Find messages that have hasImage=true but no imageUrl yet
+  const imageMessages: { index: number; imagePrompt: string }[] = [];
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    if (msg.hasImage === true && msg.imagePrompt && !msg.imageUrl) {
+      imageMessages.push({ index: i, imagePrompt: msg.imagePrompt });
+    }
+  }
+
+  if (imageMessages.length === 0) {
+    return;
+  }
+
+  const openai = createOpenAI({ apiKey: openAiApiKey });
+
+  const s3Client = new S3Client({
+    region: process.env.WASABI_REGION || "eu-west-1",
+    endpoint: `https://s3.${
+      process.env.WASABI_REGION || "eu-west-1"
+    }.wasabisys.com`,
+    credentials: {
+      accessKeyId: process.env.WASABI_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.WASABI_SECRET_ACCESS_KEY!,
+    },
+    forcePathStyle: true,
+  });
+
+  const bucketName = process.env.WASABI_BUCKET_NAME || "voxd";
+
+  for (const { index, imagePrompt } of imageMessages) {
+    try {
+      const result = await generateText({
+        model: openai("gpt-5.2"),
+        prompt: imagePrompt,
+        tools: {
+          image_generation: openai.tools.imageGeneration({
+            outputFormat: "webp",
+            size: "1024x1024",
+          }),
+        },
+      });
+
+      let imageBase64: string | null = null;
+      for (const toolResult of result.staticToolResults) {
+        if (toolResult.toolName === "image_generation") {
+          imageBase64 = toolResult.output.result;
+          break;
+        }
+      }
+
+      if (!imageBase64) {
+        console.error(
+          `No image data received for message ${index} in conversation ${conversationId}`,
+        );
+        continue;
+      }
+
+      const buffer = Buffer.from(imageBase64, "base64");
+      const key = `exampleConversationImages/${conversationId}_${index}.webp`;
+
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+          Body: buffer,
+          ContentType: "image/webp",
+          ACL: "public-read",
+        }),
+      );
+
+      const imageUrl = `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/${bucketName}/${key}`;
+      messages[index].imageUrl = imageUrl;
+    } catch (imageError) {
+      console.error(
+        `Error generating image for message ${index} in conversation ${conversationId}:`,
+        imageError,
+      );
+    }
+  }
+
+  await db("exampleConversation")
+    .where("id", conversationId)
+    .update({
+      messages: JSON.stringify(messages),
+    });
+}
 
 async function markError(conversationId: string, message: string) {
   await db("exampleConversation")
@@ -314,5 +389,3 @@ async function markError(conversationId: string, message: string) {
       description: `Error: ${message}`,
     });
 }
-
-export default saGenerateExampleConversationById;

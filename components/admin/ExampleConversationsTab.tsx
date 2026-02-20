@@ -36,7 +36,6 @@ import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConv
 import saUpdateExampleConversation from "@/actions/saUpdateExampleConversation";
 import saReorderExampleConversations from "@/actions/saReorderExampleConversations";
 import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
-import saGenerateExampleConversationById from "@/actions/saGenerateExampleConversationById";
 import saUploadConversationMessageImage from "@/actions/saUploadConversationMessageImage";
 import WhatsAppSim from "@/components/whatsAppSim";
 import {
@@ -437,9 +436,13 @@ export default function ExampleConversationsTab({
       `Generating ${validPrompts.length} conversation${validPrompts.length > 1 ? "s" : ""}...`,
     );
 
-    // Fire off generation requests in background (no await)
+    // Fire off generation requests in background via API route (doesn't block server action queue)
     for (const conversationId of conversationIds) {
-      saGenerateExampleConversationById({ conversationId }).catch((error) => {
+      fetch("/api/generate-conversation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId }),
+      }).catch((error) => {
         console.error("Background generation error:", error);
       });
     }

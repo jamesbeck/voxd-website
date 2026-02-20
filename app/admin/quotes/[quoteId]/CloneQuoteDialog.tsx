@@ -85,6 +85,22 @@ export default function CloneQuoteDialog({
     onOpenChange(false);
     setIsCloning(false);
     router.push(`/admin/quotes/${response.data.id}`);
+
+    // Fire off background generation for cloned conversations via API route
+    const pendingIds = response.data.pendingConversationIds as
+      | string[]
+      | undefined;
+    if (pendingIds && pendingIds.length > 0) {
+      for (const conversationId of pendingIds) {
+        fetch("/api/generate-conversation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ conversationId }),
+        }).catch((error) => {
+          console.error("Background generation error:", error);
+        });
+      }
+    }
   }
 
   return (

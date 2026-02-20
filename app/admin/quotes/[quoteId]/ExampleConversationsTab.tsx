@@ -34,7 +34,6 @@ import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConv
 import saUpdateQuoteExampleConversation from "@/actions/saUpdateQuoteExampleConversation";
 import saReorderExampleConversations from "@/actions/saReorderExampleConversations";
 import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
-import saGenerateExampleConversationById from "@/actions/saGenerateExampleConversationById";
 import saUploadConversationMessageImage from "@/actions/saUploadConversationMessageImage";
 import WhatsAppSim from "@/components/whatsAppSim";
 import {
@@ -412,9 +411,15 @@ export default function ExampleConversationsTab({
     // Refresh to show the new "generating" conversations
     router.refresh();
 
-    // Kick off background generation for each conversation (fire and forget)
+    // Kick off background generation for each conversation via API route (doesn't block server action queue)
     conversationIds.forEach((conversationId) => {
-      saGenerateExampleConversationById({ conversationId });
+      fetch("/api/generate-conversation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId }),
+      }).catch((error) => {
+        console.error("Background generation error:", error);
+      });
     });
 
     toast.success(
