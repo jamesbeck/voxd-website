@@ -10,25 +10,26 @@ interface DashboardData {
 
 const saGetAgentDashboardData = async ({
   agentId,
+  from,
+  to,
 }: {
   agentId: string;
+  from: string;
+  to: string;
 }): Promise<DashboardData[]> => {
   await verifyAccessToken();
-
-  // Get user messages per day for the last 30 days
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const data = await db("userMessage")
     .join("session", "userMessage.sessionId", "session.id")
     .join("chatUser", "session.userId", "chatUser.id")
     .where("chatUser.agentId", agentId)
-    .where("userMessage.createdAt", ">=", thirtyDaysAgo)
+    .where("userMessage.createdAt", ">=", from)
+    .where("userMessage.createdAt", "<=", to)
     .select(
       db.raw(
-        'TO_CHAR(DATE("userMessage"."createdAt"), \'YYYY-MM-DD\') as date'
+        'TO_CHAR(DATE("userMessage"."createdAt"), \'YYYY-MM-DD\') as date',
       ),
-      db.raw("COUNT(*)::int as count")
+      db.raw("COUNT(*)::int as count"),
     )
     .groupBy(db.raw('DATE("userMessage"."createdAt")'))
     .orderByRaw('DATE("userMessage"."createdAt") ASC');
