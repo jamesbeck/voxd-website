@@ -29,7 +29,7 @@ const SessionsTable = ({
         <Badge
           className={cn(
             row.sessionType == "live" ? "bg-green-500" : "bg-red-500",
-            "capitalize"
+            "capitalize",
           )}
         >
           {row.sessionType}
@@ -67,7 +67,11 @@ const SessionsTable = ({
       name: "platform",
       sort: true,
       format: (row: any) => (
-        <Badge className={row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"}>
+        <Badge
+          className={
+            row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"
+          }
+        >
           {row.platform === "whatsapp" ? "WA" : "Web"}
         </Badge>
       ),
@@ -95,7 +99,7 @@ const SessionsTable = ({
         row.firstMessageAt
           ? `${format(
               row.firstMessageAt,
-              "dd/MM/yyyy HH:mm"
+              "dd/MM/yyyy HH:mm",
             )} (${formatDistance(row.firstMessageAt, new Date())})`
           : "",
     },
@@ -107,7 +111,7 @@ const SessionsTable = ({
         row.lastMessageAt
           ? `${format(row.lastMessageAt, "dd/MM/yyyy HH:mm")} (${formatDistance(
               row.lastMessageAt,
-              new Date()
+              new Date(),
             )})`
           : "",
     },

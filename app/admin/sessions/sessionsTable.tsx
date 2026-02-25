@@ -23,7 +23,7 @@ const SessionsTable = ({ superAdmin }: { superAdmin: boolean }) => {
         <Badge
           className={cn(
             row.sessionType == "live" ? "bg-green-500" : "bg-red-500",
-            "capitalize"
+            "capitalize",
           )}
         >
           {row.sessionType}
@@ -61,7 +61,11 @@ const SessionsTable = ({ superAdmin }: { superAdmin: boolean }) => {
       name: "platform",
       sort: true,
       format: (row: any) => (
-        <Badge className={row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"}>
+        <Badge
+          className={
+            row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"
+          }
+        >
           {row.platform === "whatsapp" ? "WA" : "Web"}
         </Badge>
       ),
@@ -99,7 +103,7 @@ const SessionsTable = ({ superAdmin }: { superAdmin: boolean }) => {
         row.firstMessageAt
           ? `${format(
               row.firstMessageAt,
-              "dd/MM/yyyy HH:mm"
+              "dd/MM/yyyy HH:mm",
             )} (${formatDistance(row.firstMessageAt, new Date())})`
           : "",
     },
@@ -111,7 +115,7 @@ const SessionsTable = ({ superAdmin }: { superAdmin: boolean }) => {
         row.lastMessageAt
           ? `${format(row.lastMessageAt, "dd/MM/yyyy HH:mm")} (${formatDistance(
               row.lastMessageAt,
-              new Date()
+              new Date(),
             )})`
           : "",
     },

@@ -90,7 +90,11 @@ const SessionsTable = ({
       name: "platform",
       sort: true,
       format: (row: any) => (
-        <Badge className={row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"}>
+        <Badge
+          className={
+            row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"
+          }
+        >
           {row.platform === "whatsapp" ? "WA" : "Web"}
         </Badge>
       ),

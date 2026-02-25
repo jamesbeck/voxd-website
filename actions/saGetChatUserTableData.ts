@@ -83,8 +83,8 @@ const saGetChatUserTableData = async ({
   const costSubquery = db("assistantMessage")
     .select(
       db.raw(
-        'SUM("assistantMessage"."inputCost" + "assistantMessage"."outputCost")'
-      )
+        'SUM("assistantMessage"."inputCost" + "assistantMessage"."outputCost")',
+      ),
     )
     .leftJoin("session", "assistantMessage.sessionId", "session.id")
     .leftJoin("chatUser as costUser", "session.userId", "costUser.id")
@@ -92,7 +92,7 @@ const saGetChatUserTableData = async ({
     .leftJoin(
       "organisation as costOrg",
       "costAgent.organisationId",
-      "costOrg.id"
+      "costOrg.id",
     )
     .whereRaw('"session"."userId" = "chatUser"."id"')
     .modify((qb: any) => {
@@ -122,7 +122,7 @@ const saGetChatUserTableData = async ({
       qb.where("chatUser.name", "ilike", `%${search}%`).orWhere(
         "chatUser.number",
         "ilike",
-        `%${search}%`
+        `%${search}%`,
       );
     });
   }
@@ -150,9 +150,11 @@ const saGetChatUserTableData = async ({
       db.raw(`"agent"."id" as "agentId"`),
       db.raw(`"agent"."name" as "agentName"`),
       db.raw(`"agent"."niceName" as "agentNiceName"`),
-      db.raw(`(SELECT ARRAY_AGG(DISTINCT "session"."platform") FROM "session" WHERE "session"."userId" = "chatUser"."id" AND "session"."platform" IS NOT NULL) as "platforms"`),
       db.raw(
-        `CAST(COALESCE((${costSubquery.toQuery()}), 0) AS FLOAT) as "totalCost"`
+        `(SELECT ARRAY_AGG(DISTINCT "session"."platform") FROM "session" WHERE "session"."userId" = "chatUser"."id" AND "session"."platform" IS NOT NULL) as "platforms"`,
+      ),
+      db.raw(
+        `CAST(COALESCE((${costSubquery.toQuery()}), 0) AS FLOAT) as "totalCost"`,
       ),
     ])
     .orderBy(sortField, sortDirection)

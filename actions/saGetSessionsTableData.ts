@@ -79,27 +79,27 @@ const saGetSessionsTableData = async ({
       "chatUser.name",
       "chatUser.number",
       "agent.id as agentId",
-      "agent.niceName as agentName"
+      "agent.niceName as agentName",
     )
     .select(
       db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
       db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
       db.raw('MIN("userMessage"."createdAt") as "firstMessageAt"'),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalinputTokens"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalinputTokens"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totaloutputTokens"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totaloutputTokens"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalPromptCost"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalPromptCost"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCompletionCost"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCompletionCost"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost" + "assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCost"'
-      )
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost" + "assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCost"',
+      ),
     )
     .orderBy(sortField, sortDirection)
     .limit(pageSize)

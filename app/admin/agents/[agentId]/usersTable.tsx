@@ -26,8 +26,12 @@ const usersTable = ({ agentId }: { agentId: string }) => {
       name: "platforms",
       format: (row: any) => (
         <div className="flex gap-1">
-          {row.platforms?.includes("whatsapp") && <Badge className="bg-green-500">WA</Badge>}
-          {row.platforms?.some((p: string) => p !== "whatsapp") && <Badge className="bg-gray-500">Web</Badge>}
+          {row.platforms?.includes("whatsapp") && (
+            <Badge className="bg-green-500">WA</Badge>
+          )}
+          {row.platforms?.some((p: string) => p !== "whatsapp") && (
+            <Badge className="bg-gray-500">Web</Badge>
+          )}
         </div>
       ),
     },
@@ -49,7 +53,7 @@ const usersTable = ({ agentId }: { agentId: string }) => {
         row.lastMessageAt
           ? `${format(row.lastMessageAt, "dd/MM/yyyy HH:mm")} (${formatDistance(
               row.lastMessageAt,
-              new Date()
+              new Date(),
             )})`
           : "Never",
     },
