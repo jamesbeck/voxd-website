@@ -5,6 +5,7 @@ import Link from "next/link";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 import saGetSessionTableData from "@/actions/saGetSessionsTableData";
+import { Badge } from "@/components/ui/badge";
 
 const SessionsTable = ({ userId }: { userId: string }) => {
   const columns: Column[] = [
@@ -13,6 +14,16 @@ const SessionsTable = ({ userId }: { userId: string }) => {
       name: "agentName",
       sort: true,
       linkTo: (row: any) => `/admin/agents/${row.agentId}`,
+    },
+    {
+      label: "Platform",
+      name: "platform",
+      sort: true,
+      format: (row: any) => (
+        <Badge className={row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"}>
+          {row.platform === "whatsapp" ? "WA" : "Web"}
+        </Badge>
+      ),
     },
     {
       label: "First Seen",

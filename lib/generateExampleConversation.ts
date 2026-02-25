@@ -199,6 +199,8 @@ ${quote.otherNotes || "Not specified"}
 
         Messages should be no longer than around 150 words.
 
+        When user names appear in the conversation (e.g. the user introduces themselves or the bot addresses them by name), use typical western names as our audience is primarily western. Names like James, Sarah, Tom, Emily, Michael, Sophie, etc. Occasional international names are fine for variety, but the majority should be common western names.
+
         The user will always send the first message unless specified in the scenario below. If the bot sends the first message, it's always a generic marketing message or notification that triggers a reply/conversation.
 
         Please return each message as HTML. Only use the following tags <p>, <a>, <ul>/<li>, <ol>/<li>, <b>, <i>, <br/>.

@@ -150,6 +150,7 @@ const saGetChatUserTableData = async ({
       db.raw(`"agent"."id" as "agentId"`),
       db.raw(`"agent"."name" as "agentName"`),
       db.raw(`"agent"."niceName" as "agentNiceName"`),
+      db.raw(`(SELECT ARRAY_AGG(DISTINCT "session"."platform") FROM "session" WHERE "session"."userId" = "chatUser"."id" AND "session"."platform" IS NOT NULL) as "platforms"`),
       db.raw(
         `CAST(COALESCE((${costSubquery.toQuery()}), 0) AS FLOAT) as "totalCost"`
       ),

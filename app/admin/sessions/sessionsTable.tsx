@@ -57,6 +57,16 @@ const SessionsTable = ({ superAdmin }: { superAdmin: boolean }) => {
       },
     },
     {
+      label: "Platform",
+      name: "platform",
+      sort: true,
+      format: (row: any) => (
+        <Badge className={row.platform === "whatsapp" ? "bg-green-500" : "bg-gray-500"}>
+          {row.platform === "whatsapp" ? "WA" : "Web"}
+        </Badge>
+      ),
+    },
+    {
       label: "Agent",
       name: "agentName",
       sort: true,

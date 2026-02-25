@@ -74,6 +74,7 @@ const saGetSessionsTableData = async ({
       "session.closedAt",
       "session.closedReason",
       "session.paused",
+      "session.platform",
       "chatUser.id as userId",
       "chatUser.name",
       "chatUser.number",
