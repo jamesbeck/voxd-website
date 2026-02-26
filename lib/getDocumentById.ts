@@ -8,7 +8,8 @@ const getDocumentById = async ({ documentId }: { documentId: string }) => {
       "knowledgeDocument.*",
       "agent.name as agentName",
       "agent.niceName as agentNiceName",
-      "agent.openAiApiKey"
+      "agent.openAiApiKey",
+      "agent.organisationId as organisationId",
     )
     .first();
   return document;

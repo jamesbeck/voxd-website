@@ -92,6 +92,7 @@ export default async function Page({
             documentId={documentId}
             documentTitle={document.title}
             agentId={agentId}
+            organisationId={document.organisationId}
           />
         </div>
 
