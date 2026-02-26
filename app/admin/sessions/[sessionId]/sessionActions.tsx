@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  CopyIcon,
   FlagIcon,
   MoreHorizontalIcon,
   PauseIcon,
@@ -33,6 +34,7 @@ import {
   Trash2Icon,
   XCircleIcon,
 } from "lucide-react";
+import { format } from "date-fns";
 import ReportSessionDialog from "./ReportSessionDialog";
 import SessionTicketBadge from "./SessionTicketBadge";
 
@@ -52,6 +54,7 @@ export default function SessionActions({
   paused,
   closed,
   tickets = [],
+  messages = [],
 }: {
   sessionId: string;
   agentId: string;
@@ -59,6 +62,7 @@ export default function SessionActions({
   paused: boolean;
   closed: boolean;
   tickets?: Ticket[];
+  messages?: any[];
 }) {
   const [isDeletingSession, setIsDeleteingSession] = useState(false);
   const [isPausingSession, setIsPausingSession] = useState(false);
@@ -75,7 +79,7 @@ export default function SessionActions({
       toast.error(
         `Error Deleting Session: ${
           saResponse.error || "There was an error deleting the session"
-        }`
+        }`,
       );
       setIsDeleteingSession(false);
       return;
@@ -94,7 +98,7 @@ export default function SessionActions({
       toast.error(
         `Error Pausing Session: ${
           saResponse.error || "There was an error pausing the session"
-        }`
+        }`,
       );
       setIsPausingSession(false);
       return;
@@ -113,7 +117,7 @@ export default function SessionActions({
       toast.error(
         `Error Resuming Session: ${
           saResponse.error || "There was an error resuming the session"
-        }`
+        }`,
       );
       setIsPausingSession(false);
       return;
@@ -124,6 +128,26 @@ export default function SessionActions({
     router.refresh();
   };
 
+  const copyConversation = async () => {
+    const lines = messages.map((message: any) => {
+      let label = "User";
+      if (message.role === "assistant") label = "Assistant";
+      if (message.role === "manual") {
+        label = message.apiKeyName
+          ? `Manual (API: ${message.apiKeyName})`
+          : message.userName
+            ? `Manual (${message.userName})`
+            : "Manual";
+      }
+
+      const time = format(message.createdAt, "dd/MM/yyyy HH:mm");
+      return `${label} (${time}):\n${message.text || ""}`;
+    });
+
+    await navigator.clipboard.writeText(lines.join("\n\n"));
+    toast.success("Conversation copied to clipboard");
+  };
+
   const endSession = async () => {
     setIsEndingSession(true);
     const saResponse = await saEndSession({ sessionId });
@@ -132,7 +156,7 @@ export default function SessionActions({
       toast.error(
         `Error Ending Session: ${
           saResponse.error || "There was an error ending the session"
-        }`
+        }`,
       );
       setIsEndingSession(false);
       return;
@@ -228,6 +252,22 @@ export default function SessionActions({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuGroup>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuItem onClick={copyConversation}>
+                        <CopyIcon className="h-4 w-4" />
+                        Copy Conversation
+                      </DropdownMenuItem>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">
+                      <p>Copy entire conversation to clipboard</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 {!closed && (
                   <Alert

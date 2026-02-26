@@ -148,6 +148,7 @@ export default async function Page({
               paused={session.paused}
               closed={!!session.closedAt}
               tickets={sessionTickets}
+              messages={messages}
             />
           </div>
         </div>
