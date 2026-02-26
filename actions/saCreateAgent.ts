@@ -12,7 +12,7 @@ const saCreateAgent = async ({
   niceName: string;
   openAiApiKey?: string;
 }): Promise<ServerActionResponse> => {
-  //check agent name and openAiApiKey is unique
+  //check agent name is unique
   const existingAgentByName = await db("agent")
     .select("*")
     .where(function () {
@@ -27,23 +27,16 @@ const saCreateAgent = async ({
     };
   }
 
-  const existingAgentByOpenAiApiKey = await db("agent")
-    .where(function (qb) {
-      qb.where("openAiApiKey", openAiApiKey);
-      qb.whereNotNull("openAiApiKey").andWhere("openAiApiKey", "!=", "");
-    })
-    .first();
-
-  if (existingAgentByOpenAiApiKey) {
-    return {
-      success: false,
-      error: `Agent already exists with OpenAI API Key '${openAiApiKey}'`,
-    };
-  }
-
   //create a new agent
   const [newAgent] = await db("agent")
-    .insert({ name, niceName, openAiApiKey })
+    .insert({
+      name,
+      niceName,
+      openAiApiKey,
+      targetMessageLengthCharacters: 130,
+      maxMessageHistory: 50,
+      autoCloseSessionAfterSeconds: 86400,
+    })
     .returning("*");
 
   return {

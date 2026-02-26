@@ -29,6 +29,9 @@ const formSchema = z.object({
   organisationId: z.string().nonempty("Organisation is required"),
   phoneNumberId: z.string().optional(),
   openAiApiKey: z.string().optional(),
+  targetMessageLengthCharacters: z.number().int().positive().optional(),
+  maxMessageHistory: z.number().int().positive().optional(),
+  autoCloseSessionAfterSeconds: z.number().int().positive().optional(),
 });
 
 export default function EditAgentForm({
@@ -38,6 +41,9 @@ export default function EditAgentForm({
   organisationId,
   phoneNumberId,
   openAiApiKey,
+  targetMessageLengthCharacters,
+  maxMessageHistory,
+  autoCloseSessionAfterSeconds,
 }: {
   agentId: string;
   name?: string;
@@ -45,6 +51,9 @@ export default function EditAgentForm({
   organisationId?: string;
   phoneNumberId?: string;
   openAiApiKey?: string;
+  targetMessageLengthCharacters?: number;
+  maxMessageHistory?: number;
+  autoCloseSessionAfterSeconds?: number;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -58,6 +67,9 @@ export default function EditAgentForm({
       organisationId: organisationId || "",
       phoneNumberId: phoneNumberId || "",
       openAiApiKey: openAiApiKey || "",
+      targetMessageLengthCharacters: targetMessageLengthCharacters || undefined,
+      maxMessageHistory: maxMessageHistory || undefined,
+      autoCloseSessionAfterSeconds: autoCloseSessionAfterSeconds || undefined,
     },
   });
 
@@ -72,6 +84,9 @@ export default function EditAgentForm({
       organisationId: values.organisationId,
       phoneNumberId: values.phoneNumberId,
       openAiApiKey: values.openAiApiKey,
+      targetMessageLengthCharacters: values.targetMessageLengthCharacters,
+      maxMessageHistory: values.maxMessageHistory,
+      autoCloseSessionAfterSeconds: values.autoCloseSessionAfterSeconds,
     });
 
     if (!response.success) {
@@ -195,6 +210,84 @@ export default function EditAgentForm({
               <FormLabel>OpenAI API Key</FormLabel>
               <FormControl>
                 <Input placeholder="sk-..." {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="targetMessageLengthCharacters"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Target Message Length (characters)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="130"
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : parseInt(e.target.value, 10),
+                    )
+                  }
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="maxMessageHistory"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Max Message History</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="50"
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : parseInt(e.target.value, 10),
+                    )
+                  }
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="autoCloseSessionAfterSeconds"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Auto Close Session After (seconds)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="86400"
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? undefined
+                        : parseInt(e.target.value, 10),
+                    )
+                  }
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

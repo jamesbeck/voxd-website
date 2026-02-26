@@ -11,6 +11,9 @@ const saUpdateAgent = async ({
   phoneNumberId,
   openAiApiKey,
   modelId,
+  targetMessageLengthCharacters,
+  maxMessageHistory,
+  autoCloseSessionAfterSeconds,
 }: {
   agentId: string;
   name?: string;
@@ -19,6 +22,9 @@ const saUpdateAgent = async ({
   phoneNumberId?: string;
   openAiApiKey?: string;
   modelId?: string;
+  targetMessageLengthCharacters?: number;
+  maxMessageHistory?: number;
+  autoCloseSessionAfterSeconds?: number;
 }): Promise<ServerActionResponse> => {
   if (!agentId) {
     return {
@@ -50,6 +56,9 @@ const saUpdateAgent = async ({
       phoneNumberId: phoneNumberId || null,
       openAiApiKey,
       modelId: modelId || null,
+      targetMessageLengthCharacters: targetMessageLengthCharacters ?? null,
+      maxMessageHistory: maxMessageHistory ?? null,
+      autoCloseSessionAfterSeconds: autoCloseSessionAfterSeconds ?? null,
     });
 
   return { success: true };

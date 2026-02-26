@@ -210,6 +210,13 @@ export default async function Page({
                     openAiApiKey={agent?.openAiApiKey}
                     organisationId={agent?.organisationId}
                     phoneNumberId={agent?.phoneNumberId}
+                    targetMessageLengthCharacters={
+                      agent?.targetMessageLengthCharacters
+                    }
+                    maxMessageHistory={agent?.maxMessageHistory}
+                    autoCloseSessionAfterSeconds={
+                      agent?.autoCloseSessionAfterSeconds
+                    }
                   />
                 </Container>
               </TabsContent>
