@@ -72,6 +72,8 @@ export interface ChatUser {
   id: string;
   name?: string;
   number: string;
+  email?: string;
+  externalId?: string;
   agentId: string;
   testingAgentId?: string;
   data?: Record<string, unknown>;

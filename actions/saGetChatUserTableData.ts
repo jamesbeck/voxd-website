@@ -119,11 +119,9 @@ const saGetChatUserTableData = async ({
 
   if (search) {
     base.where((qb) => {
-      qb.where("chatUser.name", "ilike", `%${search}%`).orWhere(
-        "chatUser.number",
-        "ilike",
-        `%${search}%`,
-      );
+      qb.where("chatUser.name", "ilike", `%${search}%`)
+        .orWhere("chatUser.number", "ilike", `%${search}%`)
+        .orWhere("chatUser.email", "ilike", `%${search}%`);
     });
   }
 

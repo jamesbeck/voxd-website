@@ -22,6 +22,11 @@ const usersTable = ({ agentId }: { agentId: string }) => {
       // format: (value) => value || "",
     },
     {
+      label: "Email",
+      name: "email",
+      sort: true,
+    },
+    {
       label: "Platform",
       name: "platforms",
       format: (row: any) => (
