@@ -46,20 +46,28 @@ const saUpdateAgent = async ({
     };
   }
 
-  //update the agent
-  await db("agent")
-    .where({ id: agentId })
-    .update({
-      name,
-      niceName,
-      organisationId: organisationId || null,
-      phoneNumberId: phoneNumberId || null,
-      openAiApiKey,
-      modelId: modelId || null,
-      targetMessageLengthCharacters: targetMessageLengthCharacters ?? null,
-      maxMessageHistory: maxMessageHistory ?? null,
-      autoCloseSessionAfterSeconds: autoCloseSessionAfterSeconds ?? null,
-    });
+  //update the agent - only include fields that were explicitly provided
+  const updateData: Record<string, unknown> = {};
+  if (name !== undefined) updateData.name = name;
+  if (niceName !== undefined) updateData.niceName = niceName;
+  if (organisationId !== undefined)
+    updateData.organisationId = organisationId || null;
+  if (phoneNumberId !== undefined)
+    updateData.phoneNumberId = phoneNumberId || null;
+  if (openAiApiKey !== undefined) updateData.openAiApiKey = openAiApiKey;
+  if (modelId !== undefined) updateData.modelId = modelId || null;
+  if (targetMessageLengthCharacters !== undefined)
+    updateData.targetMessageLengthCharacters =
+      targetMessageLengthCharacters ?? null;
+  if (maxMessageHistory !== undefined)
+    updateData.maxMessageHistory = maxMessageHistory ?? null;
+  if (autoCloseSessionAfterSeconds !== undefined)
+    updateData.autoCloseSessionAfterSeconds =
+      autoCloseSessionAfterSeconds ?? null;
+
+  if (Object.keys(updateData).length > 0) {
+    await db("agent").where({ id: agentId }).update(updateData);
+  }
 
   return { success: true };
 };
