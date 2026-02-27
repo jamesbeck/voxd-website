@@ -46,6 +46,7 @@ export type Column = {
 interface DataTableProps<TExtra extends object = object> {
   columns: Column[];
   actions?: (row: any) => React.ReactNode;
+  headerActions?: React.ReactNode;
   getData: (
     params: ServerActionReadParams<TExtra>,
   ) => Promise<ServerActionReadResponse>;
@@ -60,6 +61,7 @@ interface DataTableProps<TExtra extends object = object> {
 export default function DataTable<TExtra extends object = object>({
   columns,
   actions,
+  headerActions,
   getData,
   pageSize = 100,
   defaultSort,
@@ -189,15 +191,18 @@ export default function DataTable<TExtra extends object = object>({
         ) : (
           <div />
         )}
-        <Input
-          type="text"
-          placeholder="Search..."
-          onChange={(e) => {
-            setSearchValue(e.target.value);
-          }}
-          value={searchValue}
-          className="w-64"
-        />
+        <div className="flex items-center gap-2">
+          {headerActions}
+          <Input
+            type="text"
+            placeholder="Search..."
+            onChange={(e) => {
+              setSearchValue(e.target.value);
+            }}
+            value={searchValue}
+            className="w-64"
+          />
+        </div>
       </div>
       <div className="overflow-hidden rounded-md border relative">
         {loading && (

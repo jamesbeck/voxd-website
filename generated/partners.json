@@ -38,7 +38,7 @@
     "name": "BlueChilli",
     "domain": "portal.bluechilli.ai",
     "colour": "E6007E",
-    "sendEmailFromDomain": "voxd.ai",
+    "sendEmailFromDomain": "bluechilli.ai",
     "logoFileExtension": "svg",
     "salesBotName": "",
     "salesBotAgentId": null,
