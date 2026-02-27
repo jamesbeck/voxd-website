@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
   serverExternalPackages: ["knex"],
   images: {
     remotePatterns: [new URL("https://s3.eu-west-1.wasabisys.com/voxd/**")],
