@@ -1,5 +1,22 @@
 [
   {
+    "id": "019c749d-6cab-71a4-8687-af222b6582dc",
+    "name": "Bluechilli AI",
+    "domain": "portal.bluechilli.ai",
+    "colour": "E6007E",
+    "sendEmailFromDomain": "bluechilli.ai",
+    "logoFileExtension": "svg",
+    "salesBotName": "Steve",
+    "salesBotAgentId": "019cad6d-bc01-71d4-8d4b-df325f6bf4fc",
+    "legalName": "BLUECHILLI DESIGN & PRINT LIMITED",
+    "companyNumber": "06851009",
+    "registeredAddress": "Unit 29, Empire Industrial Park, Brickyard Road, Aldridge WS9 8UY",
+    "legalEmail": "karl@bluechilli.agency",
+    "goCardlessMandateLink": "",
+    "salesEmail": "karl@bluechilli.agency",
+    "accountsEmail": "karl@bluechilli.agency"
+  },
+  {
     "id": "019c50d2-0f1d-7913-9603-81046f1ad28a",
     "name": "Pricify",
     "domain": "chat.pricify.co.uk",
@@ -17,12 +34,12 @@
     "accountsEmail": "eiran@pricify.co.uk"
   },
   {
-    "id": "019c8474-4dbf-7941-bb32-b4be0b91c402",
-    "name": "Seven Communications",
-    "domain": "chat.seven-communications.com",
-    "colour": "FF4324",
-    "sendEmailFromDomain": "",
-    "logoFileExtension": "webp",
+    "id": "019cab65-678f-7596-a59c-be5d5a81142c",
+    "name": "SIDEKICK CyberOS",
+    "domain": "cyberos.sidekickventure.studio",
+    "colour": "44F676",
+    "sendEmailFromDomain": "voxd.ai",
+    "logoFileExtension": "png",
     "salesBotName": "",
     "salesBotAgentId": null,
     "legalName": "",
@@ -34,21 +51,21 @@
     "accountsEmail": ""
   },
   {
-    "id": "019c749d-6cab-71a4-8687-af222b6582dc",
-    "name": "BlueChilli",
-    "domain": "portal.bluechilli.ai",
-    "colour": "E6007E",
-    "sendEmailFromDomain": "bluechilli.ai",
-    "logoFileExtension": "svg",
+    "id": "019c8474-4dbf-7941-bb32-b4be0b91c402",
+    "name": "Seven Communications",
+    "domain": "chat.seven-communications.com",
+    "colour": "FF4324",
+    "sendEmailFromDomain": "voxd.ai",
+    "logoFileExtension": "webp",
     "salesBotName": "",
     "salesBotAgentId": null,
-    "legalName": "BLUECHILLI DESIGN & PRINT LIMITED",
-    "companyNumber": "06851009",
-    "registeredAddress": "Unit 29, Empire Industrial Park, Brickyard Road, Aldridge WS9 8UY",
+    "legalName": "",
+    "companyNumber": "",
+    "registeredAddress": "",
     "legalEmail": "",
     "goCardlessMandateLink": "",
-    "salesEmail": "",
-    "accountsEmail": ""
+    "salesEmail": null,
+    "accountsEmail": null
   },
   {
     "id": "019c6584-52a1-73b1-9b8c-15d122dde6c3",
@@ -83,6 +100,23 @@
     "goCardlessMandateLink": "https://pay.gocardless.com/BRT0004FFD8Z3JN",
     "salesEmail": "sales@voxd.ai",
     "accountsEmail": null
+  },
+  {
+    "id": "019cb3f8-a13f-77ab-9c8e-a25535a1b9e0",
+    "name": "Thrive Theory",
+    "domain": "portal.thrivetheory.co.uk",
+    "colour": "B22222",
+    "sendEmailFromDomain": "voxd.ai",
+    "logoFileExtension": "svg",
+    "salesBotName": "",
+    "salesBotAgentId": null,
+    "legalName": "Thrive Theory LTD",
+    "companyNumber": "15782970",
+    "registeredAddress": "31 Bloomsbury Street, Cheltenham, England, GL51 8PG",
+    "legalEmail": "josh@thrivetheory.co.uk",
+    "goCardlessMandateLink": "",
+    "salesEmail": "josh@thrivetheory.co.uk",
+    "accountsEmail": "josh@thrivetheory.co.uk"
   },
   {
     "id": "019bb1f6-dbc5-7266-bd2c-57aa890d776e",

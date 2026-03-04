@@ -23,7 +23,7 @@ const saGetSessionsTableData = async ({
 
   const base = db("session")
     .join("chatUser", "session.userId", "chatUser.id")
-    .join("userMessage", "session.id", "userMessage.sessionId")
+    .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .join("agent", "chatUser.agentId", "agent.id")
     .groupBy("session.id", "chatUser.id", "agent.id")
     .where((qb) => {

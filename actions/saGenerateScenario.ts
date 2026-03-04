@@ -179,7 +179,7 @@ ${quote.otherNotes || "Not specified"}
 
   try {
     const { text } = await generateText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-5.2"),
       prompt: `You are helping to generate realistic scenario descriptions for an AI WhatsApp chatbot.
 
 The business name is "${businessName}".
