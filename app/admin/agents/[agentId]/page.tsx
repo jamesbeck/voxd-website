@@ -19,6 +19,7 @@ import DocumentsCards from "./documentsCards";
 import NewDocumentForm from "./newDocumentForm";
 import PartialPromptsTable from "./partialPromptsTable";
 import NewPartialPromptForm from "./newPartialPromptForm";
+import TemplatesSentTable from "./templatesSentTable";
 import { Button } from "@/components/ui/button";
 import saGetTicketsByAgentId from "@/actions/saGetTicketsByAgentId";
 import {
@@ -104,6 +105,11 @@ export default async function Page({
                 </TabsTrigger>
                 <TabsTrigger value="users" asChild>
                   <Link href={`/admin/agents/${agentId}?tab=users`}>Users</Link>
+                </TabsTrigger>
+                <TabsTrigger value="templates-sent" asChild>
+                  <Link href={`/admin/agents/${agentId}?tab=templates-sent`}>
+                    Templates Sent
+                  </Link>
                 </TabsTrigger>
                 <TabsTrigger value="knowledge" asChild>
                   <Link href={`/admin/agents/${agentId}?tab=knowledge`}>
@@ -250,6 +256,15 @@ export default async function Page({
                   listed below.
                 </p>
                 <UsersTable agentId={agentId} />
+              </Container>
+            </TabsContent>
+            <TabsContent value="templates-sent">
+              <Container>
+                <H2>Templates Sent</H2>
+                <p className="text-muted-foreground mb-4">
+                  Template messages sent to chat users of this agent.
+                </p>
+                <TemplatesSentTable agentId={agentId} />
               </Container>
             </TabsContent>
             <TabsContent value="knowledge">
