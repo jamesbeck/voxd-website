@@ -102,7 +102,7 @@ const saGetSessionsTableData = async ({
         'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost" + "assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCost"',
       ),
     )
-    .orderBy(sortField, sortDirection)
+    .orderByRaw(`"${sortField}" ${sortDirection === "desc" ? "DESC" : "ASC"} NULLS LAST`)
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 
