@@ -50,6 +50,7 @@ const saGetTemplateSendAttemptTableData = async ({
     "templateMessageSendAttempt.createdAt",
     "chatUser.name as chatUserName",
     "chatUser.number as chatUserNumber",
+    "chatUser.email as chatUserEmail",
     "waTemplate.name as templateName",
   );
 
