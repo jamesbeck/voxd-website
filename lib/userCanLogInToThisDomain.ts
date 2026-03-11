@@ -5,16 +5,27 @@ import getPartnerFromHeaders from "./getPartnerFromHeaders";
 export default async function userCanLogInToThisDomain() {
   const idToken = await verifyIdToken();
 
-  if (!idToken) return false;
+  if (!idToken) {
+    console.log("[userCanLogInToThisDomain] FAILED: No id token found");
+    return false;
+  }
 
   const adminUser = await db("adminUser")
     .select("*")
     .whereRaw("LOWER(email) = LOWER(?)", [idToken.email])
     .first();
 
-  if (!adminUser) return false;
+  if (!adminUser) {
+    console.log(
+      `[userCanLogInToThisDomain] FAILED: No adminUser found for email: ${idToken.email}`,
+    );
+    return false;
+  }
 
   const partnerFromDomain = await getPartnerFromHeaders();
+  console.log(
+    `[userCanLogInToThisDomain] email: ${idToken.email}, partnerId: ${adminUser.partnerId}, organisationId: ${adminUser.organisationId}, superAdmin: ${adminUser.superAdmin}, partnerFromDomain: ${JSON.stringify(partnerFromDomain)}`,
+  );
 
   //if we're a partner (but not super admin), make sure they're logging in to the right domain
   if (!adminUser.superAdmin && adminUser.partnerId) {
@@ -25,6 +36,9 @@ export default async function userCanLogInToThisDomain() {
 
     //if domain doesn't match
     if (partnerFromDomain?.domain !== partnerFromToken.domain) {
+      console.log(
+        `[userCanLogInToThisDomain] FAILED: Domain mismatch for partner user. Expected: ${partnerFromToken.domain}, Got: ${partnerFromDomain?.domain}`,
+      );
       return false;
     }
   }
@@ -37,6 +51,9 @@ export default async function userCanLogInToThisDomain() {
       .first();
 
     if (organisation?.partnerId !== partnerFromDomain?.id) {
+      console.log(
+        `[userCanLogInToThisDomain] FAILED: Organisation partner mismatch. Org partnerId: ${organisation?.partnerId}, Domain partnerId: ${partnerFromDomain?.id}`,
+      );
       return false;
     }
   }
@@ -47,9 +64,13 @@ export default async function userCanLogInToThisDomain() {
     !adminUser.partnerId &&
     !adminUser.organisationId
   ) {
+    console.log(
+      `[userCanLogInToThisDomain] FAILED: User has no superAdmin, no partnerId, and no organisationId`,
+    );
     return false;
   }
 
   //if we get here they are allowed to access this domain
+  console.log(`[userCanLogInToThisDomain] SUCCESS: ${idToken.email} allowed`);
   return true;
 }

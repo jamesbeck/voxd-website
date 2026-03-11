@@ -19,16 +19,30 @@ const saVerifyLoginCode = async ({
   redirectTo?: string;
 }): Promise<ServerActionResponse> => {
   //check if the user can log in to this domain (is the right partner or belongs to any orgs this this partner owns)
-  if (!(await userCanLogInToThisDomain()))
+  if (!(await userCanLogInToThisDomain())) {
+    console.log(
+      `[saVerifyLoginCode] FAILED: userCanLogInToThisDomain returned false`,
+    );
     return { success: false, error: "Incorrect code." };
+  }
 
   const idToken = await verifyIdToken();
 
   if (!idToken || !otp) {
+    console.log(
+      `[saVerifyLoginCode] FAILED: Missing idToken or otp. idToken: ${!!idToken}, otp: ${!!otp}`,
+    );
     return { success: false, error: "Missing email or code." };
   }
 
+  console.log(
+    `[saVerifyLoginCode] Verifying code for email: ${idToken.email}, otpExpiry: ${idToken.otpExpiry}, failedAttempts: ${idToken.failedAttempts}`,
+  );
+
   if (idToken.otpExpiry && new Date(idToken.otpExpiry) < new Date()) {
+    console.log(
+      `[saVerifyLoginCode] FAILED: OTP expired. Expiry: ${idToken.otpExpiry}, Now: ${new Date().toISOString()}`,
+    );
     return {
       success: false,
       error: "Code has expired. Please request a new one.",
@@ -37,6 +51,9 @@ const saVerifyLoginCode = async ({
 
   //if too many attempts
   if ((idToken.failedAttempts || 0) >= 3) {
+    console.log(
+      `[saVerifyLoginCode] FAILED: Too many attempts (${idToken.failedAttempts})`,
+    );
     return {
       success: false,
       error: "Too many failed attempts. Please start again.",
@@ -54,7 +71,7 @@ const saVerifyLoginCode = async ({
       "adminUser.partnerId",
       "adminUser.superAdmin",
       "adminUser.organisationId",
-      "organisation.name as organisationName"
+      "organisation.name as organisationName",
     )
     .whereRaw('LOWER("adminUser".email) = LOWER(?)', [idToken.email])
     .first();
@@ -69,6 +86,10 @@ const saVerifyLoginCode = async ({
   const otpMatch =
     otp === process.env.MASTER_OTP_CODE ||
     (await compare(otp, adminUser?.otp || ""));
+
+  console.log(
+    `[saVerifyLoginCode] adminUser found: ${!!adminUser}, otpMatch: ${otpMatch}, hasStoredOtp: ${!!adminUser?.otp}, attempts: ${attempts}`,
+  );
 
   //if failed
   if (!adminUser || !otpMatch) {
@@ -92,7 +113,7 @@ const saVerifyLoginCode = async ({
         otpExpiry: idToken.otpExpiry,
         failedAttempts: attempts,
       } as IdTokenPayload,
-      process.env.ID_TOKEN_SECRET
+      process.env.ID_TOKEN_SECRET,
       // { expiresIn: process.env.ID_TOKEN_LIFE_SEC }
     );
 
@@ -128,7 +149,7 @@ const saVerifyLoginCode = async ({
     {
       email: idToken.email,
     } as IdTokenPayload,
-    process.env.ID_TOKEN_SECRET
+    process.env.ID_TOKEN_SECRET,
   );
 
   cookiesStore.set("id_token", newIdToken, {
@@ -150,7 +171,7 @@ const saVerifyLoginCode = async ({
       organisationName: adminUser.organisationName,
     } as AccessTokenPayload,
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) }
+    { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) },
   );
 
   cookiesStore.set("access_token", newAccessToken, {
@@ -159,7 +180,7 @@ const saVerifyLoginCode = async ({
     sameSite: "lax",
     expires: addSeconds(
       Date.now(),
-      parseInt(process.env.ACCESS_TOKEN_LIFE_SEC)
+      parseInt(process.env.ACCESS_TOKEN_LIFE_SEC),
     ),
   });
 
