@@ -4,6 +4,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
+import saGenerateQuoteCosting from "./saGenerateQuoteCosting";
 
 const getPartnerContext = (partnerName: string) => `## What is ${partnerName}?
 
@@ -340,6 +341,9 @@ Make sure to tailor every section to their specific industry and needs based on 
       generatedConceptIntroduction: conceptIntro,
       generatedConcept: concept,
     });
+
+    // Auto-generate costing breakdown based on the concept
+    await saGenerateQuoteCosting({ quoteId, source: "concept" });
 
     return {
       success: true,

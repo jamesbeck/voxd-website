@@ -292,6 +292,9 @@ export default async function Page({
                 buildDays={quote.buildDays}
                 freeMonthlyMinutes={quote.freeMonthlyMinutes}
                 contractLength={quote.contractLength}
+                costingBreakdown={quote.costingBreakdown}
+                hasGeneratedConcept={!!quote.generatedConcept}
+                hasGeneratedProposal={!!quote.generatedSpecification}
                 isSuperAdmin={isSuperAdmin}
                 isOwnerPartner={isOwnerPartner}
               />

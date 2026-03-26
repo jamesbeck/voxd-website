@@ -19,6 +19,32 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Input } from "@/components/ui/input";
 import saUpdateQuotePricing from "@/actions/saUpdateQuotePricing";
+import saGenerateQuoteCosting from "@/actions/saGenerateQuoteCosting";
+import { CostingBreakdown } from "@/types/types";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 const formSchema = z.object({
   setupFee: z.string(),
@@ -41,6 +67,9 @@ export default function EditPricingForm({
   buildDays,
   freeMonthlyMinutes,
   contractLength,
+  costingBreakdown,
+  hasGeneratedConcept,
+  hasGeneratedProposal,
   isSuperAdmin,
   isOwnerPartner,
 }: {
@@ -52,14 +81,52 @@ export default function EditPricingForm({
   buildDays: number | null;
   freeMonthlyMinutes: number | null;
   contractLength: number | null;
+  costingBreakdown: CostingBreakdown | null;
+  hasGeneratedConcept: boolean;
+  hasGeneratedProposal: boolean;
   isSuperAdmin: boolean;
   isOwnerPartner: boolean;
 }) {
   const [loading, setLoading] = useState(false);
+  const [calculatingCosting, setCalculatingCosting] = useState(false);
   const router = useRouter();
 
   const canEditPartnerFields = isOwnerPartner || isSuperAdmin;
   const canEditAdminFields = isSuperAdmin;
+
+  // Determine best source for costing calculation
+  const costingSource = hasGeneratedProposal
+    ? ("proposal" as const)
+    : hasGeneratedConcept
+      ? ("concept" as const)
+      : null;
+
+  async function calculateCosting() {
+    if (!costingSource) return;
+    setCalculatingCosting(true);
+    const response = await saGenerateQuoteCosting({
+      quoteId,
+      source: costingSource,
+    });
+    if (!response.success) {
+      toast.error(response.error || "Failed to calculate costing");
+    } else {
+      toast.success("Costing calculated successfully");
+      if (response.data) {
+        form.setValue(
+          "setupFeeVoxdCost",
+          response.data.setupFeeVoxdCost.toString(),
+        );
+        form.setValue(
+          "monthlyFeeVoxdCost",
+          response.data.monthlyFeeVoxdCost.toString(),
+        );
+        form.setValue("buildDays", response.data.buildDays.toString());
+      }
+      router.refresh();
+    }
+    setCalculatingCosting(false);
+  }
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -300,6 +367,145 @@ export default function EditPricingForm({
           </Button>
         )}
       </form>
+
+      {costingBreakdown && (
+        <div className="border-t pt-6 mt-8">
+          <div className="flex items-center gap-3 mb-4">
+            <h3 className="text-lg font-medium">Cost Breakdown</h3>
+            <Badge variant="secondary">
+              Calculated from {costingBreakdown.costingCalculatedFrom}
+            </Badge>
+            {costingSource && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={calculatingCosting}
+                onClick={calculateCosting}
+              >
+                {calculatingCosting && <Spinner className="mr-2" />}
+                Recalculate
+              </Button>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            {costingBreakdown.integrations.map((integration, i) => {
+              const integrationHours = integration.tasks.reduce(
+                (sum, task) => sum + task.hours,
+                0,
+              );
+              return (
+                <Card key={i}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">
+                      {integration.name}
+                    </CardTitle>
+                    <CardDescription>
+                      {integration.tasks.length} task
+                      {integration.tasks.length !== 1 ? "s" : ""} &middot;{" "}
+                      {integrationHours} hour
+                      {integrationHours !== 1 ? "s" : ""} total
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Task</TableHead>
+                          <TableHead className="text-right w-[80px]">
+                            Hours
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {integration.tasks.map((task, j) => (
+                          <TableRow key={j}>
+                            <TableCell className="font-medium">
+                              <span className="inline-flex items-center gap-1.5">
+                                {task.name}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      side="top"
+                                      className="max-w-xs text-sm"
+                                    >
+                                      {task.description}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              {task.hours}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TableCell>Subtotal</TableCell>
+                          <TableCell className="text-right font-medium">
+                            {integrationHours}h
+                          </TableCell>
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          <Card className="mt-4">
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Total Hours</p>
+                  <p className="text-2xl font-bold">
+                    {costingBreakdown.totalIntegrationTime}h
+                  </p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Setup Cost</p>
+                  <p className="text-2xl font-bold">
+                    &pound;
+                    {costingBreakdown.totalIntegrationCost.toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Monthly Cost</p>
+                  <p className="text-2xl font-bold">
+                    &pound;{costingBreakdown.totalMonthly.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {!costingBreakdown && costingSource && (
+        <div className="border-t pt-6 mt-8">
+          <h3 className="text-lg font-medium mb-2">Cost Breakdown</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            No costing breakdown yet. Calculate an estimate based on the
+            existing {costingSource}.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={calculatingCosting}
+            onClick={calculateCosting}
+          >
+            {calculatingCosting && <Spinner className="mr-2" />}
+            Calculate Costing
+          </Button>
+        </div>
+      )}
     </Form>
   );
 }

@@ -2,6 +2,7 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import saGenerateQuoteCosting from "./saGenerateQuoteCosting";
 
 const saUpdateQuoteConcept = async ({
   quoteId,
@@ -51,6 +52,14 @@ const saUpdateQuoteConcept = async ({
   }
 
   await db("quote").where({ id: quoteId }).update(updateData);
+
+  // Recalculate costing if concept content changed
+  if (
+    generatedConceptIntroduction !== undefined ||
+    generatedConcept !== undefined
+  ) {
+    await saGenerateQuoteCosting({ quoteId, source: "concept" });
+  }
 
   return { success: true };
 };

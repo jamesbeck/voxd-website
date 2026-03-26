@@ -1,4 +1,5 @@
 import db from "../database/db";
+import { CostingBreakdown } from "@/types/types";
 
 export type QuoteConversation = {
   id: string;
@@ -49,6 +50,7 @@ export type Quote = {
   buildDays: number | null;
   freeMonthlyMinutes: number | null;
   contractLength: number | null;
+  costingBreakdown: CostingBreakdown | null;
 };
 
 export const getQuoteById = async ({

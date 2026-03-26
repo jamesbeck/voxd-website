@@ -2,6 +2,7 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import saGenerateQuoteCosting from "./saGenerateQuoteCosting";
 
 const saUpdateQuoteProposal = async ({
   quoteId,
@@ -51,6 +52,14 @@ const saUpdateQuoteProposal = async ({
   }
 
   await db("quote").where({ id: quoteId }).update(updateData);
+
+  // Recalculate costing if proposal content changed
+  if (
+    generatedProposalIntroduction !== undefined ||
+    generatedSpecification !== undefined
+  ) {
+    await saGenerateQuoteCosting({ quoteId, source: "proposal" });
+  }
 
   return { success: true };
 };

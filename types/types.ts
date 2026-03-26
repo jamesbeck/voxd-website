@@ -114,6 +114,25 @@ export interface Partner {
   accountsEmail?: string;
 }
 
+export type CostingBreakdownTask = {
+  name: string;
+  hours: number;
+  description: string;
+};
+
+export type CostingBreakdownIntegration = {
+  name: string;
+  tasks: CostingBreakdownTask[];
+};
+
+export type CostingBreakdown = {
+  integrations: CostingBreakdownIntegration[];
+  totalIntegrationTime: number;
+  totalIntegrationCost: number;
+  totalMonthly: number;
+  costingCalculatedFrom: "concept" | "proposal";
+};
+
 export interface Example {
   id: string;
   partnerId: string;

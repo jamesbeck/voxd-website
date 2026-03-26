@@ -34,12 +34,12 @@
     "accountsEmail": "eiran@pricify.co.uk"
   },
   {
-    "id": "019cab65-678f-7596-a59c-be5d5a81142c",
-    "name": "SIDEKICK CyberOS",
-    "domain": "cyberos.sidekickventure.studio",
-    "colour": "44F676",
-    "sendEmailFromDomain": "voxd.ai",
-    "logoFileExtension": "png",
+    "id": "019d06dd-c519-7008-84e7-cfcf49699725",
+    "name": "Venation",
+    "domain": "venation.voxd.ai",
+    "colour": "ffb539",
+    "sendEmailFromDomain": "",
+    "logoFileExtension": "svg",
     "salesBotName": "",
     "salesBotAgentId": null,
     "legalName": "",
@@ -151,6 +151,23 @@
     "goCardlessMandateLink": null,
     "salesEmail": null,
     "accountsEmail": null
+  },
+  {
+    "id": "019cab65-678f-7596-a59c-be5d5a81142c",
+    "name": "SIDEKICK CyberOS",
+    "domain": "cyberos.sidekickventure.studio",
+    "colour": "44F676",
+    "sendEmailFromDomain": "voxd.ai",
+    "logoFileExtension": "png",
+    "salesBotName": "",
+    "salesBotAgentId": null,
+    "legalName": "",
+    "companyNumber": "",
+    "registeredAddress": "",
+    "legalEmail": "",
+    "goCardlessMandateLink": "",
+    "salesEmail": "",
+    "accountsEmail": ""
   },
   {
     "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
