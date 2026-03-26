@@ -206,7 +206,9 @@ Your task is to AMEND an existing specification section based on the user's inst
 The specification MUST follow this structure:
 - Organise content into logical numbered sections (e.g. ## 1. Section Title, ## 2. Section Title)
 - Each section should have a short 1-2 sentence description explaining the purpose of that section
-- Below each description, include a bulleted list of specific features/functionality, which may include sub-bullets for additional detail
+- Use a mix of short paragraphs and bullet points within each section — do not use only bullet lists
+- Where bullet points are used, keep lists to roughly 3 to 12 items. If a section has many features, break them into subsections using ### subtitles with shorter lists or paragraphs under each
+- Vary the structure across sections so the document feels scannable and readable, not like one continuous list
 - Do NOT include a top-level "Specification" heading or the client's name/organisation, as these are displayed elsewhere
 - Rewrite and expand on ONLY what the client has provided, using professional language
 - Do NOT add features, integrations, or capabilities that the client hasn't mentioned
@@ -218,7 +220,7 @@ The specification MUST follow this structure:
 
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 
-Write in Markdown format. Use ## for numbered section headings, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.
+Write in Markdown format. Use ## for numbered section headings, ### for subsections within numbered sections, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.
 
 EXISTING SPECIFICATION TO AMEND:
 ${existingSpecification}
@@ -236,7 +238,9 @@ Your task is to write a detailed, professional SPECIFICATION section for a clien
 The specification MUST follow this structure:
 - Organise content into logical numbered sections (e.g. ## 1. Section Title, ## 2. Section Title)
 - Each section should have a short 1-2 sentence description explaining the purpose of that section
-- Below each description, include a bulleted list of specific features/functionality, which may include sub-bullets for additional detail
+- Use a mix of short paragraphs and bullet points within each section — do not use only bullet lists
+- Where bullet points are used, keep lists to roughly 3 to 12 items. If a section has many features, break them into subsections using ### subtitles with shorter lists or paragraphs under each
+- Vary the structure across sections so the document feels scannable and readable, not like one continuous list
 - Do NOT include a top-level "Specification" heading or the client's name/organisation, as these are displayed elsewhere
 - Rewrite and expand on ONLY what the client has provided, using professional language
 - Do NOT add features, integrations, or capabilities that the client hasn't mentioned
@@ -248,7 +252,7 @@ The specification MUST follow this structure:
 
 CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
 
-Write in Markdown format. Use ## for numbered section headings, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.${
+Write in Markdown format. Use ## for numbered section headings, ### for subsections within numbered sections, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.${
           extraPrompt
             ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}`
             : ""

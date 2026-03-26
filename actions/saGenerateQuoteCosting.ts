@@ -111,9 +111,14 @@ const saGenerateQuoteCosting = async ({
   // Build existing costing context for consistency
   const existingCosting = quote.costingBreakdown as CostingBreakdown | null;
   const existingCostingContext = existingCosting
-    ? `\n\n## Existing Costing Breakdown (for consistency)
+    ? `\n\n## Previous Costing Breakdown (reference only)
 
-The following is the previous costing breakdown. You should use this as a baseline and only change what has actually changed based on the updated ${source}. Do not change estimates for integrations or functions that have not changed in the ${source}. This is to ensure pricing consistency.
+The following is the previous costing breakdown. Use it as a REFERENCE for time estimate consistency — if an integration or function still exists in the current ${source} and has not materially changed, keep the same time estimate to avoid price fluctuations.
+
+However, you MUST independently verify every item against the current ${source} text:
+- REMOVE any integrations or functions that are no longer mentioned or implied in the current ${source}
+- ADD any new integrations or functions that appear in the current ${source} but were not in the previous breakdown
+- Only the current ${source} text is the source of truth — do NOT include items just because they were in the previous breakdown
 
 \`\`\`json
 ${JSON.stringify(existingCosting.integrations, null, 2)}
@@ -157,6 +162,7 @@ IMPORTANT — Do NOT include any of the following as integrations. These are alr
 - Any infrastructure for managing the chatbot itself (hosting, deployment, monitoring, message processing, etc.)
 - The chatbot platform or management portal
 - Knowledge ingestion from URLs, PDFs, Word documents, other files, or manual user entry — this capability already exists in the platform
+- Static web scraping or content pulled from specific URLs or sets of URLs — the platform already supports ingesting content from web sources. However, if the scraping is dynamic, intricate, or requires custom logic (e.g. authenticated scraping, real-time data extraction, complex multi-page crawling), then it DOES require an integration.
 
 ONLY include integrations with the client's specific external applications, third-party services, or their tenancies with other providers (e.g. their CRM, their calendar system, their booking platform, their accounting software, etc.). Assume all core chatbot infrastructure already exists.${existingCostingContext}`;
 

@@ -237,7 +237,12 @@ IMPORTANT RULES:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-Structure the concept with clear Markdown headings (## for main sections and ### for subsections). Use bullet points where appropriate. Be enthusiastic but not pushy.
+FORMATTING RULES:
+- Structure the concept with clear Markdown headings (## for main sections and ### for subsections).
+- Use a mix of short paragraphs and bullet points. Do not rely solely on bullets — vary the format across sections.
+- No single bullet list should exceed roughly 12 items. If a topic has many points, break it into subsections using ### subtitles with shorter lists or paragraphs under each.
+- Each section should be concise and scannable — either a few short paragraphs, or a brief intro sentence followed by 3 to 12 bullet points.
+- Be enthusiastic but not pushy.
 
 EXISTING CONCEPT TO AMEND:
 ${existingConcept}
@@ -317,7 +322,12 @@ IMPORTANT RULES:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-Structure the concept with clear Markdown headings (## for main sections and ### for subsections). Use bullet points where appropriate. Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
+FORMATTING RULES:
+- Structure the concept with clear Markdown headings (## for main sections and ### for subsections).
+- Use a mix of short paragraphs and bullet points. Do not rely solely on bullets — vary the format across sections.
+- No single bullet list should exceed roughly 12 items. If a topic has many points, break it into subsections using ### subtitles with shorter lists or paragraphs under each.
+- Each section should be concise and scannable — either a few short paragraphs, or a brief intro sentence followed by 3 to 12 bullet points.
+- Be enthusiastic but not pushy. The goal is to help the client see the genuine value and potential for their specific business.
 
 Make sure to tailor every section to their specific industry and needs based on the background information provided.${extraPrompt ? `\n\nADDITIONAL INSTRUCTIONS FROM USER:\n${extraPrompt}` : ""}`;
 
