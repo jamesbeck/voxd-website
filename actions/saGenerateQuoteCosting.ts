@@ -6,6 +6,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { CostingBreakdown } from "@/types/types";
 import sendgrid from "@sendgrid/mail";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 const HOURLY_RATE = 100;
 const MONTHLY_BASE = 150;
@@ -70,6 +71,7 @@ const saGenerateQuoteCosting = async ({
       "quote.*",
       "organisation.name as organisationName",
       "partner.openAiApiKey",
+      "partner.name as partnerName",
     )
     .where({ "quote.id": quoteId })
     .first();
@@ -200,6 +202,17 @@ ONLY include integrations with the client's specific external applications, thir
     try {
       sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
+      // Get current user info
+      let userName = "System";
+      try {
+        const accessToken = await verifyAccessToken(false);
+        if (accessToken) {
+          userName = accessToken.name || accessToken.email;
+        }
+      } catch {
+        // No user context (e.g. called from background process)
+      }
+
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
       const quoteUrl = `${appUrl}/admin/quotes/${quoteId}?tab=pricing`;
 
@@ -249,6 +262,8 @@ ONLY include integrations with the client's specific external applications, thir
                     <tr>
                       <td style="padding: 0 40px 20px 40px;">
                         <p style="margin: 0 0 10px 0; color: #555555; font-size: 16px; line-height: 1.5;"><strong>${quote.title}</strong> (${quote.organisationName})</p>
+                        <p style="margin: 0 0 5px 0; color: #888888; font-size: 14px;">Partner: ${quote.partnerName || "Unknown"}</p>
+                        <p style="margin: 0 0 5px 0; color: #888888; font-size: 14px;">Triggered by: ${userName}</p>
                         <p style="margin: 0 0 20px 0; color: #888888; font-size: 14px;">Calculated from ${source}</p>
                         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                           <thead>
