@@ -260,6 +260,23 @@ ONLY include integrations with the client's specific external applications, thir
                       </td>
                     </tr>
                     <tr>
+                      <td style="padding: 0 40px 20px 40px; text-align: center;">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                          <tr>
+                            <td style="text-align: center; padding: 16px; background-color: #f0f0f0; border-radius: 6px;">
+                              <p style="margin: 0 0 4px 0; color: #888888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Setup Cost</p>
+                              <p style="margin: 0; color: #333333; font-size: 32px; font-weight: 700;">&pound;${costingBreakdown.totalIntegrationCost.toLocaleString()}</p>
+                            </td>
+                            <td style="width: 12px;"></td>
+                            <td style="text-align: center; padding: 16px; background-color: #f0f0f0; border-radius: 6px;">
+                              <p style="margin: 0 0 4px 0; color: #888888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Monthly Cost</p>
+                              <p style="margin: 0; color: #333333; font-size: 32px; font-weight: 700;">&pound;${costingBreakdown.totalMonthly.toLocaleString()}</p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
                       <td style="padding: 0 40px 20px 40px;">
                         <p style="margin: 0 0 10px 0; color: #555555; font-size: 16px; line-height: 1.5;"><strong>${quote.title}</strong> (${quote.organisationName})</p>
                         <p style="margin: 0 0 5px 0; color: #888888; font-size: 14px;">Partner: ${quote.partnerName || "Unknown"}</p>
