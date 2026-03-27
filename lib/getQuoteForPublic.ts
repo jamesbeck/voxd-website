@@ -16,6 +16,7 @@ export type PublicQuote = {
   id: string;
   title: string;
   createdAt: string;
+  shortLinkId: string;
   organisationName: string;
   organisationId: string;
   organisationLogoFileExtension: string | null;
@@ -45,6 +46,10 @@ export type PublicQuote = {
     registeredAddress: string | null;
     legalEmail: string | null;
   };
+  salesBot: {
+    name: string;
+    phoneNumber: string;
+  } | null;
   createdBy: {
     name: string | null;
     email: string | null;
@@ -70,7 +75,9 @@ export const getQuoteForPublic = async ({
   const query = db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id");
+    .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
+    .leftJoin("agent", "partner.salesBotAgentId", "agent.id")
+    .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id");
 
   // Look up by shortLinkId or quote.id depending on format
   if (isShortLink) {
@@ -84,6 +91,7 @@ export const getQuoteForPublic = async ({
       "quote.id",
       "quote.title",
       "quote.createdAt",
+      "quote.shortLinkId",
       "quote.status",
       "quote.background",
       "quote.objectives",
@@ -111,6 +119,8 @@ export const getQuoteForPublic = async ({
       "partner.companyNumber as partnerCompanyNumber",
       "partner.registeredAddress as partnerRegisteredAddress",
       "partner.legalEmail as partnerLegalEmail",
+      "partner.salesBotName",
+      "phoneNumber.displayPhoneNumber as salesBotPhoneNumber",
       "adminUser.name as createdByName",
       "adminUser.email as createdByEmail",
       "quote.signOffName",
@@ -165,6 +175,7 @@ export const getQuoteForPublic = async ({
     id: quote.id,
     title: quote.title,
     createdAt: quote.createdAt,
+    shortLinkId: quote.shortLinkId,
     organisationName: quote.organisationName,
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
@@ -195,6 +206,13 @@ export const getQuoteForPublic = async ({
       registeredAddress: quote.partnerRegisteredAddress,
       legalEmail: quote.partnerLegalEmail,
     },
+    salesBot:
+      quote.salesBotName && quote.salesBotPhoneNumber
+        ? {
+            name: quote.salesBotName,
+            phoneNumber: quote.salesBotPhoneNumber,
+          }
+        : null,
     createdBy:
       quote.createdByName || quote.createdByEmail
         ? {

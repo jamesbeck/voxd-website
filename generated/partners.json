@@ -1,22 +1,5 @@
 [
   {
-    "id": "019c749d-6cab-71a4-8687-af222b6582dc",
-    "name": "Bluechilli AI",
-    "domain": "portal.bluechilli.ai",
-    "colour": "E6007E",
-    "sendEmailFromDomain": "bluechilli.ai",
-    "logoFileExtension": "svg",
-    "salesBotName": "Steve",
-    "salesBotAgentId": "019cad6d-bc01-71d4-8d4b-df325f6bf4fc",
-    "legalName": "BLUECHILLI DESIGN & PRINT LIMITED",
-    "companyNumber": "06851009",
-    "registeredAddress": "Unit 29, Empire Industrial Park, Brickyard Road, Aldridge WS9 8UY",
-    "legalEmail": "karl@bluechilli.agency",
-    "goCardlessMandateLink": "",
-    "salesEmail": "karl@bluechilli.agency",
-    "accountsEmail": "karl@bluechilli.agency"
-  },
-  {
     "id": "019c50d2-0f1d-7913-9603-81046f1ad28a",
     "name": "Pricify",
     "domain": "chat.pricify.co.uk",
@@ -49,6 +32,23 @@
     "goCardlessMandateLink": "",
     "salesEmail": "",
     "accountsEmail": ""
+  },
+  {
+    "id": "019c749d-6cab-71a4-8687-af222b6582dc",
+    "name": "Bluechilli AI",
+    "domain": "portal.bluechilli.ai",
+    "colour": "E6007E",
+    "sendEmailFromDomain": "bluechilli.ai",
+    "logoFileExtension": "svg",
+    "salesBotName": "Blu",
+    "salesBotAgentId": "019cad6d-bc01-71d4-8d4b-df325f6bf4fc",
+    "legalName": "BLUECHILLI DESIGN & PRINT LIMITED",
+    "companyNumber": "06851009",
+    "registeredAddress": "Unit 29, Empire Industrial Park, Brickyard Road, Aldridge WS9 8UY",
+    "legalEmail": "karl@bluechilli.agency",
+    "goCardlessMandateLink": "",
+    "salesEmail": "karl@bluechilli.agency",
+    "accountsEmail": "karl@bluechilli.agency"
   },
   {
     "id": "019c8474-4dbf-7941-bb32-b4be0b91c402",

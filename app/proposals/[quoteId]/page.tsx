@@ -43,6 +43,7 @@ import { MarkdownContent } from "@/components/MarkdownContent";
 import { saRecordQuoteView } from "@/actions/saRecordQuoteView";
 import ProposalTermsSection from "./ProposalTermsSection";
 import SignContractForm from "./SignContractForm";
+import WhatsAppQRCode from "@/components/WhatsAppQRCode";
 
 export async function generateMetadata({
   params,
@@ -1022,6 +1023,40 @@ export default async function PublicQuotePage({
                 </p>
               </div>
             </div>
+
+            {quote.salesBot && (
+              <div
+                className="rounded-lg p-4 flex flex-col sm:flex-row items-center gap-4"
+                style={{ backgroundColor: `${brandColor}08` }}
+              >
+                <div
+                  className="shrink-0"
+                  title={`Scan or click to start chatting to ${quote.salesBot.name}`}
+                >
+                  <WhatsAppQRCode
+                    url={`https://wa.me/${quote.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about proposal ${quote.shortLinkId}`)}`}
+                    size={100}
+                  />
+                </div>
+                <div className="flex flex-col gap-3 text-center sm:text-left">
+                  <p className="text-gray-600 text-base">
+                    Have questions about this proposal? Chat with{" "}
+                    {quote.salesBot.name} on WhatsApp &mdash; ready to help you
+                    explore how an AI chatbot could work for your business.
+                  </p>
+                  <a
+                    href={`https://wa.me/${quote.salesBot.phoneNumber.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`I have some questions about proposal ${quote.shortLinkId}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white font-medium transition-opacity hover:opacity-90 self-center sm:self-start"
+                    style={{ backgroundColor: brandColor }}
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    Chat with {quote.salesBot.name} on WhatsApp
+                  </a>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-6 ml-3">
               {/* Day 1 */}
