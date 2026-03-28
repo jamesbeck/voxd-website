@@ -104,7 +104,7 @@ export default function TicketActions({
       toast.error(
         `Error Deleting Ticket: ${
           response.error || "There was an error deleting the ticket"
-        }`
+        }`,
       );
       setIsDeleting(false);
       return;

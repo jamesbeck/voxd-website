@@ -229,7 +229,9 @@ export default function RecordActions({
         if (isButtonGroup(item)) {
           return (
             <ButtonGroup key={i}>
-              {item.buttons.map((btn, j) => renderSingleButton(btn, `${i}-${j}`))}
+              {item.buttons.map((btn, j) =>
+                renderSingleButton(btn, `${i}-${j}`),
+              )}
             </ButtonGroup>
           );
         }

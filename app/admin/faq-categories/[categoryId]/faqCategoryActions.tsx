@@ -25,7 +25,7 @@ export default function FaqCategoryActions({
       toast.error(
         `Error Deleting Category: ${
           saResponse.error || "There was an error deleting the category"
-        }`
+        }`,
       );
       setIsDeleting(false);
       return;

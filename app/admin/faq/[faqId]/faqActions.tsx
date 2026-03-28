@@ -19,7 +19,7 @@ export default function FaqActions({ faqId }: { faqId: string }) {
       toast.error(
         `Error Deleting FAQ: ${
           saResponse.error || "There was an error deleting the FAQ"
-        }`
+        }`,
       );
       setIsDeleting(false);
       return;

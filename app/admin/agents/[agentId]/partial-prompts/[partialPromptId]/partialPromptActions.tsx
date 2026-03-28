@@ -27,7 +27,7 @@ export default function PartialPromptActions({
       toast.error(
         `Error Deleting Partial Prompt: ${
           saResponse.error || "There was an error deleting the partial prompt"
-        }`
+        }`,
       );
       setIsDeleting(false);
       return;

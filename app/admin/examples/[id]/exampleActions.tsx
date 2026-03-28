@@ -64,7 +64,7 @@ export default function ExampleActions({
       toast.error(
         `Error Deleting Example: ${
           response.error || "There was an error deleting the example"
-        }`
+        }`,
       );
       setIsDeleting(false);
       return;
@@ -142,8 +142,7 @@ export default function ExampleActions({
           <DialogHeader>
             <DialogTitle>Embed Example</DialogTitle>
             <DialogDescription>
-              Copy the URL or iframe code to embed this example on your
-              website.
+              Copy the URL or iframe code to embed this example on your website.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">

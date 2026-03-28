@@ -28,7 +28,7 @@ export default function UserActions({
       toast.error(
         `Error Deleting User: ${
           saResponse.error || "There was an error deleting the user"
-        }`
+        }`,
       );
       setIsDeletingUser(false);
       return;

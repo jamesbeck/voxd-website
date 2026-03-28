@@ -29,7 +29,7 @@ export default function KnowledgeBlockActions({
       toast.error(
         `Error Deleting Knowledge Block: ${
           saResponse.error || "There was an error deleting the knowledge block"
-        }`
+        }`,
       );
       setIsDeleting(false);
       return;
@@ -38,7 +38,7 @@ export default function KnowledgeBlockActions({
     toast.success(`Successfully deleted Knowledge Block ${blockIndex}`);
     setIsDeleting(false);
     router.push(
-      `/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`
+      `/admin/agents/${agentId}/documents/${documentId}?tab=knowledge-blocks`,
     );
   };
 

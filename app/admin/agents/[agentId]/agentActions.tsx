@@ -6,11 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CopyIcon,
-  FlagIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { CopyIcon, FlagIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import CloneAgentDialog from "./CloneAgentDialog";
 import { QRCodeSVG } from "qrcode.react";

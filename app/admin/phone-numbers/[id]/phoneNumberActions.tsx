@@ -3,11 +3,7 @@
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Webhook,
-  Trash2Icon,
-  RefreshCw,
-} from "lucide-react";
+import { Webhook, Trash2Icon, RefreshCw } from "lucide-react";
 import saSetNumberWebhook from "@/lib/meta/saSetNumberWebhook";
 import saClearNumberWebhook from "@/lib/meta/saClearNumberWebhook";
 import saSyncPhoneNumberWithMeta from "@/actions/saSyncPhoneNumberWithMeta";
