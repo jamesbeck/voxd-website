@@ -17,10 +17,12 @@ import Image from "next/image";
 export default function LoginForm({
   email,
   logoUrl,
+  showLogoOnColour,
   redirectTo,
 }: {
   email?: string;
   logoUrl?: string;
+  showLogoOnColour?: string;
   redirectTo?: string;
 }) {
   const form = useForm<{ email: string }>({
@@ -64,15 +66,25 @@ export default function LoginForm({
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-20 p-6 border border-gray-200 rounded-lg shadow-sm bg-white">
-      <Image
-        src={logoUrl || "/logo.svg"}
-        alt="Logo"
-        width={200}
-        height={100}
-        className="mx-auto mb-4"
-        unoptimized
-      />
+    <div className="max-w-sm mx-auto mt-20 border border-gray-200 rounded-lg shadow-sm bg-white overflow-hidden">
+      <div
+        className="mb-4 p-4"
+        style={
+          showLogoOnColour
+            ? { backgroundColor: showLogoOnColour }
+            : undefined
+        }
+      >
+        <Image
+          src={logoUrl || "/logo.svg"}
+          alt="Logo"
+          width={200}
+          height={100}
+          className="mx-auto"
+          unoptimized
+        />
+      </div>
+      <div className="px-6 pb-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -102,6 +114,7 @@ export default function LoginForm({
           <FormMessage>{form.formState.errors.root?.message}</FormMessage>
         </form>
       </Form>
+      </div>
     </div>
   );
 }

@@ -4,18 +4,24 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import saUploadPartnerLogo from "@/actions/saUploadPartnerLogo";
+import saUpdatePartner from "@/actions/saUpdatePartner";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
+
+const isValidHex = (value: string) => /^#[0-9a-fA-F]{6}$/.test(value);
 
 const LogoTab = ({
   partnerId,
   partnerDomain,
   logoFileExtension,
+  showLogoOnColour,
 }: {
   partnerId: string;
   partnerDomain: string;
   logoFileExtension: string | null;
+  showLogoOnColour: string | null;
 }) => {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -23,6 +29,8 @@ const LogoTab = ({
     base64: string;
     extension: string;
   } | null>(null);
+  const [bgColour, setBgColour] = useState(showLogoOnColour || "");
+  const [savingColour, setSavingColour] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -106,6 +114,32 @@ const LogoTab = ({
     }
   };
 
+  const handleSaveColour = async () => {
+    if (bgColour && !isValidHex(bgColour)) {
+      toast.error("Invalid hex colour. Use format #RRGGBB.");
+      return;
+    }
+    setSavingColour(true);
+    try {
+      const result = await saUpdatePartner({
+        partnerId,
+        showLogoOnColour: bgColour || null,
+      });
+      if (!result.success) {
+        toast.error(result.error || "Failed to save background colour");
+        return;
+      }
+      toast.success("Background colour saved");
+      router.refresh();
+    } catch {
+      toast.error("Failed to save background colour");
+    } finally {
+      setSavingColour(false);
+    }
+  };
+
+  const logoPreviewBg = bgColour && isValidHex(bgColour) ? bgColour : undefined;
+
   const currentLogoUrl = logoFileExtension
     ? `https://${
         process.env.NEXT_PUBLIC_WASABI_ENDPOINT
@@ -118,7 +152,12 @@ const LogoTab = ({
       {currentLogoUrl && !previewUrl && (
         <div className="space-y-2">
           <h3 className="text-sm font-medium">Current Logo</h3>
-          <div className="relative inline-block bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+          <div
+            className={`relative inline-block rounded-lg p-4 ${
+              !logoPreviewBg ? "bg-gray-100 dark:bg-gray-800" : ""
+            }`}
+            style={logoPreviewBg ? { backgroundColor: logoPreviewBg } : undefined}
+          >
             <Image
               src={currentLogoUrl}
               alt="Partner logo"
@@ -145,7 +184,12 @@ const LogoTab = ({
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <div className="relative inline-block bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+          <div
+            className={`relative inline-block rounded-lg p-4 ${
+              !logoPreviewBg ? "bg-gray-100 dark:bg-gray-800" : ""
+            }`}
+            style={logoPreviewBg ? { backgroundColor: logoPreviewBg } : undefined}
+          >
             <Image
               src={previewUrl}
               alt="New logo preview"
@@ -157,6 +201,50 @@ const LogoTab = ({
           </div>
         </div>
       )}
+
+      {/* Background Colour */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Logo Background Colour</label>
+        <div className="flex items-center gap-3">
+          <input
+            type="color"
+            value={bgColour || "#ffffff"}
+            onChange={(e) => setBgColour(e.target.value)}
+            className="h-10 w-10 cursor-pointer rounded border border-input p-0.5"
+          />
+          <Input
+            value={bgColour}
+            onChange={(e) => {
+              let val = e.target.value;
+              if (val && !val.startsWith("#")) val = "#" + val;
+              setBgColour(val.slice(0, 7));
+            }}
+            placeholder="#000000"
+            className="w-28 font-mono"
+            maxLength={7}
+          />
+          {bgColour && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setBgColour("")}
+            >
+              Clear
+            </Button>
+          )}
+          <Button
+            onClick={handleSaveColour}
+            disabled={savingColour}
+            size="sm"
+          >
+            {savingColour ? "Saving..." : "Save"}
+          </Button>
+        </div>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Choose a background colour for the logo preview. Leave empty for
+          default.
+        </p>
+      </div>
 
       {/* Upload Form */}
       <div className="space-y-4">

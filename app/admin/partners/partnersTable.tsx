@@ -13,13 +13,23 @@ const partnersTable = () => {
       name: "logoFileExtension",
       format: (row: any) =>
         row.domain && row.logoFileExtension ? (
-          <Image
-            src={`https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${row.domain}.${row.logoFileExtension}`}
-            alt={row.name || "Partner logo"}
-            width={32}
-            height={32}
-            className="rounded object-contain"
-          />
+          <div
+            className="inline-flex p-1"
+            style={
+              row.showLogoOnColour
+                ? { backgroundColor: row.showLogoOnColour }
+                : undefined
+            }
+          >
+            <Image
+              src={`https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${row.domain}.${row.logoFileExtension}`}
+              alt={row.name || "Partner logo"}
+              width={80}
+              height={32}
+              className="h-8 w-auto object-contain"
+              unoptimized
+            />
+          </div>
         ) : null,
     },
     {

@@ -41,6 +41,7 @@ export type PublicQuote = {
     colour: string | null;
     domain: string | null;
     logoFileExtension: string | null;
+    showLogoOnColour: string | null;
     legalName: string | null;
     companyNumber: string | null;
     registeredAddress: string | null;
@@ -115,6 +116,11 @@ export const getQuoteForPublic = async ({
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
+    )
+    .select(
+      db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'),
+    )
+    .select(
       "partner.legalName as partnerLegalName",
       "partner.companyNumber as partnerCompanyNumber",
       "partner.registeredAddress as partnerRegisteredAddress",
@@ -201,6 +207,7 @@ export const getQuoteForPublic = async ({
       colour: quote.partnerColour,
       domain: quote.partnerDomain,
       logoFileExtension: quote.partnerLogoFileExtension,
+      showLogoOnColour: quote.partnerShowLogoOnColour ?? null,
       legalName: quote.partnerLegalName,
       companyNumber: quote.partnerCompanyNumber,
       registeredAddress: quote.partnerRegisteredAddress,

@@ -36,6 +36,7 @@ export type PublicConcept = {
     colour: string | null;
     domain: string | null;
     logoFileExtension: string | null;
+    showLogoOnColour: string | null;
   };
   salesBot: {
     name: string;
@@ -94,6 +95,11 @@ export const getConceptForPublic = async ({
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
+    )
+    .select(
+      db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'),
+    )
+    .select(
       "partner.salesBotName",
       "phoneNumber.displayPhoneNumber as salesBotPhoneNumber",
       "adminUser.name as createdByName",
@@ -166,6 +172,7 @@ export const getConceptForPublic = async ({
       colour: quote.partnerColour,
       domain: quote.partnerDomain,
       logoFileExtension: quote.partnerLogoFileExtension,
+      showLogoOnColour: quote.partnerShowLogoOnColour ?? null,
     },
     salesBot:
       quote.salesBotName && quote.salesBotPhoneNumber

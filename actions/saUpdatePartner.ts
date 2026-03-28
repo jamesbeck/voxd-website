@@ -20,6 +20,7 @@ const saUpdatePartner = async ({
   goCardlessMandateLink,
   salesEmail,
   accountsEmail,
+  showLogoOnColour,
 }: {
   partnerId: string;
   name?: string;
@@ -35,6 +36,7 @@ const saUpdatePartner = async ({
   goCardlessMandateLink?: string;
   salesEmail?: string;
   accountsEmail?: string;
+  showLogoOnColour?: string | null;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -79,6 +81,7 @@ const saUpdatePartner = async ({
     goCardlessMandateLink,
     salesEmail,
     accountsEmail,
+    showLogoOnColour,
   });
 
   revalidateTag("partners", { expire: 0 });

@@ -115,14 +115,23 @@ export default async function ExamplesPage({
       {/* Header with partner logo */}
       <header className="sticky top-0 z-50 py-4 px-4 bg-white border-b">
         <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center">
-          <Image
-            src={partnerLogoUrl}
-            alt={example.partner.name}
-            width={180}
-            height={60}
-            unoptimized
-            className="h-8 sm:h-12 w-auto object-contain"
-          />
+          <div
+            className="py-1 px-2"
+            style={
+              example.partner.showLogoOnColour
+                ? { backgroundColor: example.partner.showLogoOnColour }
+                : undefined
+            }
+          >
+            <Image
+              src={partnerLogoUrl}
+              alt={example.partner.name}
+              width={180}
+              height={60}
+              unoptimized
+              className="h-8 sm:h-12 w-auto object-contain"
+            />
+          </div>
         </div>
       </header>
 

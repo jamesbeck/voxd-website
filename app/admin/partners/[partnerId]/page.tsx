@@ -69,6 +69,7 @@ export default async function Page({
                 partnerId={partner.id}
                 partnerDomain={partner.domain}
                 logoFileExtension={partner.logoFileExtension ?? null}
+                showLogoOnColour={partner.showLogoOnColour ?? null}
               />
             </TabsContent>
             <TabsContent value="quotes">

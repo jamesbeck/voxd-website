@@ -26,6 +26,7 @@ export type PublicExample = {
     colour: string | null;
     domain: string | null;
     logoFileExtension: string | null;
+    showLogoOnColour: string | null;
   };
   exampleConversations: PublicExampleConversation[];
 };
@@ -65,6 +66,9 @@ export const getExampleForPublic = async ({
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
+    )
+    .select(
+      db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'),
     )
     .first();
 
@@ -121,6 +125,7 @@ export const getExampleForPublic = async ({
       colour: example.partnerColour,
       domain: example.partnerDomain,
       logoFileExtension: example.partnerLogoFileExtension,
+      showLogoOnColour: example.partnerShowLogoOnColour ?? null,
     },
     exampleConversations: parsedConversations,
   };

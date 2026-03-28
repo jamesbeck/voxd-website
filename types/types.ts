@@ -112,6 +112,7 @@ export interface Partner {
   goCardlessMandateLink?: string;
   salesEmail?: string;
   accountsEmail?: string;
+  showLogoOnColour?: string | null;
 }
 
 export type CostingBreakdownTask = {

@@ -152,12 +152,14 @@ export default function AdminSidebar({
   partner,
   agents = [],
   logoUrl,
+  showLogoOnColour,
 }: {
   email?: string;
   superAdmin?: boolean;
   partner?: boolean;
   agents?: UserAgent[];
   logoUrl?: string;
+  showLogoOnColour?: string;
 }) {
   const userRoles: Roles[] = [];
   if (superAdmin) userRoles.push("admin");
@@ -166,15 +168,23 @@ export default function AdminSidebar({
 
   return (
     <Sidebar collapsible="icon" className="bg-cream">
-      <SidebarHeader>
-        <Image
-          src={logoUrl || "/logo.svg"}
-          alt="Logo"
-          width={300}
-          height={50}
-          unoptimized
-          className="p-2"
-        />
+      <SidebarHeader className="p-0">
+        <div
+          style={
+            showLogoOnColour
+              ? { backgroundColor: showLogoOnColour }
+              : undefined
+          }
+        >
+          <Image
+            src={logoUrl || "/logo.svg"}
+            alt="Logo"
+            width={300}
+            height={50}
+            unoptimized
+            className="p-2"
+          />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

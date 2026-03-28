@@ -57,6 +57,7 @@ export default async function LoginPage({
             ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}.${partner?.logoFileExtension}`
             : undefined
         }
+        showLogoOnColour={partner?.showLogoOnColour ?? undefined}
         redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
       />
     </div>

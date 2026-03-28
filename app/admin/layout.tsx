@@ -53,6 +53,7 @@ export default async function RootLayout({
                 ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}.${partner?.logoFileExtension}`
                 : undefined
             }
+            showLogoOnColour={partner?.showLogoOnColour ?? undefined}
           />
           <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <TopBar />

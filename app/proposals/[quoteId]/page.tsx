@@ -216,16 +216,25 @@ export default async function PublicQuotePage({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with partner logo and organisation logo */}
-      <header className="py-3 px-4 bg-white border-b fixed top-0 left-0 right-0 z-50">
+      <header className="py-3 px-4 bg-white shadow-sm fixed top-0 left-0 right-0 z-50 overflow-hidden">
         <div className="max-w-5xl xl:max-w-[1380px] mx-auto flex items-center justify-center gap-4 md:gap-6 xl:justify-start xl:pl-[290px]">
-          <Image
-            src={logoUrl}
-            alt={quote.partner.name}
-            width={180}
-            height={60}
-            unoptimized
-            className="h-8 md:h-12 w-auto object-contain"
-          />
+          <div
+            className="-my-3 py-3 px-2"
+            style={
+              quote.partner.showLogoOnColour
+                ? { backgroundColor: quote.partner.showLogoOnColour }
+                : undefined
+            }
+          >
+            <Image
+              src={logoUrl}
+              alt={quote.partner.name}
+              width={180}
+              height={60}
+              unoptimized
+              className="h-8 md:h-12 w-auto object-contain"
+            />
+          </div>
           {organisationLogoUrl && (
             <>
               <div className="h-8 md:h-12 w-px bg-gray-200" />

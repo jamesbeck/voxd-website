@@ -22,10 +22,12 @@ import Image from "next/image";
 
 export default function VerifyLoginForm({
   logoUrl,
+  showLogoOnColour,
   redirectTo,
   devOtp,
 }: {
   logoUrl?: string;
+  showLogoOnColour?: string;
   redirectTo?: string;
   devOtp?: string;
 }) {
@@ -74,15 +76,25 @@ export default function VerifyLoginForm({
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-20 p-6 border border-gray-200 rounded-lg shadow-sm bg-white">
-      <Image
-        src={logoUrl || "/logo.svg"}
-        alt="Logo"
-        width={200}
-        height={100}
-        className="mx-auto mb-4"
-        unoptimized
-      />
+    <div className="max-w-sm mx-auto mt-20 border border-gray-200 rounded-lg shadow-sm bg-white overflow-hidden">
+      <div
+        className="mb-4 p-4"
+        style={
+          showLogoOnColour
+            ? { backgroundColor: showLogoOnColour }
+            : undefined
+        }
+      >
+        <Image
+          src={logoUrl || "/logo.svg"}
+          alt="Logo"
+          width={200}
+          height={100}
+          className="mx-auto"
+          unoptimized
+        />
+      </div>
+      <div className="px-6 pb-6">
       <h2 className="text-2xl font-semibold mb-6 text-center">
         Enter Login Code
       </h2>
@@ -129,12 +141,13 @@ export default function VerifyLoginForm({
         </form>
       </Form>
 
-      <div className="pt-8">
-        <Link href="/login">
-          <Button size={"sm"} variant={"outline"}>
-            Restart Login
-          </Button>
+      <p className="pt-6 text-xs text-muted-foreground text-center">
+        {"Didn't receive the email? Check your junk folder, make sure your email address is correct, or "}
+        <Link href="/login" className="underline hover:text-foreground">
+          restart the login
         </Link>
+        .
+      </p>
       </div>
     </div>
   );

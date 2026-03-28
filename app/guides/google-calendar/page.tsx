@@ -68,14 +68,23 @@ export default async function GoogleCalendarGuidePage() {
       {/* Header with partner logo */}
       <header className="sticky top-0 z-50 py-4 px-4 bg-white border-b">
         <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center">
-          <Image
-            src={partnerLogoUrl}
-            alt={partner.name || "Partner"}
-            width={180}
-            height={60}
-            unoptimized
-            className="h-8 sm:h-12 w-auto object-contain"
-          />
+          <div
+            className="py-1 px-2"
+            style={
+              partner.showLogoOnColour
+                ? { backgroundColor: partner.showLogoOnColour }
+                : undefined
+            }
+          >
+            <Image
+              src={partnerLogoUrl}
+              alt={partner.name || "Partner"}
+              width={180}
+              height={60}
+              unoptimized
+              className="h-8 sm:h-12 w-auto object-contain"
+            />
+          </div>
         </div>
       </header>
 
@@ -662,14 +671,23 @@ export default async function GoogleCalendarGuidePage() {
 
           {/* Footer */}
           <footer className="flex justify-center py-8">
-            <Image
-              src={partnerLogoUrl}
-              alt={partner.name || "Partner"}
-              width={120}
-              height={40}
-              unoptimized
-              className="h-8 w-auto object-contain opacity-50"
-            />
+            <div
+              className="py-1 px-2"
+              style={
+                partner.showLogoOnColour
+                  ? { backgroundColor: partner.showLogoOnColour }
+                  : undefined
+              }
+            >
+              <Image
+                src={partnerLogoUrl}
+                alt={partner.name || "Partner"}
+                width={120}
+                height={40}
+                unoptimized
+                className="h-8 w-auto object-contain opacity-50"
+              />
+            </div>
           </footer>
         </main>
       </div>
