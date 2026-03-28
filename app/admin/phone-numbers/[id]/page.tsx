@@ -2,12 +2,12 @@ import saGetPhoneNumberById from "@/actions/saGetPhoneNumberById";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import { notFound } from "next/navigation";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import {
   Phone,
   Hash,
@@ -51,24 +51,22 @@ export default async function Page({
       />
       <H1>{phoneNumber.displayPhoneNumber}</H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="info" asChild>
-              <Link href={`/admin/phone-numbers/${phoneNumberId}?tab=info`}>
-                Info
-              </Link>
-            </TabsTrigger>
-          </TabsList>
-
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "info",
+            label: "Info",
+            href: `/admin/phone-numbers/${phoneNumberId}?tab=info`,
+          },
+        ]}
+        actions={
           <PhoneNumberActions
             phoneNumberId={phoneNumberId}
             metaId={phoneNumber.metaId}
           />
-        </div>
-
-        <div className="border-b mb-6" />
-
+        }
+      >
         <TabsContent value="info">
           <Container>
             <DataCard
@@ -217,7 +215,7 @@ export default async function Page({
               )}
           </Container>
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

@@ -3,8 +3,8 @@ import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import SupportTicketsTable from "./supportTicketsTable";
 import { Flag, Info } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import SupportTicketsActions from "./supportTicketsActions";
 
@@ -34,30 +34,33 @@ export default async function Page({
       />
       <H1>Support Tickets</H1>
 
-      <Tabs value={activeTab} className="space-y-4">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="open" asChild>
-              <Link href="/admin/support-tickets?tab=open">Open Tickets</Link>
-            </TabsTrigger>
-            <TabsTrigger value="awaiting" asChild>
-              <Link href="/admin/support-tickets?tab=awaiting">
-                {awaitingLabel}
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="closed" asChild>
-              <Link href="/admin/support-tickets?tab=closed">
-                Closed Tickets
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="backlog" asChild>
-              <Link href="/admin/support-tickets?tab=backlog">Back Log</Link>
-            </TabsTrigger>
-          </TabsList>
-
-          <SupportTicketsActions />
-        </div>
-
+      <RecordTabs
+        value={activeTab}
+        className="space-y-4"
+        tabs={[
+          {
+            value: "open",
+            label: "Open Tickets",
+            href: "/admin/support-tickets?tab=open",
+          },
+          {
+            value: "awaiting",
+            label: awaitingLabel,
+            href: "/admin/support-tickets?tab=awaiting",
+          },
+          {
+            value: "closed",
+            label: "Closed Tickets",
+            href: "/admin/support-tickets?tab=closed",
+          },
+          {
+            value: "backlog",
+            label: "Back Log",
+            href: "/admin/support-tickets?tab=backlog",
+          },
+        ]}
+        actions={<SupportTicketsActions />}
+      >
         <TabsContent value="open">
           <SupportTicketsTable statusFilter="open" />
         </TabsContent>
@@ -73,7 +76,7 @@ export default async function Page({
         <TabsContent value="backlog">
           <SupportTicketsTable statusFilter="backlog" />
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

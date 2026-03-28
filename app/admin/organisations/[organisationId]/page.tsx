@@ -1,5 +1,6 @@
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs, { RecordTab } from "@/components/admin/RecordTabs";
 import H1 from "@/components/adminui/H1";
 import getOrganisationById from "@/lib/getOrganisationById";
 import Container from "@/components/adminui/Container";
@@ -56,20 +57,22 @@ export default async function Page({
       <H1>{organisation?.name || "New Organisation"}</H1>
       {organisation && (
         <>
-          <Tabs defaultValue="agents" className="space-y-2">
-            <div className="flex items-center justify-between gap-4 mb-2">
-              <TabsList>
-                <TabsTrigger value="about">About</TabsTrigger>
-                <TabsTrigger value="logo">Logo</TabsTrigger>
-                <TabsTrigger value="adminUsers">Admin Users</TabsTrigger>
-                <TabsTrigger value="chatUsers">Chat Users</TabsTrigger>
-                <TabsTrigger value="agents">Agents</TabsTrigger>
-                {token.superAdmin || token.partner ? (
-                  <TabsTrigger value="quotes">Quotes</TabsTrigger>
-                ) : null}
-              </TabsList>
-
-              {(token.superAdmin || token.partner) && (
+          <RecordTabs
+            defaultValue="agents"
+            tabs={
+              [
+                { value: "about", label: "About" },
+                { value: "logo", label: "Logo" },
+                { value: "adminUsers", label: "Admin Users" },
+                { value: "chatUsers", label: "Chat Users" },
+                { value: "agents", label: "Agents" },
+                ...(token.superAdmin || token.partner
+                  ? [{ value: "quotes", label: "Quotes" }]
+                  : []),
+              ] satisfies RecordTab[]
+            }
+            actions={
+              token.superAdmin || token.partner ? (
                 <OrganisationActions
                   organisationId={organisation.id}
                   name={organisation.name}
@@ -77,11 +80,9 @@ export default async function Page({
                   isSuperAdmin={token.superAdmin}
                   currentPartnerId={organisation.partnerId ?? null}
                 />
-              )}
-            </div>
-
-            <div className="border-b mb-6" />
-
+              ) : undefined
+            }
+          >
             <TabsContent value="about">
               <Container>
                 <AboutTab
@@ -124,7 +125,7 @@ export default async function Page({
                 </Container>
               </TabsContent>
             ) : null}
-          </Tabs>
+          </RecordTabs>
         </>
       )}
       {!organisation && <NewOrganisationForm />}

@@ -75,3 +75,31 @@ API routes are organized in the `/api` directory with an Express router in `/api
 - PostgreSQL with UUID v7 support (`pg_uuidv7` extension)
 - Knex.js for migrations and queries
 - TypeScript throughout
+
+## Admin Page Tabs & Actions
+
+When building admin detail pages that have tabs and/or action buttons, always use the shared `RecordTabs` component from `@/components/admin/RecordTabs`. This ensures consistent horizontal-scrolling behaviour across all record types.
+
+**Usage:**
+
+```tsx
+import RecordTabs, { RecordTab } from "@/components/admin/RecordTabs";
+import { TabsContent } from "@/components/ui/tabs";
+
+<RecordTabs
+  value={activeTab} // controlled (URL-based) — OR defaultValue="info" for uncontrolled
+  tabs={[
+    { value: "info", label: "Info", href: `/admin/things/${id}?tab=info` },
+    { value: "edit", label: "Edit", href: `/admin/things/${id}?tab=edit` },
+  ]}
+  actions={<MyActions />} // optional ReactNode pinned to the right
+>
+  <TabsContent value="info">...</TabsContent>
+  <TabsContent value="edit">...</TabsContent>
+</RecordTabs>;
+```
+
+- Pass `href` on each tab for URL-driven navigation (most pages), or omit it for local `defaultValue` tabs.
+- The `label` field accepts `ReactNode`, so you can include badges or icons.
+- Conditional tabs should be handled by filtering the array before passing (e.g. spread with ternary).
+- Do **not** manually compose `Tabs` + `TabsList` + `TabsTrigger` + divider in admin pages — always use `RecordTabs`.

@@ -5,7 +5,8 @@ import H1 from "@/components/adminui/H1";
 import { notFound } from "next/navigation";
 import getOrganisations from "@/lib/getOrganisations";
 import { getQuoteById, Quote } from "@/lib/getQuoteById";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs, { RecordTab } from "@/components/admin/RecordTabs";
 import { format, formatDistance } from "date-fns";
 import EditSpecificationForm from "./editSpecificationForm";
 import EditPricingForm from "./EditPricingForm";
@@ -89,77 +90,75 @@ export default async function Page({
         <>
           <QuoteProgress status={quote.status} />
 
-          <Tabs value={activeTab} className="space-y-2">
-            <div className="flex flex-wrap items-center gap-4 mb-2">
-              <TabsList>
-                <TabsTrigger value="info" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=info`}>Info</Link>
-                </TabsTrigger>
-                <TabsTrigger value="actions" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=actions`}>
-                    Actions
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="background" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=background`}>
-                    Background
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="specification" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=specification`}>
-                    Specification
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="concept" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=concept`}>
-                    Concept
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="proposal" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=proposal`}>
-                    Proposal
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="pricing" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=pricing`}>
-                    Pricing
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="exampleConversations" asChild>
-                  <Link
-                    href={`/admin/quotes/${quote.id}?tab=exampleConversations`}
-                  >
-                    Example Conversations
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="heroImage" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=heroImage`}>
-                    Hero Image
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="views" asChild>
-                  <Link href={`/admin/quotes/${quote.id}?tab=views`}>
-                    Views
-                  </Link>
-                </TabsTrigger>
-              </TabsList>
-
-              <div className="flex items-center gap-2 ml-auto">
-                <QuoteActions
-                  quoteId={quote.id}
-                  shortLinkId={quote.shortLinkId}
-                  name={quote.title}
-                  organisationName={quote.organisationName}
-                  status={quote.status}
-                  canDelete={isSuperAdmin || isOwnerPartner}
-                  createdByAdminUserId={quote.createdByAdminUserId}
-                  isSuperAdmin={isSuperAdmin}
-                />
-              </div>
-            </div>
-
-            <div className="border-b mb-6" />
-
+          <RecordTabs
+            value={activeTab}
+            tabs={
+              [
+                {
+                  value: "info",
+                  label: "Info",
+                  href: `/admin/quotes/${quote.id}?tab=info`,
+                },
+                {
+                  value: "actions",
+                  label: "Actions",
+                  href: `/admin/quotes/${quote.id}?tab=actions`,
+                },
+                {
+                  value: "background",
+                  label: "Background",
+                  href: `/admin/quotes/${quote.id}?tab=background`,
+                },
+                {
+                  value: "specification",
+                  label: "Specification",
+                  href: `/admin/quotes/${quote.id}?tab=specification`,
+                },
+                {
+                  value: "concept",
+                  label: "Concept",
+                  href: `/admin/quotes/${quote.id}?tab=concept`,
+                },
+                {
+                  value: "proposal",
+                  label: "Proposal",
+                  href: `/admin/quotes/${quote.id}?tab=proposal`,
+                },
+                {
+                  value: "pricing",
+                  label: "Pricing",
+                  href: `/admin/quotes/${quote.id}?tab=pricing`,
+                },
+                {
+                  value: "exampleConversations",
+                  label: "Example Conversations",
+                  href: `/admin/quotes/${quote.id}?tab=exampleConversations`,
+                },
+                {
+                  value: "heroImage",
+                  label: "Hero Image",
+                  href: `/admin/quotes/${quote.id}?tab=heroImage`,
+                },
+                {
+                  value: "views",
+                  label: "Views",
+                  href: `/admin/quotes/${quote.id}?tab=views`,
+                },
+              ] satisfies RecordTab[]
+            }
+            actions={
+              <QuoteActions
+                quoteId={quote.id}
+                shortLinkId={quote.shortLinkId}
+                name={quote.title}
+                organisationName={quote.organisationName}
+                status={quote.status}
+                canDelete={isSuperAdmin || isOwnerPartner}
+                createdByAdminUserId={quote.createdByAdminUserId}
+                isSuperAdmin={isSuperAdmin}
+              />
+            }
+          >
             <TabsContent value="info">
               <DataCard
                 items={[
@@ -317,7 +316,7 @@ export default async function Page({
             <TabsContent value="views">
               <QuoteViewsTable quoteId={quote.id} />
             </TabsContent>
-          </Tabs>
+          </RecordTabs>
         </>
       )}
 

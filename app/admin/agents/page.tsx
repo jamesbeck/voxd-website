@@ -4,14 +4,18 @@ import AgentsTable from "./agentsTable";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import { Button } from "@/components/ui/button";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page() {
+  const accessToken = await verifyAccessToken();
+  const isSuperAdmin = accessToken.superAdmin ?? false;
+
   return (
     <Container>
       <BreadcrumbSetter
         breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Agents" }]}
       />
-      <H1>Manage Agents</H1>
+      <H1>Agents</H1>
 
       <div className="flex justify-end">
         <Button asChild>
@@ -19,7 +23,7 @@ export default async function Page() {
         </Button>
       </div>
 
-      <AgentsTable />
+      <AgentsTable isSuperAdmin={isSuperAdmin} />
     </Container>
   );
 }

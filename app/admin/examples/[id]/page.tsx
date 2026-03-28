@@ -3,11 +3,11 @@ import getIndustries from "@/lib/getIndustries";
 import getFunctions from "@/lib/getFunctions";
 import { getExampleById } from "@/lib/getExamples";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import ExampleConversationsTab from "@/components/admin/ExampleConversationsTab";
 import ExampleLogoTab from "./ExampleLogoTab";
 import ExampleHeroImageTab from "./ExampleHeroImageTab";
@@ -78,41 +78,43 @@ export default async function ExamplesPage({
       />
       <H1>{example.title}</H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="info" asChild>
-              <Link href={`/admin/examples/${example.id}?tab=info`}>Info</Link>
-            </TabsTrigger>
-            <TabsTrigger value="edit" asChild>
-              <Link href={`/admin/examples/${example.id}?tab=edit`}>Edit</Link>
-            </TabsTrigger>
-            <TabsTrigger value="logo" asChild>
-              <Link href={`/admin/examples/${example.id}?tab=logo`}>Logo</Link>
-            </TabsTrigger>
-            <TabsTrigger value="heroImage" asChild>
-              <Link href={`/admin/examples/${example.id}?tab=heroImage`}>
-                Hero Image
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="exampleConversations" asChild>
-              <Link
-                href={`/admin/examples/${example.id}?tab=exampleConversations`}
-              >
-                Example Conversations
-              </Link>
-            </TabsTrigger>
-          </TabsList>
-
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "info",
+            label: "Info",
+            href: `/admin/examples/${example.id}?tab=info`,
+          },
+          {
+            value: "edit",
+            label: "Edit",
+            href: `/admin/examples/${example.id}?tab=edit`,
+          },
+          {
+            value: "logo",
+            label: "Logo",
+            href: `/admin/examples/${example.id}?tab=logo`,
+          },
+          {
+            value: "heroImage",
+            label: "Hero Image",
+            href: `/admin/examples/${example.id}?tab=heroImage`,
+          },
+          {
+            value: "exampleConversations",
+            label: "Example Conversations",
+            href: `/admin/examples/${example.id}?tab=exampleConversations`,
+          },
+        ]}
+        actions={
           <ExampleActions
             exampleId={example.id}
             title={example.title}
             slug={example.slug}
           />
-        </div>
-
-        <div className="border-b mb-6" />
-
+        }
+      >
         <TabsContent value="info">
           <ExampleInfoTab
             id={example.id}
@@ -166,7 +168,7 @@ export default async function ExamplesPage({
             businessName={example.businessName || example.title}
           />
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

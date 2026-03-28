@@ -9,7 +9,8 @@ import H2 from "@/components/adminui/H2";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { Card, CardContent } from "@/components/ui/card";
 import { notFound } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import Link from "next/link";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
 import {
@@ -66,15 +67,16 @@ export default async function Page({
         Worker: {workerRun.workerName}
       </H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <TabsList>
-          <TabsTrigger value="details" asChild>
-            <Link href={`/admin/workerRuns/${workerRunId}?tab=details`}>
-              Details
-            </Link>
-          </TabsTrigger>
-        </TabsList>
-
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "details",
+            label: "Details",
+            href: `/admin/workerRuns/${workerRunId}?tab=details`,
+          },
+        ]}
+      >
         <TabsContent value="details">
           <Container>
             <H2>Worker Run Details</H2>
@@ -96,10 +98,10 @@ export default async function Page({
                       workerRun.runStatus === "completed"
                         ? "success"
                         : workerRun.runStatus === "failed"
-                        ? "danger"
-                        : workerRun.runStatus === "running"
-                        ? "info"
-                        : "warning",
+                          ? "danger"
+                          : workerRun.runStatus === "running"
+                            ? "info"
+                            : "warning",
                   },
                   {
                     label: "Result",
@@ -113,8 +115,8 @@ export default async function Page({
                       workerRun.runResult === "success"
                         ? "success"
                         : workerRun.runResult === "error"
-                        ? "danger"
-                        : "default",
+                          ? "danger"
+                          : "default",
                   },
                   {
                     label: "Created At",
@@ -124,7 +126,7 @@ export default async function Page({
                       new Date(),
                       {
                         addSuffix: true,
-                      }
+                      },
                     ),
                     icon: <Calendar className="h-4 w-4" />,
                   },
@@ -132,14 +134,14 @@ export default async function Page({
                     label: "Scheduled For",
                     value: format(
                       workerRun.scheduledFor,
-                      "dd/MM/yyyy HH:mm:ss"
+                      "dd/MM/yyyy HH:mm:ss",
                     ),
                     description: formatDistance(
                       workerRun.scheduledFor,
                       new Date(),
                       {
                         addSuffix: true,
-                      }
+                      },
                     ),
                     icon: <Clock className="h-4 w-4" />,
                   },
@@ -227,7 +229,7 @@ export default async function Page({
             </Card>
           </Container>
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

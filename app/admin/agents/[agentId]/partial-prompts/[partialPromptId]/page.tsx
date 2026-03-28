@@ -2,12 +2,12 @@ import getPartialPromptById from "@/lib/getPartialPromptById";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import H2 from "@/components/adminui/H2";
 import { notFound } from "next/navigation";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
-import Link from "next/link";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
 import { FileText, Calendar } from "lucide-react";
 import { format } from "date-fns";
@@ -53,35 +53,30 @@ export default async function Page({
       />
       <H1>{partialPrompt.name}</H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="info" asChild>
-              <Link
-                href={`/admin/agents/${agentId}/partial-prompts/${partialPromptId}?tab=info`}
-              >
-                Info
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="edit" asChild>
-              <Link
-                href={`/admin/agents/${agentId}/partial-prompts/${partialPromptId}?tab=edit`}
-              >
-                Edit
-              </Link>
-            </TabsTrigger>
-          </TabsList>
-          {!!token.superAdmin && (
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "info",
+            label: "Info",
+            href: `/admin/agents/${agentId}/partial-prompts/${partialPromptId}?tab=info`,
+          },
+          {
+            value: "edit",
+            label: "Edit",
+            href: `/admin/agents/${agentId}/partial-prompts/${partialPromptId}?tab=edit`,
+          },
+        ]}
+        actions={
+          !!token.superAdmin ? (
             <PartialPromptActions
               partialPromptId={partialPromptId}
               partialPromptName={partialPrompt.name}
               agentId={agentId}
             />
-          )}
-        </div>
-
-        <div className="border-b mb-6" />
-
+          ) : undefined
+        }
+      >
         <TabsContent value="info">
           <Container>
             <DataCard
@@ -125,7 +120,7 @@ export default async function Page({
             />
           </Container>
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

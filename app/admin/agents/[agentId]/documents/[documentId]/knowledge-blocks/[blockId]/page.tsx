@@ -16,9 +16,9 @@ import {
   Layers,
 } from "lucide-react";
 import { format } from "date-fns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import H2 from "@/components/adminui/H2";
-import Link from "next/link";
 
 export default async function Page({
   params,
@@ -66,34 +66,29 @@ export default async function Page({
       />
       <H1>Knowledge Block {block.blockIndex}</H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="info" asChild>
-              <Link
-                href={`/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=info`}
-              >
-                Info
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="edit" asChild>
-              <Link
-                href={`/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=edit`}
-              >
-                Edit
-              </Link>
-            </TabsTrigger>
-          </TabsList>
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "info",
+            label: "Info",
+            href: `/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=info`,
+          },
+          {
+            value: "edit",
+            label: "Edit",
+            href: `/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=edit`,
+          },
+        ]}
+        actions={
           <KnowledgeBlockActions
             blockId={blockId}
             blockIndex={block.blockIndex}
             agentId={agentId}
             documentId={documentId}
           />
-        </div>
-
-        <div className="border-b mb-6" />
-
+        }
+      >
         <TabsContent value="info">
           <Container>
             <DataCard
@@ -129,7 +124,7 @@ export default async function Page({
                     label: "Created",
                     value: format(
                       new Date(block.createdAt),
-                      "dd/MM/yyyy HH:mm"
+                      "dd/MM/yyyy HH:mm",
                     ),
                     icon: <Calendar className="h-4 w-4" />,
                   },
@@ -160,7 +155,7 @@ export default async function Page({
             />
           </Container>
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

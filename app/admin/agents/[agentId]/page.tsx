@@ -3,7 +3,8 @@ import getAgentById from "@/lib/getAgentById";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs, { RecordTab } from "@/components/admin/RecordTabs";
 import H2 from "@/components/adminui/H2";
 import { notFound } from "next/navigation";
 import NewAgentForm from "./newAgentForm";
@@ -77,60 +78,72 @@ export default async function Page({
       <H1>{agent?.niceName || "New Agent"}</H1>
       {agent && (
         <>
-          <Tabs value={activeTab} className="space-y-2">
-            <div className="flex items-center justify-between gap-4 mb-2">
-              <TabsList>
-                <TabsTrigger value="info" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=info`}>Info</Link>
-                </TabsTrigger>
-                <TabsTrigger value="dashboard" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=dashboard`}>
-                    Dashboard
-                  </Link>
-                </TabsTrigger>
-                {!!token.superAdmin && (
-                  <TabsTrigger value="edit" asChild>
-                    <Link href={`/admin/agents/${agentId}?tab=edit`}>
-                      Edit Agent
-                    </Link>
-                  </TabsTrigger>
-                )}
-                <TabsTrigger value="model" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=model`}>Model</Link>
-                </TabsTrigger>
-                <TabsTrigger value="sessions" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=sessions`}>
-                    Sessions
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="users" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=users`}>Users</Link>
-                </TabsTrigger>
-                <TabsTrigger value="templates-sent" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=templates-sent`}>
-                    Templates Sent
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="knowledge" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=knowledge`}>
-                    Knowledge
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="partial-prompts" asChild>
-                  <Link href={`/admin/agents/${agentId}?tab=partial-prompts`}>
-                    Partial Prompts
-                  </Link>
-                </TabsTrigger>
-                {!!token.superAdmin && (
-                  <TabsTrigger value="config" asChild>
-                    <Link href={`/admin/agents/${agentId}?tab=config`}>
-                      Config
-                    </Link>
-                  </TabsTrigger>
-                )}
-              </TabsList>
-
-              {!!token.superAdmin && (
+          <RecordTabs
+            value={activeTab}
+            tabs={
+              [
+                {
+                  value: "info",
+                  label: "Info",
+                  href: `/admin/agents/${agentId}?tab=info`,
+                },
+                {
+                  value: "dashboard",
+                  label: "Dashboard",
+                  href: `/admin/agents/${agentId}?tab=dashboard`,
+                },
+                ...(token.superAdmin
+                  ? [
+                      {
+                        value: "edit",
+                        label: "Edit Agent",
+                        href: `/admin/agents/${agentId}?tab=edit`,
+                      },
+                    ]
+                  : []),
+                {
+                  value: "model",
+                  label: "Model",
+                  href: `/admin/agents/${agentId}?tab=model`,
+                },
+                {
+                  value: "sessions",
+                  label: "Sessions",
+                  href: `/admin/agents/${agentId}?tab=sessions`,
+                },
+                {
+                  value: "users",
+                  label: "Users",
+                  href: `/admin/agents/${agentId}?tab=users`,
+                },
+                {
+                  value: "templates-sent",
+                  label: "Templates Sent",
+                  href: `/admin/agents/${agentId}?tab=templates-sent`,
+                },
+                {
+                  value: "knowledge",
+                  label: "Knowledge",
+                  href: `/admin/agents/${agentId}?tab=knowledge`,
+                },
+                {
+                  value: "partial-prompts",
+                  label: "Partial Prompts",
+                  href: `/admin/agents/${agentId}?tab=partial-prompts`,
+                },
+                ...(token.superAdmin
+                  ? [
+                      {
+                        value: "config",
+                        label: "Config",
+                        href: `/admin/agents/${agentId}?tab=config`,
+                      },
+                    ]
+                  : []),
+              ] satisfies RecordTab[]
+            }
+            actions={
+              !!token.superAdmin ? (
                 <AgentActions
                   agentId={agentId}
                   name={agent?.name || ""}
@@ -139,11 +152,9 @@ export default async function Page({
                   organisationId={agent?.organisationId || ""}
                   tickets={tickets || []}
                 />
-              )}
-            </div>
-
-            <div className="border-b mb-6" />
-
+              ) : undefined
+            }
+          >
             <TabsContent value="info">
               <Container>
                 <DataCard
@@ -351,7 +362,7 @@ export default async function Page({
                 </Container>
               </TabsContent>
             )}
-          </Tabs>
+          </RecordTabs>
         </>
       )}
       {!agent && <NewAgentForm />}

@@ -1,5 +1,6 @@
 import H1 from "@/components/adminui/H1";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import Container from "@/components/adminui/Container";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import { Partner } from "@/types/types";
@@ -36,16 +37,14 @@ export default async function Page({
       <H1>{partner?.name || "New Partner"}</H1>
       {partner && (
         <>
-          <Tabs defaultValue="edit" className="space-y-2">
-            <TabsList>
-              <TabsTrigger value="edit">Edit Partner</TabsTrigger>
-              <TabsTrigger value="logo">Logo</TabsTrigger>
-              <TabsTrigger value="quotes">Quotes</TabsTrigger>
-              {/* <TabsTrigger value="sessions">Sessions</TabsTrigger> */}
-            </TabsList>
-
-            <div className="border-b mb-6" />
-
+          <RecordTabs
+            defaultValue="edit"
+            tabs={[
+              { value: "edit", label: "Edit Partner" },
+              { value: "logo", label: "Logo" },
+              { value: "quotes", label: "Quotes" },
+            ]}
+          >
             <TabsContent value="edit">
               <EditPartnerForm
                 partnerId={partnerId}
@@ -79,7 +78,7 @@ export default async function Page({
               <H2>Sessions</H2>
               <SessionsTable partnerId={partnerId} />
             </TabsContent> */}
-          </Tabs>
+          </RecordTabs>
         </>
       )}
       {!partner && <NewPartnerForm />}

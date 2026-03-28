@@ -8,8 +8,8 @@ import H1 from "@/components/adminui/H1";
 import H2 from "@/components/adminui/H2";
 import Container from "@/components/adminui/Container";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import WabaActions from "./wabaActions";
 
 export default async function Page({
@@ -37,29 +37,27 @@ export default async function Page({
       />
       <H1>{waba?.name || "WABA Details"}</H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="info" asChild>
-              <Link href={`/admin/wabas/${wabaId}?tab=info`}>Info</Link>
-            </TabsTrigger>
-            <TabsTrigger value="phone-numbers" asChild>
-              <Link href={`/admin/wabas/${wabaId}?tab=phone-numbers`}>
-                Phone Numbers
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="templates" asChild>
-              <Link href={`/admin/wabas/${wabaId}?tab=templates`}>
-                Templates
-              </Link>
-            </TabsTrigger>
-          </TabsList>
-
-          <WabaActions wabaId={wabaId} />
-        </div>
-
-        <div className="border-b mb-6" />
-
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "info",
+            label: "Info",
+            href: `/admin/wabas/${wabaId}?tab=info`,
+          },
+          {
+            value: "phone-numbers",
+            label: "Phone Numbers",
+            href: `/admin/wabas/${wabaId}?tab=phone-numbers`,
+          },
+          {
+            value: "templates",
+            label: "Templates",
+            href: `/admin/wabas/${wabaId}?tab=templates`,
+          },
+        ]}
+        actions={<WabaActions wabaId={wabaId} />}
+      >
         <TabsContent value="info">
           <Container>
             <H2>WABA Information</H2>
@@ -92,7 +90,7 @@ export default async function Page({
             <TemplatesTable wabaId={wabaId} />
           </Container>
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

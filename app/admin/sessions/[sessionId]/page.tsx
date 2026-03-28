@@ -17,7 +17,8 @@ import H1 from "@/components/adminui/H1";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { notFound } from "next/navigation";
 import SendMessageForm from "./sendMessageForm";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import Link from "next/link";
 import H2 from "@/components/adminui/H2";
 import { Spinner } from "@/components/ui/spinner";
@@ -107,29 +108,32 @@ export default async function Page({
         {user.name} ({user.number}) & {agent.niceName}
       </H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="conversation" asChild>
-              <Link href={`/admin/sessions/${sessionId}?tab=conversation`}>
-                Conversation
-              </Link>
-            </TabsTrigger>
-
-            <TabsTrigger value="info" asChild>
-              <Link href={`/admin/sessions/${sessionId}?tab=info`}>Info</Link>
-            </TabsTrigger>
-            <TabsTrigger value="workers" asChild>
-              <Link href={`/admin/sessions/${sessionId}?tab=workers`}>
-                Workers
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="data" asChild>
-              <Link href={`/admin/sessions/${sessionId}?tab=data`}>Data</Link>
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "conversation",
+            label: "Conversation",
+            href: `/admin/sessions/${sessionId}?tab=conversation`,
+          },
+          {
+            value: "info",
+            label: "Info",
+            href: `/admin/sessions/${sessionId}?tab=info`,
+          },
+          {
+            value: "workers",
+            label: "Workers",
+            href: `/admin/sessions/${sessionId}?tab=workers`,
+          },
+          {
+            value: "data",
+            label: "Data",
+            href: `/admin/sessions/${sessionId}?tab=data`,
+          },
+        ]}
+        actions={
+          <>
             <Button asChild variant="outline" size="sm">
               <Link href={`/admin/agents/${agent.id}?tab=sessions`}>
                 <ChevronLeft className="h-4 w-4" />
@@ -150,11 +154,9 @@ export default async function Page({
               tickets={sessionTickets}
               messages={messages}
             />
-          </div>
-        </div>
-
-        <div className="border-b mb-6" />
-
+          </>
+        }
+      >
         <TabsContent value="conversation">
           <Container>
             <Conversation
@@ -270,7 +272,7 @@ export default async function Page({
             )}
           </Container>
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

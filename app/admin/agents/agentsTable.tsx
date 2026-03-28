@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const AgentsTable = () => {
+const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [selectedWhatsAppUrl, setSelectedWhatsAppUrl] = useState("");
   const [selectedAgentName, setSelectedAgentName] = useState("");
@@ -76,10 +76,38 @@ const AgentsTable = () => {
         );
       },
     },
+    ...(isSuperAdmin
+      ? [
+          {
+            label: "Partner",
+            name: "partnerName",
+            format: (row: any) => {
+              if (!row.partnerId) {
+                return <span className="text-muted-foreground">None</span>;
+              }
+              return (
+                <TableLink href={`/admin/partners/${row.partnerId}`}>
+                  {row.partnerName}
+                </TableLink>
+              );
+            },
+          },
+        ]
+      : []),
     {
       label: "Phone Number",
       name: "phoneNumber",
       sort: true,
+      format: (row: any) => {
+        if (!row.phoneNumberId) {
+          return <span className="text-muted-foreground">None</span>;
+        }
+        return (
+          <TableLink href={`/admin/phone-numbers/${row.phoneNumberId}`}>
+            {row.phoneNumber}
+          </TableLink>
+        );
+      },
     },
     {
       label: "Sessions",

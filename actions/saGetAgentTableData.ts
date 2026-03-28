@@ -25,7 +25,14 @@ const saGetAgentTableData = async ({
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
     .leftJoin("organisation", "agent.organisationId", "organisation.id")
-    .groupBy("agent.id", "phoneNumber.id", "organisation.name")
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .groupBy(
+      "agent.id",
+      "phoneNumber.id",
+      "organisation.name",
+      "organisation.partnerId",
+      "partner.name",
+    )
     .where((qb) => {
       if (search) {
         qb.where("agent.name", "ilike", `%${search}%`);
@@ -70,6 +77,8 @@ const saGetAgentTableData = async ({
     .select("agent.*")
     .select("phoneNumber.displayPhoneNumber as phoneNumber")
     .select("organisation.name as organisationName")
+    .select("organisation.partnerId as partnerId")
+    .select("partner.name as partnerName")
     .select(
       db.raw(
         'COUNT(CASE WHEN "session"."sessionType" != \'development\' THEN "userMessage"."id" END)::int as "messageCount"',

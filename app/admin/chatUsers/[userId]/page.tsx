@@ -1,6 +1,7 @@
 import getUserById from "@/lib/getChatUserById";
 import H1 from "@/components/adminui/H1";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import SessionsTable from "./sessionsTable";
 import Container from "@/components/adminui/Container";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
@@ -41,20 +42,16 @@ export default async function Page({ params }: { params: { userId: string } }) {
       <H1>{user?.name || "New User"}</H1>
       {user && (
         <>
-          <Tabs defaultValue="sessions" className="space-y-2">
-            <div className="flex items-center justify-between gap-4 mb-2">
-              <TabsList>
-                <TabsTrigger value="edit">Edit User</TabsTrigger>
-                <TabsTrigger value="sessions">Sessions</TabsTrigger>
-                <TabsTrigger value="send-template">Send Template</TabsTrigger>
-                <TabsTrigger value="data">Data</TabsTrigger>
-              </TabsList>
-
-              <UserActions user={user} />
-            </div>
-
-            <div className="border-b mb-6" />
-
+          <RecordTabs
+            defaultValue="sessions"
+            tabs={[
+              { value: "edit", label: "Edit User" },
+              { value: "sessions", label: "Sessions" },
+              { value: "send-template", label: "Send Template" },
+              { value: "data", label: "Data" },
+            ]}
+            actions={<UserActions user={user} />}
+          >
             <TabsContent value="edit">
               <EditUserForm
                 userId={userId}
@@ -91,7 +88,7 @@ export default async function Page({ params }: { params: { userId: string } }) {
                 </div>
               )}
             </TabsContent>
-          </Tabs>
+          </RecordTabs>
         </>
       )}
       {!user && (

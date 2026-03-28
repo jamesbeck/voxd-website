@@ -10,7 +10,8 @@ import H2 from "@/components/adminui/H2";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { Card, CardContent } from "@/components/ui/card";
 import { notFound } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs, { RecordTab } from "@/components/admin/RecordTabs";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -108,56 +109,50 @@ export default async function Page({
 
       <H1 className="text-2xl font-semibold mb-4">Message Details</H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="details" asChild>
-              <Link
-                href={`/admin/messages/${messageId}?type=${messageType}&tab=details`}
-              >
-                Details
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="text" asChild>
-              <Link
-                href={`/admin/messages/${messageId}?type=${messageType}&tab=text`}
-              >
-                Text
-              </Link>
-            </TabsTrigger>
-            {messageType === "assistant" && (
-              <>
-                <TabsTrigger value="system-prompt" asChild>
-                  <Link
-                    href={`/admin/messages/${messageId}?type=${messageType}&tab=system-prompt`}
-                  >
-                    System Prompt
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="tool-calls" asChild>
-                  <Link
-                    href={`/admin/messages/${messageId}?type=${messageType}&tab=tool-calls`}
-                  >
-                    Tool Calls
-                    <Badge variant="secondary" className="ml-1.5">
-                      {message.role === "assistant"
-                        ? message.toolCalls.length
-                        : 0}
-                    </Badge>
-                  </Link>
-                </TabsTrigger>
-                <TabsTrigger value="output-data" asChild>
-                  <Link
-                    href={`/admin/messages/${messageId}?type=${messageType}&tab=output-data`}
-                  >
-                    Output Data
-                  </Link>
-                </TabsTrigger>
-              </>
-            )}
-          </TabsList>
-
-          <div className="flex items-center gap-2">
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "details",
+            label: "Details",
+            href: `/admin/messages/${messageId}?type=${messageType}&tab=details`,
+          },
+          {
+            value: "text",
+            label: "Text",
+            href: `/admin/messages/${messageId}?type=${messageType}&tab=text`,
+          },
+          ...(messageType === "assistant"
+            ? ([
+                {
+                  value: "system-prompt",
+                  label: "System Prompt",
+                  href: `/admin/messages/${messageId}?type=${messageType}&tab=system-prompt`,
+                },
+                {
+                  value: "tool-calls",
+                  label: (
+                    <>
+                      <span>Tool Calls</span>
+                      <Badge variant="secondary" className="ml-1.5">
+                        {message.role === "assistant"
+                          ? message.toolCalls.length
+                          : 0}
+                      </Badge>
+                    </>
+                  ),
+                  href: `/admin/messages/${messageId}?type=${messageType}&tab=tool-calls`,
+                },
+                {
+                  value: "output-data",
+                  label: "Output Data",
+                  href: `/admin/messages/${messageId}?type=${messageType}&tab=output-data`,
+                },
+              ] satisfies RecordTab[])
+            : []),
+        ]}
+        actions={
+          <>
             <Button asChild variant="outline" size="sm">
               <Link href={`/admin/sessions/${session.id}?tab=conversation`}>
                 <ChevronLeft className="h-4 w-4" />
@@ -197,9 +192,9 @@ export default async function Page({
                 </Button>
               )}
             </ButtonGroup>
-          </div>
-        </div>
-
+          </>
+        }
+      >
         <TabsContent value="details">
           <Container>
             <DataCard
@@ -588,7 +583,7 @@ export default async function Page({
             </TabsContent>
           </>
         )}
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

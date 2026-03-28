@@ -1,7 +1,8 @@
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import H1 from "@/components/adminui/H1";
 import Container from "@/components/adminui/Container";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
@@ -77,22 +78,22 @@ export default async function Page({
         <Badge className={getStatusColor(ticket.status)}>{ticket.status}</Badge>
       </H1>
 
-      <Tabs value={activeTab} className="space-y-2">
-        <div className="flex items-center justify-between gap-4 mb-2">
-          <TabsList>
-            <TabsTrigger value="info" asChild>
-              <Link href={`/admin/support-tickets/${ticketId}?tab=info`}>
-                Info
-              </Link>
-            </TabsTrigger>
-            <TabsTrigger value="comments" asChild>
-              <Link href={`/admin/support-tickets/${ticketId}?tab=comments`}>
-                Comments
-              </Link>
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "info",
+            label: "Info",
+            href: `/admin/support-tickets/${ticketId}?tab=info`,
+          },
+          {
+            value: "comments",
+            label: "Comments",
+            href: `/admin/support-tickets/${ticketId}?tab=comments`,
+          },
+        ]}
+        actions={
+          <>
             {token.superAdmin && (
               <TicketStatusDropdown
                 ticketId={ticketId}
@@ -117,11 +118,9 @@ export default async function Page({
                 description={ticket.description || undefined}
               />
             )}
-          </div>
-        </div>
-
-        <div className="border-b mb-6" />
-
+          </>
+        }
+      >
         <TabsContent value="info">
           <Container>
             <DataCard
@@ -239,7 +238,7 @@ export default async function Page({
             <TicketComments ticketId={ticketId} ticketStatus={ticket.status} />
           </Container>
         </TabsContent>
-      </Tabs>
+      </RecordTabs>
     </Container>
   );
 }

@@ -1,6 +1,7 @@
 import getAdminUserById from "@/lib/getAdminUserById";
 import H1 from "@/components/adminui/H1";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
+import RecordTabs from "@/components/admin/RecordTabs";
 import Container from "@/components/adminui/Container";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import { AdminUser } from "@/types/types";
@@ -39,21 +40,22 @@ export default async function Page({
       <H1>{user?.name || "New Admin User"}</H1>
       {user && (
         <>
-          <AdminUserActions
-            user={user}
-            superAdmin={token.superAdmin}
-            partner={token.partner}
-          />
-          <Tabs defaultValue="edit" className="space-y-2">
-            <TabsList>
-              <TabsTrigger value="edit">Edit User</TabsTrigger>
-              {token.superAdmin && (
-                <TabsTrigger value="log">Activity Log</TabsTrigger>
-              )}
-            </TabsList>
-
-            <div className="border-b mb-6" />
-
+          <RecordTabs
+            defaultValue="edit"
+            tabs={[
+              { value: "edit", label: "Edit User" },
+              ...(token.superAdmin
+                ? [{ value: "log", label: "Activity Log" }]
+                : []),
+            ]}
+            actions={
+              <AdminUserActions
+                user={user}
+                superAdmin={token.superAdmin}
+                partner={token.partner}
+              />
+            }
+          >
             <TabsContent value="edit">
               <EditAdminUserForm
                 adminUserId={adminUserId}
@@ -76,7 +78,7 @@ export default async function Page({
                 />
               </TabsContent>
             )}
-          </Tabs>
+          </RecordTabs>
         </>
       )}
       {!user && <NewAdminUserForm isSuperAdmin={token.superAdmin} />}
