@@ -103,3 +103,53 @@ import { TabsContent } from "@/components/ui/tabs";
 - The `label` field accepts `ReactNode`, so you can include badges or icons.
 - Conditional tabs should be handled by filtering the array before passing (e.g. spread with ternary).
 - Do **not** manually compose `Tabs` + `TabsList` + `TabsTrigger` + divider in admin pages — always use `RecordTabs`.
+
+### Action Buttons (`RecordActions`)
+
+When building action buttons for admin pages, always use the shared `RecordActions` component from `@/components/admin/RecordActions`. This ensures consistent button styling, spacing, dropdown menus, and confirm dialogs across all record types.
+
+Per-page action components are client components that use `RecordActions` internally and are passed as the `actions` ReactNode prop to `RecordTabs`.
+
+**Usage:**
+
+```tsx
+import RecordActions from "@/components/admin/RecordActions";
+
+// Single button
+<RecordActions buttons={[{ label: "Delete", icon: <Trash2Icon />, variant: "destructive", onClick: handleDelete }]} />
+
+// Button with confirm dialog
+<RecordActions buttons={[{
+  label: "Delete",
+  icon: <Trash2Icon />,
+  variant: "destructive",
+  loading: isDeleting,
+  confirm: { title: "Delete Item", description: "This cannot be undone.", actionText: "Delete", destructive: true },
+  onClick: handleDelete,
+}]} />
+
+// Button group
+<RecordActions buttons={[{ buttons: [
+  { label: "View", href: "/example", target: "_blank" },
+  { icon: <CopyIcon />, tooltip: "Copy link", onClick: copyLink },
+] }]} />
+
+// Ellipsis dropdown (always renders as a single ⋯ button on the far right)
+<RecordActions dropdown={{ groups: [
+  { items: [
+    { label: "Clone", icon: <CopyIcon />, onSelect: () => setCloneOpen(true) },
+    { label: "Delete", icon: <Trash2Icon />, danger: true, confirm: {
+      title: "Delete", description: "Cannot be undone.", actionText: "Delete",
+      destructive: true, onAction: handleDelete,
+    }},
+  ]},
+] }} />
+
+// Custom slot for unique elements (rendered first/leftmost)
+<RecordActions custom={<MyStatusDropdown />} buttons={[...]} dropdown={{ ... }} />
+```
+
+- `custom`: Arbitrary ReactNode rendered first (for unique elements like status dropdowns, ticket badges).
+- `buttons`: Array of `ActionButton` or `ActionButtonGroup` objects. Single buttons default to `variant="outline"` and `size="sm"` (or `size="icon-sm"` if label-less).
+- `dropdown`: Single ellipsis menu. Groups are separated by `DropdownMenuSeparator`. Items with `confirm` auto-wrap in the `Alert` confirm dialog. Items with `href` render as links.
+- Do **not** manually compose `DropdownMenu` + `Button` + `Alert` in action components — always use `RecordActions`.

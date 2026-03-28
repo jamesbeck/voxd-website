@@ -5,20 +5,10 @@ import saDeleteUser from "@/actions/saDeleteUser";
 import saDeleteSessionsByUser from "@/actions/saDeleteSessionsByUser";
 import saClearUserData from "@/actions/saClearUserData";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon, Trash2Icon, XCircleIcon } from "lucide-react";
+import { Trash2Icon, XCircleIcon } from "lucide-react";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function UserActions({ user }: { user: ChatUser }) {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
@@ -85,81 +75,62 @@ export default function UserActions({ user }: { user: ChatUser }) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          aria-label="More Options"
-          className="h-8 w-8"
-        >
-          <MoreHorizontalIcon className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuGroup>
-          <Alert
-            destructive
-            title={`Clear ${user.name}'s Data`}
-            description="This action cannot be undone. All stored data for this user will be cleared and reset to an empty object."
-            actionText="Clear Data"
-            onAction={clearUserData}
-          >
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={(e) => e.preventDefault()}
-            >
-              {isClearingData ? (
-                <Spinner />
-              ) : (
-                <XCircleIcon className="h-4 w-4" />
-              )}
-              Clear User Data
-            </DropdownMenuItem>
-          </Alert>
-          <Alert
-            destructive
-            title={`Delete ${user.name}'s Sessions`}
-            description="This action cannot be undone. All sessions for this user will be permanently deleted."
-            actionText="Delete Sessions"
-            onAction={deleteUserSessions}
-          >
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={(e) => e.preventDefault()}
-            >
-              {isDeletingSessions ? (
-                <Spinner />
-              ) : (
-                <Trash2Icon className="h-4 w-4" />
-              )}
-              Delete Sessions
-            </DropdownMenuItem>
-          </Alert>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <Alert
-            destructive
-            title={`Delete ${user.name}`}
-            description="This action cannot be undone. The user and all their data will be permanently deleted."
-            actionText="Delete"
-            onAction={deleteUser}
-          >
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={(e) => e.preventDefault()}
-            >
-              {isDeletingUser ? (
-                <Spinner />
-              ) : (
-                <Trash2Icon className="h-4 w-4" />
-              )}
-              Delete User
-            </DropdownMenuItem>
-          </Alert>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <RecordActions
+      dropdown={{
+        loading: isDeletingUser || isDeletingSessions || isClearingData,
+        groups: [
+          {
+            items: [
+              {
+                label: "Clear User Data",
+                icon: <XCircleIcon />,
+                danger: true,
+                loading: isClearingData,
+                confirm: {
+                  title: `Clear ${user.name}'s Data`,
+                  description:
+                    "This action cannot be undone. All stored data for this user will be cleared and reset to an empty object.",
+                  actionText: "Clear Data",
+                  destructive: true,
+                  onAction: clearUserData,
+                },
+              },
+              {
+                label: "Delete Sessions",
+                icon: <Trash2Icon />,
+                danger: true,
+                loading: isDeletingSessions,
+                confirm: {
+                  title: `Delete ${user.name}'s Sessions`,
+                  description:
+                    "This action cannot be undone. All sessions for this user will be permanently deleted.",
+                  actionText: "Delete Sessions",
+                  destructive: true,
+                  onAction: deleteUserSessions,
+                },
+              },
+            ],
+          },
+          {
+            items: [
+              {
+                label: "Delete User",
+                icon: <Trash2Icon />,
+                danger: true,
+                loading: isDeletingUser,
+                confirm: {
+                  title: `Delete ${user.name}`,
+                  description:
+                    "This action cannot be undone. The user and all their data will be permanently deleted.",
+                  actionText: "Delete",
+                  destructive: true,
+                  onAction: deleteUser,
+                },
+              },
+            ],
+          },
+        ],
+      }}
+    />
   );
 }

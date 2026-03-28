@@ -39,7 +39,9 @@ export default function EditAgentForm({
   name,
   niceName,
   organisationId,
+  organisationName,
   phoneNumberId,
+  phoneNumberDisplay,
   openAiApiKey,
   targetMessageLengthCharacters,
   maxMessageHistory,
@@ -49,7 +51,9 @@ export default function EditAgentForm({
   name?: string;
   niceName?: string;
   organisationId?: string;
+  organisationName?: string;
   phoneNumberId?: string;
+  phoneNumberDisplay?: string;
   openAiApiKey?: string;
   targetMessageLengthCharacters?: number;
   maxMessageHistory?: number;
@@ -170,6 +174,7 @@ export default function EditAgentForm({
                   sortField="name"
                   placeholder="Select an organisation..."
                   emptyMessage="No organisations found"
+                  initialLabel={organisationName}
                 />
               </FormControl>
               <FormMessage />
@@ -194,6 +199,7 @@ export default function EditAgentForm({
                   sortField="displayPhoneNumber"
                   placeholder="Select a phone number..."
                   emptyMessage="No phone numbers found"
+                  initialLabel={phoneNumberDisplay}
                 />
               </FormControl>
               <FormMessage />

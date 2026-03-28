@@ -4,18 +4,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
 import { Spinner } from "@/components/ui/spinner";
 import saDeleteSupportTicket from "@/actions/saDeleteSupportTicket";
 import saUpdateSupportTicket from "@/actions/saUpdateSupportTicket";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -33,10 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { PencilIcon, Trash2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import RecordActions from "@/components/admin/RecordActions";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -125,42 +117,40 @@ export default function TicketActions({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="More Options"
-            className="h-8 w-8"
-          >
-            <MoreHorizontalIcon className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={() => setEditDialogOpen(true)}>
-              <PencilIcon className="h-4 w-4" />
-              Edit Ticket
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <Alert
-              destructive
-              title={`Delete Ticket #${ticketNumber}`}
-              description="This action cannot be undone. The ticket and all associated comments will be permanently deleted."
-              actionText="Delete"
-              onAction={deleteTicket}
-            >
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={(e) => e.preventDefault()}
-              >
-                {isDeleting ? <Spinner /> : <Trash2Icon className="h-4 w-4" />}
-                Delete Ticket
-              </DropdownMenuItem>
-            </Alert>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <RecordActions
+        dropdown={{
+          loading: isDeleting,
+          groups: [
+            {
+              items: [
+                {
+                  label: "Edit Ticket",
+                  icon: <PencilIcon />,
+                  onSelect: () => setEditDialogOpen(true),
+                },
+              ],
+            },
+            {
+              items: [
+                {
+                  label: "Delete Ticket",
+                  icon: <Trash2Icon />,
+                  danger: true,
+                  loading: isDeleting,
+                  confirm: {
+                    title: `Delete Ticket #${ticketNumber}`,
+                    description:
+                      "This action cannot be undone. The ticket and all associated comments will be permanently deleted.",
+                    actionText: "Delete",
+                    destructive: true,
+                    onAction: deleteTicket,
+                  },
+                },
+              ],
+            },
+          ],
+        }}
+      />
 
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-[425px]">

@@ -6,14 +6,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -29,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  MoreHorizontalIcon,
   RefreshCw,
   Link2,
   Link2Off,
@@ -39,6 +30,7 @@ import saSyncWabaWithMeta from "@/actions/saSyncWabaWithMeta";
 import saSubscribe from "@/lib/meta/saSubscribe";
 import saGetAllApps, { App } from "@/actions/saGetAllApps";
 import saUpdateWabaApp from "@/actions/saUpdateWabaApp";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function WabaActions({ wabaId }: { wabaId: string }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -163,39 +155,45 @@ export default function WabaActions({ wabaId }: { wabaId: string }) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            {isLoading ? <Spinner /> : <MoreHorizontalIcon />}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuGroup>
-            <DropdownMenuItem onClick={syncWaba} disabled={isLoading}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Sync WABA with Meta
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onClick={() => setChangeAppDialogOpen(true)}
-              disabled={isLoading}
-            >
-              <AppWindow className="mr-2 h-4 w-4" />
-              Change Meta App
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleSubscribe} disabled={isLoading}>
-              <Link2 className="mr-2 h-4 w-4" />
-              Subscribe App
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleUnsubscribe} disabled={isLoading}>
-              <Link2Off className="mr-2 h-4 w-4" />
-              Unsubscribe App
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <RecordActions
+        dropdown={{
+          loading: isLoading,
+          groups: [
+            {
+              items: [
+                {
+                  label: "Sync WABA with Meta",
+                  icon: <RefreshCw />,
+                  onSelect: syncWaba,
+                  disabled: isLoading,
+                },
+              ],
+            },
+            {
+              items: [
+                {
+                  label: "Change Meta App",
+                  icon: <AppWindow />,
+                  onSelect: () => setChangeAppDialogOpen(true),
+                  disabled: isLoading,
+                },
+                {
+                  label: "Subscribe App",
+                  icon: <Link2 />,
+                  onSelect: handleSubscribe,
+                  disabled: isLoading,
+                },
+                {
+                  label: "Unsubscribe App",
+                  icon: <Link2Off />,
+                  onSelect: handleUnsubscribe,
+                  disabled: isLoading,
+                },
+              ],
+            },
+          ],
+        }}
+      />
 
       <Dialog open={changeAppDialogOpen} onOpenChange={setChangeAppDialogOpen}>
         <DialogContent>

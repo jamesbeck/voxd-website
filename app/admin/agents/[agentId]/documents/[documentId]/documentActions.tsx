@@ -1,21 +1,12 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
 import saDeleteDocument from "@/actions/saDeleteDocument";
-import { CopyIcon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { CopyIcon, Trash2Icon } from "lucide-react";
 import CloneDocumentDialog from "./CloneDocumentDialog";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function DocumentActions({
   documentId,
@@ -53,36 +44,35 @@ export default function DocumentActions({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            {isDeleting ? <Spinner /> : <MoreHorizontalIcon />}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={() => setCloneDialogOpen(true)}>
-              <CopyIcon className="mr-2 h-4 w-4" />
-              Clone to Agent
-            </DropdownMenuItem>
-            <Alert
-              destructive
-              title={`Delete ${documentTitle}`}
-              description="This action cannot be undone. This document and all its knowledge blocks will be permanently deleted."
-              actionText="Delete"
-              onAction={deleteDocument}
-            >
-              <DropdownMenuItem
-                onSelect={(e) => e.preventDefault()}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2Icon className="mr-2 h-4 w-4" />
-                Delete Document
-              </DropdownMenuItem>
-            </Alert>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <RecordActions
+        dropdown={{
+          loading: isDeleting,
+          groups: [
+            {
+              items: [
+                {
+                  label: "Clone to Agent",
+                  icon: <CopyIcon />,
+                  onSelect: () => setCloneDialogOpen(true),
+                },
+                {
+                  label: "Delete Document",
+                  icon: <Trash2Icon />,
+                  danger: true,
+                  confirm: {
+                    title: `Delete ${documentTitle}`,
+                    description:
+                      "This action cannot be undone. This document and all its knowledge blocks will be permanently deleted.",
+                    actionText: "Delete",
+                    destructive: true,
+                    onAction: deleteDocument,
+                  },
+                },
+              ],
+            },
+          ],
+        }}
+      />
 
       <CloneDocumentDialog
         documentId={documentId}

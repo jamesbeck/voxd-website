@@ -2,18 +2,15 @@
 
 import { AdminUser } from "@/types/types";
 import saDeleteAdminUser from "@/actions/saDeleteAdminUser";
-import saDeleteSessionsByUser from "@/actions/saDeleteSessionsByUser";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
+import { Trash2Icon } from "lucide-react";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function UserActions({
   user,
   superAdmin,
-  partner,
 }: {
   user: AdminUser;
   superAdmin: boolean;
@@ -42,22 +39,25 @@ export default function UserActions({
     router.push("/admin/adminUsers");
   };
 
+  if (!superAdmin) return null;
+
   return (
-    <div className="flex items-center gap-2">
-      {superAdmin && (
-        <Alert
-          destructive
-          title={`Delete ${user.name}`}
-          description="This action cannot be undone."
-          actionText="Delete"
-          onAction={deleteUser}
-        >
-          <Button className="cursor-pointer" variant="destructive" size="sm">
-            {isDeletingUser ? <Spinner /> : null}
-            Delete {user.name}
-          </Button>
-        </Alert>
-      )}
-    </div>
+    <RecordActions
+      buttons={[
+        {
+          label: `Delete ${user.name}`,
+          icon: <Trash2Icon />,
+          variant: "destructive",
+          loading: isDeletingUser,
+          confirm: {
+            title: `Delete ${user.name}`,
+            description: "This action cannot be undone.",
+            actionText: "Delete",
+            destructive: true,
+          },
+          onClick: deleteUser,
+        },
+      ]}
+    />
   );
 }

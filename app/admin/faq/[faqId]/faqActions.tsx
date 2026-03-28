@@ -1,13 +1,11 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
 import saDeleteFaq from "@/actions/saDeleteFaq";
 import { Trash2Icon } from "lucide-react";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function FaqActions({ faqId }: { faqId: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -33,17 +31,23 @@ export default function FaqActions({ faqId }: { faqId: string }) {
   };
 
   return (
-    <Alert
-      destructive
-      title="Delete FAQ"
-      description="This action cannot be undone. This FAQ will be permanently deleted."
-      actionText="Delete"
-      onAction={deleteFaq}
-    >
-      <Button variant="destructive" size="sm" className="cursor-pointer">
-        {isDeleting ? <Spinner /> : <Trash2Icon className="h-4 w-4" />}
-        Delete FAQ
-      </Button>
-    </Alert>
+    <RecordActions
+      buttons={[
+        {
+          label: "Delete FAQ",
+          icon: <Trash2Icon />,
+          variant: "destructive",
+          loading: isDeleting,
+          confirm: {
+            title: "Delete FAQ",
+            description:
+              "This action cannot be undone. This FAQ will be permanently deleted.",
+            actionText: "Delete",
+            destructive: true,
+          },
+          onClick: deleteFaq,
+        },
+      ]}
+    />
   );
 }

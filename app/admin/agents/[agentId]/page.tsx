@@ -226,7 +226,13 @@ export default async function Page({
                     niceName={agent?.niceName}
                     openAiApiKey={agent?.openAiApiKey}
                     organisationId={agent?.organisationId}
+                    organisationName={agent?.organisationName}
                     phoneNumberId={agent?.phoneNumberId}
+                    phoneNumberDisplay={
+                      agent?.displayPhoneNumber && agent?.verifiedName
+                        ? `${agent.displayPhoneNumber} ${agent.verifiedName}`
+                        : agent?.displayPhoneNumber
+                    }
                     targetMessageLengthCharacters={
                       agent?.targetMessageLengthCharacters
                     }

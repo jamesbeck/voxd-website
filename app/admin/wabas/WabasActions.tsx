@@ -2,9 +2,8 @@
 
 import saSyncWabaWithMeta from "@/actions/saSyncWabaWithMeta";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function WabasActions() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -29,10 +28,15 @@ export default function WabasActions() {
 
   return (
     <div className="flex items-center justify-end gap-2">
-      <Button className="cursor-pointer" size="sm" onClick={syncWithMeta}>
-        {isSyncing ? <Spinner /> : null}
-        Sync with Meta
-      </Button>
+      <RecordActions
+        buttons={[
+          {
+            label: "Sync with Meta",
+            loading: isSyncing,
+            onClick: syncWithMeta,
+          },
+        ]}
+      />
     </div>
   );
 }

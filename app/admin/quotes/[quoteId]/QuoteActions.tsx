@@ -1,11 +1,8 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
 import saSubmitQuoteForCostPricing from "@/actions/saSubmitQuoteForCostPricing";
 import saMarkQuoteConceptSentToClient from "@/actions/saMarkQuoteConceptSentToClient";
 import saDeleteQuote from "@/actions/saDeleteQuote";
@@ -16,14 +13,6 @@ import saReturnQuoteToCostPricingReceived from "@/actions/saReturnQuoteToCostPri
 import saMarkQuoteSentToClient from "@/actions/saMarkQuoteSentToClient";
 import saCloseQuote from "@/actions/saCloseQuote";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  MoreVertical,
   Trash2,
   UserCog,
   ExternalLink,
@@ -36,6 +25,10 @@ import {
 } from "lucide-react";
 import ChangeOwnerDialog from "./ChangeOwnerDialog";
 import CloneQuoteDialog from "./CloneQuoteDialog";
+import RecordActions, {
+  type ActionButton,
+  type DropdownGroup,
+} from "@/components/admin/RecordActions";
 
 export default function QuoteActions({
   quoteId,
@@ -284,291 +277,246 @@ export default function QuoteActions({
     router.refresh();
   };
 
+  // Build workflow buttons based on status
+  const workflowButtons: ActionButton[] = [];
+
+  if (canSendConceptToClient) {
+    workflowButtons.push({
+      label: "Send Concept",
+      loading: isSendingConcept,
+      confirm: {
+        title: `Send ${name} Concept to Client`,
+        description:
+          "Are you sure you want to send this concept to the client?",
+        actionText: "Send Concept",
+      },
+      onClick: sendConceptToClient,
+    });
+  }
+
+  if (canSubmitForPricing) {
+    workflowButtons.push({
+      label: "Submit to Voxd",
+      loading: isSubmittingForPricing,
+      confirm: {
+        title: `Submit ${name} for Pricing`,
+        description:
+          "Are you sure you want to submit this quote for cost pricing from Voxd?",
+        actionText: "Submit for Pricing",
+      },
+      onClick: submitForPricing,
+    });
+  }
+
+  if (canMarkSentToClient) {
+    workflowButtons.push({
+      label: "Mark as Proposal with Client",
+      loading: isMarkingSentToClient,
+      confirm: {
+        title: `Mark ${name} as Proposal with Client`,
+        description:
+          "Are you sure you want to mark this quote as proposal with client?",
+        actionText: "Mark as Proposal with Client",
+      },
+      onClick: markSentToClient,
+    });
+  }
+
+  if (canClose) {
+    workflowButtons.push({
+      label: "WON",
+      loading: isClosingWon,
+      className: "bg-green-500 hover:bg-green-600 text-white",
+      confirm: {
+        title: `Mark ${name} as WON`,
+        description:
+          "Are you sure you want to mark this quote as won? This will close the quote.",
+        actionText: "Mark as WON",
+      },
+      onClick: closeQuoteWon,
+    });
+    workflowButtons.push({
+      label: "LOST",
+      variant: "destructive",
+      loading: isClosingLost,
+      confirm: {
+        title: `Mark ${name} as LOST`,
+        description:
+          "Are you sure you want to mark this quote as lost? This will close the quote.",
+        actionText: "Mark as LOST",
+        destructive: true,
+      },
+      onClick: closeQuoteLost,
+    });
+  }
+
+  // Build dropdown groups
+  const dropdownGroups: DropdownGroup[] = [
+    {
+      items: [
+        {
+          label: "View Concept",
+          icon: <ExternalLink />,
+          href: `/concepts/${shortLinkId}`,
+          target: "_blank",
+        },
+        {
+          label: "Copy Concept Link",
+          icon: <Copy />,
+          onSelect: () => {
+            navigator.clipboard.writeText(
+              `${window.location.origin}/concepts/${shortLinkId}`,
+            );
+            toast.success("Concept link copied to clipboard");
+          },
+        },
+      ],
+    },
+    {
+      items: [
+        {
+          label: "View Proposal",
+          icon: <ExternalLink />,
+          href: `/proposals/${shortLinkId}`,
+          target: "_blank",
+        },
+        {
+          label: "Copy Proposal Link",
+          icon: <Copy />,
+          onSelect: () => {
+            navigator.clipboard.writeText(
+              `${window.location.origin}/proposals/${shortLinkId}`,
+            );
+            toast.success("Proposal link copied to clipboard");
+          },
+        },
+      ],
+    },
+  ];
+
+  // Status change items
+  const statusItems = [];
+  if (canReturnToDraft) {
+    statusItems.push({
+      label: "Return to Draft",
+      icon: <RotateCcw />,
+      loading: isReturningToDraft,
+      confirm: {
+        title: "Return to Draft Status",
+        description:
+          "Are you sure you want to return this quote to Draft status? This will allow the specification to be edited again.",
+        actionText: "Return to Draft",
+        onAction: returnToDraft,
+      },
+    });
+  }
+  if (canReturnToConceptSent) {
+    statusItems.push({
+      label: "Return to Concept Sent to Client",
+      icon: <Undo2 />,
+      loading: isReturningToConceptSent,
+      confirm: {
+        title: "Return to Concept Sent to Client",
+        description:
+          "Are you sure you want to return this quote to 'Concept Sent to Client' status?",
+        actionText: "Return to Concept Sent",
+        onAction: returnToConceptSent,
+      },
+    });
+  }
+  if (canReturnToCostPricing) {
+    statusItems.push({
+      label: "Return to Cost Pricing Received",
+      icon: <Undo2 />,
+      loading: isReturningToCostPricing,
+      confirm: {
+        title: "Return to Cost Pricing Received",
+        description:
+          "Are you sure you want to return this quote to 'Cost Pricing Received from Voxd' status?",
+        actionText: "Return to Cost Pricing",
+        onAction: returnToCostPricingReceived,
+      },
+    });
+  }
+  statusItems.push({
+    label: "Mark as Closed Lost",
+    icon: <XCircle />,
+    danger: true,
+    loading: isClosingLost,
+    confirm: {
+      title: `Mark ${name} as Closed Lost`,
+      description:
+        "Are you sure you want to mark this quote as closed lost? This will close the quote.",
+      actionText: "Mark as Closed Lost",
+      destructive: true,
+      onAction: closeQuoteLost,
+    },
+  });
+  if (canReopen) {
+    statusItems.push({
+      label: "Re-open Quote",
+      icon: <RotateCw />,
+      loading: isReopening,
+      confirm: {
+        title: "Re-open Quote",
+        description:
+          "Are you sure you want to re-open this quote? This will set the quote back to 'Proposal with Client' status.",
+        actionText: "Re-open Quote",
+        onAction: reopenQuote,
+      },
+    });
+  }
+  if (statusItems.length > 0) {
+    dropdownGroups.push({ items: statusItems });
+  }
+
+  // Clone + management items
+  const managementItems = [
+    {
+      label: "Clone to Organisation",
+      icon: <CopyPlus />,
+      onSelect: () => setCloneDialogOpen(true),
+    },
+  ];
+  if (canDelete) {
+    managementItems.push({
+      label: "Change Owner",
+      icon: <UserCog />,
+      onSelect: () => setChangeOwnerOpen(true),
+    });
+  }
+  dropdownGroups.push({ items: managementItems });
+
+  if (canDelete) {
+    dropdownGroups.push({
+      items: [
+        {
+          label: "Delete Quote",
+          icon: <Trash2 />,
+          danger: true,
+          loading: isDeleting,
+          confirm: {
+            title: `Delete ${name}`,
+            description:
+              "Are you sure you want to delete this quote? This action cannot be undone.",
+            actionText: "Delete Quote",
+            destructive: true,
+            onAction: deleteQuote,
+          },
+        },
+      ],
+    });
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      {canSendConceptToClient && (
-        <Alert
-          title={`Send ${name} Concept to Client`}
-          description="Are you sure you want to send this concept to the client?"
-          actionText="Send Concept"
-          onAction={sendConceptToClient}
-          destructive={false}
-        >
-          <Button className="cursor-pointer" size="sm">
-            {isSendingConcept ? <Spinner /> : null}
-            Send Concept
-          </Button>
-        </Alert>
-      )}
-      {canSubmitForPricing && (
-        <Alert
-          title={`Submit ${name} for Pricing`}
-          description="Are you sure you want to submit this quote for cost pricing from Voxd?"
-          actionText="Submit for Pricing"
-          onAction={submitForPricing}
-          destructive={false}
-        >
-          <Button className="cursor-pointer" size="sm">
-            {isSubmittingForPricing ? <Spinner /> : null}
-            Submit to Voxd
-          </Button>
-        </Alert>
-      )}
-      {canMarkSentToClient && (
-        <Alert
-          title={`Mark ${name} as Proposal with Client`}
-          description="Are you sure you want to mark this quote as proposal with client?"
-          actionText="Mark as Proposal with Client"
-          onAction={markSentToClient}
-          destructive={false}
-        >
-          <Button className="cursor-pointer" size="sm">
-            {isMarkingSentToClient ? <Spinner /> : null}
-            Mark as Proposal with Client
-          </Button>
-        </Alert>
-      )}
-      {canClose && (
-        <>
-          <Alert
-            title={`Mark ${name} as WON`}
-            description="Are you sure you want to mark this quote as won? This will close the quote."
-            actionText="Mark as WON"
-            onAction={closeQuoteWon}
-            destructive={false}
-          >
-            <Button
-              className="cursor-pointer bg-green-500 hover:bg-green-600"
-              size="sm"
-            >
-              {isClosingWon ? <Spinner /> : null}
-              WON
-            </Button>
-          </Alert>
-          <Alert
-            title={`Mark ${name} as LOST`}
-            description="Are you sure you want to mark this quote as lost? This will close the quote."
-            actionText="Mark as LOST"
-            onAction={closeQuoteLost}
-            destructive={true}
-          >
-            <Button
-              className="cursor-pointer bg-red-500 hover:bg-red-600"
-              size="sm"
-            >
-              {isClosingLost ? <Spinner /> : null}
-              LOST
-            </Button>
-          </Alert>
-        </>
-      )}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild className="cursor-pointer">
-            <a
-              href={`/concepts/${shortLinkId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Concept
-            </a>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              navigator.clipboard.writeText(
-                `${window.location.origin}/concepts/${shortLinkId}`,
-              );
-              toast.success("Concept link copied to clipboard");
-            }}
-            className="cursor-pointer"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            Copy Concept Link
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild className="cursor-pointer">
-            <a
-              href={`/proposals/${shortLinkId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              View Proposal
-            </a>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              navigator.clipboard.writeText(
-                `${window.location.origin}/proposals/${shortLinkId}`,
-              );
-              toast.success("Proposal link copied to clipboard");
-            }}
-            className="cursor-pointer"
-          >
-            <Copy className="h-4 w-4 mr-2" />
-            Copy Proposal Link
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {canReturnToDraft && (
-            <>
-              <DropdownMenuSeparator />
-              <Alert
-                title="Return to Draft Status"
-                description="Are you sure you want to return this quote to Draft status? This will allow the specification to be edited again."
-                actionText="Return to Draft"
-                onAction={returnToDraft}
-                destructive={false}
-              >
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="cursor-pointer"
-                >
-                  {isReturningToDraft ? (
-                    <Spinner className="h-4 w-4 mr-2" />
-                  ) : (
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                  )}
-                  Return to Draft
-                </DropdownMenuItem>
-              </Alert>
-            </>
-          )}
-          {canReturnToConceptSent && (
-            <>
-              <Alert
-                title="Return to Concept Sent to Client"
-                description="Are you sure you want to return this quote to 'Concept Sent to Client' status?"
-                actionText="Return to Concept Sent"
-                onAction={returnToConceptSent}
-                destructive={false}
-              >
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="cursor-pointer"
-                >
-                  {isReturningToConceptSent ? (
-                    <Spinner className="h-4 w-4 mr-2" />
-                  ) : (
-                    <Undo2 className="h-4 w-4 mr-2" />
-                  )}
-                  Return to Concept Sent to Client
-                </DropdownMenuItem>
-              </Alert>
-            </>
-          )}
-          {canReturnToCostPricing && (
-            <>
-              <Alert
-                title="Return to Cost Pricing Received"
-                description="Are you sure you want to return this quote to 'Cost Pricing Received from Voxd' status?"
-                actionText="Return to Cost Pricing"
-                onAction={returnToCostPricingReceived}
-                destructive={false}
-              >
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="cursor-pointer"
-                >
-                  {isReturningToCostPricing ? (
-                    <Spinner className="h-4 w-4 mr-2" />
-                  ) : (
-                    <Undo2 className="h-4 w-4 mr-2" />
-                  )}
-                  Return to Cost Pricing Received
-                </DropdownMenuItem>
-              </Alert>
-            </>
-          )}
-          <Alert
-            title={`Mark ${name} as Closed Lost`}
-            description="Are you sure you want to mark this quote as closed lost? This will close the quote."
-            actionText="Mark as Closed Lost"
-            onAction={closeQuoteLost}
-            destructive={true}
-          >
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="cursor-pointer text-destructive"
-            >
-              {isClosingLost ? (
-                <Spinner className="h-4 w-4 mr-2" />
-              ) : (
-                <XCircle className="h-4 w-4 mr-2 text-destructive" />
-              )}
-              Mark as Closed Lost
-            </DropdownMenuItem>
-          </Alert>
-          {canReopen && (
-            <>
-              <Alert
-                title="Re-open Quote"
-                description="Are you sure you want to re-open this quote? This will set the quote back to 'Proposal with Client' status."
-                actionText="Re-open Quote"
-                onAction={reopenQuote}
-                destructive={false}
-              >
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="cursor-pointer"
-                >
-                  {isReopening ? (
-                    <Spinner className="h-4 w-4 mr-2" />
-                  ) : (
-                    <RotateCw className="h-4 w-4 mr-2" />
-                  )}
-                  Re-open Quote
-                </DropdownMenuItem>
-              </Alert>
-            </>
-          )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onSelect={() => setCloneDialogOpen(true)}
-            className="cursor-pointer"
-          >
-            <CopyPlus className="h-4 w-4 mr-2" />
-            Clone to Organisation
-          </DropdownMenuItem>
-          {canDelete && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onSelect={() => setChangeOwnerOpen(true)}
-                className="cursor-pointer"
-              >
-                <UserCog className="h-4 w-4 mr-2" />
-                Change Owner
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <Alert
-                title={`Delete ${name}`}
-                description="Are you sure you want to delete this quote? This action cannot be undone."
-                actionText="Delete Quote"
-                onAction={deleteQuote}
-                destructive={true}
-              >
-                <DropdownMenuItem
-                  onSelect={(e) => e.preventDefault()}
-                  className="cursor-pointer text-destructive"
-                >
-                  {isDeleting ? (
-                    <Spinner />
-                  ) : (
-                    <Trash2 className="h-4 w-4 mr-2 text-destructive" />
-                  )}
-                  Delete Quote
-                </DropdownMenuItem>
-              </Alert>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <>
+      <RecordActions
+        buttons={workflowButtons}
+        dropdown={{
+          loading: isDeleting,
+          groups: dropdownGroups,
+        }}
+      />
 
       <ChangeOwnerDialog
         quoteId={quoteId}
@@ -584,6 +532,6 @@ export default function QuoteActions({
         open={cloneDialogOpen}
         onOpenChange={setCloneDialogOpen}
       />
-    </div>
+    </>
   );
 }

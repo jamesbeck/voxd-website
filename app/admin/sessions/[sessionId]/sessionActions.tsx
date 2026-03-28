@@ -1,34 +1,15 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
 import saDeleteSession from "@/actions/saDeleteSession";
 import saPauseSession from "@/actions/saPauseSession";
 import saResumeSession from "@/actions/saResumeSession";
 import saEndSession from "@/actions/saEndSession";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   CopyIcon,
   FlagIcon,
-  MoreHorizontalIcon,
   PauseIcon,
   PlayIcon,
   Trash2Icon,
@@ -37,6 +18,15 @@ import {
 import { format } from "date-fns";
 import ReportSessionDialog from "./ReportSessionDialog";
 import SessionTicketBadge from "./SessionTicketBadge";
+import RecordActions from "@/components/admin/RecordActions";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Ticket = {
   id: string;
@@ -176,144 +166,124 @@ export default function SessionActions({
         sessionId={sessionId}
       />
 
-      <div className="flex items-center gap-2">
-        <ButtonGroup>
-          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                  onClick={() => setReportDialogOpen(true)}
-                >
-                  <FlagIcon className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>Report issue for this session</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          {tickets.length > 0 && (
-            <SessionTicketBadge tickets={tickets} variant="button" />
-          )}
-        </ButtonGroup>
-
-        <ButtonGroup>
-          {!paused && !closed && (
-            <Alert
-              destructive
-              title={`Pause ${name}`}
-              description="Are you sure you want to pause this chat session? Whilst paused the AI agent will not reply to the user."
-              actionText="Pause"
-              onAction={pauseSession}
-            >
-              <Button className="cursor-pointer" variant="outline" size="sm">
-                {isPausingSession ? (
-                  <Spinner />
-                ) : (
-                  <PauseIcon className="h-4 w-4" />
-                )}
-                Pause
-              </Button>
-            </Alert>
-          )}
-
-          {paused && !closed && (
-            <Alert
-              destructive
-              title={`Resume ${name}`}
-              description="Are you sure you want to resume this chat session? The AI agent will start replying to the user again."
-              actionText="Resume"
-              onAction={resumeSession}
-            >
-              <Button className="cursor-pointer" variant="outline" size="sm">
-                {isResumingSession ? (
-                  <Spinner />
-                ) : (
-                  <PlayIcon className="h-4 w-4" />
-                )}
-                Resume
-              </Button>
-            </Alert>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="More Options"
-                className="h-8 w-8"
-              >
-                <MoreHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuGroup>
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <DropdownMenuItem onClick={copyConversation}>
-                        <CopyIcon className="h-4 w-4" />
-                        Copy Conversation
-                      </DropdownMenuItem>
-                    </TooltipTrigger>
-                    <TooltipContent side="left">
-                      <p>Copy entire conversation to clipboard</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                {!closed && (
-                  <Alert
-                    destructive
-                    title={`End ${name}`}
-                    description="Are you sure you want to end this session? The session will be marked as closed and any further messages from the user will start a brand new session."
-                    actionText="End Session"
-                    onAction={endSession}
+      <RecordActions
+        custom={
+          <ButtonGroup>
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    onClick={() => setReportDialogOpen(true)}
                   >
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      {isEndingSession ? (
-                        <Spinner />
-                      ) : (
-                        <XCircleIcon className="h-4 w-4" />
-                      )}
-                      End Session
-                    </DropdownMenuItem>
-                  </Alert>
-                )}
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <Alert
-                  destructive
-                  title={`Delete ${name}`}
-                  description="This action cannot be undone. All messages and data associated with this session will be permanently deleted."
-                  actionText="Delete"
-                  onAction={deleteSession}
-                >
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    {isDeletingSession ? (
-                      <Spinner />
-                    ) : (
-                      <Trash2Icon className="h-4 w-4" />
-                    )}
-                    Delete Session
-                  </DropdownMenuItem>
-                </Alert>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </ButtonGroup>
-      </div>
+                    <FlagIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Report issue for this session</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {tickets.length > 0 && (
+              <SessionTicketBadge tickets={tickets} variant="button" />
+            )}
+          </ButtonGroup>
+        }
+        buttons={[
+          ...(!paused && !closed
+            ? [
+                {
+                  label: "Pause",
+                  icon: <PauseIcon />,
+                  variant: "outline" as const,
+                  loading: isPausingSession,
+                  confirm: {
+                    title: `Pause ${name}`,
+                    description:
+                      "Are you sure you want to pause this chat session? Whilst paused the AI agent will not reply to the user.",
+                    actionText: "Pause",
+                    destructive: true,
+                  },
+                  onClick: pauseSession,
+                },
+              ]
+            : []),
+          ...(paused && !closed
+            ? [
+                {
+                  label: "Resume",
+                  icon: <PlayIcon />,
+                  variant: "outline" as const,
+                  loading: isResumingSession,
+                  confirm: {
+                    title: `Resume ${name}`,
+                    description:
+                      "Are you sure you want to resume this chat session? The AI agent will start replying to the user again.",
+                    actionText: "Resume",
+                    destructive: true,
+                  },
+                  onClick: resumeSession,
+                },
+              ]
+            : []),
+        ]}
+        dropdown={{
+          loading: isDeletingSession || isEndingSession,
+          groups: [
+            {
+              items: [
+                {
+                  label: "Copy Conversation",
+                  icon: <CopyIcon />,
+                  onSelect: copyConversation,
+                },
+              ],
+            },
+            ...(!closed
+              ? [
+                  {
+                    items: [
+                      {
+                        label: "End Session",
+                        icon: <XCircleIcon />,
+                        loading: isEndingSession,
+                        confirm: {
+                          title: `End ${name}`,
+                          description:
+                            "Are you sure you want to end this session? The session will be marked as closed and any further messages from the user will start a brand new session.",
+                          actionText: "End Session",
+                          destructive: true,
+                          onAction: endSession,
+                        },
+                      },
+                    ],
+                  },
+                ]
+              : []),
+            {
+              items: [
+                {
+                  label: "Delete Session",
+                  icon: <Trash2Icon />,
+                  danger: true,
+                  loading: isDeletingSession,
+                  confirm: {
+                    title: `Delete ${name}`,
+                    description:
+                      "This action cannot be undone. All messages and data associated with this session will be permanently deleted.",
+                    actionText: "Delete",
+                    destructive: true,
+                    onAction: deleteSession,
+                  },
+                },
+              ],
+            },
+          ],
+        }}
+      />
     </>
   );
 }

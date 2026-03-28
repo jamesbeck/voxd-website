@@ -1,20 +1,11 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
 import saDeletePartialPrompt from "@/actions/saDeletePartialPrompt";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function PartialPromptActions({
   partialPromptId,
@@ -48,31 +39,29 @@ export default function PartialPromptActions({
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          {isDeleting ? <Spinner /> : <MoreHorizontalIcon />}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuGroup>
-          <Alert
-            destructive
-            title={`Delete ${partialPromptName}`}
-            description="This action cannot be undone. This partial prompt will be permanently deleted."
-            actionText="Delete"
-            onAction={deletePartialPrompt}
-          >
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2Icon className="mr-2 h-4 w-4" />
-              Delete Partial Prompt
-            </DropdownMenuItem>
-          </Alert>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <RecordActions
+      dropdown={{
+        loading: isDeleting,
+        groups: [
+          {
+            items: [
+              {
+                label: "Delete Partial Prompt",
+                icon: <Trash2Icon />,
+                danger: true,
+                confirm: {
+                  title: `Delete ${partialPromptName}`,
+                  description:
+                    "This action cannot be undone. This partial prompt will be permanently deleted.",
+                  actionText: "Delete",
+                  destructive: true,
+                  onAction: deletePartialPrompt,
+                },
+              },
+            ],
+          },
+        ],
+      }}
+    />
   );
 }

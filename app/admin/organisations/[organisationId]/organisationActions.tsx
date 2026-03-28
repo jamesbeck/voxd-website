@@ -2,23 +2,13 @@
 
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
 import { Spinner } from "@/components/ui/spinner";
 import saDeleteOrganisation from "@/actions/saDeleteOrganisation";
 import { saUpdateOrganisation } from "@/actions/saUpdateOrganisation";
 import { saSyncOrganisationFromWebsite } from "@/actions/saSyncOrganisationFromWebsite";
 import MoveToPartnerDialog from "./MoveToPartnerDialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -37,7 +27,6 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   ArrowRightLeftIcon,
-  MoreHorizontalIcon,
   PencilIcon,
   RefreshCwIcon,
   Trash2Icon,
@@ -45,6 +34,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import RecordActions from "@/components/admin/RecordActions";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -166,67 +156,56 @@ export default function OrganisationActions({
 
   return (
     <>
-      <ButtonGroup>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="More Options"
-              className="h-8 w-8"
-            >
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuGroup>
-              <DropdownMenuItem onSelect={() => setEditDialogOpen(true)}>
-                <PencilIcon className="h-4 w-4" />
-                Edit Organisation
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={syncFromWebsite}
-                disabled={isSyncing || !webAddress}
-              >
-                {isSyncing ? (
-                  <Spinner className="h-4 w-4" />
-                ) : (
-                  <RefreshCwIcon className="h-4 w-4" />
-                )}
-                Re-sync from Website
-              </DropdownMenuItem>
-              {isSuperAdmin && (
-                <DropdownMenuItem
-                  onSelect={() => setMoveToPartnerDialogOpen(true)}
-                >
-                  <ArrowRightLeftIcon className="h-4 w-4" />
-                  Move to Partner
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <Alert
-                destructive
-                title={`Delete ${name}`}
-                description="This action cannot be undone. All agents, users, and data associated with this organisation will be permanently deleted."
-                actionText="Delete"
-                onAction={deleteOrganisation}
-              >
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  {isDeleting ? (
-                    <Spinner />
-                  ) : (
-                    <Trash2Icon className="h-4 w-4" />
-                  )}
-                  Delete Organisation
-                </DropdownMenuItem>
-              </Alert>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </ButtonGroup>
+      <RecordActions
+        dropdown={{
+          loading: isDeleting,
+          groups: [
+            {
+              items: [
+                {
+                  label: "Edit Organisation",
+                  icon: <PencilIcon />,
+                  onSelect: () => setEditDialogOpen(true),
+                },
+                {
+                  label: "Re-sync from Website",
+                  icon: <RefreshCwIcon />,
+                  onSelect: syncFromWebsite,
+                  disabled: isSyncing || !webAddress,
+                  loading: isSyncing,
+                },
+                ...(isSuperAdmin
+                  ? [
+                      {
+                        label: "Move to Partner",
+                        icon: <ArrowRightLeftIcon />,
+                        onSelect: () => setMoveToPartnerDialogOpen(true),
+                      },
+                    ]
+                  : []),
+              ],
+            },
+            {
+              items: [
+                {
+                  label: "Delete Organisation",
+                  icon: <Trash2Icon />,
+                  danger: true,
+                  loading: isDeleting,
+                  confirm: {
+                    title: `Delete ${name}`,
+                    description:
+                      "This action cannot be undone. All agents, users, and data associated with this organisation will be permanently deleted.",
+                    actionText: "Delete",
+                    destructive: true,
+                    onAction: deleteOrganisation,
+                  },
+                },
+              ],
+            },
+          ],
+        }}
+      />
 
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="max-w-[425px]">

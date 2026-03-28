@@ -1,19 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Flag } from "lucide-react";
 import CreateTicketDialog from "./CreateTicketDialog";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function SupportTicketsActions() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   return (
     <>
-      <Button onClick={() => setCreateDialogOpen(true)}>
-        <Flag className="h-4 w-4 mr-2" />
-        New Ticket
-      </Button>
+      <RecordActions
+        buttons={[
+          {
+            label: "New Ticket",
+            icon: <Flag />,
+            variant: "default",
+            onClick: () => setCreateDialogOpen(true),
+          },
+        ]}
+      />
 
       <CreateTicketDialog
         open={createDialogOpen}

@@ -1,13 +1,11 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/admin/Alert";
-import { Spinner } from "@/components/ui/spinner";
 import saDeleteKnowledgeBlock from "@/actions/saDeleteKnowledgeBlock";
 import { Trash2Icon } from "lucide-react";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function KnowledgeBlockActions({
   blockId,
@@ -45,17 +43,23 @@ export default function KnowledgeBlockActions({
   };
 
   return (
-    <Alert
-      destructive
-      title={`Delete Knowledge Block ${blockIndex}`}
-      description="This action cannot be undone. This knowledge block and its embedding will be permanently deleted."
-      actionText="Delete"
-      onAction={deleteBlock}
-    >
-      <Button variant="destructive" size="sm" className="cursor-pointer">
-        {isDeleting ? <Spinner /> : <Trash2Icon className="h-4 w-4" />}
-        Delete
-      </Button>
-    </Alert>
+    <RecordActions
+      buttons={[
+        {
+          label: "Delete",
+          icon: <Trash2Icon />,
+          variant: "destructive",
+          loading: isDeleting,
+          confirm: {
+            title: `Delete Knowledge Block ${blockIndex}`,
+            description:
+              "This action cannot be undone. This knowledge block and its embedding will be permanently deleted.",
+            actionText: "Delete",
+            destructive: true,
+          },
+          onClick: deleteBlock,
+        },
+      ]}
+    />
   );
 }

@@ -1,19 +1,9 @@
 "use client";
 
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Spinner } from "@/components/ui/spinner";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontalIcon,
   Webhook,
   Trash2Icon,
   RefreshCw,
@@ -21,6 +11,7 @@ import {
 import saSetNumberWebhook from "@/lib/meta/saSetNumberWebhook";
 import saClearNumberWebhook from "@/lib/meta/saClearNumberWebhook";
 import saSyncPhoneNumberWithMeta from "@/actions/saSyncPhoneNumberWithMeta";
+import RecordActions from "@/components/admin/RecordActions";
 
 export default function PhoneNumberActions({
   phoneNumberId,
@@ -103,42 +94,41 @@ export default function PhoneNumberActions({
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          {isLoading ? <Spinner /> : <MoreHorizontalIcon />}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuGroup>
-          <DropdownMenuItem onClick={syncPhoneNumber} disabled={isLoading}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Sync with Meta
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setWebhook("Voxd Production")}
-            disabled={isLoading}
-          >
-            <Webhook className="mr-2 h-4 w-4" />
-            Set Webhook to Production
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setWebhook("Voxd Development")}
-            disabled={isLoading}
-          >
-            <Webhook className="mr-2 h-4 w-4" />
-            Set Webhook to Development
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={clearWebhook}
-            disabled={isLoading}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash2Icon className="mr-2 h-4 w-4" />
-            Clear Webhook
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <RecordActions
+      dropdown={{
+        loading: isLoading,
+        groups: [
+          {
+            items: [
+              {
+                label: "Sync with Meta",
+                icon: <RefreshCw />,
+                onSelect: syncPhoneNumber,
+                disabled: isLoading,
+              },
+              {
+                label: "Set Webhook to Production",
+                icon: <Webhook />,
+                onSelect: () => setWebhook("Voxd Production"),
+                disabled: isLoading,
+              },
+              {
+                label: "Set Webhook to Development",
+                icon: <Webhook />,
+                onSelect: () => setWebhook("Voxd Development"),
+                disabled: isLoading,
+              },
+              {
+                label: "Clear Webhook",
+                icon: <Trash2Icon />,
+                danger: true,
+                onSelect: clearWebhook,
+                disabled: isLoading,
+              },
+            ],
+          },
+        ],
+      }}
+    />
   );
 }
