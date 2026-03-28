@@ -153,3 +153,20 @@ import RecordActions from "@/components/admin/RecordActions";
 - `buttons`: Array of `ActionButton` or `ActionButtonGroup` objects. Single buttons default to `variant="outline"` and `size="sm"` (or `size="icon-sm"` if label-less).
 - `dropdown`: Single ellipsis menu. Groups are separated by `DropdownMenuSeparator`. Items with `confirm` auto-wrap in the `Alert` confirm dialog. Items with `href` render as links.
 - Do **not** manually compose `DropdownMenu` + `Button` + `Alert` in action components — always use `RecordActions`.
+
+## Admin Table Links
+
+When adding clickable links inside admin `DataTable` column formatters, always use the shared `TableLink` component from `@/components/adminui/TableLink`. Do **not** use raw `<Link>` or `<a>` tags with manual classes.
+
+```tsx
+import TableLink from "@/components/adminui/TableLink";
+
+{
+  label: "Name",
+  name: "niceName",
+  sort: true,
+  format: (row: any) => (
+    <TableLink href={`/admin/agents/${row.id}`}>{row.niceName}</TableLink>
+  ),
+}
+```
