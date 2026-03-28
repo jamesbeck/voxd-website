@@ -2,6 +2,7 @@
 
 import DataTable from "@/components/adminui/Table";
 import Link from "next/link";
+import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 import saGetSupportTicketTableData from "@/actions/saGetSupportTicketTableData";
@@ -58,9 +59,7 @@ const SupportTicketsTable = ({
       sort: true,
       format: (row: any) =>
         row.agentId && row.agentName ? (
-          <Button asChild size="sm" variant="outline">
-            <Link href={`/admin/agents/${row.agentId}`}>{row.agentName}</Link>
-          </Button>
+          <TableLink href={`/admin/agents/${row.agentId}`}>{row.agentName}</TableLink>
         ) : (
           <span className="text-muted-foreground">-</span>
         ),

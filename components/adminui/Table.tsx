@@ -19,7 +19,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { ArrowDown, ArrowUp, Info } from "lucide-react";
-import Link from "next/link";
+import TableLink from "@/components/adminui/TableLink";
 import {
   ServerActionReadResponse,
   ServerActionReadParams,
@@ -28,7 +28,7 @@ import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Button } from "../ui/button";
+
 import {
   Tooltip,
   TooltipContent,
@@ -285,16 +285,9 @@ export default function DataTable<TExtra extends object = object>({
                     return (
                       <TableCell key={column.name}>
                         {column.linkTo ? (
-                          <Button
-                            variant={"outline"}
-                            size="sm"
-                            className="cursor:pointer"
-                            asChild={true}
-                          >
-                            <Link href={column.linkTo(datum)}>
-                              {formattedValue}
-                            </Link>
-                          </Button>
+                          <TableLink href={column.linkTo(datum)}>
+                            {formattedValue}
+                          </TableLink>
                         ) : (
                           formattedValue
                         )}

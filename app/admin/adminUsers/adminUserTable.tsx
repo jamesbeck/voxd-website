@@ -4,6 +4,7 @@ import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import TableLink from "@/components/adminui/TableLink";
 import { formatDistanceToNow } from "date-fns";
 
 const adminUsersTable = () => {
@@ -28,11 +29,9 @@ const adminUsersTable = () => {
           return <span className="text-muted-foreground">None</span>;
         }
         return (
-          <Button variant={"outline"} size="sm" asChild={true}>
-            <Link href={`/admin/organisations/${row.organisationId}`}>
-              {row.organisationName}
-            </Link>
-          </Button>
+          <TableLink href={`/admin/organisations/${row.organisationId}`}>
+            {row.organisationName}
+          </TableLink>
         );
       },
     },

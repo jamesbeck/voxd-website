@@ -6,6 +6,7 @@ import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import TableLink from "@/components/adminui/TableLink";
 
 const usersTable = () => {
   const columns = [
@@ -14,9 +15,7 @@ const usersTable = () => {
       name: "name",
       sort: true,
       format: (row: any) => (
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/admin/chatUsers/${row.id}`}>{row.name}</Link>
-        </Button>
+        <TableLink href={`/admin/chatUsers/${row.id}`}>{row.name}</TableLink>
       ),
     },
     {
@@ -50,11 +49,9 @@ const usersTable = () => {
       format: (row: any) => {
         if (!row.agentId) return null;
         return (
-          <Button asChild size="sm" variant="outline">
-            <Link href={`/admin/agents/${row.agentId}`}>
-              {row.agentNiceName}
-            </Link>
-          </Button>
+          <TableLink href={`/admin/agents/${row.agentId}`}>
+            {row.agentNiceName}
+          </TableLink>
         );
       },
     },

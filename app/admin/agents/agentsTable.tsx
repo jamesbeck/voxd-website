@@ -2,6 +2,7 @@
 
 import DataTable from "@/components/adminui/Table";
 import Link from "next/link";
+import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 import saGetAgentTableData from "@/actions/saGetAgentTableData";
@@ -15,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
+const AgentsTable = () => {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [selectedWhatsAppUrl, setSelectedWhatsAppUrl] = useState("");
   const [selectedAgentName, setSelectedAgentName] = useState("");
@@ -53,29 +54,27 @@ const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
   };
 
   const columns = [
-    ...(isSuperAdmin
-      ? [
-          {
-            label: "Name",
-            name: "name",
-            sort: true,
-            format: (row: any) => (
-              <Button asChild size="sm" variant="outline">
-                <Link href={`/admin/agents/${row.id}`}>{row.name}</Link>
-              </Button>
-            ),
-          },
-        ]
-      : []),
     {
-      label: "Nice Name",
+      label: "Name",
       name: "niceName",
       sort: true,
       format: (row: any) => (
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/admin/agents/${row.id}`}>{row.niceName}</Link>
-        </Button>
+        <TableLink href={`/admin/agents/${row.id}`}>{row.niceName}</TableLink>
       ),
+    },
+    {
+      label: "Organisation",
+      name: "organisationName",
+      format: (row: any) => {
+        if (!row.organisationId) {
+          return <span className="text-muted-foreground">None</span>;
+        }
+        return (
+          <TableLink href={`/admin/organisations/${row.organisationId}`}>
+            {row.organisationName}
+          </TableLink>
+        );
+      },
     },
     {
       label: "Phone Number",

@@ -2,6 +2,7 @@
 
 import DataTable, { Column } from "@/components/adminui/Table";
 import Link from "next/link";
+import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
 import { Button } from "@/components/ui/button";
 import saGetSessionTableData from "@/actions/saGetSessionsTableData";
@@ -104,9 +105,7 @@ const SessionsTable = ({
       name: "agentName",
       sort: true,
       format: (row: any) => (
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/admin/agents/${row.agentId}`}>{row.agentName}</Link>
-        </Button>
+        <TableLink href={`/admin/agents/${row.agentId}`}>{row.agentName}</TableLink>
       ),
     },
     {
