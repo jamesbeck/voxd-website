@@ -25,7 +25,7 @@ export default async function getPartnerFromHeaders() {
     throw new Error(
       `Invalid partner domain: "${domain}"\n` +
         `Valid partner domains are:\n` +
-        validDomains.map((d) => `  - ${d}`).join("\n")
+        validDomains.map((d) => `  - ${d}`).join("\n"),
     );
   }
 

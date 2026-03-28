@@ -20,7 +20,10 @@ function isValidPartnerDomain(partners: Partner[], domain: string): boolean {
 /**
  * Get the redirect base URL, using origin domain from OAuth state if valid
  */
-function getRedirectBaseUrl(partners: Partner[], originDomain: string | null | undefined): string {
+function getRedirectBaseUrl(
+  partners: Partner[],
+  originDomain: string | null | undefined,
+): string {
   const fallbackUrl =
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
