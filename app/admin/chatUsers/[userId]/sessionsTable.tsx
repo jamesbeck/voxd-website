@@ -1,10 +1,8 @@
 "use client";
 
 import DataTable, { Column } from "@/components/adminui/Table";
-import Link from "next/link";
 import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetSessionTableData from "@/actions/saGetSessionsTableData";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -13,11 +11,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Alert from "@/components/admin/Alert";
 import saEndSession from "@/actions/saEndSession";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { XCircleIcon } from "lucide-react";
+import TableActions from "@/components/admin/TableActions";
 
 const SessionsTable = ({
   userId,
@@ -105,7 +103,9 @@ const SessionsTable = ({
       name: "agentName",
       sort: true,
       format: (row: any) => (
-        <TableLink href={`/admin/agents/${row.agentId}`}>{row.agentName}</TableLink>
+        <TableLink href={`/admin/agents/${row.agentId}`}>
+          {row.agentName}
+        </TableLink>
       ),
     },
     {
@@ -154,31 +154,31 @@ const SessionsTable = ({
       getData={saGetSessionTableData}
       getDataParams={{ userId }}
       columns={columns}
-      actions={(row: any) => {
-        return (
-          <div className="flex items-center gap-2">
-            {(row.sessionType != "development" || superAdmin) && (
-              <Button asChild size="sm">
-                <Link href={`/admin/sessions/${row.id}`}>View</Link>
-              </Button>
-            )}
-            {!row.closedAt && (
-              <Alert
-                destructive
-                title="Close Session"
-                description="Are you sure you want to close this session? The session will be marked as closed and any further messages from the user will start a brand new session."
-                actionText="Close Session"
-                onAction={() => handleCloseSession(row.id, row.agentName)}
-              >
-                <Button size="sm" variant="destructive">
-                  <XCircleIcon className="h-4 w-4 mr-1" />
-                  Close
-                </Button>
-              </Alert>
-            )}
-          </div>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions
+          buttons={[
+            {
+              label: "View",
+              href: `/admin/sessions/${row.id}`,
+              hidden: row.sessionType === "development" && !superAdmin,
+            },
+            {
+              label: "Close",
+              icon: <XCircleIcon />,
+              variant: "destructive",
+              hidden: !!row.closedAt,
+              confirm: {
+                title: "Close Session",
+                description:
+                  "Are you sure you want to close this session? The session will be marked as closed and any further messages from the user will start a brand new session.",
+                actionText: "Close Session",
+                destructive: true,
+                onAction: () => handleCloseSession(row.id, row.agentName),
+              },
+            },
+          ]}
+        />
+      )}
     />
   );
 };

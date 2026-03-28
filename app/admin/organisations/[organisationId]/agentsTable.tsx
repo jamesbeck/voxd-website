@@ -1,11 +1,10 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetAgentTableData from "@/actions/saGetAgentTableData";
+import TableActions from "@/components/admin/TableActions";
 
 const AgentsTable = ({ organisationId }: { organisationId: string }) => {
   const columns = [
@@ -46,13 +45,9 @@ const AgentsTable = ({ organisationId }: { organisationId: string }) => {
     },
   ];
 
-  const actions = (row: any) => {
-    return (
-      <Button asChild size={"sm"}>
-        <Link href={`/admin/agents/${row.id}`}>View</Link>
-      </Button>
-    );
-  };
+  const actions = (row: any) => (
+    <TableActions href={`/admin/agents/${row.id}`} />
+  );
 
   return (
     <DataTable

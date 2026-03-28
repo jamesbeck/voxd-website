@@ -1,13 +1,13 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetSessionTableData from "@/actions/saGetSessionsTableData";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import TableActions from "@/components/admin/TableActions";
 import {
   Tooltip,
   TooltipContent,
@@ -147,7 +147,9 @@ const SessionsTable = ({
       name: "name",
       sort: true,
       format: (row: any) => (
-        <TableLink href={`/admin/chatUsers/${row.userId}`}>{row.name}</TableLink>
+        <TableLink href={`/admin/chatUsers/${row.userId}`}>
+          {row.name}
+        </TableLink>
       ),
     },
     {
@@ -212,17 +214,17 @@ const SessionsTable = ({
           {exporting ? "Exporting..." : "Export CSV"}
         </Button>
       }
-      actions={(row: any) => {
-        return (
-          <>
-            {(row.sessionType != "development" || superAdmin) && (
-              <Button asChild size={"sm"}>
-                <Link href={`/admin/sessions/${row.id}`}>View</Link>
-              </Button>
-            )}
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions
+          buttons={[
+            {
+              label: "View",
+              href: `/admin/sessions/${row.id}`,
+              hidden: row.sessionType === "development" && !superAdmin,
+            },
+          ]}
+        />
+      )}
     />
   );
 };

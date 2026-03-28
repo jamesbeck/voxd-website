@@ -2,10 +2,9 @@
 
 import saGetAdminUserTableData from "@/actions/saGetAdminUserTableData";
 import DataTable from "@/components/adminui/Table";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import TableLink from "@/components/adminui/TableLink";
 import { formatDistanceToNow } from "date-fns";
+import TableActions from "@/components/admin/TableActions";
 
 const adminUsersTable = () => {
   const columns = [
@@ -54,15 +53,9 @@ const adminUsersTable = () => {
     <DataTable
       columns={columns}
       getData={saGetAdminUserTableData}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button asChild size={"sm"}>
-              <Link href={`/admin/adminUsers/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/adminUsers/${row.id}`} />
+      )}
     />
   );
 };

@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import DataTable from "@/components/adminui/Table";
 import TableFilters from "@/components/adminui/TableFilters";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
@@ -18,6 +17,7 @@ import saGetAllPartners from "@/actions/saGetAllPartners";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import { TableFilterConfig } from "@/types/types";
 import { format, isToday, isPast, startOfDay } from "date-fns";
+import TableActions from "@/components/admin/TableActions";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -320,13 +320,9 @@ const QuotesTable = ({
     },
   ];
 
-  const actions = (row: any) => {
-    return (
-      <Button asChild size={"sm"}>
-        <Link href={`/admin/quotes/${row.id}`}>View</Link>
-      </Button>
-    );
-  };
+  const actions = (row: any) => (
+    <TableActions href={`/admin/quotes/${row.id}`} />
+  );
 
   const getDataParams = {
     ...(organisationId ? { organisationId } : {}),

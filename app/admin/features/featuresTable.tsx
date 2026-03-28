@@ -4,6 +4,7 @@ import DataTable from "@/components/adminui/Table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import saGetFeatureTableData from "@/actions/saGetFeatureTableData";
+import TableActions from "@/components/admin/TableActions";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -177,17 +178,10 @@ const FeaturesTable = () => {
             format: (row: { topFeature: boolean }) =>
               row.topFeature ? "✓" : "—",
           },
-          {
-            label: "Actions",
-            name: "id",
-            sort: false,
-            format: (row: { id: string }) => (
-              <Link href={`/admin/features/${row.id}`}>
-                <Button size="sm">View</Button>
-              </Link>
-            ),
-          },
         ]}
+        actions={(row: any) => (
+          <TableActions href={`/admin/features/${row.id}`} />
+        )}
       />
     </div>
   );

@@ -1,11 +1,10 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import { format } from "date-fns";
+import TableActions from "@/components/admin/TableActions";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -85,13 +84,9 @@ const QuotesTable = ({ organisationId }: { organisationId: string }) => {
     },
   ];
 
-  const actions = (row: any) => {
-    return (
-      <Button asChild size={"sm"}>
-        <Link href={`/admin/quotes/${row.id}`}>View</Link>
-      </Button>
-    );
-  };
+  const actions = (row: any) => (
+    <TableActions href={`/admin/quotes/${row.id}`} />
+  );
 
   return (
     <DataTable

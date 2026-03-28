@@ -1,10 +1,9 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetPartialPromptTableData from "@/actions/saGetPartialPromptTableData";
+import TableActions from "@/components/admin/TableActions";
 
 const PartialPromptsTable = ({ agentId }: { agentId: string }) => {
   const columns = [
@@ -44,15 +43,11 @@ const PartialPromptsTable = ({ agentId }: { agentId: string }) => {
       getData={saGetPartialPromptTableData}
       getDataParams={{ agentId }}
       columns={columns}
-      actions={(row: any) => {
-        return (
-          <Button asChild size={"sm"}>
-            <Link href={`/admin/agents/${agentId}/partial-prompts/${row.id}`}>
-              View
-            </Link>
-          </Button>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions
+          href={`/admin/agents/${agentId}/partial-prompts/${row.id}`}
+        />
+      )}
     />
   );
 };

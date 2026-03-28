@@ -1,9 +1,8 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import saGetIndustryTableData from "@/actions/saGetIndustryTableData";
+import TableActions from "@/components/admin/TableActions";
 
 const IndustriesTable = () => {
   return (
@@ -30,15 +29,9 @@ const IndustriesTable = () => {
           sort: true,
         },
       ]}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button className="cursor-pointer" asChild>
-              <Link href={`/admin/industries/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/industries/${row.id}`} />
+      )}
     />
   );
 };

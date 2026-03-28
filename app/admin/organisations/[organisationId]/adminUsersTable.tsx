@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import TableActions from "@/components/admin/TableActions";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -179,15 +179,9 @@ const AdminUsersTable = ({ organisationId }: { organisationId: string }) => {
         columns={columns}
         getData={saGetAdminUserTableData}
         getDataParams={{ organisationId, refreshKey }}
-        actions={(row: any) => {
-          return (
-            <>
-              <Button asChild size={"sm"}>
-                <Link href={`/admin/adminUsers/${row.id}`}>View</Link>
-              </Button>
-            </>
-          );
-        }}
+        actions={(row: any) => (
+          <TableActions href={`/admin/adminUsers/${row.id}`} />
+        )}
       />
     </div>
   );

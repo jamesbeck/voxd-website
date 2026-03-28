@@ -5,9 +5,9 @@ import saGetUserTableData from "@/actions/saGetChatUserTableData";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
+import TableActions from "@/components/admin/TableActions";
 
 const usersTable = ({ agentId }: { agentId: string }) => {
   const [exporting, setExporting] = useState(false);
@@ -139,15 +139,9 @@ const usersTable = ({ agentId }: { agentId: string }) => {
           {exporting ? "Exporting..." : "Export CSV"}
         </Button>
       }
-      actions={(row: any) => {
-        return (
-          <>
-            <Button asChild size={"sm"}>
-              <Link href={`/admin/chatUsers/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/chatUsers/${row.id}`} />
+      )}
     />
   );
 };

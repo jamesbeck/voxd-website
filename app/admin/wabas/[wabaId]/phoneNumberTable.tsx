@@ -1,8 +1,6 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import saRegisterPhoneNumber from "@/lib/meta/saRegisterPhoneNumber";
 import saGetPhoneNumbersTableData from "@/actions/saGetPhoneNumbersTableData";
@@ -12,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import TableActions from "@/components/admin/TableActions";
 
 const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
   return (
@@ -135,34 +134,23 @@ const PhoneNumberTable = ({ wabaId }: { wabaId: string }) => {
           },
         },
       ]}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button className="cursor-pointer" asChild>
-              <Link href={`/admin/phone-numbers/${row.id}`}>View</Link>
-            </Button>
-            <Button
-              className="cursor-pointer"
-              onClick={() =>
-                saRegisterPhoneNumber({ phoneNumberId: row.metaId })
-              }
-            >
-              Register
-            </Button>
-            <Button className="cursor-pointer" asChild>
-              <Link
-                target="_blank"
-                href={`https://wa.me/${row.displayPhoneNumber.replaceAll(
-                  " ",
-                  "",
-                )}`}
-              >
-                Message
-              </Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions
+          buttons={[
+            { label: "View", href: `/admin/phone-numbers/${row.id}` },
+            {
+              label: "Register",
+              onClick: () =>
+                saRegisterPhoneNumber({ phoneNumberId: row.metaId }),
+            },
+            {
+              label: "Message",
+              href: `https://wa.me/${row.displayPhoneNumber.replaceAll(" ", "")}`,
+              target: "_blank",
+            },
+          ]}
+        />
+      )}
     />
   );
 };

@@ -4,10 +4,10 @@ import { format, formatDistance } from "date-fns";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import saGetChatUserTableData from "@/actions/saGetChatUserTableData";
 import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
+import TableActions from "@/components/admin/TableActions";
 
 const ChatUsersTable = ({ organisationId }: { organisationId: string }) => {
   const [exporting, setExporting] = useState(false);
@@ -139,15 +139,9 @@ const ChatUsersTable = ({ organisationId }: { organisationId: string }) => {
           {exporting ? "Exporting..." : "Export CSV"}
         </Button>
       }
-      actions={(row: any) => {
-        return (
-          <>
-            <Button asChild size={"sm"}>
-              <Link href={`/admin/chatUsers/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/chatUsers/${row.id}`} />
+      )}
     />
   );
 };

@@ -4,12 +4,11 @@ import { useEffect } from "react";
 import saGetOAuthAccountTableData from "@/actions/saGetOAuthAccountTableData";
 import saDisconnectOAuthAccount from "@/actions/saDisconnectOAuthAccount";
 import DataTable from "@/components/adminui/Table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Alert from "@/components/admin/Alert";
 import { formatDistanceToNow, format } from "date-fns";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import TableActions from "@/components/admin/TableActions";
 
 function getStatusBadgeVariant(
   status: string,
@@ -151,24 +150,24 @@ export default function OAuthAccountsTable({
       columns={columns}
       getData={saGetOAuthAccountTableData}
       defaultSort={{ name: "createdAt", direction: "desc" }}
-      actions={(row: any) => {
-        if (row.status === "revoked") {
-          return null;
-        }
-        return (
-          <Alert
-            title="Disconnect Account"
-            description={`Are you sure you want to disconnect your ${getProviderDisplayName(row.provider)} account (${row.email})? You will need to reconnect to use integrations that depend on this account.`}
-            actionText="Disconnect"
-            onAction={() => handleDisconnect(row.id)}
-            destructive
-          >
-            <Button variant="destructive" size="sm">
-              Disconnect
-            </Button>
-          </Alert>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions
+          buttons={[
+            {
+              label: "Disconnect",
+              variant: "destructive",
+              hidden: row.status === "revoked",
+              confirm: {
+                title: "Disconnect Account",
+                description: `Are you sure you want to disconnect your ${getProviderDisplayName(row.provider)} account (${row.email})? You will need to reconnect to use integrations that depend on this account.`,
+                actionText: "Disconnect",
+                destructive: true,
+                onAction: () => handleDisconnect(row.id),
+              },
+            },
+          ]}
+        />
+      )}
     />
   );
 }

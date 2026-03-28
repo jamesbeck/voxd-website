@@ -1,12 +1,12 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetAgentTableData from "@/actions/saGetAgentTableData";
 import { useRef, useState } from "react";
+import TableActions from "@/components/admin/TableActions";
+import { Button } from "@/components/ui/button";
 import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
@@ -147,32 +147,27 @@ const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
       : "";
 
     return (
-      <div className="flex gap-1">
-        <Button asChild size={"sm"}>
-          <Link href={`/admin/agents/${row.id}`}>View</Link>
-        </Button>
-        {!!row.phoneNumber && (
-          <>
-            <Button className="cursor-pointer" size={"sm"} asChild>
-              <Link target="_blank" href={whatsappUrl}>
-                Link
-              </Link>
-            </Button>
-            <Button
-              className="cursor-pointer"
-              size={"sm"}
-              variant="outline"
-              onClick={() => {
-                setSelectedWhatsAppUrl(whatsappUrl);
-                setSelectedAgentName(row.niceName || row.name);
-                setQrDialogOpen(true);
-              }}
-            >
-              QR Code
-            </Button>
-          </>
-        )}
-      </div>
+      <TableActions
+        buttons={[
+          { label: "View", href: `/admin/agents/${row.id}` },
+          {
+            label: "Link",
+            href: whatsappUrl,
+            target: "_blank",
+            hidden: !row.phoneNumber,
+          },
+          {
+            label: "QR Code",
+            variant: "outline",
+            hidden: !row.phoneNumber,
+            onClick: () => {
+              setSelectedWhatsAppUrl(whatsappUrl);
+              setSelectedAgentName(row.niceName || row.name);
+              setQrDialogOpen(true);
+            },
+          },
+        ]}
+      />
     );
   };
 

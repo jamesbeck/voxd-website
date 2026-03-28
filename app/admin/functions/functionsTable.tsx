@@ -1,9 +1,8 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import saGetFunctionTableData from "@/actions/saGetFunctionTableData";
+import TableActions from "@/components/admin/TableActions";
 
 const FunctionsTable = () => {
   return (
@@ -30,15 +29,9 @@ const FunctionsTable = () => {
           sort: true,
         },
       ]}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button className="cursor-pointer" asChild>
-              <Link href={`/admin/functions/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/functions/${row.id}`} />
+      )}
     />
   );
 };

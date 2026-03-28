@@ -3,10 +3,9 @@
 import { format, formatDistance } from "date-fns";
 import saGetUserTableData from "@/actions/saGetChatUserTableData";
 import DataTable from "@/components/adminui/Table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import TableLink from "@/components/adminui/TableLink";
+import TableActions from "@/components/admin/TableActions";
 
 const usersTable = () => {
   const columns = [
@@ -89,15 +88,9 @@ const usersTable = () => {
     <DataTable
       columns={columns}
       getData={saGetUserTableData}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button asChild size={"sm"}>
-              <Link href={`/admin/chatUsers/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/chatUsers/${row.id}`} />
+      )}
     />
   );
 };

@@ -6,10 +6,9 @@ import saGetWorkerRunTableData from "@/actions/saGetWorkerRunTableData";
 import saRequeueWorkerRun from "@/actions/saRequeueWorkerRun";
 import saRunWorkerNow from "@/actions/saRunWorkerNow";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import Link from "next/link";
+import TableActions from "@/components/admin/TableActions";
 
 const WorkerRunsTable = ({ sessionId }: { sessionId: string }) => {
   const [rerunningId, setRerunningId] = useState<string | null>(null);
@@ -85,7 +84,7 @@ const WorkerRunsTable = ({ sessionId }: { sessionId: string }) => {
           <Badge
             className={cn(
               resultColors[row.runResult] || "bg-gray-500",
-              "capitalize"
+              "capitalize",
             )}
           >
             {row.runResult}
@@ -101,7 +100,7 @@ const WorkerRunsTable = ({ sessionId }: { sessionId: string }) => {
         row.scheduledFor
           ? `${format(
               row.scheduledFor,
-              "dd/MM/yyyy HH:mm:ss"
+              "dd/MM/yyyy HH:mm:ss",
             )} (${formatDistance(row.scheduledFor, new Date(), {
               addSuffix: true,
             })})`
@@ -144,28 +143,23 @@ const WorkerRunsTable = ({ sessionId }: { sessionId: string }) => {
       getDataParams={{ sessionId }}
       columns={columns}
       actions={(row: any) => (
-        <div className="flex gap-2">
-          <Button asChild size="sm">
-            <Link href={`/admin/workerRuns/${row.id}`}>View</Link>
-          </Button>
-          {row.runStatus === "queued" && (
-            <Button
-              size="sm"
-              onClick={() => handleRunNow(row.id)}
-              disabled={runningNowId === row.id}
-            >
-              {runningNowId === row.id ? "Running..." : "Run Now"}
-            </Button>
-          )}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handleRerun(row.id)}
-            disabled={rerunningId === row.id}
-          >
-            {rerunningId === row.id ? "Re-running..." : "Re-run"}
-          </Button>
-        </div>
+        <TableActions
+          buttons={[
+            { label: "View", href: `/admin/workerRuns/${row.id}` },
+            {
+              label: runningNowId === row.id ? "Running..." : "Run Now",
+              hidden: row.runStatus !== "queued",
+              onClick: () => handleRunNow(row.id),
+              disabled: runningNowId === row.id,
+            },
+            {
+              label: rerunningId === row.id ? "Re-running..." : "Re-run",
+              variant: "outline",
+              onClick: () => handleRerun(row.id),
+              disabled: rerunningId === row.id,
+            },
+          ]}
+        />
       )}
     />
   );

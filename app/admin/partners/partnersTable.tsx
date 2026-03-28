@@ -1,10 +1,9 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import Image from "next/image";
 import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
+import TableActions from "@/components/admin/TableActions";
 
 const partnersTable = () => {
   const columns = [
@@ -57,15 +56,9 @@ const partnersTable = () => {
     <DataTable
       columns={columns}
       getData={saGetPartnerTableData}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button asChild size={"sm"}>
-              <Link href={`/admin/partners/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/partners/${row.id}`} />
+      )}
     />
   );
 };

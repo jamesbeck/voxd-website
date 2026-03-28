@@ -1,11 +1,10 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import saGetWabaTableData from "@/actions/saGetWabaTableData";
 import { cn } from "@/lib/utils";
+import TableActions from "@/components/admin/TableActions";
 import {
   Tooltip,
   TooltipContent,
@@ -145,15 +144,7 @@ const WabasTable = () => {
         direction: "asc",
       }}
       getData={saGetWabaTableData}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button className="cursor-pointer" asChild size="sm">
-              <Link href={`/admin/wabas/${row.id}`}>View</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => <TableActions href={`/admin/wabas/${row.id}`} />}
     />
   );
 };

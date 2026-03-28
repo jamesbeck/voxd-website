@@ -24,19 +24,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import DataTable, { Column } from "@/components/adminui/Table";
 import { cn } from "@/lib/utils";
+import TableActions from "@/components/admin/TableActions";
 
 import saUpdateQuoteNextAction from "@/actions/saUpdateQuoteNextAction";
 import saCreateQuoteAction from "@/actions/saCreateQuoteAction";
@@ -152,23 +142,18 @@ export default function QuoteActionsTab({
   ];
 
   const actions = (row: any) => (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Action</AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you sure you want to delete this action? This cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={async () => {
+    <TableActions
+      buttons={[
+        {
+          icon: <Trash2 />,
+          variant: "ghost",
+          confirm: {
+            title: "Delete Action",
+            description:
+              "Are you sure you want to delete this action? This cannot be undone.",
+            actionText: "Delete",
+            destructive: true,
+            onAction: async () => {
               const result = await saDeleteQuoteAction({ actionId: row.id });
               if (result.success) {
                 toast.success("Action deleted");
@@ -176,13 +161,11 @@ export default function QuoteActionsTab({
               } else {
                 toast.error(result.error || "Failed to delete action");
               }
-            }}
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            },
+          },
+        },
+      ]}
+    />
   );
 
   const getData = useCallback(

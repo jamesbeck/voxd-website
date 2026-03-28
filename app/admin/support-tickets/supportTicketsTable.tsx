@@ -1,11 +1,10 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import TableLink from "@/components/adminui/TableLink";
 import { format, formatDistance } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetSupportTicketTableData from "@/actions/saGetSupportTicketTableData";
+import TableActions from "@/components/admin/TableActions";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -59,7 +58,9 @@ const SupportTicketsTable = ({
       sort: true,
       format: (row: any) =>
         row.agentId && row.agentName ? (
-          <TableLink href={`/admin/agents/${row.agentId}`}>{row.agentName}</TableLink>
+          <TableLink href={`/admin/agents/${row.agentId}`}>
+            {row.agentName}
+          </TableLink>
         ) : (
           <span className="text-muted-foreground">-</span>
         ),
@@ -79,7 +80,7 @@ const SupportTicketsTable = ({
           ? `${format(row.createdAt, "dd/MM/yyyy HH:mm")} (${formatDistance(
               row.createdAt,
               new Date(),
-              { addSuffix: true }
+              { addSuffix: true },
             )})`
           : "",
     },
@@ -94,13 +95,9 @@ const SupportTicketsTable = ({
       getData={saGetSupportTicketTableData}
       getDataParams={{ statusFilter }}
       columns={columns}
-      actions={(row: any) => {
-        return (
-          <Button asChild size={"sm"}>
-            <Link href={`/admin/support-tickets/${row.id}`}>View</Link>
-          </Button>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/support-tickets/${row.id}`} />
+      )}
     />
   );
 };

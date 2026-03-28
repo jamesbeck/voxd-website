@@ -1,9 +1,9 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import saGetExampleTableData from "@/actions/saGetExampleTableData";
+import TableActions from "@/components/admin/TableActions";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -225,20 +225,19 @@ const ExamplesTable = ({ superAdmin, userPartnerId }: ExamplesTableProps) => {
             sort: true,
           },
         ]}
-        actions={(row: any) => {
-          return (
-            <div className="flex gap-2">
-              <Button className="cursor-pointer" asChild>
-                <Link href={`/admin/examples/${row.id}`}>View</Link>
-              </Button>
-              <Button className="cursor-pointer" variant="outline" asChild>
-                <Link href={`/examples/${row.slug}`} target="_blank">
-                  Preview on website
-                </Link>
-              </Button>
-            </div>
-          );
-        }}
+        actions={(row: any) => (
+          <TableActions
+            buttons={[
+              { label: "View", href: `/admin/examples/${row.id}` },
+              {
+                label: "Preview on website",
+                href: `/examples/${row.slug}`,
+                target: "_blank",
+                variant: "outline",
+              },
+            ]}
+          />
+        )}
       />
     </div>
   );

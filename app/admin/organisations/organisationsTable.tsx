@@ -3,13 +3,12 @@
 import { useMemo } from "react";
 import DataTable from "@/components/adminui/Table";
 import TableFilters from "@/components/adminui/TableFilters";
-import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import saGetAllPartners from "@/actions/saGetAllPartners";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import { TableFilterConfig } from "@/types/types";
+import TableActions from "@/components/admin/TableActions";
 
 interface OrganisationsTableProps {
   isSuperAdmin?: boolean;
@@ -102,13 +101,9 @@ const OrganisationsTable = ({
     },
   ];
 
-  const actions = (row: any) => {
-    return (
-      <Button asChild size={"sm"}>
-        <Link href={`/admin/organisations/${row.id}`}>View</Link>
-      </Button>
-    );
-  };
+  const actions = (row: any) => (
+    <TableActions href={`/admin/organisations/${row.id}`} />
+  );
 
   const getDataParams = {
     // Add partner filter if set (super admin only - server enforces this)

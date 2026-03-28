@@ -1,11 +1,10 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import { format, formatDistance } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetToolCallTableData from "@/actions/saGetToolCallTableData";
 import { Badge } from "@/components/ui/badge";
+import TableActions from "@/components/admin/TableActions";
 
 const ToolCallsTable = () => {
   const columns = [
@@ -62,13 +61,10 @@ const ToolCallsTable = () => {
       getDataParams={{}}
       columns={columns}
       actions={(row: any) => (
-        <Button asChild size="sm">
-          <Link
-            href={`/admin/messages/${row.assistantMessageId}?type=assistant&tab=tool-calls`}
-          >
-            View Message
-          </Link>
-        </Button>
+        <TableActions
+          href={`/admin/messages/${row.assistantMessageId}?type=assistant&tab=tool-calls`}
+          label="View Message"
+        />
       )}
     />
   );

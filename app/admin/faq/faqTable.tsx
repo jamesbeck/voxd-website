@@ -1,10 +1,9 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import saGetFaqTableData from "@/actions/saGetFaqTableData";
 import { Badge } from "@/components/ui/badge";
+import TableActions from "@/components/admin/TableActions";
 
 const FaqTable = ({ isSuperAdmin }: { isSuperAdmin?: boolean }) => {
   return (
@@ -59,15 +58,12 @@ const FaqTable = ({ isSuperAdmin }: { isSuperAdmin?: boolean }) => {
           format: (row: any) => new Date(row.createdAt).toLocaleDateString(),
         },
       ]}
-      actions={(row: any) => {
-        return (
-          <Button className="cursor-pointer" asChild>
-            <Link href={`/admin/faq/${row.id}`}>
-              {isSuperAdmin ? "Edit" : "View"}
-            </Link>
-          </Button>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions
+          href={`/admin/faq/${row.id}`}
+          label={isSuperAdmin ? "Edit" : "View"}
+        />
+      )}
     />
   );
 };

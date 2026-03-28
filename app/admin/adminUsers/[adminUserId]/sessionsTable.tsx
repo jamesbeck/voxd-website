@@ -1,11 +1,10 @@
 "use client";
 
 import DataTable, { Column } from "@/components/adminui/Table";
-import Link from "next/link";
 import { format, formatDistance } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetSessionTableData from "@/actions/saGetSessionsTableData";
 import { Badge } from "@/components/ui/badge";
+import TableActions from "@/components/admin/TableActions";
 
 const SessionsTable = ({ userId }: { userId: string }) => {
   const columns: Column[] = [
@@ -69,15 +68,9 @@ const SessionsTable = ({ userId }: { userId: string }) => {
       getData={saGetSessionTableData}
       getDataParams={{ userId }}
       columns={columns}
-      actions={(row: any) => {
-        return (
-          <>
-            <Button asChild size={"sm"}>
-              <Link href={`/admin/sessions/${row.id}`}>View Chat</Link>
-            </Button>
-          </>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/sessions/${row.id}`} label="View Chat" />
+      )}
     />
   );
 };

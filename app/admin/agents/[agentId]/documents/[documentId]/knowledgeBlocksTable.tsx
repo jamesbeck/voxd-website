@@ -2,10 +2,9 @@
 
 import DataTable from "@/components/adminui/Table";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetKnowledgeBlockTableData from "@/actions/saGetKnowledgeBlockTableData";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+import TableActions from "@/components/admin/TableActions";
 
 const KnowledgeBlocksTable = ({
   documentId,
@@ -79,17 +78,11 @@ const KnowledgeBlocksTable = ({
       getData={saGetKnowledgeBlockTableData}
       getDataParams={{ documentId }}
       columns={columns}
-      actions={(row: any) => {
-        return (
-          <Button asChild size={"sm"}>
-            <Link
-              href={`/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${row.id}`}
-            >
-              View
-            </Link>
-          </Button>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions
+          href={`/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${row.id}`}
+        />
+      )}
     />
   );
 };

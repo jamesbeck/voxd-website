@@ -1,9 +1,8 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import saGetFaqCategoryTableData from "@/actions/saGetFaqCategoryTableData";
+import TableActions from "@/components/admin/TableActions";
 
 const FaqCategoryTable = () => {
   return (
@@ -31,13 +30,9 @@ const FaqCategoryTable = () => {
           format: (row: any) => new Date(row.createdAt).toLocaleDateString(),
         },
       ]}
-      actions={(row: any) => {
-        return (
-          <Button className="cursor-pointer" asChild>
-            <Link href={`/admin/faq-categories/${row.id}`}>Edit</Link>
-          </Button>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/faq-categories/${row.id}`} label="Edit" />
+      )}
     />
   );
 };

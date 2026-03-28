@@ -1,11 +1,10 @@
 "use client";
 
 import DataTable from "@/components/adminui/Table";
-import Link from "next/link";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import saGetDocumentTableData from "@/actions/saGetDocumentTableData";
 import { Badge } from "@/components/ui/badge";
+import TableActions from "@/components/admin/TableActions";
 
 const DocumentsTable = ({ agentId }: { agentId: string }) => {
   const columns = [
@@ -66,15 +65,9 @@ const DocumentsTable = ({ agentId }: { agentId: string }) => {
       getData={saGetDocumentTableData}
       getDataParams={{ agentId }}
       columns={columns}
-      actions={(row: any) => {
-        return (
-          <Button asChild size={"sm"}>
-            <Link href={`/admin/agents/${agentId}/documents/${row.id}`}>
-              View
-            </Link>
-          </Button>
-        );
-      }}
+      actions={(row: any) => (
+        <TableActions href={`/admin/agents/${agentId}/documents/${row.id}`} />
+      )}
     />
   );
 };

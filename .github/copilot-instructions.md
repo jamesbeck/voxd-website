@@ -154,6 +154,79 @@ import RecordActions from "@/components/admin/RecordActions";
 - `dropdown`: Single ellipsis menu. Groups are separated by `DropdownMenuSeparator`. Items with `confirm` auto-wrap in the `Alert` confirm dialog. Items with `href` render as links.
 - Do **not** manually compose `DropdownMenu` + `Button` + `Alert` in action components — always use `RecordActions`.
 
+## Admin Table Action Buttons
+
+When adding action buttons in the last column of admin `DataTable` components, always use the shared `TableActions` component from `@/components/admin/TableActions`. Do **not** manually compose `<Button>` + `<Link>` + `<Alert>` in the `actions` prop.
+
+**Usage:**
+
+```tsx
+import TableActions from "@/components/admin/TableActions";
+
+// Simple single-link (most common) — defaults label to "View"
+<DataTable
+  actions={(row: any) => (
+    <TableActions href={`/admin/things/${row.id}`} />
+  )}
+/>
+
+// Custom label
+<TableActions href={`/admin/things/${row.id}`} label="Edit" />
+
+// Multiple buttons
+<TableActions
+  buttons={[
+    { label: "View", href: `/admin/things/${row.id}` },
+    { label: "Link", href: externalUrl, target: "_blank" },
+    { label: "Action", variant: "outline", onClick: handleAction },
+  ]}
+/>
+
+// With confirm dialog
+<TableActions
+  buttons={[
+    { label: "View", href: `/admin/things/${row.id}` },
+    {
+      label: "Delete",
+      variant: "destructive",
+      confirm: {
+        title: "Delete Item",
+        description: "This cannot be undone.",
+        actionText: "Delete",
+        destructive: true,
+        onAction: handleDelete,
+      },
+    },
+  ]}
+/>
+
+// Conditional visibility
+<TableActions
+  buttons={[
+    { label: "View", href: "...", hidden: !canView },
+    { label: "Close", variant: "destructive", hidden: isClosed, onClick: handleClose },
+  ]}
+/>
+
+// Icon-only button
+<TableActions
+  buttons={[
+    { icon: <Trash2Icon />, variant: "ghost", confirm: { ... } },
+  ]}
+/>
+
+// Custom slot for unique elements
+<TableActions custom={<MySpecialWidget />} buttons={[...]} />
+```
+
+- All buttons render at `size="xs"` for a compact table aesthetic.
+- Buttons default to `variant="outline"`. Use `"default"` for primary, `"destructive"` for danger.
+- `hidden: true` hides a button without conditional JSX.
+- `confirm` wraps the button in an `Alert` confirm dialog.
+- Buttons support `icon`, `label`, or both. Icon-only buttons render at `size="icon-xs"`.
+- `custom`: Arbitrary ReactNode rendered before the standard buttons.
+- Do **not** manually compose `<Button>` + `<Link>` in table action columns — always use `TableActions`.
+
 ## Admin Table Links
 
 When adding clickable links inside admin `DataTable` column formatters, always use the shared `TableLink` component from `@/components/adminui/TableLink`. Do **not** use raw `<Link>` or `<a>` tags with manual classes.
