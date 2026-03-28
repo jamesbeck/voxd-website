@@ -3,15 +3,43 @@
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 
 const partnersTable = () => {
   const columns = [
     {
+      label: "Logo",
+      name: "logoFileExtension",
+      format: (row: any) =>
+        row.domain && row.logoFileExtension ? (
+          <Image
+            src={`https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${row.domain}.${row.logoFileExtension}`}
+            alt={row.name || "Partner logo"}
+            width={32}
+            height={32}
+            className="rounded object-contain"
+          />
+        ) : null,
+    },
+    {
       label: "Name",
       name: "name",
       sort: true,
-      // format: (value) => value || "",
+    },
+    {
+      label: "Colour",
+      name: "colour",
+      format: (row: any) =>
+        row.colour ? (
+          <div className="flex items-center gap-2">
+            <div
+              className="h-6 w-6 rounded border"
+              style={{ backgroundColor: `#${row.colour}` }}
+            />
+            <span className="text-xs text-muted-foreground">#{row.colour}</span>
+          </div>
+        ) : null,
     },
   ];
 

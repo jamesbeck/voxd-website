@@ -102,6 +102,23 @@
     "accountsEmail": null
   },
   {
+    "id": "019cab65-678f-7596-a59c-be5d5a81142c",
+    "name": "Pokkit",
+    "domain": "admin.pokkit.tech",
+    "colour": "44F676",
+    "sendEmailFromDomain": "voxd.ai",
+    "logoFileExtension": "png",
+    "salesBotName": "",
+    "salesBotAgentId": null,
+    "legalName": "",
+    "companyNumber": "",
+    "registeredAddress": "",
+    "legalEmail": "",
+    "goCardlessMandateLink": "",
+    "salesEmail": "",
+    "accountsEmail": ""
+  },
+  {
     "id": "019cb3f8-a13f-77ab-9c8e-a25535a1b9e0",
     "name": "Thrive Theory",
     "domain": "portal.thrivetheory.co.uk",
@@ -151,23 +168,6 @@
     "goCardlessMandateLink": null,
     "salesEmail": null,
     "accountsEmail": null
-  },
-  {
-    "id": "019cab65-678f-7596-a59c-be5d5a81142c",
-    "name": "SIDEKICK CyberOS",
-    "domain": "cyberos.sidekickventure.studio",
-    "colour": "44F676",
-    "sendEmailFromDomain": "voxd.ai",
-    "logoFileExtension": "png",
-    "salesBotName": "",
-    "salesBotAgentId": null,
-    "legalName": "",
-    "companyNumber": "",
-    "registeredAddress": "",
-    "legalEmail": "",
-    "goCardlessMandateLink": "",
-    "salesEmail": "",
-    "accountsEmail": ""
   },
   {
     "id": "0199c33e-1b26-76fe-98e7-8c81b587cadd",
