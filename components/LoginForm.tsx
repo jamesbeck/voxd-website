@@ -68,11 +68,9 @@ export default function LoginForm({
   return (
     <div className="max-w-sm mx-auto mt-20 border border-gray-200 rounded-lg shadow-sm bg-white overflow-hidden">
       <div
-        className="mb-4 p-4"
+        className={showLogoOnColour ? "mb-4 p-4" : "mb-4 px-4 pt-6 pb-4"}
         style={
-          showLogoOnColour
-            ? { backgroundColor: showLogoOnColour }
-            : undefined
+          showLogoOnColour ? { backgroundColor: showLogoOnColour } : undefined
         }
       >
         <Image
@@ -85,35 +83,35 @@ export default function LoginForm({
         />
       </div>
       <div className="px-6 pb-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="email"
-            rules={{ required: "Email is required" }}
-            render={({ field }) => (
-              <FormItem>
-                {/* <FormLabel>Email address</FormLabel> */}
-                <FormControl>
-                  <Input
-                    type="email"
-                    autoComplete="email"
-                    placeholder="your@email.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage>
-                  {form.formState.errors.email?.message}
-                </FormMessage>
-              </FormItem>
-            )}
-          />
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Sending..." : "Send Login Code"}
-          </Button>
-          <FormMessage>{form.formState.errors.root?.message}</FormMessage>
-        </form>
-      </Form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              rules={{ required: "Email is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  {/* <FormLabel>Email address</FormLabel> */}
+                  <FormControl>
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      placeholder="your@email.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.email?.message}
+                  </FormMessage>
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Sending..." : "Send Login Code"}
+            </Button>
+            <FormMessage>{form.formState.errors.root?.message}</FormMessage>
+          </form>
+        </Form>
       </div>
     </div>
   );

@@ -48,7 +48,7 @@ const LogoTab = ({
     ];
     if (!allowedTypes.includes(file.type)) {
       toast.error(
-        "Invalid file type. Please upload a PNG, JPG, GIF, SVG, or WebP image."
+        "Invalid file type. Please upload a PNG, JPG, GIF, SVG, or WebP image.",
       );
       return;
     }
@@ -156,7 +156,9 @@ const LogoTab = ({
             className={`relative inline-block rounded-lg p-4 ${
               !logoPreviewBg ? "bg-gray-100 dark:bg-gray-800" : ""
             }`}
-            style={logoPreviewBg ? { backgroundColor: logoPreviewBg } : undefined}
+            style={
+              logoPreviewBg ? { backgroundColor: logoPreviewBg } : undefined
+            }
           >
             <Image
               src={currentLogoUrl}
@@ -188,7 +190,9 @@ const LogoTab = ({
             className={`relative inline-block rounded-lg p-4 ${
               !logoPreviewBg ? "bg-gray-100 dark:bg-gray-800" : ""
             }`}
-            style={logoPreviewBg ? { backgroundColor: logoPreviewBg } : undefined}
+            style={
+              logoPreviewBg ? { backgroundColor: logoPreviewBg } : undefined
+            }
           >
             <Image
               src={previewUrl}
@@ -224,19 +228,11 @@ const LogoTab = ({
             maxLength={7}
           />
           {bgColour && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setBgColour("")}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setBgColour("")}>
               Clear
             </Button>
           )}
-          <Button
-            onClick={handleSaveColour}
-            disabled={savingColour}
-            size="sm"
-          >
+          <Button onClick={handleSaveColour} disabled={savingColour} size="sm">
             {savingColour ? "Saving..." : "Save"}
           </Button>
         </div>

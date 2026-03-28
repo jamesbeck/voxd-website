@@ -96,9 +96,7 @@ export const getConceptForPublic = async ({
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
     )
-    .select(
-      db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'),
-    )
+    .select(db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'))
     .select(
       "partner.salesBotName",
       "phoneNumber.displayPhoneNumber as salesBotPhoneNumber",

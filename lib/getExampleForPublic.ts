@@ -67,9 +67,7 @@ export const getExampleForPublic = async ({
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
     )
-    .select(
-      db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'),
-    )
+    .select(db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'))
     .first();
 
   if (!example) {

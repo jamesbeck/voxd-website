@@ -117,9 +117,7 @@ export const getQuoteForPublic = async ({
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
     )
-    .select(
-      db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'),
-    )
+    .select(db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'))
     .select(
       "partner.legalName as partnerLegalName",
       "partner.companyNumber as partnerCompanyNumber",

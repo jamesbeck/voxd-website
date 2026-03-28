@@ -171,9 +171,7 @@ export default function AdminSidebar({
       <SidebarHeader className="p-0">
         <div
           style={
-            showLogoOnColour
-              ? { backgroundColor: showLogoOnColour }
-              : undefined
+            showLogoOnColour ? { backgroundColor: showLogoOnColour } : undefined
           }
         >
           <Image
