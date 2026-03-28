@@ -48,7 +48,7 @@ const saSendLoginCode = async ({
 
   const otpExpiry = addMinutes(
     new Date(),
-    parseInt(process.env.OTP_CODE_LIFE_SEC)
+    parseInt(process.env.OTP_CODE_LIFE_SEC),
   );
 
   if (adminUser && !impersonation) {
@@ -149,7 +149,7 @@ const saSendLoginCode = async ({
           text: `Your ${
             partner?.name || "Voxd"
           } login code is: ${paddedCode}\n\nThis code will expire in ${parseInt(
-            process.env.OTP_CODE_LIFE_SEC
+            process.env.OTP_CODE_LIFE_SEC,
           )} minutes.\n\nIf you didn't request this code, please ignore this email.`,
         });
 
@@ -197,7 +197,7 @@ const saSendLoginCode = async ({
       otpExpiry,
       failedAttempts: 0,
     } as IdTokenPayload,
-    process.env.ID_TOKEN_SECRET
+    process.env.ID_TOKEN_SECRET,
     // { expiresIn: process.env.ID_TOKEN_LIFE_SEC }
   );
 
