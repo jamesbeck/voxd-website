@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import DataTable from "@/components/adminui/Table";
 import TableFilters from "@/components/adminui/TableFilters";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import saGetAllPartners from "@/actions/saGetAllPartners";
@@ -56,6 +57,30 @@ const OrganisationsTable = ({
   });
 
   const columns = [
+    {
+      label: "Logo",
+      name: "logoFileExtension",
+      format: (row: any) =>
+        row.logoFileExtension ? (
+          <div
+            className="inline-flex rounded p-1"
+            style={
+              row.logoDarkBackground
+                ? { backgroundColor: "#1a1a2e" }
+                : undefined
+            }
+          >
+            <Image
+              src={`https://s3.eu-west-1.wasabisys.com/voxd/organisationLogos/${row.id}.${row.logoFileExtension}`}
+              alt={row.name || "Organisation logo"}
+              width={80}
+              height={32}
+              className="h-8 w-auto object-contain"
+              unoptimized
+            />
+          </div>
+        ) : null,
+    },
     {
       label: "Name",
       name: "name",
