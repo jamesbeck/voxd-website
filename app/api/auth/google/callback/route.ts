@@ -6,24 +6,25 @@ import {
   encryptToken,
 } from "@/lib/oauth/googleOAuth";
 import { addLog } from "@/lib/addLog";
-import partners from "@/generated/partners.json";
+import getPartners from "@/lib/getPartners";
 import { getGoogleCredentialsByAdminUserId } from "@/lib/getOrganisationGoogleCredentials";
+import { Partner } from "@/types/types";
 
 /**
  * Validate that a domain is a known partner domain to prevent open redirects
  */
-function isValidPartnerDomain(domain: string): boolean {
+function isValidPartnerDomain(partners: Partner[], domain: string): boolean {
   return partners.some((p) => p.domain === domain);
 }
 
 /**
  * Get the redirect base URL, using origin domain from OAuth state if valid
  */
-function getRedirectBaseUrl(originDomain: string | null | undefined): string {
+function getRedirectBaseUrl(partners: Partner[], originDomain: string | null | undefined): string {
   const fallbackUrl =
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  if (originDomain && isValidPartnerDomain(originDomain)) {
+  if (originDomain && isValidPartnerDomain(partners, originDomain)) {
     // Use https for production partner domains
     return `https://${originDomain}`;
   }
@@ -32,6 +33,7 @@ function getRedirectBaseUrl(originDomain: string | null | undefined): string {
 }
 
 export async function GET(request: NextRequest) {
+  const partners = await getPartners();
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
   const state = searchParams.get("state");
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
 
   // Helper to get redirect URLs based on origin domain
   const getRedirectUrls = (originDomain: string | null | undefined) => {
-    const baseUrl = getRedirectBaseUrl(originDomain);
+    const baseUrl = getRedirectBaseUrl(partners, originDomain);
     return {
       errorPageUrl: `${baseUrl}/admin/oauth-accounts/error`,
       successUrl: `${baseUrl}/admin/oauth-accounts`,

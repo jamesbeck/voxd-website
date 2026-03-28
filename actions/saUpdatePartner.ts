@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
@@ -79,6 +80,8 @@ const saUpdatePartner = async ({
     salesEmail,
     accountsEmail,
   });
+
+  revalidateTag("partners", { expire: 0 });
 
   return { success: true };
 };

@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import partners from "@/generated/partners.json";
+import getPartners from "@/lib/getPartners";
 
 export default async function getPartnerFromHeaders() {
   const headersList = await headers();
@@ -17,6 +17,7 @@ export default async function getPartnerFromHeaders() {
     return null;
   }
 
+  const partners = await getPartners();
   const partner = partners.find((p) => p.domain === domain);
 
   if (!partner && process.env.NODE_ENV === "development") {
