@@ -14,9 +14,14 @@ const userCanViewAgent = async ({
     .leftJoin("organisation", "agent.organisationId", "organisation.id")
     .where("agent.id", agentId);
 
-  // Partner can view agents in their organisations
+  // Partner can view agents in their organisations or their own organisation
   if (token.partner) {
-    query.where("organisation.partnerId", token.partnerId);
+    query.where((qb) => {
+      qb.where("organisation.partnerId", token.partnerId);
+      if (token.organisationId) {
+        qb.orWhere("agent.organisationId", token.organisationId);
+      }
+    });
   } else {
     // Organisation user can only view agents in their organisation
     query.where("agent.organisationId", token.organisationId);

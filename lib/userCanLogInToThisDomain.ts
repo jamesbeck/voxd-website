@@ -44,7 +44,11 @@ export default async function userCanLogInToThisDomain() {
   }
 
   //if user belongs to an organisation, check that organisation belongs to this partner's domain
-  if (adminUser.organisationId) {
+  //skip this check if the user already belongs directly to this partner
+  if (
+    adminUser.organisationId &&
+    adminUser.partnerId !== partnerFromDomain?.id
+  ) {
     const organisation = await db("organisation")
       .select("partnerId")
       .where({ id: adminUser.organisationId })

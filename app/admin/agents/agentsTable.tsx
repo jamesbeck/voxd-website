@@ -102,11 +102,14 @@ const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
         if (!row.phoneNumberId) {
           return <span className="text-muted-foreground">None</span>;
         }
-        return (
-          <TableLink href={`/admin/phone-numbers/${row.phoneNumberId}`}>
-            {row.phoneNumber}
-          </TableLink>
-        );
+        if (isSuperAdmin) {
+          return (
+            <TableLink href={`/admin/phone-numbers/${row.phoneNumberId}`}>
+              {row.phoneNumber}
+            </TableLink>
+          );
+        }
+        return row.phoneNumber;
       },
     },
     {

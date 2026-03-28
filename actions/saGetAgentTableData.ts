@@ -51,9 +51,14 @@ const saGetAgentTableData = async ({
     }
   }
 
-  // Partners can only see agents from organisations they manage
+  // Partners can see agents from organisations they manage OR their own organisation
   if (accessToken.partner && !accessToken.superAdmin) {
-    base.where("organisation.partnerId", accessToken.partnerId);
+    base.where((qb) => {
+      qb.where("organisation.partnerId", accessToken.partnerId);
+      if (accessToken.organisationId) {
+        qb.orWhere("agent.organisationId", accessToken.organisationId);
+      }
+    });
   }
 
   // Super admins can see all agents (no filter needed)
