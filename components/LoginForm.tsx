@@ -37,7 +37,16 @@ export default function LoginForm({
         redirectTo,
       });
       if (!sendLoginCodeResult.success) {
-        form.setError("root", { message: sendLoginCodeResult.error });
+        if (sendLoginCodeResult.fieldErrors) {
+          for (const key in sendLoginCodeResult.fieldErrors) {
+            form.setError(key as keyof { email: string }, {
+              message: sendLoginCodeResult.fieldErrors[key],
+            });
+          }
+        }
+        if (sendLoginCodeResult.error) {
+          form.setError("root", { message: sendLoginCodeResult.error });
+        }
         setLoading(false);
         return;
       }

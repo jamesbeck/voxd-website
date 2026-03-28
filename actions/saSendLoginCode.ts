@@ -7,7 +7,6 @@ import { hash } from "bcryptjs";
 import sendgrid from "@sendgrid/mail";
 import db from "../database/db";
 import { addMinutes } from "date-fns";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { IdTokenPayload } from "@/types/tokenTypes";
@@ -209,7 +208,7 @@ const saSendLoginCode = async ({
     // expires: 0,
   });
 
-  redirect(`/login/verify${redirectTo ? `?redirectTo=${redirectTo}` : ""}`);
+  return { success: true };
 };
 
 export default saSendLoginCode;
