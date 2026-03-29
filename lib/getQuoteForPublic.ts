@@ -20,7 +20,7 @@ export type PublicQuote = {
   organisationName: string;
   organisationId: string;
   organisationLogoFileExtension: string | null;
-  organisationLogoDarkBackground: boolean;
+  organisationShowLogoOnColour: string | null;
   status: string;
   background: string | null;
   objectives: string | null;
@@ -111,7 +111,7 @@ export const getQuoteForPublic = async ({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
-      "organisation.logoDarkBackground as organisationLogoDarkBackground",
+      db.raw('organisation."showLogoOnColour" as "organisationShowLogoOnColour"'),
       "partner.name as partnerName",
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
@@ -183,8 +183,8 @@ export const getQuoteForPublic = async ({
     organisationName: quote.organisationName,
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
-    organisationLogoDarkBackground:
-      quote.organisationLogoDarkBackground ?? false,
+    organisationShowLogoOnColour:
+      quote.organisationShowLogoOnColour ?? null,
     status: quote.status,
     background: quote.background,
     objectives: quote.objectives,

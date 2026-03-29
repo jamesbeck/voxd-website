@@ -20,7 +20,7 @@ export type PublicConcept = {
   organisationName: string;
   organisationId: string;
   organisationLogoFileExtension: string | null;
-  organisationLogoDarkBackground: boolean;
+  organisationShowLogoOnColour: string | null;
   status: string;
   conceptPersonalMessage: string | null;
   generatedConceptIntroduction: string | null;
@@ -89,7 +89,7 @@ export const getConceptForPublic = async ({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
-      "organisation.logoDarkBackground as organisationLogoDarkBackground",
+      db.raw('organisation."showLogoOnColour" as "organisationShowLogoOnColour"'),
       "partner.id as partnerId",
       "partner.name as partnerName",
       "partner.colour as partnerColour",
@@ -153,8 +153,8 @@ export const getConceptForPublic = async ({
     organisationName: quote.organisationName,
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
-    organisationLogoDarkBackground:
-      quote.organisationLogoDarkBackground ?? false,
+    organisationShowLogoOnColour:
+      quote.organisationShowLogoOnColour ?? null,
     status: quote.status,
     conceptPersonalMessage: quote.conceptPersonalMessage,
     generatedConceptIntroduction: quote.generatedConceptIntroduction,

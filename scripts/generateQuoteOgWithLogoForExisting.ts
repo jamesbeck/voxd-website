@@ -33,7 +33,7 @@ async function generateOgForQuote(quote: {
   heroImageFileExtension: string | null;
   organisationId: string;
   organisationLogoFileExtension: string | null;
-  organisationLogoDarkBackground: boolean | null;
+  organisationShowLogoOnColour: string | null;
   partnerDomain: string | null;
   partnerLogoFileExtension: string | null;
 }): Promise<boolean> {
@@ -68,7 +68,7 @@ async function generateOgForQuote(quote: {
       heroImageBuffer: heroBuffer,
       organisationId: quote.organisationId,
       organisationLogoFileExtension: quote.organisationLogoFileExtension,
-      organisationLogoDarkBackground: quote.organisationLogoDarkBackground,
+      organisationShowLogoOnColour: quote.organisationShowLogoOnColour,
       partnerDomain: quote.partnerDomain,
       partnerLogoFileExtension: quote.partnerLogoFileExtension,
     });
@@ -97,7 +97,7 @@ async function main() {
       "quote.heroImageFileExtension",
       "organisation.id as organisationId",
       "organisation.logoFileExtension as organisationLogoFileExtension",
-      "organisation.logoDarkBackground as organisationLogoDarkBackground",
+      db.raw('organisation."showLogoOnColour" as "organisationShowLogoOnColour"'),
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
     );

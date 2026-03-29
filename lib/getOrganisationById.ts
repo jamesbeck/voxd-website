@@ -12,7 +12,8 @@ const getOrganisationById = async ({
   webAddress?: string;
   about?: string;
   logoFileExtension?: string;
-  logoDarkBackground?: boolean;
+  showLogoOnColour?: string | null;
+  primaryColour?: string | null;
 }> => {
   const organisation = await db("organisation")
     .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")

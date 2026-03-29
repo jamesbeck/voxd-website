@@ -27,8 +27,8 @@ export default async function ExampleConversationIframePage({
   const organizationId = conversation.organizationId || undefined;
   const organizationLogoFileExtension =
     conversation.organizationLogoFileExtension || undefined;
-  const organizationLogoDarkBackground =
-    conversation.organizationLogoDarkBackground || false;
+  const organizationShowLogoOnColour =
+    conversation.organizationShowLogoOnColour || null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -48,7 +48,7 @@ export default async function ExampleConversationIframePage({
         logoFileExtension={logoFileExtension}
         organizationId={organizationId}
         organizationLogoFileExtension={organizationLogoFileExtension}
-        organizationLogoDarkBackground={organizationLogoDarkBackground}
+        organizationShowLogoOnColour={organizationShowLogoOnColour}
       />
     </div>
   );

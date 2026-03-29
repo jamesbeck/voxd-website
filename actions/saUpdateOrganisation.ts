@@ -14,10 +14,14 @@ const saUpdateOrganisation = async ({
   organisationId,
   name,
   webAddress,
+  showLogoOnColour,
+  primaryColour,
 }: {
   organisationId: string;
-  name: string;
+  name?: string;
   webAddress?: string;
+  showLogoOnColour?: string | null;
+  primaryColour?: string | null;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -49,31 +53,36 @@ const saUpdateOrganisation = async ({
     };
   }
 
-  // Strip protocol from web address if provided
-  const cleanWebAddress = webAddress ? stripProtocol(webAddress) : null;
+  // Build update object
+  const updateData: Record<string, any> = {};
+
+  if (name !== undefined) {
+    updateData.name = name;
+    updateData.partnerId = accessToken.partnerId || null;
+    updateData.webAddress = webAddress ? stripProtocol(webAddress) : null;
+  }
+
+  if (showLogoOnColour !== undefined) {
+    updateData.showLogoOnColour = showLogoOnColour;
+  }
+
+  if (primaryColour !== undefined) {
+    updateData.primaryColour = primaryColour;
+  }
 
   //update the organisation
   await db("organisation")
     .where({ id: organisationId })
-    .update({
-      name,
-      partnerId: accessToken.partnerId || null,
-      webAddress: cleanWebAddress,
-    });
+    .update(updateData);
 
   // Log organisation update
   await addLog({
     adminUserId: accessToken.adminUserId,
     event: "Organisation Updated",
-    description: `Organisation "${name}" updated`,
+    description: `Organisation "${name || existingOrganisation.name}" updated`,
     organisationId,
     partnerId: accessToken.partnerId,
-    data: {
-      previousName: existingOrganisation.name,
-      newName: name,
-      previousWebAddress: existingOrganisation.webAddress,
-      newWebAddress: cleanWebAddress,
-    },
+    data: updateData,
   });
 
   return { success: true };

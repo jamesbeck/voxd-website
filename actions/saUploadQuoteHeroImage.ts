@@ -166,7 +166,7 @@ const saUploadQuoteHeroImage = async ({
       heroImageBuffer: buffer,
       organisationId: quote.organisationId,
       organisationLogoFileExtension: organisation.logoFileExtension,
-      organisationLogoDarkBackground: organisation.logoDarkBackground,
+      organisationShowLogoOnColour: organisation.showLogoOnColour,
       partnerDomain: organisation.partnerDomain,
       partnerLogoFileExtension: organisation.partnerLogoFileExtension,
     });

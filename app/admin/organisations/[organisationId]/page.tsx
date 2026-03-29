@@ -62,7 +62,7 @@ export default async function Page({
             tabs={
               [
                 { value: "about", label: "About" },
-                { value: "logo", label: "Logo" },
+                { value: "logo", label: "Logo & Branding" },
                 { value: "adminUsers", label: "Admin Users" },
                 { value: "chatUsers", label: "Chat Users" },
                 { value: "agents", label: "Agents" },
@@ -96,7 +96,8 @@ export default async function Page({
                 <LogoTab
                   organisationId={organisation.id}
                   logoFileExtension={organisation.logoFileExtension ?? null}
-                  logoDarkBackground={organisation.logoDarkBackground ?? false}
+                  showLogoOnColour={organisation.showLogoOnColour ?? null}
+                  primaryColour={organisation.primaryColour ?? null}
                 />
               </Container>
             </TabsContent>

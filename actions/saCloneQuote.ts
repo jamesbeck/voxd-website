@@ -90,7 +90,7 @@ const saCloneQuote = async (input: {
         "about",
         "partnerId",
         "logoFileExtension",
-        "logoDarkBackground",
+        db.raw('"showLogoOnColour"'),
       )
       .first();
 
@@ -347,7 +347,7 @@ ${rewriteContext}`,
       heroImageBuffer: null,
       organisationId: targetOrganisationId,
       organisationLogoFileExtension: targetOrg.logoFileExtension || null,
-      organisationLogoDarkBackground: targetOrg.logoDarkBackground || null,
+      organisationShowLogoOnColour: targetOrg.showLogoOnColour || null,
       partnerDomain: sourceQuote.partnerDomain || null,
       partnerLogoFileExtension: sourceQuote.partnerLogoFileExtension || null,
     }).catch((err) => {

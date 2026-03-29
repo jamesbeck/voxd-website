@@ -31,7 +31,7 @@ export interface SyncOrganisationFromWebsiteResult {
   success: boolean;
   about?: string;
   logoFileExtension?: string;
-  logoDarkBackground?: boolean;
+  showLogoOnColour?: string | null;
   error?: string;
 }
 
@@ -94,7 +94,7 @@ const syncOrganisationFromWebsite = async ({
 
     // Step 2: Fetch the homepage HTML and find the logo URL
     let logoFileExtension: string | undefined;
-    let logoDarkBackground: boolean | undefined;
+    let showLogoOnColour: string | null | undefined;
     try {
       const logoUrl = await findLogoUrl(organisation.openAiApiKey, url);
 
@@ -103,7 +103,7 @@ const syncOrganisationFromWebsite = async ({
         const logoResult = await downloadAndUploadLogo(organisationId, logoUrl);
         if (logoResult) {
           logoFileExtension = logoResult.extension;
-          logoDarkBackground = logoResult.needsDarkBackground;
+          showLogoOnColour = logoResult.needsDarkBackground ? '#333333' : null;
         }
       }
     } catch (logoError) {
@@ -115,11 +115,11 @@ const syncOrganisationFromWebsite = async ({
     const updateData: {
       about: string;
       logoFileExtension?: string;
-      logoDarkBackground?: boolean;
+      showLogoOnColour?: string | null;
     } = { about };
     if (logoFileExtension) {
       updateData.logoFileExtension = logoFileExtension;
-      updateData.logoDarkBackground = logoDarkBackground;
+      updateData.showLogoOnColour = showLogoOnColour;
     }
 
     await db("organisation").where({ id: organisationId }).update(updateData);
@@ -128,7 +128,7 @@ const syncOrganisationFromWebsite = async ({
       success: true,
       about,
       logoFileExtension,
-      logoDarkBackground,
+      showLogoOnColour,
     };
   } catch (error) {
     console.error("Error syncing organisation from website:", error);

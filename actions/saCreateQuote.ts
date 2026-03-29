@@ -50,7 +50,7 @@ const saCreateQuote = async (input: {
     .select(
       "organisation.about",
       "organisation.logoFileExtension",
-      "organisation.logoDarkBackground",
+      db.raw('organisation."showLogoOnColour"'),
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
     )
@@ -75,7 +75,7 @@ const saCreateQuote = async (input: {
       heroImageBuffer: null,
       organisationId,
       organisationLogoFileExtension: organisation?.logoFileExtension || null,
-      organisationLogoDarkBackground: organisation?.logoDarkBackground || null,
+      organisationShowLogoOnColour: organisation?.showLogoOnColour || null,
       partnerDomain: organisation?.partnerDomain || null,
       partnerLogoFileExtension: organisation?.partnerLogoFileExtension || null,
     }).catch((err) => {

@@ -21,7 +21,7 @@ export default function WhatsAppSim({
   logoFileExtension,
   organizationId,
   organizationLogoFileExtension,
-  organizationLogoDarkBackground,
+  organizationShowLogoOnColour,
 }: {
   messages: {
     role: string;
@@ -38,7 +38,7 @@ export default function WhatsAppSim({
   logoFileExtension?: string | null;
   organizationId?: string;
   organizationLogoFileExtension?: string | null;
-  organizationLogoDarkBackground?: boolean;
+  organizationShowLogoOnColour?: string | null;
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isAtTop, setIsAtTop] = useState(true);
@@ -133,11 +133,8 @@ export default function WhatsAppSim({
                   alt="Logo"
                   fill
                   unoptimized
-                  style={{ objectFit: "contain" }}
-                  className={cn(
-                    "rounded-full",
-                    organizationLogoDarkBackground ? "bg-gray-800" : "bg-white",
-                  )}
+                  style={{ objectFit: "contain", backgroundColor: organizationShowLogoOnColour || '#fff' }}
+                  className="rounded-full"
                 />
               ) : exampleId && logoFileExtension ? (
                 <Image

@@ -64,8 +64,8 @@ const OrganisationsTable = ({
           <div
             className="inline-flex rounded p-1"
             style={
-              row.logoDarkBackground
-                ? { backgroundColor: "#1a1a2e" }
+              row.showLogoOnColour
+                ? { backgroundColor: row.showLogoOnColour }
                 : undefined
             }
           >

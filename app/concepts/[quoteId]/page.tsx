@@ -230,8 +230,8 @@ export default async function PublicConceptPage({
           {organisationLogoUrl && (
             <>
               <div className="h-8 md:h-12 w-px bg-gray-200" />
-              {concept.organisationLogoDarkBackground ? (
-                <div className="bg-gray-700 rounded-lg p-2 md:p-3">
+              {concept.organisationShowLogoOnColour ? (
+                <div className="rounded-lg p-2 md:p-3" style={{ backgroundColor: concept.organisationShowLogoOnColour }}>
                   <Image
                     src={organisationLogoUrl}
                     alt={concept.organisationName}
@@ -411,8 +411,8 @@ export default async function PublicConceptPage({
                 organizationLogoFileExtension={
                   concept.organisationLogoFileExtension
                 }
-                organizationLogoDarkBackground={
-                  concept.organisationLogoDarkBackground
+                organizationShowLogoOnColour={
+                  concept.organisationShowLogoOnColour
                 }
               />
             </section>

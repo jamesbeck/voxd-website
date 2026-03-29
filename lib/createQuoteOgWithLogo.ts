@@ -5,12 +5,19 @@ import {
 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 
+function parseHexToRgb(hex: string | null | undefined): { r: number; g: number; b: number } | null {
+  if (!hex) return null;
+  const match = hex.match(/^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/);
+  if (!match) return null;
+  return { r: parseInt(match[1], 16), g: parseInt(match[2], 16), b: parseInt(match[3], 16) };
+}
+
 interface CreateQuoteOgWithLogoParams {
   quoteId: string;
   heroImageBuffer?: Buffer | null;
   organisationId: string;
   organisationLogoFileExtension: string | null;
-  organisationLogoDarkBackground: boolean | null;
+  organisationShowLogoOnColour: string | null;
   partnerDomain?: string | null;
   partnerLogoFileExtension?: string | null;
 }
@@ -29,7 +36,7 @@ export async function createQuoteOgWithLogo({
   heroImageBuffer,
   organisationId,
   organisationLogoFileExtension,
-  organisationLogoDarkBackground,
+  organisationShowLogoOnColour,
   partnerDomain,
   partnerLogoFileExtension,
 }: CreateQuoteOgWithLogoParams): Promise<{
@@ -59,7 +66,7 @@ export async function createQuoteOgWithLogo({
         heroImageBuffer,
         organisationId,
         organisationLogoFileExtension,
-        organisationLogoDarkBackground,
+        organisationShowLogoOnColour,
         s3Client,
         bucketName,
       );
@@ -68,7 +75,7 @@ export async function createQuoteOgWithLogo({
       finalBuffer = await createLogoOnBackground(
         organisationId,
         organisationLogoFileExtension,
-        organisationLogoDarkBackground,
+        organisationShowLogoOnColour,
         s3Client,
         bucketName,
       );
@@ -121,7 +128,7 @@ async function createHeroWithLogoOverlay(
   heroImageBuffer: Buffer,
   organisationId: string,
   organisationLogoFileExtension: string | null,
-  organisationLogoDarkBackground: boolean | null,
+  organisationShowLogoOnColour: string | null,
   s3Client: S3Client,
   bucketName: string,
 ): Promise<Buffer> {
@@ -149,7 +156,7 @@ async function createHeroWithLogoOverlay(
 
         const logoWithBackground = await createLogoPill(
           logoBuffer,
-          organisationLogoDarkBackground,
+          organisationShowLogoOnColour,
         );
 
         // Get dimensions of the pill
@@ -187,7 +194,7 @@ async function createHeroWithLogoOverlay(
 async function createLogoOnBackground(
   organisationId: string,
   organisationLogoFileExtension: string,
-  organisationLogoDarkBackground: boolean | null,
+  organisationShowLogoOnColour: string | null,
   s3Client: S3Client,
   bucketName: string,
 ): Promise<Buffer> {
@@ -220,10 +227,8 @@ async function createLogoOnBackground(
   const logoWidth = logoMetadata.width || 600;
   const logoHeight = logoMetadata.height || 300;
 
-  // Choose background color based on logoDarkBackground
-  const bgColor = organisationLogoDarkBackground
-    ? { r: 30, g: 30, b: 30 }
-    : { r: 255, g: 255, b: 255 };
+  // Choose background color based on showLogoOnColour
+  const bgColor = parseHexToRgb(organisationShowLogoOnColour) || { r: 255, g: 255, b: 255 };
 
   // Create 1200x630 background and center the logo
   const background = await sharp({
@@ -312,7 +317,7 @@ async function createPartnerLogoFallback(
  */
 async function createLogoPill(
   logoBuffer: Buffer,
-  useDarkBackground: boolean | null,
+  showLogoOnColour: string | null,
 ): Promise<Buffer> {
   // Resize logo - large for visibility in small previews
   const resizedLogo = await sharp(logoBuffer)
@@ -334,9 +339,10 @@ async function createLogoPill(
   const bgHeight = logoHeight + padding * 2;
   const borderRadius = 24;
 
-  // Choose background color based on logoDarkBackground
-  const bgColorHex = useDarkBackground
-    ? "rgba(30,30,30,0.9)"
+  // Choose background color based on showLogoOnColour
+  const parsed = parseHexToRgb(showLogoOnColour);
+  const bgColorHex = parsed
+    ? `rgba(${parsed.r},${parsed.g},${parsed.b},0.9)`
     : "rgba(255,255,255,0.9)";
 
   // Create the background pill with rounded corners using SVG

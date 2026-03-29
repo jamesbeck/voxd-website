@@ -22,7 +22,7 @@ type ExampleConversationData = {
   organizationId?: string | null;
   organizationName?: string;
   organizationLogoFileExtension?: string | null;
-  organizationLogoDarkBackground?: boolean;
+  organizationShowLogoOnColour?: string | null;
 };
 
 const saGetExampleConversationById = async ({
@@ -57,7 +57,7 @@ const saGetExampleConversationById = async ({
       "organisation.id as organizationId",
       "organisation.name as organizationName",
       "organisation.logoFileExtension as organizationLogoFileExtension",
-      "organisation.logoDarkBackground as organizationLogoDarkBackground"
+      db.raw('organisation."showLogoOnColour" as "organizationShowLogoOnColour"')
     )
     .first();
 

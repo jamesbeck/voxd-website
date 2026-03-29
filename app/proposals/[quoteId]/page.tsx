@@ -238,8 +238,8 @@ export default async function PublicQuotePage({
           {organisationLogoUrl && (
             <>
               <div className="h-8 md:h-12 w-px bg-gray-200" />
-              {quote.organisationLogoDarkBackground ? (
-                <div className="bg-gray-700 rounded-lg p-2 md:p-3">
+              {quote.organisationShowLogoOnColour ? (
+                <div className="rounded-lg p-2 md:p-3" style={{ backgroundColor: quote.organisationShowLogoOnColour }}>
                   <Image
                     src={organisationLogoUrl}
                     alt={quote.organisationName}
@@ -528,8 +528,8 @@ export default async function PublicQuotePage({
                   organizationLogoFileExtension={
                     quote.organisationLogoFileExtension
                   }
-                  organizationLogoDarkBackground={
-                    quote.organisationLogoDarkBackground
+                  organizationShowLogoOnColour={
+                    quote.organisationShowLogoOnColour
                   }
                 />
               </section>

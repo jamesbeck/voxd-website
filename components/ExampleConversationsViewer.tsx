@@ -28,7 +28,7 @@ export default function ExampleConversationsViewer({
   logoFileExtension,
   organizationId,
   organizationLogoFileExtension,
-  organizationLogoDarkBackground,
+  organizationShowLogoOnColour,
 }: {
   conversations: Conversation[];
   businessName: string;
@@ -37,7 +37,7 @@ export default function ExampleConversationsViewer({
   logoFileExtension?: string | null;
   organizationId?: string;
   organizationLogoFileExtension?: string | null;
-  organizationLogoDarkBackground?: boolean;
+  organizationShowLogoOnColour?: string | null;
 }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -82,7 +82,7 @@ export default function ExampleConversationsViewer({
     logoFileExtension,
     organizationId,
     organizationLogoFileExtension,
-    organizationLogoDarkBackground,
+    organizationShowLogoOnColour,
   });
 
   return (

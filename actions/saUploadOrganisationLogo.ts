@@ -119,7 +119,7 @@ const saUploadOrganisationLogo = async ({
     // Update the organisation record with the logo extension
     await db("organisation").where("id", organisationId).update({
       logoFileExtension: ext,
-      logoDarkBackground: needsDarkBackground,
+      showLogoOnColour: needsDarkBackground ? '#333333' : null,
     });
 
     // Get partner info for fallback
@@ -176,7 +176,7 @@ const saUploadOrganisationLogo = async ({
               heroImageBuffer: heroBuffer,
               organisationId,
               organisationLogoFileExtension: ext,
-              organisationLogoDarkBackground: needsDarkBackground,
+              organisationShowLogoOnColour: needsDarkBackground ? '#333333' : null,
               partnerDomain: partner?.domain,
               partnerLogoFileExtension: partner?.logoFileExtension,
             });
