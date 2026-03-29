@@ -239,7 +239,12 @@ export default async function PublicQuotePage({
             <>
               <div className="h-8 md:h-12 w-px bg-gray-200" />
               {quote.organisationShowLogoOnColour ? (
-                <div className="rounded-lg p-2 md:p-3" style={{ backgroundColor: quote.organisationShowLogoOnColour }}>
+                <div
+                  className="rounded-lg p-2 md:p-3"
+                  style={{
+                    backgroundColor: quote.organisationShowLogoOnColour,
+                  }}
+                >
                   <Image
                     src={organisationLogoUrl}
                     alt={quote.organisationName}

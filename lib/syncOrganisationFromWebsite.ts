@@ -103,7 +103,7 @@ const syncOrganisationFromWebsite = async ({
         const logoResult = await downloadAndUploadLogo(organisationId, logoUrl);
         if (logoResult) {
           logoFileExtension = logoResult.extension;
-          showLogoOnColour = logoResult.needsDarkBackground ? '#333333' : null;
+          showLogoOnColour = logoResult.needsDarkBackground ? "#333333" : null;
         }
       }
     } catch (logoError) {

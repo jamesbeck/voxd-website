@@ -231,7 +231,12 @@ export default async function PublicConceptPage({
             <>
               <div className="h-8 md:h-12 w-px bg-gray-200" />
               {concept.organisationShowLogoOnColour ? (
-                <div className="rounded-lg p-2 md:p-3" style={{ backgroundColor: concept.organisationShowLogoOnColour }}>
+                <div
+                  className="rounded-lg p-2 md:p-3"
+                  style={{
+                    backgroundColor: concept.organisationShowLogoOnColour,
+                  }}
+                >
                   <Image
                     src={organisationLogoUrl}
                     alt={concept.organisationName}

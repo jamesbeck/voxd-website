@@ -57,7 +57,9 @@ const saGetExampleConversationById = async ({
       "organisation.id as organizationId",
       "organisation.name as organizationName",
       "organisation.logoFileExtension as organizationLogoFileExtension",
-      db.raw('organisation."showLogoOnColour" as "organizationShowLogoOnColour"')
+      db.raw(
+        'organisation."showLogoOnColour" as "organizationShowLogoOnColour"',
+      ),
     )
     .first();
 

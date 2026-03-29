@@ -71,9 +71,7 @@ const saUpdateOrganisation = async ({
   }
 
   //update the organisation
-  await db("organisation")
-    .where({ id: organisationId })
-    .update(updateData);
+  await db("organisation").where({ id: organisationId }).update(updateData);
 
   // Log organisation update
   await addLog({

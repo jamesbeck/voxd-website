@@ -48,7 +48,12 @@ const saCreateOrganisation = async ({
 
   //create a new organisation
   const [newOrganisation] = await db("organisation")
-    .insert({ name, partnerId: partnerId || null, webAddress: cleanWebAddress, showLogoOnColour: '#333333' })
+    .insert({
+      name,
+      partnerId: partnerId || null,
+      webAddress: cleanWebAddress,
+      showLogoOnColour: "#333333",
+    })
     .returning("id");
 
   // Log organisation creation

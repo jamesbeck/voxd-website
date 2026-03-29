@@ -133,7 +133,10 @@ export default function WhatsAppSim({
                   alt="Logo"
                   fill
                   unoptimized
-                  style={{ objectFit: "contain", backgroundColor: organizationShowLogoOnColour || '#fff' }}
+                  style={{
+                    objectFit: "contain",
+                    backgroundColor: organizationShowLogoOnColour || "#fff",
+                  }}
                   className="rounded-full"
                 />
               ) : exampleId && logoFileExtension ? (

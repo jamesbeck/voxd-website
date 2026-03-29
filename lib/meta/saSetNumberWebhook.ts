@@ -6,7 +6,7 @@ import db from "@/database/db";
 const webhooks = [
   {
     name: "Voxd Production",
-    webhookUrl: "https://swiftreply-core-tqdxb.ondigitalocean.app/webhook",
+    webhookUrl: "https://core.voxd.ai/webhook",
   },
   {
     name: "Voxd Development",

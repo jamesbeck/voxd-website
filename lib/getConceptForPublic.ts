@@ -89,7 +89,9 @@ export const getConceptForPublic = async ({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
-      db.raw('organisation."showLogoOnColour" as "organisationShowLogoOnColour"'),
+      db.raw(
+        'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+      ),
       "partner.id as partnerId",
       "partner.name as partnerName",
       "partner.colour as partnerColour",
@@ -153,8 +155,7 @@ export const getConceptForPublic = async ({
     organisationName: quote.organisationName,
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
-    organisationShowLogoOnColour:
-      quote.organisationShowLogoOnColour ?? null,
+    organisationShowLogoOnColour: quote.organisationShowLogoOnColour ?? null,
     status: quote.status,
     conceptPersonalMessage: quote.conceptPersonalMessage,
     generatedConceptIntroduction: quote.generatedConceptIntroduction,

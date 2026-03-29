@@ -21,7 +21,7 @@ const getOrganisationById = async ({
     .select("organisation.*")
     .select([
       db.raw(
-        'COALESCE(ARRAY_AGG("adminUser"."id") FILTER (WHERE "adminUser"."id" IS NOT NULL), ARRAY[]::uuid[]) as "adminUserIds"'
+        'COALESCE(ARRAY_AGG("adminUser"."id") FILTER (WHERE "adminUser"."id" IS NOT NULL), ARRAY[]::uuid[]) as "adminUserIds"',
       ),
     ])
     .where("organisation.id", organisationId)

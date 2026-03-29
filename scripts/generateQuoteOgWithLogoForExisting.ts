@@ -97,7 +97,9 @@ async function main() {
       "quote.heroImageFileExtension",
       "organisation.id as organisationId",
       "organisation.logoFileExtension as organisationLogoFileExtension",
-      db.raw('organisation."showLogoOnColour" as "organisationShowLogoOnColour"'),
+      db.raw(
+        'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+      ),
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
     );

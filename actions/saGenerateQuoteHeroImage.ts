@@ -45,7 +45,9 @@ const saGenerateQuoteHeroImage = async ({
       "organisation.name as organisationName",
       "organisation.partnerId",
       "organisation.logoFileExtension as organisationLogoFileExtension",
-      db.raw('organisation."showLogoOnColour" as "organisationShowLogoOnColour"'),
+      db.raw(
+        'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+      ),
       "partner.domain as partnerDomain",
       "partner.logoFileExtension as partnerLogoFileExtension",
     )

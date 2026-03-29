@@ -111,7 +111,9 @@ export const getQuoteForPublic = async ({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension as organisationLogoFileExtension",
-      db.raw('organisation."showLogoOnColour" as "organisationShowLogoOnColour"'),
+      db.raw(
+        'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+      ),
       "partner.name as partnerName",
       "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
@@ -183,8 +185,7 @@ export const getQuoteForPublic = async ({
     organisationName: quote.organisationName,
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
-    organisationShowLogoOnColour:
-      quote.organisationShowLogoOnColour ?? null,
+    organisationShowLogoOnColour: quote.organisationShowLogoOnColour ?? null,
     status: quote.status,
     background: quote.background,
     objectives: quote.objectives,

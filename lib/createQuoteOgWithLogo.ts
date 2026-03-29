@@ -5,11 +5,19 @@ import {
 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 
-function parseHexToRgb(hex: string | null | undefined): { r: number; g: number; b: number } | null {
+function parseHexToRgb(
+  hex: string | null | undefined,
+): { r: number; g: number; b: number } | null {
   if (!hex) return null;
-  const match = hex.match(/^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/);
+  const match = hex.match(
+    /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+  );
   if (!match) return null;
-  return { r: parseInt(match[1], 16), g: parseInt(match[2], 16), b: parseInt(match[3], 16) };
+  return {
+    r: parseInt(match[1], 16),
+    g: parseInt(match[2], 16),
+    b: parseInt(match[3], 16),
+  };
 }
 
 interface CreateQuoteOgWithLogoParams {
@@ -228,7 +236,11 @@ async function createLogoOnBackground(
   const logoHeight = logoMetadata.height || 300;
 
   // Choose background color based on showLogoOnColour
-  const bgColor = parseHexToRgb(organisationShowLogoOnColour) || { r: 255, g: 255, b: 255 };
+  const bgColor = parseHexToRgb(organisationShowLogoOnColour) || {
+    r: 255,
+    g: 255,
+    b: 255,
+  };
 
   // Create 1200x630 background and center the logo
   const background = await sharp({
