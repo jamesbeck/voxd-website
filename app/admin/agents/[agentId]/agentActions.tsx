@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CopyIcon, FlagIcon, MessageCircleIcon, Trash2Icon } from "lucide-react";
+import {
+  CopyIcon,
+  FlagIcon,
+  MessageCircleIcon,
+  Trash2Icon,
+} from "lucide-react";
 import Link from "next/link";
 import CloneAgentDialog from "./CloneAgentDialog";
 import { QRCodeSVG } from "qrcode.react";
@@ -53,7 +58,11 @@ export default function AgentActions({
 }) {
   const [isDeletingAgent, setIsDeletingAgent] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
-  const [qrTarget, setQrTarget] = useState<{ url: string; label: string; filename: string }>({
+  const [qrTarget, setQrTarget] = useState<{
+    url: string;
+    label: string;
+    filename: string;
+  }>({
     url: "",
     label: "",
     filename: "",
@@ -163,7 +172,8 @@ export default function AgentActions({
                     {
                       label: "WA QR",
                       variant: "outline" as const,
-                      onClick: () => openQrDialog(whatsappUrl, "WhatsApp", "whatsapp"),
+                      onClick: () =>
+                        openQrDialog(whatsappUrl, "WhatsApp", "whatsapp"),
                     },
                   ],
                 },
