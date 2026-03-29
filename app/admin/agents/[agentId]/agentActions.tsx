@@ -48,6 +48,7 @@ export default function AgentActions({
   phoneNumber,
   organisationId,
   tickets,
+  isSuperAdmin,
 }: {
   agentId: string;
   name: string;
@@ -55,6 +56,7 @@ export default function AgentActions({
   phoneNumber: string;
   organisationId: string;
   tickets: AgentTicket[];
+  isSuperAdmin: boolean;
 }) {
   const [isDeletingAgent, setIsDeletingAgent] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
@@ -196,32 +198,36 @@ export default function AgentActions({
             ],
           },
         ]}
-        dropdown={{
-          loading: isDeletingAgent,
-          groups: [
-            {
-              items: [
-                {
-                  label: "Clone Agent",
-                  icon: <CopyIcon />,
-                  onSelect: () => setCloneDialogOpen(true),
-                },
-                {
-                  label: "Delete Agent",
-                  icon: <Trash2Icon />,
-                  danger: true,
-                  confirm: {
-                    title: `Delete ${name}`,
-                    description: "This action cannot be undone.",
-                    actionText: "Delete",
-                    destructive: true,
-                    onAction: deleteAgent,
+        dropdown={
+          isSuperAdmin
+            ? {
+                loading: isDeletingAgent,
+                groups: [
+                  {
+                    items: [
+                      {
+                        label: "Clone Agent",
+                        icon: <CopyIcon />,
+                        onSelect: () => setCloneDialogOpen(true),
+                      },
+                      {
+                        label: "Delete Agent",
+                        icon: <Trash2Icon />,
+                        danger: true,
+                        confirm: {
+                          title: `Delete ${name}`,
+                          description: "This action cannot be undone.",
+                          actionText: "Delete",
+                          destructive: true,
+                          onAction: deleteAgent,
+                        },
+                      },
+                    ],
                   },
-                },
-              ],
-            },
-          ],
-        }}
+                ],
+              }
+            : undefined
+        }
       />
 
       <ReportAgentDialog

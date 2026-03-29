@@ -143,16 +143,15 @@ export default async function Page({
               ] satisfies RecordTab[]
             }
             actions={
-              !!token.superAdmin ? (
-                <AgentActions
-                  agentId={agentId}
-                  name={agent?.name || ""}
-                  niceName={agent?.niceName || ""}
-                  phoneNumber={agent?.phoneNumber || ""}
-                  organisationId={agent?.organisationId || ""}
-                  tickets={tickets || []}
-                />
-              ) : undefined
+              <AgentActions
+                agentId={agentId}
+                name={agent?.name || ""}
+                niceName={agent?.niceName || ""}
+                phoneNumber={agent?.phoneNumber || ""}
+                organisationId={agent?.organisationId || ""}
+                tickets={tickets || []}
+                isSuperAdmin={!!token.superAdmin}
+              />
             }
           >
             <TabsContent value="info">
