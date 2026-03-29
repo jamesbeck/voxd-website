@@ -84,15 +84,28 @@ const SessionsTable = ({ superAdmin }: { superAdmin: boolean }) => {
       label: "Name",
       name: "name",
       sort: true,
-      format: (row: any) => (
-        <TableLink href={`/admin/chatUsers/${row.userId}`}>
-          {row.name}
-        </TableLink>
-      ),
+      format: (row: any) =>
+        row.name ? (
+          <TableLink href={`/admin/chatUsers/${row.userId}`}>
+            {row.name}
+          </TableLink>
+        ) : (
+          <Badge className="bg-gray-500">Anonymous</Badge>
+        ),
     },
     {
       label: "Number",
       name: "number",
+      sort: true,
+    },
+    {
+      label: "Email",
+      name: "email",
+      sort: true,
+    },
+    {
+      label: "External ID",
+      name: "externalId",
       sort: true,
     },
     {

@@ -36,6 +36,11 @@ import {
   MessageSquare,
   Zap,
   ChevronLeft,
+  Monitor,
+  User,
+  Mail,
+  Phone,
+  Hash,
 } from "lucide-react";
 
 export default async function Page({
@@ -105,7 +110,7 @@ export default async function Page({
       />
 
       <H1 className="text-2xl font-semibold mb-4">
-        {user.name} ({user.number}) & {agent.niceName}
+        {user.name || "Anonymous"} & {agent.niceName}
       </H1>
 
       <RecordTabs
@@ -142,7 +147,7 @@ export default async function Page({
             </Button>
 
             <Button asChild variant="outline" size="sm">
-              <Link href={`/admin/chatUsers/${user.id}`}>{user.name}</Link>
+              <Link href={`/admin/chatUsers/${user.id}`}>View User</Link>
             </Button>
 
             <SessionActions
@@ -210,11 +215,38 @@ export default async function Page({
                         ? "warning"
                         : "success",
                   },
+                  {
+                    label: "Platform",
+                    value: session.platform === "whatsapp" ? "WhatsApp" : "Web",
+                    icon: <Monitor className="h-4 w-4" />,
+                  },
                   session.closedReason
                     ? {
                         label: "Close Reason",
                         value: session.closedReason,
                         icon: <Activity className="h-4 w-4" />,
+                      }
+                    : null,
+                  {
+                    label: "User Name",
+                    value: user.name || "Anonymous",
+                    icon: <User className="h-4 w-4" />,
+                  },
+                  {
+                    label: "User Email",
+                    value: user.email || "Unknown",
+                    icon: <Mail className="h-4 w-4" />,
+                  },
+                  {
+                    label: "User Phone",
+                    value: user.number || "Unknown",
+                    icon: <Phone className="h-4 w-4" />,
+                  },
+                  user.externalId
+                    ? {
+                        label: "External ID",
+                        value: user.externalId,
+                        icon: <Hash className="h-4 w-4" />,
                       }
                     : null,
                   {

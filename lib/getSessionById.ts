@@ -4,6 +4,7 @@ import { verifyAccessToken } from "./auth/verifyToken";
 interface Session {
   id: string;
   sessionType: string;
+  platform: string;
   agentId: string;
   userId: string;
   createdAt: Date;
@@ -35,23 +36,23 @@ const getSessionById = async ({
       "session.*",
       "chatUser.agentId as agentId",
       db.raw(
-        '(SELECT MAX("createdAt") FROM "userMessage" WHERE "userMessage"."sessionId" = "session"."id") as "lastUserMessageDate"'
+        '(SELECT MAX("createdAt") FROM "userMessage" WHERE "userMessage"."sessionId" = "session"."id") as "lastUserMessageDate"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalinputTokens"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalinputTokens"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totaloutputTokens"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totaloutputTokens"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalPromptCost"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalPromptCost"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCompletionCost"'
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCompletionCost"',
       ),
       db.raw(
-        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost" + "assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCost"'
-      )
+        'CAST(COALESCE((SELECT SUM("assistantMessage"."inputCost" + "assistantMessage"."outputCost") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS FLOAT) as "totalCost"',
+      ),
     )
     .where("session.id", sessionId);
 

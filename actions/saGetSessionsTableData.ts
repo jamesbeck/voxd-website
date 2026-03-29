@@ -84,6 +84,7 @@ const saGetSessionsTableData = async ({
       "chatUser.name",
       "chatUser.number",
       "chatUser.email",
+      "chatUser.externalId",
       "agent.id as agentId",
       "agent.niceName as agentName",
     )
