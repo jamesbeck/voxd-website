@@ -143,7 +143,7 @@ const AgentsTable = ({ isSuperAdmin }: { isSuperAdmin: boolean }) => {
 
   const actions = (row: any) => {
     const whatsappUrl = row.phoneNumber
-      ? `https://wa.me/${row.phoneNumber.replaceAll(" ", "")}`
+      ? `https://wa.me/${row.phoneNumber.replace(/\D/g, "")}`
       : "";
 
     return (

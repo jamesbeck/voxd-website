@@ -144,7 +144,7 @@ const PhoneNumberTable = () => {
             },
             {
               label: "Message",
-              href: `https://wa.me/${row.displayPhoneNumber.replaceAll(" ", "")}`,
+              href: `https://wa.me/${row.displayPhoneNumber.replace(/\D/g, "")}`,
               target: "_blank",
             },
           ]}

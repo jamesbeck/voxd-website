@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CopyIcon, FlagIcon, Trash2Icon } from "lucide-react";
+import { CopyIcon, FlagIcon, MessageCircleIcon, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import CloneAgentDialog from "./CloneAgentDialog";
 import { QRCodeSVG } from "qrcode.react";
@@ -53,6 +53,11 @@ export default function AgentActions({
 }) {
   const [isDeletingAgent, setIsDeletingAgent] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [qrTarget, setQrTarget] = useState<{ url: string; label: string; filename: string }>({
+    url: "",
+    label: "",
+    filename: "",
+  });
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [cloneDialogOpen, setCloneDialogOpen] = useState(false);
   const qrRef = useRef<SVGSVGElement>(null);
@@ -60,8 +65,15 @@ export default function AgentActions({
   const router = useRouter();
 
   const whatsappUrl = phoneNumber
-    ? `https://wa.me/${phoneNumber.replaceAll(" ", "")}`
+    ? `https://wa.me/${phoneNumber.replace(/\D/g, "")}`
     : "";
+
+  const webClientUrl = `https://core.voxd.ai/web-client/test?agentId=${agentId}&mode=fullscreen#`;
+
+  const openQrDialog = (url: string, label: string, filename: string) => {
+    setQrTarget({ url, label, filename });
+    setQrDialogOpen(true);
+  };
 
   const downloadQRCode = () => {
     const svg = qrRef.current;
@@ -83,7 +95,7 @@ export default function AgentActions({
       downloadLink.download = `${(niceName || name).replace(
         /[^a-z0-9]/gi,
         "_",
-      )}_whatsapp_qr.png`;
+      )}_${qrTarget.filename}_qr.png`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
@@ -136,27 +148,44 @@ export default function AgentActions({
             <AgentTicketBadge tickets={tickets} variant="button" />
           </ButtonGroup>
         }
-        buttons={
-          phoneNumber
+        buttons={[
+          ...(phoneNumber
             ? [
                 {
                   buttons: [
                     {
-                      label: `Message ${niceName || name}`,
+                      label: "WA",
+                      icon: <MessageCircleIcon />,
                       variant: "default" as const,
                       href: whatsappUrl,
                       target: "_blank",
                     },
                     {
-                      label: "QR Code",
+                      label: "WA QR",
                       variant: "outline" as const,
-                      onClick: () => setQrDialogOpen(true),
+                      onClick: () => openQrDialog(whatsappUrl, "WhatsApp", "whatsapp"),
                     },
                   ],
                 },
               ]
-            : []
-        }
+            : []),
+          {
+            buttons: [
+              {
+                label: "Web",
+                icon: <MessageCircleIcon />,
+                variant: "default" as const,
+                href: webClientUrl,
+                target: "_blank",
+              },
+              {
+                label: "Web QR",
+                variant: "outline" as const,
+                onClick: () => openQrDialog(webClientUrl, "Web Client", "web"),
+              },
+            ],
+          },
+        ]}
         dropdown={{
           loading: isDeletingAgent,
           groups: [
@@ -203,15 +232,15 @@ export default function AgentActions({
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>WhatsApp QR Code</DialogTitle>
+            <DialogTitle>{qrTarget.label} QR Code</DialogTitle>
             <DialogDescription>
-              Scan this QR code to message {niceName || name} on WhatsApp
+              Scan this QR code to open {niceName || name} via {qrTarget.label}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center p-6">
             <QRCodeSVG
               ref={qrRef}
-              value={whatsappUrl}
+              value={qrTarget.url}
               size={256}
               level="H"
               includeMargin

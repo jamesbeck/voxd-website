@@ -45,11 +45,16 @@ const saGetSessionsTableData = async ({
     base.where("agent.organisationId", accessToken.organisationId);
   }
 
-  //if partner is logging in, restrict to their agents
+  //if partner is logging in, restrict to their agents + their own org
   if (accessToken?.partner && !accessToken.superAdmin) {
     base
       .leftJoin("organisation", "agent.organisationId", "organisation.id")
-      .where("organisation.partnerId", accessToken!.partnerId);
+      .where((qb) => {
+        qb.where("organisation.partnerId", accessToken!.partnerId).orWhere(
+          "agent.organisationId",
+          accessToken!.organisationId,
+        );
+      });
   }
 
   //only super admin users can see development sessions
