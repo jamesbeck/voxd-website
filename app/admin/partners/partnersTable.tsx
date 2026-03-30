@@ -10,19 +10,19 @@ const partnersTable = () => {
   const columns = [
     {
       label: "Logo",
-      name: "logoFileExtension",
+      name: "organisationLogoFileExtension",
       format: (row: any) =>
-        row.domain && row.logoFileExtension ? (
+        row.organisationId && row.organisationLogoFileExtension ? (
           <div
             className="inline-flex p-1"
             style={
-              row.showLogoOnColour
-                ? { backgroundColor: row.showLogoOnColour }
+              row.organisationShowLogoOnColour
+                ? { backgroundColor: row.organisationShowLogoOnColour }
                 : undefined
             }
           >
             <Image
-              src={`https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${row.domain}.${row.logoFileExtension}`}
+              src={`https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${row.organisationId}.${row.organisationLogoFileExtension}`}
               alt={row.name || "Partner logo"}
               width={80}
               height={32}
@@ -39,15 +39,17 @@ const partnersTable = () => {
     },
     {
       label: "Colour",
-      name: "colour",
+      name: "organisationPrimaryColour",
       format: (row: any) =>
-        row.colour ? (
+        row.organisationPrimaryColour ? (
           <div className="flex items-center gap-2">
             <div
               className="h-6 w-6 rounded border"
-              style={{ backgroundColor: `#${row.colour}` }}
+              style={{ backgroundColor: row.organisationPrimaryColour }}
             />
-            <span className="text-xs text-muted-foreground">#{row.colour}</span>
+            <span className="text-xs text-muted-foreground">
+              {row.organisationPrimaryColour}
+            </span>
           </div>
         ) : null,
     },

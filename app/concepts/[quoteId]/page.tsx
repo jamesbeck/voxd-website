@@ -63,7 +63,7 @@ export async function generateMetadata({
   const title = `${concept.organisationName} - ${concept.title} | ${concept.partner.name}`;
   const description = `AI Chatbot Concept for ${concept.organisationName} - prepared by ${concept.partner.name}`;
 
-  // OG image is always generated in quoteOgWithLogo folder (uses fallback chain: hero+logo, hero, org logo, partner logo)
+  // OG image is always generated in quoteOgWithLogo folder (uses fallback chain: hero+logo, hero, org logo)
   const ogImage = `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/quoteOgWithLogo/${concept.id}.webp`;
 
   // Get current host from request headers
@@ -72,10 +72,9 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/concepts/${quoteId}`;
 
-  const favicon =
-    concept.partner.domain && concept.partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${concept.partner.domain}.${concept.partner.logoFileExtension}`
-      : "/logo.svg";
+  const favicon = concept.partnerOrganisationLogoFileExtension
+    ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${concept.partnerOrganisationId}.${concept.partnerOrganisationLogoFileExtension}`
+    : "/logo.svg";
 
   return {
     title,
@@ -153,22 +152,12 @@ export default async function PublicConceptPage({
     // Silently ignore errors
   });
 
-  const brandColor = concept.partner.colour
-    ? `#${concept.partner.colour}`
-    : "#6366f1";
-  const logoUrl =
-    concept.partner.domain && concept.partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${concept.partner.domain}.${concept.partner.logoFileExtension}`
-      : "/logo.svg";
-
+  const brandColor = concept.partnerOrganisationPrimaryColour || "#6366f1";
+  const logoUrl = concept.partnerOrganisationLogoFileExtension
+    ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${concept.partnerOrganisationId}.${concept.partnerOrganisationLogoFileExtension}`
+    : "/logo.svg";
   const organisationLogoUrl = concept.organisationLogoFileExtension
-    ? `https://s3.${
-        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-      }.wasabisys.com/${
-        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-      }/organisationLogos/${concept.organisationId}.${
-        concept.organisationLogoFileExtension
-      }`
+    ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${concept.organisationId}.${concept.organisationLogoFileExtension}`
     : null;
 
   const sections = [
@@ -213,8 +202,11 @@ export default async function PublicConceptPage({
           <div
             className="-my-3 py-3 px-2"
             style={
-              concept.partner.showLogoOnColour
-                ? { backgroundColor: concept.partner.showLogoOnColour }
+              concept.partnerOrganisationShowLogoOnColour
+                ? {
+                    backgroundColor:
+                      concept.partnerOrganisationShowLogoOnColour,
+                  }
                 : undefined
             }
           >
@@ -229,24 +221,18 @@ export default async function PublicConceptPage({
           </div>
           {organisationLogoUrl && (
             <>
-              <div className="h-8 md:h-12 w-px bg-gray-200" />
-              {concept.organisationShowLogoOnColour ? (
-                <div
-                  className="rounded-lg p-2 md:p-3"
-                  style={{
-                    backgroundColor: concept.organisationShowLogoOnColour,
-                  }}
-                >
-                  <Image
-                    src={organisationLogoUrl}
-                    alt={concept.organisationName}
-                    width={180}
-                    height={60}
-                    unoptimized
-                    className="h-6 md:h-10 w-auto object-contain"
-                  />
-                </div>
-              ) : (
+              {!concept.partnerOrganisationShowLogoOnColour &&
+                !concept.organisationShowLogoOnColour && (
+                  <div className="h-8 md:h-12 w-px bg-gray-200" />
+                )}
+              <div
+                className="-my-3 py-3 px-2"
+                style={
+                  concept.organisationShowLogoOnColour
+                    ? { backgroundColor: concept.organisationShowLogoOnColour }
+                    : undefined
+                }
+              >
                 <Image
                   src={organisationLogoUrl}
                   alt={concept.organisationName}
@@ -255,7 +241,7 @@ export default async function PublicConceptPage({
                   unoptimized
                   className="h-8 md:h-12 w-auto object-contain"
                 />
-              )}
+              </div>
             </>
           )}
         </div>

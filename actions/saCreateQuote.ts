@@ -46,13 +46,10 @@ const saCreateQuote = async (input: {
   // Get the organisation with partner info
   const organisation = await db("organisation")
     .where("organisation.id", organisationId)
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .select(
       "organisation.about",
       "organisation.logoFileExtension",
       db.raw('organisation."showLogoOnColour"'),
-      "partner.domain as partnerDomain",
-      "partner.logoFileExtension as partnerLogoFileExtension",
     )
     .first();
 
@@ -69,15 +66,13 @@ const saCreateQuote = async (input: {
       })
       .returning("id");
 
-    // Generate OG image for the new quote (uses fallback chain: org logo or partner logo)
+    // Generate OG image for the new quote (uses fallback chain: org logo)
     createQuoteOgWithLogo({
       quoteId: newQuote.id,
       heroImageBuffer: null,
       organisationId,
       organisationLogoFileExtension: organisation?.logoFileExtension || null,
       organisationShowLogoOnColour: organisation?.showLogoOnColour || null,
-      partnerDomain: organisation?.partnerDomain || null,
-      partnerLogoFileExtension: organisation?.partnerLogoFileExtension || null,
     }).catch((err) => {
       console.error("Failed to generate OG image for new quote:", err);
     });

@@ -65,8 +65,6 @@ const saCloneQuote = async (input: {
         "organisation.partnerId as sourcePartnerId",
         "partner.name as partnerName",
         "partner.openAiApiKey",
-        "partner.domain as partnerDomain",
-        "partner.logoFileExtension as partnerLogoFileExtension",
       )
       .first();
 
@@ -348,8 +346,6 @@ ${rewriteContext}`,
       organisationId: targetOrganisationId,
       organisationLogoFileExtension: targetOrg.logoFileExtension || null,
       organisationShowLogoOnColour: targetOrg.showLogoOnColour || null,
-      partnerDomain: sourceQuote.partnerDomain || null,
-      partnerLogoFileExtension: sourceQuote.partnerLogoFileExtension || null,
     }).catch((err) => {
       console.error("Failed to generate OG image for cloned quote:", err);
     });

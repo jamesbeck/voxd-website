@@ -31,8 +31,8 @@ export async function generateMetadata(): Promise<Metadata> {
     "Step-by-step guide for Google Workspace admins to create an internal OAuth app for calendar integration.";
 
   const favicon =
-    partner.domain && partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}.${partner.logoFileExtension}`
+    partner.organisationLogoFileExtension && partner.organisationId
+      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
       : "/logo.svg";
 
   return {
@@ -55,29 +55,29 @@ export default async function GoogleCalendarGuidePage() {
     return notFound();
   }
 
-  const brandColor = partner.colour ? `#${partner.colour}` : "#6366f1";
-  const partnerLogoUrl =
-    partner.domain && partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}.${partner.logoFileExtension}`
+  const brandColor = partner.organisationPrimaryColour || "#6366f1";
+  const organisationLogoUrl =
+    partner.organisationLogoFileExtension && partner.organisationId
+      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
       : "/logo.svg";
 
   const callbackUrl = `https://${partner.domain}/api/auth/google/callback`;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with partner logo */}
+      {/* Header with organisation logo */}
       <header className="sticky top-0 z-50 py-4 px-4 bg-white border-b">
         <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center">
           <div
             className="py-1 px-2"
             style={
-              partner.showLogoOnColour
-                ? { backgroundColor: partner.showLogoOnColour }
+              partner.organisationShowLogoOnColour
+                ? { backgroundColor: partner.organisationShowLogoOnColour }
                 : undefined
             }
           >
             <Image
-              src={partnerLogoUrl}
+              src={organisationLogoUrl}
               alt={partner.name || "Partner"}
               width={180}
               height={60}
@@ -674,13 +674,13 @@ export default async function GoogleCalendarGuidePage() {
             <div
               className="py-1 px-2"
               style={
-                partner.showLogoOnColour
-                  ? { backgroundColor: partner.showLogoOnColour }
+                partner.organisationShowLogoOnColour
+                  ? { backgroundColor: partner.organisationShowLogoOnColour }
                   : undefined
               }
             >
               <Image
-                src={partnerLogoUrl}
+                src={organisationLogoUrl}
                 alt={partner.name || "Partner"}
                 width={120}
                 height={40}

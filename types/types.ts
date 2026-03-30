@@ -98,10 +98,8 @@ export interface User {
 export interface Partner {
   id: string;
   name: string;
-  colour: string;
   domain: string;
   openAiApiKey?: string;
-  logoFileExtension?: string | null;
   sendEmailFromDomain?: string;
   salesBotName?: string;
   salesBotAgentId?: string;
@@ -112,8 +110,10 @@ export interface Partner {
   goCardlessMandateLink?: string;
   salesEmail?: string;
   accountsEmail?: string;
-  showLogoOnColour?: string | null;
   organisationId?: string | null;
+  organisationPrimaryColour?: string | null;
+  organisationLogoFileExtension?: string | null;
+  organisationShowLogoOnColour?: string | null;
 }
 
 export type CostingBreakdownTask = {

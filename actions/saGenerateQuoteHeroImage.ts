@@ -48,8 +48,6 @@ const saGenerateQuoteHeroImage = async ({
       db.raw(
         'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
       ),
-      "partner.domain as partnerDomain",
-      "partner.logoFileExtension as partnerLogoFileExtension",
     )
     .first();
 
@@ -202,8 +200,6 @@ Write a brief hero image prompt (max 2 sentences) for a professional website ban
       organisationId: quote.organisationId,
       organisationLogoFileExtension: quote.organisationLogoFileExtension,
       organisationShowLogoOnColour: quote.organisationShowLogoOnColour,
-      partnerDomain: quote.partnerDomain,
-      partnerLogoFileExtension: quote.partnerLogoFileExtension,
     });
 
     // Step 4: Update database

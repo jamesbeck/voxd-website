@@ -4,8 +4,25 @@ import { Partner } from "@/types/types";
 
 const getPartners = unstable_cache(
   async (): Promise<Partner[]> => {
-    const partners = await db("partner").select("*");
-    return partners.map(({ openAiApiKey, ...rest }: any) => rest);
+    const partners = await db("partner")
+      .leftJoin("organisation", "partner.organisationId", "organisation.id")
+      .select(
+        "partner.*",
+        "organisation.primaryColour as organisationPrimaryColour",
+        "organisation.logoFileExtension as organisationLogoFileExtension",
+        db.raw(
+          'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+        ),
+      );
+    return partners.map(
+      ({
+        openAiApiKey,
+        colour,
+        logoFileExtension,
+        showLogoOnColour,
+        ...rest
+      }: any) => rest,
+    );
   },
   ["partners"],
   { revalidate: 60, tags: ["partners"] },

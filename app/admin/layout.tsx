@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
 
   const favicon =
-    partner?.domain && partner?.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner.domain}.${partner.logoFileExtension}`
+    partner?.organisationLogoFileExtension && partner?.organisationId
+      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
       : "/logo.svg";
 
   return {
@@ -39,8 +39,8 @@ export default async function RootLayout({
   return (
     <SidebarProvider>
       <BreadcrumbProvider>
-        {partner?.colour && (
-          <style>{`:root { --color-primary: #${partner.colour}; }`}</style>
+        {partner?.organisationPrimaryColour && (
+          <style>{`:root { --color-primary: ${partner.organisationPrimaryColour}; }`}</style>
         )}
         <div className="w-full flex overflow-hidden min-h-screen">
           <AdminSidebar
@@ -49,11 +49,13 @@ export default async function RootLayout({
             partner={accessToken?.partner}
             agents={userAgents}
             logoUrl={
-              partner?.domain && partner?.logoFileExtension
-                ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}.${partner?.logoFileExtension}`
+              partner?.organisationLogoFileExtension && partner?.organisationId
+                ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
                 : undefined
             }
-            showLogoOnColour={partner?.showLogoOnColour ?? undefined}
+            showLogoOnColour={
+              partner?.organisationShowLogoOnColour ?? undefined
+            }
           />
           <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
             <TopBar />

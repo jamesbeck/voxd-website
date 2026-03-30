@@ -8,7 +8,6 @@ import NewPartnerForm from "./newPartnerForm";
 import { notFound } from "next/navigation";
 import EditPartnerForm from "./editPartnerForm";
 import getPartnerById from "@/lib/getPartnerById";
-import LogoTab from "./logoTab";
 import QuotesTable from "@/components/admin/QuotesTable";
 import db from "@/database/db";
 
@@ -51,7 +50,6 @@ export default async function Page({
             defaultValue="edit"
             tabs={[
               { value: "edit", label: "Edit Partner" },
-              { value: "logo", label: "Logo" },
               { value: "quotes", label: "Quotes" },
             ]}
           >
@@ -60,7 +58,6 @@ export default async function Page({
                 partnerId={partnerId}
                 name={partner.name}
                 domain={partner.domain}
-                colour={partner.colour}
                 openAiApiKey={partner.openAiApiKey}
                 sendEmailFromDomain={partner.sendEmailFromDomain}
                 salesBotName={partner.salesBotName}
@@ -73,14 +70,6 @@ export default async function Page({
                 accountsEmail={partner.accountsEmail}
                 organisationId={partner.organisationId}
                 organisationName={organisationName}
-              />
-            </TabsContent>
-            <TabsContent value="logo">
-              <LogoTab
-                partnerId={partner.id}
-                partnerDomain={partner.domain}
-                logoFileExtension={partner.logoFileExtension ?? null}
-                showLogoOnColour={partner.showLogoOnColour ?? null}
               />
             </TabsContent>
             <TabsContent value="quotes">

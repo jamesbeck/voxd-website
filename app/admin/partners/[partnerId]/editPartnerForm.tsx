@@ -26,7 +26,6 @@ import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   domain: z.string().nonempty("Domain is required"),
-  colour: z.string().nonempty("Colour is required"),
   openAiApiKey: z.string().optional(),
   sendEmailFromDomain: z.string().optional(),
   salesBotName: z.string().optional(),
@@ -44,7 +43,6 @@ export default function EditPartnerForm({
   partnerId,
   name,
   domain,
-  colour,
   openAiApiKey,
   sendEmailFromDomain,
   salesBotName,
@@ -61,7 +59,6 @@ export default function EditPartnerForm({
   partnerId: string;
   name?: string;
   domain?: string;
-  colour?: string;
   openAiApiKey?: string;
   sendEmailFromDomain?: string;
   salesBotName?: string;
@@ -84,7 +81,6 @@ export default function EditPartnerForm({
     defaultValues: {
       name: name || "",
       domain: domain || "",
-      colour: colour || "",
       openAiApiKey: openAiApiKey || "",
       sendEmailFromDomain: sendEmailFromDomain || "",
       salesBotName: salesBotName || "",
@@ -107,7 +103,6 @@ export default function EditPartnerForm({
       partnerId: partnerId,
       name: values.name,
       domain: values.domain,
-      colour: values.colour,
       openAiApiKey: values.openAiApiKey,
       sendEmailFromDomain: values.sendEmailFromDomain,
       salesBotName: values.salesBotName,
@@ -203,22 +198,6 @@ export default function EditPartnerForm({
               <FormLabel>Domain</FormLabel>
               <FormControl>
                 <Input placeholder="partner.com" {...field} />
-              </FormControl>
-              {/* <FormDescription>Give the user a name</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="colour"
-          rules={{ required: true }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Colour</FormLabel>
-              <FormControl>
-                <Input placeholder="#000000" {...field} />
               </FormControl>
               {/* <FormDescription>Give the user a name</FormDescription> */}
               <FormMessage />

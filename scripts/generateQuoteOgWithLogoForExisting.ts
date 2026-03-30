@@ -3,7 +3,6 @@
  * 1. Hero image + org logo overlay
  * 2. Hero image only
  * 3. Org logo centered on colored background
- * 4. Partner logo centered on white background
  *
  * Run with: npx tsx scripts/generateQuoteOgWithLogoForExisting.ts
  */
@@ -34,8 +33,6 @@ async function generateOgForQuote(quote: {
   organisationId: string;
   organisationLogoFileExtension: string | null;
   organisationShowLogoOnColour: string | null;
-  partnerDomain: string | null;
-  partnerLogoFileExtension: string | null;
 }): Promise<boolean> {
   try {
     let heroBuffer: Buffer | null = null;
@@ -69,8 +66,6 @@ async function generateOgForQuote(quote: {
       organisationId: quote.organisationId,
       organisationLogoFileExtension: quote.organisationLogoFileExtension,
       organisationShowLogoOnColour: quote.organisationShowLogoOnColour,
-      partnerDomain: quote.partnerDomain,
-      partnerLogoFileExtension: quote.partnerLogoFileExtension,
     });
 
     if (!result.success) {
@@ -90,7 +85,6 @@ async function main() {
   // Get all quotes with organisation and partner info
   const quotes = await db("quote")
     .join("organisation", "quote.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .select(
       "quote.id",
       "quote.title",
@@ -100,8 +94,6 @@ async function main() {
       db.raw(
         'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
       ),
-      "partner.domain as partnerDomain",
-      "partner.logoFileExtension as partnerLogoFileExtension",
     );
 
   console.log(`📋 Found ${quotes.length} quotes\n`);
@@ -114,11 +106,7 @@ async function main() {
     process.stdout.write(`Processing: ${quote.title} (${quote.id})...`);
 
     // Check if quote has any image source available
-    if (
-      !quote.heroImageFileExtension &&
-      !quote.organisationLogoFileExtension &&
-      !(quote.partnerDomain && quote.partnerLogoFileExtension)
-    ) {
+    if (!quote.heroImageFileExtension && !quote.organisationLogoFileExtension) {
       console.log(" ⏭️ Skipped (no images available)");
       skippedCount++;
       continue;

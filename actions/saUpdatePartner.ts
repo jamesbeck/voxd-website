@@ -9,7 +9,6 @@ const saUpdatePartner = async ({
   partnerId,
   name,
   domain,
-  colour,
   openAiApiKey,
   sendEmailFromDomain,
   salesBotName,
@@ -20,13 +19,11 @@ const saUpdatePartner = async ({
   goCardlessMandateLink,
   salesEmail,
   accountsEmail,
-  showLogoOnColour,
   organisationId,
 }: {
   partnerId: string;
   name?: string;
   domain?: string;
-  colour?: string;
   openAiApiKey?: string;
   sendEmailFromDomain?: string;
   salesBotName?: string;
@@ -37,7 +34,6 @@ const saUpdatePartner = async ({
   goCardlessMandateLink?: string;
   salesEmail?: string;
   accountsEmail?: string;
-  showLogoOnColour?: string | null;
   organisationId?: string | null;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
@@ -72,7 +68,6 @@ const saUpdatePartner = async ({
   await db("partner").where({ id: partnerId }).update({
     name,
     domain,
-    colour,
     openAiApiKey,
     sendEmailFromDomain,
     salesBotName,
@@ -83,7 +78,6 @@ const saUpdatePartner = async ({
     goCardlessMandateLink,
     salesEmail,
     accountsEmail,
-    showLogoOnColour,
     organisationId,
   });
 

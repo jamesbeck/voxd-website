@@ -61,11 +61,7 @@ const saUploadQuoteHeroImage = async ({
   const organisation = await db("organisation")
     .where("organisation.id", quote.organisationId)
     .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .select(
-      "organisation.*",
-      "partner.domain as partnerDomain",
-      "partner.logoFileExtension as partnerLogoFileExtension",
-    )
+    .select("organisation.*")
     .first();
 
   if (!organisation) {
@@ -167,8 +163,6 @@ const saUploadQuoteHeroImage = async ({
       organisationId: quote.organisationId,
       organisationLogoFileExtension: organisation.logoFileExtension,
       organisationShowLogoOnColour: organisation.showLogoOnColour,
-      partnerDomain: organisation.partnerDomain,
-      partnerLogoFileExtension: organisation.partnerLogoFileExtension,
     });
 
     if (!ogResult.success) {

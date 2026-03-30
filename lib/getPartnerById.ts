@@ -7,7 +7,15 @@ export const getPartnerById = async ({
   partnerId: string;
 }): Promise<Partner | null> => {
   const partner = await db("partner")
-    .select("partner.*")
+    .leftJoin("organisation", "partner.organisationId", "organisation.id")
+    .select(
+      "partner.*",
+      "organisation.primaryColour as organisationPrimaryColour",
+      "organisation.logoFileExtension as organisationLogoFileExtension",
+      db.raw(
+        'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+      ),
+    )
     .where("partner.id", partnerId)
     .first();
 

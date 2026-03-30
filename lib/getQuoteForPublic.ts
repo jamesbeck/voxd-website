@@ -21,6 +21,10 @@ export type PublicQuote = {
   organisationId: string;
   organisationLogoFileExtension: string | null;
   organisationShowLogoOnColour: string | null;
+  partnerOrganisationId: string | null;
+  partnerOrganisationPrimaryColour: string | null;
+  partnerOrganisationLogoFileExtension: string | null;
+  partnerOrganisationShowLogoOnColour: string | null;
   status: string;
   background: string | null;
   objectives: string | null;
@@ -38,10 +42,7 @@ export type PublicQuote = {
   heroImageFileExtension: string | null;
   partner: {
     name: string;
-    colour: string | null;
     domain: string | null;
-    logoFileExtension: string | null;
-    showLogoOnColour: string | null;
     legalName: string | null;
     companyNumber: string | null;
     registeredAddress: string | null;
@@ -76,6 +77,11 @@ export const getQuoteForPublic = async ({
   const query = db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .leftJoin(
+      "organisation as partnerOrg",
+      "partner.organisationId",
+      "partnerOrg.id",
+    )
     .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
     .leftJoin("agent", "partner.salesBotAgentId", "agent.id")
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id");
@@ -114,12 +120,19 @@ export const getQuoteForPublic = async ({
       db.raw(
         'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
       ),
+      db.raw('"partnerOrg".id as "partnerOrganisationId"'),
+      db.raw(
+        '"partnerOrg"."primaryColour" as "partnerOrganisationPrimaryColour"',
+      ),
+      db.raw(
+        '"partnerOrg"."logoFileExtension" as "partnerOrganisationLogoFileExtension"',
+      ),
+      db.raw(
+        '"partnerOrg"."showLogoOnColour" as "partnerOrganisationShowLogoOnColour"',
+      ),
       "partner.name as partnerName",
-      "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
-      "partner.logoFileExtension as partnerLogoFileExtension",
     )
-    .select(db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'))
     .select(
       "partner.legalName as partnerLegalName",
       "partner.companyNumber as partnerCompanyNumber",
@@ -186,6 +199,13 @@ export const getQuoteForPublic = async ({
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
     organisationShowLogoOnColour: quote.organisationShowLogoOnColour ?? null,
+    partnerOrganisationId: quote.partnerOrganisationId ?? null,
+    partnerOrganisationPrimaryColour:
+      quote.partnerOrganisationPrimaryColour ?? null,
+    partnerOrganisationLogoFileExtension:
+      quote.partnerOrganisationLogoFileExtension ?? null,
+    partnerOrganisationShowLogoOnColour:
+      quote.partnerOrganisationShowLogoOnColour ?? null,
     status: quote.status,
     background: quote.background,
     objectives: quote.objectives,
@@ -203,10 +223,7 @@ export const getQuoteForPublic = async ({
     heroImageFileExtension: quote.heroImageFileExtension,
     partner: {
       name: quote.partnerName,
-      colour: quote.partnerColour,
       domain: quote.partnerDomain,
-      logoFileExtension: quote.partnerLogoFileExtension,
-      showLogoOnColour: quote.partnerShowLogoOnColour ?? null,
       legalName: quote.partnerLegalName,
       companyNumber: quote.partnerCompanyNumber,
       registeredAddress: quote.partnerRegisteredAddress,

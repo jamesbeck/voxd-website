@@ -26,8 +26,6 @@ interface CreateQuoteOgWithLogoParams {
   organisationId: string;
   organisationLogoFileExtension: string | null;
   organisationShowLogoOnColour: string | null;
-  partnerDomain?: string | null;
-  partnerLogoFileExtension?: string | null;
 }
 
 /**
@@ -35,7 +33,6 @@ interface CreateQuoteOgWithLogoParams {
  * 1. Hero image + org logo overlay (if both exist)
  * 2. Hero image only (if no org logo)
  * 3. Org logo centered on colored background (if no hero but org logo exists)
- * 4. Partner logo centered on white background (if neither hero nor org logo)
  *
  * Stores the result in quoteOgWithLogo/ folder.
  */
@@ -45,8 +42,6 @@ export async function createQuoteOgWithLogo({
   organisationId,
   organisationLogoFileExtension,
   organisationShowLogoOnColour,
-  partnerDomain,
-  partnerLogoFileExtension,
 }: CreateQuoteOgWithLogoParams): Promise<{
   success: boolean;
   url?: string;
@@ -87,19 +82,11 @@ export async function createQuoteOgWithLogo({
         s3Client,
         bucketName,
       );
-    } else if (partnerDomain && partnerLogoFileExtension) {
-      // Case 4: No hero, no org logo - use partner logo on white background
-      finalBuffer = await createPartnerLogoFallback(
-        partnerDomain,
-        partnerLogoFileExtension,
-        s3Client,
-        bucketName,
-      );
     } else {
       // No images available at all
       return {
         success: false,
-        error: "No hero image, organisation logo, or partner logo available",
+        error: "No hero image or organisation logo available",
       };
     }
 
@@ -249,66 +236,6 @@ async function createLogoOnBackground(
       height: 630,
       channels: 3,
       background: bgColor,
-    },
-  })
-    .composite([
-      {
-        input: resizedLogo,
-        left: Math.round((1200 - logoWidth) / 2),
-        top: Math.round((630 - logoHeight) / 2),
-      },
-    ])
-    .webp({ quality: 85 })
-    .toBuffer();
-
-  return background;
-}
-
-/**
- * Creates an OG image with the partner logo centered on white background
- */
-async function createPartnerLogoFallback(
-  partnerDomain: string,
-  partnerLogoFileExtension: string,
-  s3Client: S3Client,
-  bucketName: string,
-): Promise<Buffer> {
-  const logoKey = `partnerLogos/${partnerDomain}.${partnerLogoFileExtension}`;
-
-  const logoResponse = await s3Client.send(
-    new GetObjectCommand({
-      Bucket: bucketName,
-      Key: logoKey,
-    }),
-  );
-
-  if (!logoResponse.Body) {
-    throw new Error("Partner logo not found in storage");
-  }
-
-  const logoArrayBuffer = await logoResponse.Body.transformToByteArray();
-  const logoBuffer = Buffer.from(logoArrayBuffer);
-
-  // Resize logo to be prominent but not too large
-  const resizedLogo = await sharp(logoBuffer)
-    .resize({
-      width: 600,
-      height: 300,
-      fit: "inside",
-    })
-    .toBuffer();
-
-  const logoMetadata = await sharp(resizedLogo).metadata();
-  const logoWidth = logoMetadata.width || 600;
-  const logoHeight = logoMetadata.height || 300;
-
-  // Create 1200x630 white background and center the logo
-  const background = await sharp({
-    create: {
-      width: 1200,
-      height: 630,
-      channels: 3,
-      background: { r: 255, g: 255, b: 255 },
     },
   })
     .composite([

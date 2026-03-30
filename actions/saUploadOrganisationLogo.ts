@@ -124,12 +124,6 @@ const saUploadOrganisationLogo = async ({
         showLogoOnColour: needsDarkBackground ? "#333333" : null,
       });
 
-    // Get partner info for fallback
-    const partner = await db("partner")
-      .where("id", organisation.partnerId)
-      .select("domain", "logoFileExtension")
-      .first();
-
     // Regenerate OG images for all quotes belonging to this organisation
     const allQuotes = await db("quote")
       .where("organisationId", organisationId)
@@ -181,8 +175,6 @@ const saUploadOrganisationLogo = async ({
               organisationShowLogoOnColour: needsDarkBackground
                 ? "#333333"
                 : null,
-              partnerDomain: partner?.domain,
-              partnerLogoFileExtension: partner?.logoFileExtension,
             });
           } catch (err) {
             console.error(

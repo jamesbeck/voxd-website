@@ -21,12 +21,13 @@ export type PublicExample = {
   logoFileExtension: string | null;
   heroImageFileExtension: string | null;
   createdAt: string;
+  organisationId: string | null;
+  organisationPrimaryColour: string | null;
+  organisationLogoFileExtension: string | null;
+  organisationShowLogoOnColour: string | null;
   partner: {
     name: string;
-    colour: string | null;
     domain: string | null;
-    logoFileExtension: string | null;
-    showLogoOnColour: string | null;
   };
   exampleConversations: PublicExampleConversation[];
 };
@@ -38,11 +39,9 @@ export const getExampleForPublic = async ({
   exampleId?: string;
   slug?: string;
 }): Promise<PublicExample | null> => {
-  let query = db("example").leftJoin(
-    "partner",
-    "example.partnerId",
-    "partner.id",
-  );
+  let query = db("example")
+    .leftJoin("partner", "example.partnerId", "partner.id")
+    .leftJoin("organisation", "partner.organisationId", "organisation.id");
 
   if (exampleId) {
     query = query.where("example.id", exampleId);
@@ -63,11 +62,14 @@ export const getExampleForPublic = async ({
       "example.heroImageFileExtension",
       "example.createdAt",
       "partner.name as partnerName",
-      "partner.colour as partnerColour",
       "partner.domain as partnerDomain",
-      "partner.logoFileExtension as partnerLogoFileExtension",
+      "organisation.id as organisationId",
+      "organisation.logoFileExtension as organisationLogoFileExtension",
+      db.raw(
+        'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+      ),
+      db.raw('organisation."primaryColour" as "organisationPrimaryColour"'),
     )
-    .select(db.raw('partner."showLogoOnColour" as "partnerShowLogoOnColour"'))
     .first();
 
   if (!example) {
@@ -118,12 +120,14 @@ export const getExampleForPublic = async ({
     logoFileExtension: example.logoFileExtension,
     heroImageFileExtension: example.heroImageFileExtension,
     createdAt: example.createdAt,
+    organisationId: example.organisationId ?? null,
+    organisationPrimaryColour: example.organisationPrimaryColour ?? null,
+    organisationLogoFileExtension:
+      example.organisationLogoFileExtension ?? null,
+    organisationShowLogoOnColour: example.organisationShowLogoOnColour ?? null,
     partner: {
       name: example.partnerName || "Voxd",
-      colour: example.partnerColour,
       domain: example.partnerDomain,
-      logoFileExtension: example.partnerLogoFileExtension,
-      showLogoOnColour: example.partnerShowLogoOnColour ?? null,
     },
     exampleConversations: parsedConversations,
   };

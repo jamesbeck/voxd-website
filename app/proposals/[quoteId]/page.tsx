@@ -63,7 +63,7 @@ export async function generateMetadata({
   const title = `${quote.organisationName} - ${quote.title} | ${quote.partner.name}`;
   const description = `AI Chatbot Implementation Proposal for ${quote.organisationName} - prepared by ${quote.partner.name}`;
 
-  // OG image is always generated in quoteOgWithLogo folder (uses fallback chain: hero+logo, hero, org logo, partner logo)
+  // OG image is always generated in quoteOgWithLogo folder (uses fallback chain: hero+logo, hero, org logo)
   const ogImage = `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/quoteOgWithLogo/${quote.id}.webp`;
 
   // Get current host from request headers
@@ -72,10 +72,9 @@ export async function generateMetadata({
   const protocol = host.includes("localhost") ? "http" : "https";
   const pageUrl = `${protocol}://${host}/proposals/${quoteId}`;
 
-  const favicon =
-    quote.partner.domain && quote.partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
-      : "/logo.svg";
+  const favicon = quote.partnerOrganisationLogoFileExtension
+    ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${quote.partnerOrganisationId}.${quote.partnerOrganisationLogoFileExtension}`
+    : "/logo.svg";
 
   return {
     title,
@@ -146,22 +145,12 @@ export default async function PublicQuotePage({
     // Silently ignore errors
   });
 
-  const brandColor = quote.partner.colour
-    ? `#${quote.partner.colour}`
-    : "#6366f1";
-  const logoUrl =
-    quote.partner.domain && quote.partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${quote.partner.domain}.${quote.partner.logoFileExtension}`
-      : "/logo.svg";
-
+  const brandColor = quote.partnerOrganisationPrimaryColour || "#6366f1";
+  const logoUrl = quote.partnerOrganisationLogoFileExtension
+    ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${quote.partnerOrganisationId}.${quote.partnerOrganisationLogoFileExtension}`
+    : "/logo.svg";
   const organisationLogoUrl = quote.organisationLogoFileExtension
-    ? `https://s3.${
-        process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"
-      }.wasabisys.com/${
-        process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"
-      }/organisationLogos/${quote.organisationId}.${
-        quote.organisationLogoFileExtension
-      }`
+    ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${quote.organisationId}.${quote.organisationLogoFileExtension}`
     : null;
 
   // Calculate build days - default to 3 if not set or zero
@@ -221,8 +210,8 @@ export default async function PublicQuotePage({
           <div
             className="-my-3 py-3 px-2"
             style={
-              quote.partner.showLogoOnColour
-                ? { backgroundColor: quote.partner.showLogoOnColour }
+              quote.partnerOrganisationShowLogoOnColour
+                ? { backgroundColor: quote.partnerOrganisationShowLogoOnColour }
                 : undefined
             }
           >
@@ -237,24 +226,18 @@ export default async function PublicQuotePage({
           </div>
           {organisationLogoUrl && (
             <>
-              <div className="h-8 md:h-12 w-px bg-gray-200" />
-              {quote.organisationShowLogoOnColour ? (
-                <div
-                  className="rounded-lg p-2 md:p-3"
-                  style={{
-                    backgroundColor: quote.organisationShowLogoOnColour,
-                  }}
-                >
-                  <Image
-                    src={organisationLogoUrl}
-                    alt={quote.organisationName}
-                    width={180}
-                    height={60}
-                    unoptimized
-                    className="h-6 md:h-10 w-auto object-contain"
-                  />
-                </div>
-              ) : (
+              {!quote.partnerOrganisationShowLogoOnColour &&
+                !quote.organisationShowLogoOnColour && (
+                  <div className="h-8 md:h-12 w-px bg-gray-200" />
+                )}
+              <div
+                className="-my-3 py-3 px-2"
+                style={
+                  quote.organisationShowLogoOnColour
+                    ? { backgroundColor: quote.organisationShowLogoOnColour }
+                    : undefined
+                }
+              >
                 <Image
                   src={organisationLogoUrl}
                   alt={quote.organisationName}
@@ -263,7 +246,7 @@ export default async function PublicQuotePage({
                   unoptimized
                   className="h-8 md:h-12 w-auto object-contain"
                 />
-              )}
+              </div>
             </>
           )}
         </div>

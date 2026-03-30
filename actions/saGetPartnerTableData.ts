@@ -47,6 +47,13 @@ const saGetPartnerTableData = async ({
     .clone()
     .select("partner.*")
     .select(db.raw('"organisation"."name" as "organisationName"'))
+    .select(
+      "organisation.primaryColour as organisationPrimaryColour",
+      "organisation.logoFileExtension as organisationLogoFileExtension",
+      db.raw(
+        'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+      ),
+    )
     // .select([
     //   db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
     //   db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),

@@ -32,8 +32,8 @@ export async function generateMetadata({
     ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleImages/${example.id}_og.${example.heroImageFileExtension}`
     : example.logoFileExtension
       ? `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/voxd/exampleLogos/${example.id}.${example.logoFileExtension}`
-      : example.partner.domain && example.partner.logoFileExtension
-        ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
+      : example.organisationId && example.organisationLogoFileExtension
+        ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${example.organisationId}.${example.organisationLogoFileExtension}`
         : null;
 
   // Get current host from request headers
@@ -43,8 +43,8 @@ export async function generateMetadata({
   const pageUrl = `${protocol}://${host}/examples/${slug}`;
 
   const favicon =
-    example.partner.domain && example.partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
+    example.organisationId && example.organisationLogoFileExtension
+      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${example.organisationId}.${example.organisationLogoFileExtension}`
       : "/logo.svg";
 
   return {
@@ -98,12 +98,10 @@ export default async function ExamplesPage({
     return notFound();
   }
 
-  const brandColor = example.partner.colour
-    ? `#${example.partner.colour}`
-    : "#6366f1";
-  const partnerLogoUrl =
-    example.partner.domain && example.partner.logoFileExtension
-      ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${example.partner.domain}.${example.partner.logoFileExtension}`
+  const brandColor = example.organisationPrimaryColour || "#6366f1";
+  const organisationLogoUrl =
+    example.organisationId && example.organisationLogoFileExtension
+      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${example.organisationId}.${example.organisationLogoFileExtension}`
       : "/logo.svg";
 
   const exampleLogoUrl = example.logoFileExtension
@@ -112,19 +110,19 @@ export default async function ExamplesPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with partner logo */}
+      {/* Header with organisation logo */}
       <header className="sticky top-0 z-50 py-4 px-4 bg-white border-b">
         <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center">
           <div
             className="py-1 px-2"
             style={
-              example.partner.showLogoOnColour
-                ? { backgroundColor: example.partner.showLogoOnColour }
+              example.organisationShowLogoOnColour
+                ? { backgroundColor: example.organisationShowLogoOnColour }
                 : undefined
             }
           >
             <Image
-              src={partnerLogoUrl}
+              src={organisationLogoUrl}
               alt={example.partner.name}
               width={180}
               height={60}
@@ -233,7 +231,7 @@ export default async function ExamplesPage({
           {/* Footer */}
           <footer className="flex justify-center py-8">
             <Image
-              src={partnerLogoUrl}
+              src={organisationLogoUrl}
               alt={example.partner.name}
               width={120}
               height={40}

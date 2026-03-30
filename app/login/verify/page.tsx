@@ -33,20 +33,20 @@ export default async function VerifyCodePage({
   return (
     <div
       style={
-        partner?.colour
+        partner?.organisationPrimaryColour
           ? ({
-              "--color-primary": `#${partner?.colour}`,
+              "--color-primary": partner?.organisationPrimaryColour,
             } as React.CSSProperties)
           : undefined
       }
     >
       <VerifyLoginForm
         logoUrl={
-          partner?.domain && partner?.logoFileExtension
-            ? `https://s3.eu-west-1.wasabisys.com/voxd/partnerLogos/${partner?.domain}.${partner?.logoFileExtension}`
+          partner?.organisationLogoFileExtension && partner?.organisationId
+            ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
             : undefined
         }
-        showLogoOnColour={partner?.showLogoOnColour ?? undefined}
+        showLogoOnColour={partner?.organisationShowLogoOnColour ?? undefined}
         redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
         devOtp={devOtp}
       />
