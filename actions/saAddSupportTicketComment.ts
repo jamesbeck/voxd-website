@@ -72,7 +72,9 @@ const saAddSupportTicketComment = async ({
   if (!accessToken.superAdmin) {
     if (accessToken.partner) {
       const ownsViaPartner = ticket.partnerId === accessToken.partnerId;
-      const ownsViaOrg = accessToken.organisationId && ticket.organisationId === accessToken.organisationId;
+      const ownsViaOrg =
+        accessToken.organisationId &&
+        ticket.organisationId === accessToken.organisationId;
       if (!ownsViaPartner && !ownsViaOrg) {
         return {
           success: false,

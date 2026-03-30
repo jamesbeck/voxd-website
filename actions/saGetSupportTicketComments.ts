@@ -29,7 +29,7 @@ const saGetSupportTicketComments = async ({
       this.on("agent.organisationId", "=", "organisation.id").orOn(
         "supportTicket.organisationId",
         "=",
-        "organisation.id"
+        "organisation.id",
       );
     })
     .where("supportTicket.id", ticketId)
@@ -44,7 +44,9 @@ const saGetSupportTicketComments = async ({
   if (!accessToken.superAdmin) {
     if (accessToken.partner) {
       const ownsViaPartner = ticket.partnerId === accessToken.partnerId;
-      const ownsViaOrg = accessToken.organisationId && ticket.organisationId === accessToken.organisationId;
+      const ownsViaOrg =
+        accessToken.organisationId &&
+        ticket.organisationId === accessToken.organisationId;
       if (!ownsViaPartner && !ownsViaOrg) {
         return {
           success: false,
@@ -70,7 +72,7 @@ const saGetSupportTicketComments = async ({
       "supportTicketComment.createdAt",
       "supportTicketComment.adminUserId",
       "adminUser.name as adminUserName",
-      "adminUser.email as adminUserEmail"
+      "adminUser.email as adminUserEmail",
     )
     .orderBy("supportTicketComment.createdAt", "asc");
 

@@ -27,7 +27,7 @@ const saGetSupportTicketTableData = async ({
     .leftJoin(
       "adminUser as createdBy",
       "supportTicket.adminUserId",
-      "createdBy.id"
+      "createdBy.id",
     )
     .where((qb) => {
       if (search) {
@@ -35,7 +35,7 @@ const saGetSupportTicketTableData = async ({
         qb.orWhere(
           db.raw('"supportTicket"."ticketNumber"::text'),
           "ilike",
-          `%${search}%`
+          `%${search}%`,
         );
       }
     });
@@ -96,7 +96,7 @@ const saGetSupportTicketTableData = async ({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "createdBy.name as createdByName",
-      "createdBy.email as createdByEmail"
+      "createdBy.email as createdByEmail",
     )
     .orderByRaw(`?? ${sortDirection} NULLS LAST`, [
       sortField === "createdAt" ? "supportTicket.createdAt" : sortField,

@@ -42,13 +42,13 @@ const saGetSupportTicketById = async ({
     .leftJoin(
       "adminUser as createdBy",
       "supportTicket.adminUserId",
-      "createdBy.id"
+      "createdBy.id",
     )
     .leftJoin("userMessage", "supportTicket.userMessageId", "userMessage.id")
     .leftJoin(
       "assistantMessage",
       "supportTicket.assistantMessageId",
-      "assistantMessage.id"
+      "assistantMessage.id",
     )
     .where("supportTicket.id", ticketId)
     .select(
@@ -71,7 +71,7 @@ const saGetSupportTicketById = async ({
       "createdBy.name as createdByName",
       "createdBy.email as createdByEmail",
       "userMessage.text as userMessageText",
-      "assistantMessage.text as assistantMessageText"
+      "assistantMessage.text as assistantMessageText",
     )
     .first();
 
@@ -83,7 +83,9 @@ const saGetSupportTicketById = async ({
   if (!accessToken.superAdmin) {
     if (accessToken.partner) {
       const ownsViaPartner = ticket.partnerId === accessToken.partnerId;
-      const ownsViaOrg = accessToken.organisationId && ticket.organisationId === accessToken.organisationId;
+      const ownsViaOrg =
+        accessToken.organisationId &&
+        ticket.organisationId === accessToken.organisationId;
       if (!ownsViaPartner && !ownsViaOrg) {
         return {
           success: false,
