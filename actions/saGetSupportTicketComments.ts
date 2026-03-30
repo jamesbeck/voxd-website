@@ -43,7 +43,9 @@ const saGetSupportTicketComments = async ({
   // Check access control
   if (!accessToken.superAdmin) {
     if (accessToken.partner) {
-      if (ticket.partnerId !== accessToken.partnerId) {
+      const ownsViaPartner = ticket.partnerId === accessToken.partnerId;
+      const ownsViaOrg = accessToken.organisationId && ticket.organisationId === accessToken.organisationId;
+      if (!ownsViaPartner && !ownsViaOrg) {
         return {
           success: false,
           error: "You don't have access to this ticket",

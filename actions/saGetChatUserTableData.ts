@@ -38,7 +38,12 @@ const saGetChatUserTableData = async ({
       subquery.where("organisation.id", accessToken.organisationId);
     }
     if (accessToken?.partner && !accessToken.superAdmin) {
-      subquery.where("organisation.partnerId", accessToken!.partnerId);
+      subquery.where((qb) => {
+        qb.where("organisation.partnerId", accessToken!.partnerId);
+        if (accessToken!.organisationId) {
+          qb.orWhere("organisation.id", accessToken!.organisationId);
+        }
+      });
     }
 
     return subquery;
@@ -106,7 +111,12 @@ const saGetChatUserTableData = async ({
         qb.where("costOrg.id", accessToken.organisationId);
       }
       if (accessToken?.partner && !accessToken.superAdmin) {
-        qb.where("costOrg.partnerId", accessToken!.partnerId);
+        qb.where((costQb: any) => {
+          costQb.where("costOrg.partnerId", accessToken!.partnerId);
+          if (accessToken!.organisationId) {
+            costQb.orWhere("costOrg.id", accessToken!.organisationId);
+          }
+        });
       }
       // Only super admin can see development sessions
       if (!accessToken.superAdmin) {

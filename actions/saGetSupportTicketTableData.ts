@@ -61,9 +61,14 @@ const saGetSupportTicketTableData = async ({
     }
   }
 
-  // Partners can see tickets for organisations they own
+  // Partners can see tickets for organisations they own + their direct org
   if (accessToken.partner && !accessToken.superAdmin) {
-    base.where("organisation.partnerId", accessToken.partnerId);
+    base.where((qb) => {
+      qb.where("organisation.partnerId", accessToken.partnerId);
+      if (accessToken.organisationId) {
+        qb.orWhere("supportTicket.organisationId", accessToken.organisationId);
+      }
+    });
   }
 
   // Super admins can see all tickets (no filter needed)
