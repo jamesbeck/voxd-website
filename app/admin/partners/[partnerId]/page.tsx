@@ -34,6 +34,22 @@ export default async function Page({
     organisationName = org?.name;
   }
 
+  let prototypingAgentLabel: string | undefined;
+  if (partner?.prototypingAgentId) {
+    const agent = await db("agent")
+      .select(
+        "agent.niceName",
+        "agent.name",
+        "organisation.name as organisationName",
+      )
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .where("agent.id", partner.prototypingAgentId)
+      .first();
+    if (agent) {
+      prototypingAgentLabel = `${agent.organisationName || "No Organisation"} - ${agent.niceName || agent.name}`;
+    }
+  }
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -70,6 +86,8 @@ export default async function Page({
                 accountsEmail={partner.accountsEmail}
                 organisationId={partner.organisationId}
                 organisationName={organisationName}
+                prototypingAgentId={partner.prototypingAgentId}
+                prototypingAgentLabel={prototypingAgentLabel}
               />
             </TabsContent>
             <TabsContent value="quotes">

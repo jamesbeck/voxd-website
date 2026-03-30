@@ -103,6 +103,7 @@ export interface Partner {
   sendEmailFromDomain?: string;
   salesBotName?: string;
   salesBotAgentId?: string;
+  prototypingAgentId?: string | null;
   legalName?: string;
   companyNumber?: string;
   registeredAddress?: string;

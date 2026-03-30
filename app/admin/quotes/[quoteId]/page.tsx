@@ -3,6 +3,7 @@ import NewOrganisationForm from "./newQuoteForm";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
 import { notFound } from "next/navigation";
+import db from "@/database/db";
 import getOrganisations from "@/lib/getOrganisations";
 import { getQuoteById, Quote } from "@/lib/getQuoteById";
 import { TabsContent } from "@/components/ui/tabs";
@@ -59,6 +60,16 @@ export default async function Page({
   const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && quote?.partnerId === accessToken.partnerId;
+
+  // Fetch prototypingAgentId from the partner that owns this quote's organisation
+  let prototypingAgentId: string | null = null;
+  if (quote?.partnerId) {
+    const partner = await db("partner")
+      .select("prototypingAgentId")
+      .where("id", quote.partnerId)
+      .first();
+    prototypingAgentId = partner?.prototypingAgentId || null;
+  }
 
   return (
     <Container>
@@ -152,6 +163,8 @@ export default async function Page({
                 shortLinkId={quote.shortLinkId}
                 name={quote.title}
                 organisationName={quote.organisationName}
+                organisationId={quote.organisationId}
+                prototypingAgentId={prototypingAgentId}
                 status={quote.status}
                 canDelete={isSuperAdmin || isOwnerPartner}
                 createdByAdminUserId={quote.createdByAdminUserId}

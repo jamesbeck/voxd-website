@@ -11,6 +11,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { addLog } from "@/lib/addLog";
 import sharp from "sharp";
 import { createQuoteOgWithLogo } from "@/lib/createQuoteOgWithLogo";
+import { extractProminentColour } from "@/lib/extractProminentColour";
 
 const saUploadOrganisationLogo = async ({
   organisationId,
@@ -88,6 +89,9 @@ const saUploadOrganisationLogo = async ({
     // Analyze image to determine if it needs a dark background
     const needsDarkBackground = await analyzeLogoBackground(buffer, ext);
 
+    // Extract prominent colour for auto-setting primary colour
+    const prominentColour = await extractProminentColour(buffer, ext);
+
     const bucketName = process.env.WASABI_BUCKET_NAME || "voxd";
 
     // Initialize S3 client for Wasabi
@@ -117,12 +121,19 @@ const saUploadOrganisationLogo = async ({
     );
 
     // Update the organisation record with the logo extension
+    const updateData: Record<string, any> = {
+      logoFileExtension: ext,
+      showLogoOnColour: needsDarkBackground ? "#333333" : null,
+    };
+
+    // Auto-set primary colour only if the org doesn't already have one
+    if (prominentColour && !organisation.primaryColour) {
+      updateData.primaryColour = prominentColour;
+    }
+
     await db("organisation")
       .where("id", organisationId)
-      .update({
-        logoFileExtension: ext,
-        showLogoOnColour: needsDarkBackground ? "#333333" : null,
-      });
+      .update(updateData);
 
     // Regenerate OG images for all quotes belonging to this organisation
     const allQuotes = await db("quote")
@@ -198,7 +209,12 @@ const saUploadOrganisationLogo = async ({
       },
     });
 
-    return { success: true };
+    return {
+      success: true,
+      data: {
+        primaryColour: !organisation.primaryColour ? prominentColour : null,
+      },
+    };
   } catch (error) {
     console.error("Error uploading logo:", error);
     return {

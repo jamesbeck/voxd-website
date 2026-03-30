@@ -88,6 +88,22 @@ const OrganisationsTable = ({
       format: (row: any) => row.name || "",
     },
     {
+      label: "Colour",
+      name: "primaryColour",
+      format: (row: any) =>
+        row.primaryColour ? (
+          <div className="flex items-center gap-2">
+            <div
+              className="h-6 w-6 rounded border"
+              style={{ backgroundColor: row.primaryColour }}
+            />
+            <span className="text-xs text-muted-foreground">
+              {row.primaryColour}
+            </span>
+          </div>
+        ) : null,
+    },
+    {
       label: "Agents",
       name: "agentCount",
       sort: true,

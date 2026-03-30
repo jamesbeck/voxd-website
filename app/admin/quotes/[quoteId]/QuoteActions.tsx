@@ -35,6 +35,8 @@ export default function QuoteActions({
   shortLinkId,
   name,
   organisationName,
+  organisationId,
+  prototypingAgentId,
   status,
   canDelete,
   createdByAdminUserId,
@@ -44,6 +46,8 @@ export default function QuoteActions({
   shortLinkId: string;
   name: string;
   organisationName: string;
+  organisationId: string;
+  prototypingAgentId: string | null;
   status: string;
   canDelete: boolean;
   createdByAdminUserId: string | null;
@@ -53,6 +57,11 @@ export default function QuoteActions({
   const [isSendingConcept, setIsSendingConcept] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReturningToDraft, setIsReturningToDraft] = useState(false);
+
+  const coreBaseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://core.voxd.ai";
   const [isReturningToConceptSent, setIsReturningToConceptSent] =
     useState(false);
   const [isReturningToCostPricing, setIsReturningToCostPricing] =
@@ -393,6 +402,34 @@ export default function QuoteActions({
       ],
     },
   ];
+
+  // Test Prototype links (only if partner has a prototypingAgentId)
+  if (prototypingAgentId) {
+    const sessionData = encodeURIComponent(
+      JSON.stringify({ quoteId }),
+    );
+    const prototypeUrl = `${coreBaseUrl}/web-client/test?brandAsOrganisationId=${encodeURIComponent(organisationId)}&agentId=${encodeURIComponent(prototypingAgentId)}&mode=fullscreen&sessionData=${sessionData}`;
+    dropdownGroups.push({
+      items: [
+        {
+          label: "Test Prototype",
+          icon: <ExternalLink />,
+          href: prototypeUrl,
+          target: "_blank",
+        },
+        {
+          label: "Copy Prototype Link",
+          icon: <Copy />,
+          onSelect: () => {
+            navigator.clipboard.writeText(
+              prototypeUrl,
+            );
+            toast.success("Prototype link copied to clipboard");
+          },
+        },
+      ],
+    });
+  }
 
   // Status change items
   const statusItems = [];

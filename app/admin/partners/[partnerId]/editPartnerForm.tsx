@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import H2 from "@/components/adminui/H2";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
+import saGetAgentTableData from "@/actions/saGetAgentTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -37,6 +38,7 @@ const formSchema = z.object({
   salesEmail: z.string().optional(),
   accountsEmail: z.string().optional(),
   organisationId: z.string().optional(),
+  prototypingAgentId: z.string().optional(),
 });
 
 export default function EditPartnerForm({
@@ -55,6 +57,8 @@ export default function EditPartnerForm({
   accountsEmail,
   organisationId,
   organisationName,
+  prototypingAgentId,
+  prototypingAgentLabel,
 }: {
   partnerId: string;
   name?: string;
@@ -71,6 +75,8 @@ export default function EditPartnerForm({
   accountsEmail?: string;
   organisationId?: string | null;
   organisationName?: string;
+  prototypingAgentId?: string | null;
+  prototypingAgentLabel?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -92,6 +98,7 @@ export default function EditPartnerForm({
       salesEmail: salesEmail || "",
       accountsEmail: accountsEmail || "",
       organisationId: organisationId || "",
+      prototypingAgentId: prototypingAgentId || "",
     },
   });
 
@@ -114,6 +121,7 @@ export default function EditPartnerForm({
       salesEmail: values.salesEmail,
       accountsEmail: values.accountsEmail,
       organisationId: values.organisationId || null,
+      prototypingAgentId: values.prototypingAgentId || null,
     });
 
     if (!response.success) {
@@ -257,6 +265,33 @@ export default function EditPartnerForm({
               <FormLabel>Accounts Email</FormLabel>
               <FormControl>
                 <Input placeholder="accounts@partner.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <H2>Prototyping</H2>
+
+        <FormField
+          control={form.control}
+          name="prototypingAgentId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Prototyping Agent</FormLabel>
+              <FormControl>
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetAgentTableData}
+                  label={(record) =>
+                    `${record.organisationName || "No Organisation"} - ${record.niceName || record.name}`
+                  }
+                  valueField="id"
+                  sortField="niceName"
+                  placeholder="Select a prototyping agent..."
+                  emptyMessage="No agents found"
+                  initialLabel={prototypingAgentLabel}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

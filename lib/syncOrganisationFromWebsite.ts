@@ -5,6 +5,7 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import * as cheerio from "cheerio";
 import db from "../database/db";
 import sharp from "sharp";
+import { extractProminentColour } from "@/lib/extractProminentColour";
 
 /** Headers that mimic a real browser to avoid WAF/CDN 403 blocks */
 const BROWSER_HEADERS: Record<string, string> = {
@@ -32,6 +33,7 @@ export interface SyncOrganisationFromWebsiteResult {
   about?: string;
   logoFileExtension?: string;
   showLogoOnColour?: string | null;
+  primaryColour?: string | null;
   error?: string;
 }
 
@@ -95,6 +97,7 @@ const syncOrganisationFromWebsite = async ({
     // Step 2: Fetch the homepage HTML and find the logo URL
     let logoFileExtension: string | undefined;
     let showLogoOnColour: string | null | undefined;
+    let prominentColour: string | null | undefined;
     try {
       const logoUrl = await findLogoUrl(organisation.openAiApiKey, url);
 
@@ -104,6 +107,7 @@ const syncOrganisationFromWebsite = async ({
         if (logoResult) {
           logoFileExtension = logoResult.extension;
           showLogoOnColour = logoResult.needsDarkBackground ? "#333333" : null;
+          prominentColour = logoResult.prominentColour;
         }
       }
     } catch (logoError) {
@@ -116,10 +120,16 @@ const syncOrganisationFromWebsite = async ({
       about: string;
       logoFileExtension?: string;
       showLogoOnColour?: string | null;
+      primaryColour?: string | null;
     } = { about };
     if (logoFileExtension) {
       updateData.logoFileExtension = logoFileExtension;
       updateData.showLogoOnColour = showLogoOnColour;
+
+      // Auto-set primary colour only if the org doesn't already have one
+      if (prominentColour && !organisation.primaryColour) {
+        updateData.primaryColour = prominentColour;
+      }
     }
 
     await db("organisation").where({ id: organisationId }).update(updateData);
@@ -129,6 +139,7 @@ const syncOrganisationFromWebsite = async ({
       about,
       logoFileExtension,
       showLogoOnColour,
+      primaryColour: !organisation.primaryColour ? prominentColour : null,
     };
   } catch (error) {
     console.error("Error syncing organisation from website:", error);
@@ -491,12 +502,13 @@ function isImageUrl(url: string): boolean {
 
 /**
  * Downloads an image from a URL and uploads it to Wasabi storage
- * Returns both the file extension and whether the logo needs a dark background
+ * Returns the file extension, whether the logo needs a dark background,
+ * and the most prominent colour extracted from the logo.
  */
 async function downloadAndUploadLogo(
   organisationId: string,
   logoUrl: string,
-): Promise<{ extension: string; needsDarkBackground: boolean } | undefined> {
+): Promise<{ extension: string; needsDarkBackground: boolean; prominentColour: string | null } | undefined> {
   // Fetch the image
   const response = await fetch(logoUrl, {
     headers: {
@@ -537,6 +549,9 @@ async function downloadAndUploadLogo(
   // Analyze the logo to determine if it needs a dark background
   const needsDarkBackground = await analyzeLogoBackground(buffer, ext);
 
+  // Extract prominent colour for auto-setting primary colour
+  const prominentColour = await extractProminentColour(buffer, ext);
+
   const bucketName = process.env.WASABI_BUCKET_NAME || "voxd";
 
   // Initialize S3 client for Wasabi
@@ -566,7 +581,7 @@ async function downloadAndUploadLogo(
     }),
   );
 
-  return { extension: ext, needsDarkBackground };
+  return { extension: ext, needsDarkBackground, prominentColour };
 }
 
 /**

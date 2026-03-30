@@ -20,6 +20,7 @@ const saUpdatePartner = async ({
   salesEmail,
   accountsEmail,
   organisationId,
+  prototypingAgentId,
 }: {
   partnerId: string;
   name?: string;
@@ -35,6 +36,7 @@ const saUpdatePartner = async ({
   salesEmail?: string;
   accountsEmail?: string;
   organisationId?: string | null;
+  prototypingAgentId?: string | null;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -79,6 +81,7 @@ const saUpdatePartner = async ({
     salesEmail,
     accountsEmail,
     organisationId,
+    prototypingAgentId,
   });
 
   revalidateTag("partners", { expire: 0 });
