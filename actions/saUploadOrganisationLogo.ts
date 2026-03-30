@@ -131,9 +131,7 @@ const saUploadOrganisationLogo = async ({
       updateData.primaryColour = prominentColour;
     }
 
-    await db("organisation")
-      .where("id", organisationId)
-      .update(updateData);
+    await db("organisation").where("id", organisationId).update(updateData);
 
     // Regenerate OG images for all quotes belonging to this organisation
     const allQuotes = await db("quote")

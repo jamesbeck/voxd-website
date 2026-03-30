@@ -24,7 +24,9 @@ async function main() {
     })
     .select("id", "name", "logoFileExtension");
 
-  console.log(`Found ${orgs.length} organisations with logos but no primary colour.\n`);
+  console.log(
+    `Found ${orgs.length} organisations with logos but no primary colour.\n`,
+  );
 
   let updated = 0;
   let skipped = 0;
@@ -46,24 +48,35 @@ async function main() {
       const arrayBuffer = await response.Body.transformToByteArray();
       const buffer = Buffer.from(arrayBuffer);
 
-      const colour = await extractProminentColour(buffer, org.logoFileExtension);
+      const colour = await extractProminentColour(
+        buffer,
+        org.logoFileExtension,
+      );
 
       if (!colour) {
-        console.log(`  [SKIP] ${org.name || org.id} — no prominent colour detected`);
+        console.log(
+          `  [SKIP] ${org.name || org.id} — no prominent colour detected`,
+        );
         skipped++;
         continue;
       }
 
-      await db("organisation").where("id", org.id).update({ primaryColour: colour });
+      await db("organisation")
+        .where("id", org.id)
+        .update({ primaryColour: colour });
       console.log(`  [OK]   ${org.name || org.id} → ${colour}`);
       updated++;
     } catch (err) {
-      console.error(`  [FAIL] ${org.name || org.id} — ${err instanceof Error ? err.message : err}`);
+      console.error(
+        `  [FAIL] ${org.name || org.id} — ${err instanceof Error ? err.message : err}`,
+      );
       failed++;
     }
   }
 
-  console.log(`\nDone. Updated: ${updated}, Skipped: ${skipped}, Failed: ${failed}`);
+  console.log(
+    `\nDone. Updated: ${updated}, Skipped: ${skipped}, Failed: ${failed}`,
+  );
   await db.destroy();
 }
 

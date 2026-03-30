@@ -19,7 +19,14 @@ export async function extractProminentColour(
       .raw()
       .toBuffer({ resolveWithObject: true });
 
-    type Bucket = { count: number; rSum: number; gSum: number; bSum: number; satSum: number; brightSum: number };
+    type Bucket = {
+      count: number;
+      rSum: number;
+      gSum: number;
+      bSum: number;
+      satSum: number;
+      brightSum: number;
+    };
 
     // Two tiers: vibrant pixels (preferred) and muted/extreme pixels (fallback)
     const vibrantBuckets = new Map<string, Bucket>();
@@ -60,7 +67,14 @@ export async function extractProminentColour(
         existing.satSum += saturation;
         existing.brightSum += brightness;
       } else {
-        targetMap.set(key, { count: 1, rSum: r, gSum: g, bSum: b, satSum: saturation, brightSum: brightness });
+        targetMap.set(key, {
+          count: 1,
+          rSum: r,
+          gSum: g,
+          bSum: b,
+          satSum: saturation,
+          brightSum: brightness,
+        });
       }
     }
 
@@ -94,7 +108,8 @@ export async function extractProminentColour(
     const avgB = Math.round(bestBucket.bSum / bestBucket.count);
 
     // Convert to hex
-    const hex = `#${avgR.toString(16).padStart(2, "0")}${avgG.toString(16).padStart(2, "0")}${avgB.toString(16).padStart(2, "0")}`.toUpperCase();
+    const hex =
+      `#${avgR.toString(16).padStart(2, "0")}${avgG.toString(16).padStart(2, "0")}${avgB.toString(16).padStart(2, "0")}`.toUpperCase();
 
     return hex;
   } catch (error) {

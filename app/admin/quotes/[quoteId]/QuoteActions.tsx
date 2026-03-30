@@ -405,9 +405,7 @@ export default function QuoteActions({
 
   // Test Prototype links (only if partner has a prototypingAgentId)
   if (prototypingAgentId) {
-    const sessionData = encodeURIComponent(
-      JSON.stringify({ quoteId }),
-    );
+    const sessionData = encodeURIComponent(JSON.stringify({ quoteId }));
     const prototypeUrl = `${coreBaseUrl}/web-client/test?brandAsOrganisationId=${encodeURIComponent(organisationId)}&agentId=${encodeURIComponent(prototypingAgentId)}&mode=fullscreen&sessionData=${sessionData}`;
     dropdownGroups.push({
       items: [
@@ -421,9 +419,7 @@ export default function QuoteActions({
           label: "Copy Prototype Link",
           icon: <Copy />,
           onSelect: () => {
-            navigator.clipboard.writeText(
-              prototypeUrl,
-            );
+            navigator.clipboard.writeText(prototypeUrl);
             toast.success("Prototype link copied to clipboard");
           },
         },

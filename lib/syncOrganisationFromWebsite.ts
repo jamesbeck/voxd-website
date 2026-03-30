@@ -508,7 +508,14 @@ function isImageUrl(url: string): boolean {
 async function downloadAndUploadLogo(
   organisationId: string,
   logoUrl: string,
-): Promise<{ extension: string; needsDarkBackground: boolean; prominentColour: string | null } | undefined> {
+): Promise<
+  | {
+      extension: string;
+      needsDarkBackground: boolean;
+      prominentColour: string | null;
+    }
+  | undefined
+> {
   // Fetch the image
   const response = await fetch(logoUrl, {
     headers: {

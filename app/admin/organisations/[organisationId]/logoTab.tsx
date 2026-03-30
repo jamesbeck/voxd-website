@@ -172,8 +172,7 @@ const LogoTab = ({
     }
   };
 
-  const logoPreviewBg =
-    bgColour && isValidHex(bgColour) ? bgColour : undefined;
+  const logoPreviewBg = bgColour && isValidHex(bgColour) ? bgColour : undefined;
 
   const currentLogoUrl = logoFileExtension
     ? `https://s3.${
@@ -312,11 +311,7 @@ const LogoTab = ({
             maxLength={7}
           />
           {primColour && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setPrimColour("")}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setPrimColour("")}>
               Clear
             </Button>
           )}
