@@ -25,7 +25,8 @@ const saGetPartnerTableData = async ({
 
   //base query
   const base = db("partner")
-    .groupBy("partner.id")
+    .leftJoin("organisation", "partner.organisationId", "organisation.id")
+    .groupBy("partner.id", "organisation.id")
     .where((qb) => {
       if (search) {
         qb.where("partner.name", "ilike", `%${search}%`);
@@ -45,6 +46,7 @@ const saGetPartnerTableData = async ({
   const dataQuery = base
     .clone()
     .select("partner.*")
+    .select(db.raw('"organisation"."name" as "organisationName"'))
     // .select([
     //   db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
     //   db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),

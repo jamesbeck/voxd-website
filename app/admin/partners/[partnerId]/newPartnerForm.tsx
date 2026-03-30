@@ -19,9 +19,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
+import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
+  organisationId: z.string().optional(),
 });
 
 export default function NewPartnerForm() {
@@ -33,6 +36,7 @@ export default function NewPartnerForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
+      organisationId: "",
     },
   });
 
@@ -42,6 +46,7 @@ export default function NewPartnerForm() {
 
     const response = await saCreatePartner({
       name: values.name,
+      organisationId: values.organisationId || undefined,
     });
 
     if (!response.success) {
@@ -89,6 +94,28 @@ export default function NewPartnerForm() {
                 <Input placeholder="John Doe" {...field} />
               </FormControl>
               {/* <FormDescription>Give the user a name</FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="organisationId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Organisation</FormLabel>
+              <FormControl>
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetOrganisationTableData}
+                  label={(record) => `${record.name}`}
+                  valueField="id"
+                  sortField="name"
+                  placeholder="Select an organisation..."
+                  emptyMessage="No organisations found"
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

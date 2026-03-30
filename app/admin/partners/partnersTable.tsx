@@ -4,6 +4,7 @@ import DataTable from "@/components/adminui/Table";
 import Image from "next/image";
 import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 import TableActions from "@/components/admin/TableActions";
+import TableLink from "@/components/adminui/TableLink";
 
 const partnersTable = () => {
   const columns = [
@@ -48,6 +49,16 @@ const partnersTable = () => {
             />
             <span className="text-xs text-muted-foreground">#{row.colour}</span>
           </div>
+        ) : null,
+    },
+    {
+      label: "Organisation",
+      name: "organisationName",
+      format: (row: any) =>
+        row.organisationId && row.organisationName ? (
+          <TableLink href={`/admin/organisations/${row.organisationId}`}>
+            {row.organisationName}
+          </TableLink>
         ) : null,
     },
   ];

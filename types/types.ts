@@ -113,6 +113,7 @@ export interface Partner {
   salesEmail?: string;
   accountsEmail?: string;
   showLogoOnColour?: string | null;
+  organisationId?: string | null;
 }
 
 export type CostingBreakdownTask = {

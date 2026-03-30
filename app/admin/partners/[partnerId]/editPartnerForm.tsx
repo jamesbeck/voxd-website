@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import H2 from "@/components/adminui/H2";
+import { RemoteSelect } from "@/components/inputs/RemoteSelect";
+import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -35,6 +37,7 @@ const formSchema = z.object({
   goCardlessMandateLink: z.string().optional(),
   salesEmail: z.string().optional(),
   accountsEmail: z.string().optional(),
+  organisationId: z.string().optional(),
 });
 
 export default function EditPartnerForm({
@@ -52,6 +55,8 @@ export default function EditPartnerForm({
   goCardlessMandateLink,
   salesEmail,
   accountsEmail,
+  organisationId,
+  organisationName,
 }: {
   partnerId: string;
   name?: string;
@@ -67,6 +72,8 @@ export default function EditPartnerForm({
   goCardlessMandateLink?: string;
   salesEmail?: string;
   accountsEmail?: string;
+  organisationId?: string | null;
+  organisationName?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -88,6 +95,7 @@ export default function EditPartnerForm({
       goCardlessMandateLink: goCardlessMandateLink || "",
       salesEmail: salesEmail || "",
       accountsEmail: accountsEmail || "",
+      organisationId: organisationId || "",
     },
   });
 
@@ -110,6 +118,7 @@ export default function EditPartnerForm({
       goCardlessMandateLink: values.goCardlessMandateLink,
       salesEmail: values.salesEmail,
       accountsEmail: values.accountsEmail,
+      organisationId: values.organisationId || null,
     });
 
     if (!response.success) {
@@ -157,6 +166,29 @@ export default function EditPartnerForm({
                 <Input placeholder="Partner Ltd" {...field} />
               </FormControl>
               {/* <FormDescription>Give the user a name</FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="organisationId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Organisation</FormLabel>
+              <FormControl>
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetOrganisationTableData}
+                  label={(record) => `${record.name}`}
+                  valueField="id"
+                  sortField="name"
+                  placeholder="Select an organisation..."
+                  emptyMessage="No organisations found"
+                  initialLabel={organisationName}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

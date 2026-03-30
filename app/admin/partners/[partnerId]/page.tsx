@@ -10,6 +10,7 @@ import EditPartnerForm from "./editPartnerForm";
 import getPartnerById from "@/lib/getPartnerById";
 import LogoTab from "./logoTab";
 import QuotesTable from "@/components/admin/QuotesTable";
+import db from "@/database/db";
 
 export default async function Page({
   params,
@@ -24,6 +25,15 @@ export default async function Page({
     partner = await getPartnerById({ partnerId: partnerId });
 
   if (!partner && partnerId !== "new") return notFound();
+
+  let organisationName: string | undefined;
+  if (partner?.organisationId) {
+    const org = await db("organisation")
+      .select("name")
+      .where("id", partner.organisationId)
+      .first();
+    organisationName = org?.name;
+  }
 
   return (
     <Container>
@@ -61,6 +71,8 @@ export default async function Page({
                 goCardlessMandateLink={partner.goCardlessMandateLink}
                 salesEmail={partner.salesEmail}
                 accountsEmail={partner.accountsEmail}
+                organisationId={partner.organisationId}
+                organisationName={organisationName}
               />
             </TabsContent>
             <TabsContent value="logo">

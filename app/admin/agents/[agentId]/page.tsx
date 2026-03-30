@@ -232,6 +232,7 @@ export default async function Page({
                         ? `${agent.displayPhoneNumber} ${agent.verifiedName}`
                         : agent?.displayPhoneNumber
                     }
+                    codeDirectory={agent?.codeDirectory}
                     targetMessageLengthCharacters={
                       agent?.targetMessageLengthCharacters
                     }

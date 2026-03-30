@@ -11,6 +11,7 @@ const saUpdateAgent = async ({
   phoneNumberId,
   openAiApiKey,
   modelId,
+  codeDirectory,
   targetMessageLengthCharacters,
   maxMessageHistory,
   autoCloseSessionAfterSeconds,
@@ -22,6 +23,7 @@ const saUpdateAgent = async ({
   phoneNumberId?: string;
   openAiApiKey?: string;
   modelId?: string;
+  codeDirectory?: string;
   targetMessageLengthCharacters?: number;
   maxMessageHistory?: number;
   autoCloseSessionAfterSeconds?: number;
@@ -56,6 +58,8 @@ const saUpdateAgent = async ({
     updateData.phoneNumberId = phoneNumberId || null;
   if (openAiApiKey !== undefined) updateData.openAiApiKey = openAiApiKey;
   if (modelId !== undefined) updateData.modelId = modelId || null;
+  if (codeDirectory !== undefined)
+    updateData.codeDirectory = codeDirectory || null;
   if (targetMessageLengthCharacters !== undefined)
     updateData.targetMessageLengthCharacters =
       targetMessageLengthCharacters ?? null;

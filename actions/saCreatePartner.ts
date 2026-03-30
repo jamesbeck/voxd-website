@@ -6,11 +6,15 @@ import { ServerActionResponse } from "@/types/types";
 
 const saCreatePartner = async ({
   name,
+  organisationId,
 }: {
   name: string;
+  organisationId?: string;
 }): Promise<ServerActionResponse> => {
   //create a new user
-  const [newUser] = await db("partner").insert({ name }).returning("id");
+  const [newUser] = await db("partner")
+    .insert({ name, organisationId: organisationId || null })
+    .returning("id");
 
   revalidateTag("partners", { expire: 0 });
 
