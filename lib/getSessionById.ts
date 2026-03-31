@@ -64,9 +64,14 @@ const getSessionById = async ({
   // Non-super-admins cannot see development sessions
   query.where("session.sessionType", "!=", "development");
 
-  // Partners can only see sessions from organisations they manage
+  // Partners can see sessions from organisations they manage + their direct org
   if (accessToken?.partner) {
-    query.where("organisation.partnerId", accessToken.partnerId);
+    query.where((qb) => {
+      qb.where("organisation.partnerId", accessToken.partnerId);
+      if (accessToken.organisationId) {
+        qb.orWhere("agent.organisationId", accessToken.organisationId);
+      }
+    });
   } else {
     // Regular organisation users can only see sessions from their organisation
     query.where("agent.organisationId", accessToken.organisationId);
