@@ -24,6 +24,7 @@ export default function PrototypeEmbed({
     script.setAttribute("data-session-data", JSON.stringify({ quoteId }));
     script.setAttribute("data-brand-as-organisation-id", organisationId);
     script.setAttribute("data-color", primaryColour);
+    script.setAttribute("data-auto-open", "true");
     document.body.appendChild(script);
 
     return () => {
