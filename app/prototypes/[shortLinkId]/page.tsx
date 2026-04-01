@@ -14,12 +14,8 @@ export default async function PrototypePage({
 
   if (!data) return notFound();
 
-  const coreBaseUrl =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : data.coreDomain
-        ? `https://${data.coreDomain}`
-        : "https://core.voxd.ai";
+  const coreDomain = data.coreDomain?.trim() || "core.voxd.ai";
+  const coreBaseUrl = `https://${coreDomain}`;
 
   const primaryColour = data.primaryColour || "#6366f1";
   const logoBgColour = data.showLogoOnColour || "#ffffff";
@@ -86,7 +82,8 @@ export default async function PrototypePage({
             operations, boost productivity, and deliver measurable results.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <span className="inline-block px-8 py-3 bg-white font-semibold rounded-lg shadow-lg cursor-default"
+            <span
+              className="inline-block px-8 py-3 bg-white font-semibold rounded-lg shadow-lg cursor-default"
               style={{ color: primaryColour }}
             >
               Get Started
@@ -177,8 +174,8 @@ export default async function PrototypePage({
       {/* Testimonial */}
       <section className="max-w-4xl mx-auto px-6 py-20 text-center">
         <blockquote className="text-xl md:text-2xl text-gray-700 italic mb-6">
-          &ldquo;Switching to {orgName} widgets transformed our workflow.
-          The quality and reliability are unmatched in the industry.&rdquo;
+          &ldquo;Switching to {orgName} widgets transformed our workflow. The
+          quality and reliability are unmatched in the industry.&rdquo;
         </blockquote>
         <p className="text-gray-500 font-medium">
           — Alex Johnson, VP of Operations at TechCorp
@@ -198,7 +195,8 @@ export default async function PrototypePage({
             Join thousands of businesses already benefiting from our platform.
             Get started today with a free consultation.
           </p>
-          <span className="inline-block px-8 py-3 bg-white font-semibold rounded-lg shadow-lg cursor-default"
+          <span
+            className="inline-block px-8 py-3 bg-white font-semibold rounded-lg shadow-lg cursor-default"
             style={{ color: primaryColour }}
           >
             Request a Demo
@@ -235,6 +233,7 @@ export default async function PrototypePage({
         organisationId={data.organisationId}
         quoteId={data.quoteId}
         coreBaseUrl={coreBaseUrl}
+        primaryColour={primaryColour}
       />
     </div>
   );
