@@ -27,6 +27,7 @@ import saGetAgentTableData from "@/actions/saGetAgentTableData";
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   domain: z.string().nonempty("Domain is required"),
+  coreDomain: z.string().optional(),
   openAiApiKey: z.string().optional(),
   sendEmailFromDomain: z.string().optional(),
   salesBotName: z.string().optional(),
@@ -45,6 +46,7 @@ export default function EditPartnerForm({
   partnerId,
   name,
   domain,
+  coreDomain,
   openAiApiKey,
   sendEmailFromDomain,
   salesBotName,
@@ -63,6 +65,7 @@ export default function EditPartnerForm({
   partnerId: string;
   name?: string;
   domain?: string;
+  coreDomain?: string;
   openAiApiKey?: string;
   sendEmailFromDomain?: string;
   salesBotName?: string;
@@ -87,6 +90,7 @@ export default function EditPartnerForm({
     defaultValues: {
       name: name || "",
       domain: domain || "",
+      coreDomain: coreDomain || "",
       openAiApiKey: openAiApiKey || "",
       sendEmailFromDomain: sendEmailFromDomain || "",
       salesBotName: salesBotName || "",
@@ -110,6 +114,7 @@ export default function EditPartnerForm({
       partnerId: partnerId,
       name: values.name,
       domain: values.domain,
+      coreDomain: values.coreDomain,
       openAiApiKey: values.openAiApiKey,
       sendEmailFromDomain: values.sendEmailFromDomain,
       salesBotName: values.salesBotName,
@@ -208,6 +213,20 @@ export default function EditPartnerForm({
                 <Input placeholder="partner.com" {...field} />
               </FormControl>
               {/* <FormDescription>Give the user a name</FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="coreDomain"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Core Domain</FormLabel>
+              <FormControl>
+                <Input placeholder="corepartner.com" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

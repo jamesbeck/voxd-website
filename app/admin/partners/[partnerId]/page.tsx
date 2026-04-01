@@ -74,6 +74,7 @@ export default async function Page({
                 partnerId={partnerId}
                 name={partner.name}
                 domain={partner.domain}
+                coreDomain={partner.coreDomain}
                 openAiApiKey={partner.openAiApiKey}
                 sendEmailFromDomain={partner.sendEmailFromDomain}
                 salesBotName={partner.salesBotName}

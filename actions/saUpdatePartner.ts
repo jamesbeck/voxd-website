@@ -9,6 +9,7 @@ const saUpdatePartner = async ({
   partnerId,
   name,
   domain,
+  coreDomain,
   openAiApiKey,
   sendEmailFromDomain,
   salesBotName,
@@ -25,6 +26,7 @@ const saUpdatePartner = async ({
   partnerId: string;
   name?: string;
   domain?: string;
+  coreDomain?: string;
   openAiApiKey?: string;
   sendEmailFromDomain?: string;
   salesBotName?: string;
@@ -70,6 +72,7 @@ const saUpdatePartner = async ({
   await db("partner").where({ id: partnerId }).update({
     name,
     domain,
+    coreDomain,
     openAiApiKey,
     sendEmailFromDomain,
     salesBotName,

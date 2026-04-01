@@ -58,10 +58,6 @@ export default function QuoteActions({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReturningToDraft, setIsReturningToDraft] = useState(false);
 
-  const coreBaseUrl =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://core.voxd.ai";
   const [isReturningToConceptSent, setIsReturningToConceptSent] =
     useState(false);
   const [isReturningToCostPricing, setIsReturningToCostPricing] =
@@ -405,8 +401,7 @@ export default function QuoteActions({
 
   // Test Prototype links (only if partner has a prototypingAgentId)
   if (prototypingAgentId) {
-    const sessionData = encodeURIComponent(JSON.stringify({ quoteId }));
-    const prototypeUrl = `${coreBaseUrl}/web-client/test?brandAsOrganisationId=${encodeURIComponent(organisationId)}&agentId=${encodeURIComponent(prototypingAgentId)}&mode=fullscreen&sessionData=${sessionData}`;
+    const prototypeUrl = `/prototypes/${shortLinkId}`;
     dropdownGroups.push({
       items: [
         {
@@ -419,7 +414,9 @@ export default function QuoteActions({
           label: "Copy Prototype Link",
           icon: <Copy />,
           onSelect: () => {
-            navigator.clipboard.writeText(prototypeUrl);
+            navigator.clipboard.writeText(
+              `${window.location.origin}/prototypes/${shortLinkId}`,
+            );
             toast.success("Prototype link copied to clipboard");
           },
         },
