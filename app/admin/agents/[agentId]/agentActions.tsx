@@ -79,12 +79,7 @@ export default function AgentActions({
     ? `https://wa.me/${phoneNumber.replace(/\D/g, "")}`
     : "";
 
-  const coreBaseUrl =
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://core.voxd.ai";
-
-  const webClientUrl = `${coreBaseUrl}/web-client/test?agentId=${agentId}&mode=fullscreen#`;
+  const webClientUrl = `/web-chat/${agentId}`;
 
   const openQrDialog = (url: string, label: string, filename: string) => {
     setQrTarget({ url, label, filename });
@@ -198,7 +193,12 @@ export default function AgentActions({
               {
                 label: "Web QR",
                 variant: "outline" as const,
-                onClick: () => openQrDialog(webClientUrl, "Web Client", "web"),
+                onClick: () =>
+                  openQrDialog(
+                    `${window.location.origin}/web-chat/${agentId}`,
+                    "Web Client",
+                    "web",
+                  ),
               },
             ],
           },

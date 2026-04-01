@@ -1,15 +1,15 @@
 import { notFound } from "next/navigation";
-import saGetPrototypeData from "@/actions/saGetPrototypeData";
+import saGetAgentDemoData from "@/actions/saGetAgentDemoData";
 import DemoWebsite from "@/components/DemoWebsite";
 import ChatEmbed from "@/components/ChatEmbed";
 
-export default async function PrototypePage({
+export default async function WebChatPage({
   params,
 }: {
-  params: { shortLinkId: string };
+  params: { agentId: string };
 }) {
-  const shortLinkId = (await params).shortLinkId;
-  const data = await saGetPrototypeData({ shortLinkId });
+  const agentId = (await params).agentId;
+  const data = await saGetAgentDemoData({ agentId });
 
   if (!data) return notFound();
 
@@ -32,11 +32,9 @@ export default async function PrototypePage({
       primaryColour={primaryColour}
     >
       <ChatEmbed
-        agentId={data.prototypingAgentId}
+        agentId={data.agentId}
         coreBaseUrl={coreBaseUrl}
         primaryColour={primaryColour}
-        sessionData={{ quoteId: data.quoteId }}
-        brandAsOrganisationId={data.organisationId}
       />
     </DemoWebsite>
   );

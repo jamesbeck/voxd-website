@@ -21,6 +21,7 @@ export function proxy(request: NextRequest) {
   const isIFramesPath = request.nextUrl.pathname.startsWith("/iframes");
   const isGuidesPath = request.nextUrl.pathname.startsWith("/guides");
   const isPrototypesPath = request.nextUrl.pathname.startsWith("/prototypes");
+  const isWebChatPath = request.nextUrl.pathname.startsWith("/web-chat");
 
   // Only redirect GET requests for tenant domains
   const shouldRedirect =
@@ -34,7 +35,8 @@ export function proxy(request: NextRequest) {
     !isExamplesPath && // Not on examples (public example pages)
     !isIFramesPath && // Not on iframes (public iframe pages)
     !isGuidesPath && // Not on guides (public guide pages)
-    !isPrototypesPath; // Not on prototypes (public prototype pages)
+    !isPrototypesPath && // Not on prototypes (public prototype pages)
+    !isWebChatPath; // Not on web-chat (public agent demo pages)
 
   if (shouldRedirect) {
     const loginUrl = new URL("/login", request.url);
