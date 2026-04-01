@@ -20,7 +20,7 @@ const saGetAllModels = async (): Promise<ServerActionResponse> => {
         "model.model",
         "model.inputTokenCost",
         "model.outputTokenCost",
-        "provider.name as provider"
+        "provider.name as provider",
       )
       .where("model.disabled", false)
       .orderBy("provider.name", "asc")

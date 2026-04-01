@@ -26,7 +26,7 @@ export default async function saUpdateAgentModel({
         "organisation.partnerId",
         "agent.modelId as oldModelId",
         "model.model as oldModelName",
-        "provider.name as oldProviderName"
+        "provider.name as oldProviderName",
       )
       .first();
 
@@ -38,7 +38,9 @@ export default async function saUpdateAgentModel({
     const isAuthorized =
       accessToken.superAdmin ||
       (accessToken.partner && agent.partnerId === accessToken.partnerId) ||
-      (accessToken.partner && accessToken.organisationId && agent.organisationId === accessToken.organisationId) ||
+      (accessToken.partner &&
+        accessToken.organisationId &&
+        agent.organisationId === accessToken.organisationId) ||
       (!accessToken.partner &&
         agent.organisationId === accessToken.organisationId);
 
