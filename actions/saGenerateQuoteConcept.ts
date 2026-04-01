@@ -32,6 +32,12 @@ ${partnerName} provides a powerful, enterprise-ready platform for delivering int
 - Conversation follow-ups for quiet conversations
 - Operational updates (order confirmations, delivery updates)
 
+**Outbound Marketing Messages**
+- Send targeted marketing messages to customers via WhatsApp
+- Recipients can reply directly to marketing messages, which triggers a live conversation with the AI agent
+- This two way interaction is unique to WhatsApp and far more powerful than traditional email or SMS marketing
+- Ideal for promotions, product launches, re-engagement campaigns and personalised offers
+
 **Why WhatsApp?**
 - No apps to download
 - No new logins or passwords
@@ -224,6 +230,7 @@ The concept should cover themes like:
 - Seamless integration capabilities
 - Security and safeguards
 - Additional benefits
+- Outbound marketing messages (when relevant to the client's business) — WhatsApp can be used for outbound marketing, and uniquely, recipients can reply directly to these messages which triggers a live conversation with the AI agent
 - Future potential
 - Summary / Conclusion
 
@@ -299,14 +306,21 @@ Your task is to write a compelling, persuasive concept that helps the client und
    - Continuous improvement through feedback loops
    - Scalability to handle growth without proportional cost increase
 
-8. **Future potential**
+8. **Outbound marketing messages** (include when relevant to the client's business)
+   - WhatsApp can be used for outbound marketing messages such as promotions, product launches, re-engagement campaigns and personalised offers
+   - What makes this unique is that recipients can reply directly to these marketing messages, which triggers a live conversation with the AI agent
+   - This transforms traditional one way marketing into an interactive, two way experience
+   - Far more engaging than email or SMS where replies typically go nowhere
+   - Combine with AI intelligence to provide personalised follow-up based on the customer's response
+
+9. **Future potential**
    - Describe realistic but more advanced future capabilities that could be added to the chatbot over time
    - Think about features that would be natural next steps once the initial chatbot is established
    - Consider industry-specific advanced use cases (e.g., predictive recommendations, voice integration, proactive outreach campaigns)
    - Keep suggestions grounded and achievable, but show the exciting growth potential
    - Frame this as a journey - starting with solid foundations and growing into more sophisticated capabilities
 
-9. **Summary / Conclusion**
+10. **Summary / Conclusion**
    - End with a sincere, heartfelt message about how genuinely excited we would be to work on building a chatbot for their business
    - Express enthusiasm for the potential partnership
    - Keep it warm and authentic, not salesy

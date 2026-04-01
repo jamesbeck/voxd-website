@@ -38,6 +38,7 @@ export default async function saUpdateAgentModel({
     const isAuthorized =
       accessToken.superAdmin ||
       (accessToken.partner && agent.partnerId === accessToken.partnerId) ||
+      (accessToken.partner && accessToken.organisationId && agent.organisationId === accessToken.organisationId) ||
       (!accessToken.partner &&
         agent.organisationId === accessToken.organisationId);
 

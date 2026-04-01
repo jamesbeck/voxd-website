@@ -35,6 +35,9 @@ ${partnerName} runs "workers" - separate AI-powered scripts that monitor convers
 - For first-time contacts: Messages must use Meta-approved templates
 - Within 24-hour reply window: Messages can be free-form
 - Meta charges for "cold" messages, but replies within the window are free
+- Outbound messages can be used for marketing campaigns such as promotions, product launches, re-engagement and personalised offers
+- What makes WhatsApp outbound marketing unique is that recipients can reply directly to marketing messages, which triggers a live conversation with the AI agent
+- This transforms traditional one way marketing into an interactive two way experience, far more engaging than email or SMS
 
 ### Key Benefits:
 - 24/7 automated customer support via WhatsApp
@@ -42,6 +45,7 @@ ${partnerName} runs "workers" - separate AI-powered scripts that monitor convers
 - Integration with existing business systems
 - Proactive customer engagement through workers
 - Cost-effective messaging within reply windows
+- Interactive outbound marketing where customers can reply and engage with the AI agent
 - Where relevant offer multilingual support for diverse customer bases`;
 
 const saGenerateQuoteProposal = async ({
