@@ -1,7 +1,26 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import saGetAgentDemoData from "@/actions/saGetAgentDemoData";
 import DemoWebsite from "@/components/DemoWebsite";
 import ChatEmbed from "@/components/ChatEmbed";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { agentId: string };
+}): Promise<Metadata> {
+  const agentId = (await params).agentId;
+  const data = await saGetAgentDemoData({ agentId });
+
+  if (!data) return { title: "Agent Not Found" };
+
+  const orgName = data.organisationName;
+
+  return {
+    title: `${orgName} – AI Chat Demo`,
+    description: `Interactive AI chat demo for ${orgName}. Try the conversational assistant and see how it works.`,
+  };
+}
 
 export default async function WebChatPage({
   params,
