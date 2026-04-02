@@ -33,7 +33,10 @@ export default async function PrototypePage({
   if (!data) return notFound();
 
   const coreDomain = data.coreDomain?.trim() || "core.voxd.ai";
-  const coreBaseUrl = `https://${coreDomain}`;
+  const coreBaseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : `https://${coreDomain}`;
 
   const primaryColour = data.primaryColour || "#6366f1";
   const logoBgColour = data.showLogoOnColour || "#ffffff";

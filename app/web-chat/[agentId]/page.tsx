@@ -14,11 +14,9 @@ export async function generateMetadata({
 
   if (!data) return { title: "Agent Not Found" };
 
-  const orgName = data.organisationName;
-
   return {
-    title: `${orgName} – AI Chat Demo`,
-    description: `Interactive AI chat demo for ${orgName}. Try the conversational assistant and see how it works.`,
+    title: `${data.agentNiceName} – Web Chat Testing`,
+    description: `Web chat testing for ${data.agentNiceName}.`,
   };
 }
 
@@ -33,7 +31,10 @@ export default async function WebChatPage({
   if (!data) return notFound();
 
   const coreDomain = data.coreDomain?.trim() || "core.voxd.ai";
-  const coreBaseUrl = `https://${coreDomain}`;
+  const coreBaseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : `https://${coreDomain}`;
 
   const primaryColour = data.primaryColour || "#6366f1";
   const logoBgColour = data.showLogoOnColour || "#ffffff";

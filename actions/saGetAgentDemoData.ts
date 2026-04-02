@@ -4,6 +4,7 @@ import db from "@/database/db";
 
 export type AgentDemoData = {
   agentId: string;
+  agentNiceName: string;
   organisationId: string;
   organisationName: string;
   logoFileExtension: string | null;
@@ -22,6 +23,7 @@ export default async function saGetAgentDemoData({
     .join("partner", "partner.id", "organisation.partnerId")
     .select(
       "agent.id as agentId",
+      "agent.niceName as agentNiceName",
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.logoFileExtension",
@@ -36,6 +38,7 @@ export default async function saGetAgentDemoData({
 
   return {
     agentId: row.agentId,
+    agentNiceName: row.agentNiceName || "Agent",
     organisationId: row.organisationId,
     organisationName: row.organisationName || "Company",
     logoFileExtension: row.logoFileExtension || null,
