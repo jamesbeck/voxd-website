@@ -154,57 +154,61 @@ export default function Conversation({
                         <span className="h-2 w-2 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:300ms]" />
                       </div>
                     ) : (
-                    <ReactMarkdown
-                      components={{
-                        p: ({ children }) => (
-                          <p className="my-1 leading-relaxed">{children}</p>
-                        ),
-                        ul: ({ children }) => (
-                          <ul className="list-disc pl-5 my-1">{children}</ul>
-                        ),
-                        ol: ({ children }) => (
-                          <ol className="list-decimal pl-5 my-1">{children}</ol>
-                        ),
-                        li: ({ children }) => (
-                          <li className="my-0.5">{children}</li>
-                        ),
-                        strong: ({ children }) => (
-                          <strong className="font-semibold">{children}</strong>
-                        ),
-                        h1: ({ children }) => (
-                          <h1 className="text-lg font-bold mt-2 mb-1">
-                            {children}
-                          </h1>
-                        ),
-                        h2: ({ children }) => (
-                          <h2 className="text-base font-bold mt-2 mb-1">
-                            {children}
-                          </h2>
-                        ),
-                        h3: ({ children }) => (
-                          <h3 className="text-sm font-bold mt-2 mb-1">
-                            {children}
-                          </h3>
-                        ),
-                        code: ({ children }) => (
-                          <code className="bg-black/10 dark:bg-white/10 rounded px-1 py-0.5 text-xs">
-                            {children}
-                          </code>
-                        ),
-                        a: ({ href, children }) => (
-                          <a
-                            href={href}
-                            className="underline"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {children}
-                          </a>
-                        ),
-                      }}
-                    >
-                      {message.text}
-                    </ReactMarkdown>
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => (
+                            <p className="my-1 leading-relaxed">{children}</p>
+                          ),
+                          ul: ({ children }) => (
+                            <ul className="list-disc pl-5 my-1">{children}</ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal pl-5 my-1">
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children }) => (
+                            <li className="my-0.5">{children}</li>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-semibold">
+                              {children}
+                            </strong>
+                          ),
+                          h1: ({ children }) => (
+                            <h1 className="text-lg font-bold mt-2 mb-1">
+                              {children}
+                            </h1>
+                          ),
+                          h2: ({ children }) => (
+                            <h2 className="text-base font-bold mt-2 mb-1">
+                              {children}
+                            </h2>
+                          ),
+                          h3: ({ children }) => (
+                            <h3 className="text-sm font-bold mt-2 mb-1">
+                              {children}
+                            </h3>
+                          ),
+                          code: ({ children }) => (
+                            <code className="bg-black/10 dark:bg-white/10 rounded px-1 py-0.5 text-xs">
+                              {children}
+                            </code>
+                          ),
+                          a: ({ href, children }) => (
+                            <a
+                              href={href}
+                              className="underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {children}
+                            </a>
+                          ),
+                        }}
+                      >
+                        {message.text}
+                      </ReactMarkdown>
                     )}
                   </div>
                 </div>
