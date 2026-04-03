@@ -15,7 +15,7 @@ type CreateSupportTicketInput = {
 };
 
 const saCreateSupportTicket = async (
-  input: CreateSupportTicketInput
+  input: CreateSupportTicketInput,
 ): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -46,7 +46,7 @@ const saCreateSupportTicket = async (
         "organisation.id as organisationId",
         "partner.domain as partnerDomain",
         "partner.name as partnerName",
-        "partner.sendEmailFromDomain"
+        "partner.sendEmailFromDomain",
       )
       .first();
 
@@ -58,7 +58,9 @@ const saCreateSupportTicket = async (
     if (!accessToken.superAdmin) {
       if (accessToken.partner) {
         const ownsViaPartner = agent.partnerId === accessToken.partnerId;
-        const ownsViaOrg = accessToken.organisationId && agent.organisationId === accessToken.organisationId;
+        const ownsViaOrg =
+          accessToken.organisationId &&
+          agent.organisationId === accessToken.organisationId;
         if (!ownsViaPartner && !ownsViaOrg) {
           return {
             success: false,
@@ -164,7 +166,7 @@ const saCreateSupportTicket = async (
         .select(
           "partner.domain as partnerDomain",
           "partner.name as partnerName",
-          "partner.sendEmailFromDomain"
+          "partner.sendEmailFromDomain",
         )
         .first();
 
@@ -267,7 +269,7 @@ const saCreateSupportTicket = async (
       // Log but don't fail the ticket creation if email fails
       console.error(
         "Failed to send support ticket notification email:",
-        emailError
+        emailError,
       );
     }
 

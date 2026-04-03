@@ -221,7 +221,8 @@ export default function Conversation({
                           <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
                             <Coins className="h-3.5 w-3.5" />
                             <span className="text-[11px]">
-                              {(message?.inputTokens ?? 0) + (message?.outputTokens ?? 0)}
+                              {(message?.inputTokens ?? 0) +
+                                (message?.outputTokens ?? 0)}
                             </span>
                           </div>
                         </TooltipTrigger>

@@ -57,9 +57,7 @@ const saGetFileTableData = async ({
       "chatUser.name as chatUserName",
       "chatUser.id as chatUserId",
     )
-    .select(
-      db.raw('"userMessage"."sessionId" as "sessionId"'),
-    )
+    .select(db.raw('"userMessage"."sessionId" as "sessionId"'))
     .orderByRaw(
       `"${sortField}" ${sortDirection === "desc" ? "DESC" : "ASC"} NULLS LAST`,
     )
