@@ -18,6 +18,7 @@ import {
   Ticket,
   Link2,
   Wrench,
+  Paperclip,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -143,6 +144,12 @@ const menuItems: MenuItem[] = [
     title: "Tool Calls",
     url: "/admin/tool-calls",
     icon: Wrench,
+  },
+  {
+    roles: ["admin"],
+    title: "Files",
+    url: "/admin/files",
+    icon: Paperclip,
   },
 ];
 
