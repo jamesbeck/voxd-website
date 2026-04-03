@@ -6,7 +6,10 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["knex"],
   images: {
-    remotePatterns: [new URL("https://s3.eu-west-1.wasabisys.com/voxd/**")],
+    remotePatterns: [
+      new URL("https://s3.eu-west-1.wasabisys.com/voxd/**"),
+      new URL("https://voxd.s3.eu-west-1.wasabisys.com/**"),
+    ],
   },
   experimental: {
     serverActions: {
