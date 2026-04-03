@@ -15,10 +15,7 @@ export default async function Page() {
   return (
     <Container>
       <BreadcrumbSetter
-        breadcrumbs={[
-          { label: "Admin", href: "/admin" },
-          { label: "Files" },
-        ]}
+        breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Files" }]}
       />
       <H1>Files</H1>
 
