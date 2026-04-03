@@ -1,3 +1,5 @@
+"use client";
+
 import { Spinner } from "@/components/ui/spinner";
 import {
   differenceInMilliseconds,
@@ -15,6 +17,9 @@ import { Bot, Clock, Cog, Coins, Type, Wrench } from "lucide-react";
 import MessageActions from "./MessageActions";
 import ReactMarkdown from "react-markdown";
 import MessageAttachments from "./MessageAttachments";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import useSessionSSE from "@/hooks/useSessionSSE";
 
 type Ticket = {
   id: string;
@@ -30,18 +35,51 @@ type TicketsByMessage = {
 };
 
 export default function Conversation({
-  messages,
+  initialMessages,
   sessionId,
   agentId,
   ticketsByMessage,
   paused,
+  coreBaseUrl,
 }: {
-  messages: any[];
+  initialMessages: any[];
   sessionId: string;
   agentId: string;
   ticketsByMessage: TicketsByMessage;
   paused: boolean;
+  coreBaseUrl: string;
 }) {
+  const router = useRouter();
+  const messages = useSessionSSE(sessionId, coreBaseUrl, initialMessages);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hasInitiallyScrolled = useRef(false);
+
+  // Scroll to bottom on initial load
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || hasInitiallyScrolled.current) return;
+    hasInitiallyScrolled.current = true;
+    el.scrollTop = el.scrollHeight;
+  }, [messages]);
+
+  // Auto-scroll on new SSE messages if user is near bottom
+  useEffect(() => {
+    if (!hasInitiallyScrolled.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 150;
+    if (isNearBottom) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [messages]);
+
+  // Listen for SSE refresh events to pick up full metadata
+  useEffect(() => {
+    const handler = () => router.refresh();
+    window.addEventListener("sse-refresh-needed", handler);
+    return () => window.removeEventListener("sse-refresh-needed", handler);
+  }, [router]);
+
   const lastMessageFromUser = messages
     .slice()
     .reverse()
@@ -62,7 +100,10 @@ export default function Conversation({
           </p>
         </div>
       )}
-      <div className="h-[600px] rounded-xl border bg-muted/30 shadow-sm overflow-y-auto p-4 space-y-3">
+      <div
+        ref={scrollRef}
+        className="h-[600px] rounded-xl border bg-muted/30 shadow-sm overflow-y-auto p-4 space-y-3"
+      >
         {messages.map((message: any, index: number) => {
           //split text on line breaks
           const textSplitOnLineBreaks = message.text?.split("\n") ?? [];
@@ -161,7 +202,7 @@ export default function Conversation({
                   </div>
                 </div>
 
-                {message.role === "assistant" && (
+                {message.role === "assistant" && !message._streaming && (
                   <div className="px-4 py-2 border-t border-border/30 flex items-center gap-3">
                     <TooltipProvider delayDuration={0}>
                       <Tooltip>
@@ -219,7 +260,7 @@ export default function Conversation({
                         </TooltipContent>
                       </Tooltip>
 
-                      {message.toolCalls.length > 0 &&
+                      {message.toolCalls?.length > 0 &&
                         (() => {
                           const hasErrorLogs = message.toolCalls.some(
                             (toolCall: any) =>
@@ -411,15 +452,16 @@ export default function Conversation({
           );
         })}
 
-        {(lastMessageFromUser?.responseStatus == "waiting" ||
-          lastMessageFromUser?.responseStatus == "processing") && (
-          <div className="flex justify-end">
-            <div className="bg-card border shadow-sm rounded-xl p-3 flex items-center gap-2 text-sm text-muted-foreground">
-              <Spinner className="h-4 w-4" />
-              Generating response...
+        {!messages.some((m) => m._streaming) &&
+          (lastMessageFromUser?.responseStatus == "waiting" ||
+            lastMessageFromUser?.responseStatus == "processing") && (
+            <div className="flex justify-end">
+              <div className="bg-card border shadow-sm rounded-xl p-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <Spinner className="h-4 w-4" />
+                Generating response...
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
 
       <SendMessageForm

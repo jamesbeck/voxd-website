@@ -98,6 +98,11 @@ export default async function Page({
     ? sessionTicketsResult.data
     : [];
 
+  const coreBaseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : process.env.NEXT_PUBLIC_CORE_BASE_URL || "https://core.voxd.ai";
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -165,11 +170,12 @@ export default async function Page({
         <TabsContent value="conversation">
           <Container>
             <Conversation
-              messages={messages}
+              initialMessages={messages}
               sessionId={sessionId}
               agentId={agent.id}
               ticketsByMessage={ticketsByMessage || {}}
               paused={session.paused}
+              coreBaseUrl={coreBaseUrl}
             />
           </Container>
         </TabsContent>

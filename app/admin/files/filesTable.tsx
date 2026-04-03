@@ -32,6 +32,7 @@ const FilesTable = () => {
                 alt={row.originalFilename || "File"}
                 width={40}
                 height={40}
+                unoptimized
                 className="h-10 w-10 rounded object-cover"
               />
             </a>
@@ -74,11 +75,6 @@ const FilesTable = () => {
           )}
         </div>
       ),
-    },
-    {
-      label: "Type",
-      name: "type",
-      sort: true,
     },
     {
       label: "Date",
