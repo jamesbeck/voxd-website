@@ -1,6 +1,5 @@
 "use client";
 
-import { Spinner } from "@/components/ui/spinner";
 import {
   differenceInMilliseconds,
   differenceInSeconds,
@@ -222,7 +221,7 @@ export default function Conversation({
                           <div className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-default">
                             <Coins className="h-3.5 w-3.5" />
                             <span className="text-[11px]">
-                              {message?.inputTokens + message?.outputTokens}
+                              {(message?.inputTokens ?? 0) + (message?.outputTokens ?? 0)}
                             </span>
                           </div>
                         </TooltipTrigger>
@@ -451,17 +450,6 @@ export default function Conversation({
             </div>
           );
         })}
-
-        {!messages.some((m) => m._streaming) &&
-          (lastMessageFromUser?.responseStatus == "waiting" ||
-            lastMessageFromUser?.responseStatus == "processing") && (
-            <div className="flex justify-end">
-              <div className="bg-card border shadow-sm rounded-xl p-3 flex items-center gap-2 text-sm text-muted-foreground">
-                <Spinner className="h-4 w-4" />
-                Generating response...
-              </div>
-            </div>
-          )}
       </div>
 
       <SendMessageForm

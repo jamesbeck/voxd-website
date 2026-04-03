@@ -21,21 +21,8 @@ const saGetFileTableData = async ({
   }
 
   const base = db("file")
-    .leftJoin("userMessage", "file.userMessageId", "userMessage.id")
-    .leftJoin(
-      "assistantMessage",
-      "file.assistantMessageId",
-      "assistantMessage.id",
-    )
-    .leftJoin("manualMessage", "file.manualMessageId", "manualMessage.id")
-    .leftJoin("session", function () {
-      this.on(
-        "session.id",
-        db.raw(
-          'COALESCE("userMessage"."sessionId", "assistantMessage"."sessionId", "manualMessage"."sessionId")',
-        ),
-      );
-    })
+    .join("userMessage", "file.userMessageId", "userMessage.id")
+    .join("session", "session.id", "userMessage.sessionId")
     .leftJoin("chatUser", "session.userId", "chatUser.id")
     .leftJoin("agent", "chatUser.agentId", "agent.id")
     .where((qb) => {
@@ -71,9 +58,7 @@ const saGetFileTableData = async ({
       "chatUser.id as chatUserId",
     )
     .select(
-      db.raw(
-        'COALESCE("userMessage"."sessionId", "assistantMessage"."sessionId", "manualMessage"."sessionId") as "sessionId"',
-      ),
+      db.raw('"userMessage"."sessionId" as "sessionId"'),
     )
     .orderByRaw(
       `"${sortField}" ${sortDirection === "desc" ? "DESC" : "ASC"} NULLS LAST`,

@@ -57,7 +57,9 @@ const saCreateSupportTicket = async (
     // Check access control
     if (!accessToken.superAdmin) {
       if (accessToken.partner) {
-        if (agent.partnerId !== accessToken.partnerId) {
+        const ownsViaPartner = agent.partnerId === accessToken.partnerId;
+        const ownsViaOrg = accessToken.organisationId && agent.organisationId === accessToken.organisationId;
+        if (!ownsViaPartner && !ownsViaOrg) {
           return {
             success: false,
             error: "You don't have access to this agent",
