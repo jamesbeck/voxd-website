@@ -6,9 +6,15 @@ import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { notFound } from "next/navigation";
 
 export default async function Page() {
   const accessToken = await verifyAccessToken();
+
+  if (!accessToken.superAdmin) {
+    return notFound();
+  }
+
   const isSuperAdmin = accessToken.superAdmin;
 
   return (

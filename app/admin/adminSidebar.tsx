@@ -19,6 +19,8 @@ import {
   Link2,
   Wrench,
   Paperclip,
+  BookOpen,
+  Plug,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -66,18 +68,7 @@ const menuItems: MenuItem[] = [
     url: "/admin",
     icon: Home,
   },
-  {
-    roles: ["admin"],
-    title: "WABAs",
-    url: "/admin/wabas",
-    icon: Smartphone,
-  },
-  {
-    roles: ["admin"],
-    title: "Phone Numbers",
-    url: "/admin/phone-numbers",
-    icon: Phone,
-  },
+
   {
     roles: ["admin", "partner"],
     title: "Organisations",
@@ -111,17 +102,7 @@ const menuItems: MenuItem[] = [
     url: "/admin/chatUsers",
     icon: User,
   },
-  {
-    title: "FAQ",
-    url: "/admin/faq",
-    icon: HelpCircle,
-  },
-  {
-    roles: ["admin"],
-    title: "FAQ Categories",
-    url: "/admin/faq-categories",
-    icon: FolderOpen,
-  },
+
   {
     roles: ["admin", "organisation"],
     title: "Admin Users",
@@ -235,16 +216,24 @@ export default function AdminSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {(superAdmin || partner) && (
+        {superAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>Examples</SidebarGroupLabel>
+            <SidebarGroupLabel>WhatsApp</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link href="/admin/examples">
-                      <Inbox />
-                      <span>Examples</span>
+                    <Link href="/admin/wabas">
+                      <Smartphone />
+                      <span>WABAs</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/phone-numbers">
+                      <Phone />
+                      <span>Phone Numbers</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -258,6 +247,30 @@ export default function AdminSidebar({
             <SidebarGroupLabel>CMS</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/examples">
+                      <Inbox />
+                      <span>Examples</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/faq">
+                      <HelpCircle />
+                      <span>FAQ</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/faq-categories">
+                      <FolderOpen />
+                      <span>FAQ Categories</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <a href="/admin/industries">
@@ -280,6 +293,22 @@ export default function AdminSidebar({
                       <Inbox />
                       <span>Features</span>
                     </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/knowledge-sources">
+                      <BookOpen />
+                      <span>Knowledge Sources</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/integrations">
+                      <Plug />
+                      <span>Integrations</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

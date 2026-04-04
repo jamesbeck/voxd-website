@@ -15,17 +15,16 @@ import { MarkdownContent } from "@/components/MarkdownContent";
 export default async function Page({ params }: { params: { faqId: string } }) {
   const { faqId } = await params;
 
+  const accessToken = await verifyAccessToken();
+  if (!accessToken.superAdmin) {
+    return notFound();
+  }
+
   const faq = await getFaqById(faqId);
 
   if (!faq) return notFound();
 
-  const accessToken = await verifyAccessToken();
-  const isSuperAdmin = accessToken.superAdmin;
-
-  // If user is not super admin and not partner and FAQ is partners only, deny access
-  if (!isSuperAdmin && !accessToken.partner && faq.partnersOnly) {
-    return notFound();
-  }
+  const isSuperAdmin = true;
 
   const categories = await saGetFaqCategories();
   const categoryName =

@@ -30,6 +30,7 @@ const saGetAdminUserTableData = async ({
   //base query
   const base = db("adminUser")
     .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
+    .leftJoin("partner", "adminUser.partnerId", "partner.id")
     .leftJoin(lastLoginSubquery, "adminUser.id", "lastLoginQuery.adminUserId")
     .where((qb) => {
       if (search) {
@@ -74,6 +75,8 @@ const saGetAdminUserTableData = async ({
       "adminUser.email",
       "organisation.id as organisationId",
       "organisation.name as organisationName",
+      "adminUser.partnerId",
+      "partner.name as partnerName",
       "lastLoginQuery.lastLogin"
     )
     .orderBy(sortField, sortDirection)

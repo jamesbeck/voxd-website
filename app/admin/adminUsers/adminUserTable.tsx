@@ -35,6 +35,20 @@ const adminUsersTable = () => {
       },
     },
     {
+      label: "Partner",
+      name: "partnerName",
+      format: (row: any) => {
+        if (!row.partnerId) {
+          return <span className="text-muted-foreground">None</span>;
+        }
+        return (
+          <TableLink href={`/admin/partners/${row.partnerId}`}>
+            {row.partnerName}
+          </TableLink>
+        );
+      },
+    },
+    {
       label: "Last Login",
       name: "lastLogin",
       sort: true,
