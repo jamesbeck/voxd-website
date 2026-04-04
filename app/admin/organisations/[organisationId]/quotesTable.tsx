@@ -16,18 +16,6 @@ const getStatusBadge = (status: string) => {
           Concept Sent to Client
         </Badge>
       );
-    case "Sent to Voxd for Cost Pricing":
-      return (
-        <Badge className="bg-amber-500 text-white border-transparent">
-          Awaiting Pricing
-        </Badge>
-      );
-    case "Cost Pricing Received from Voxd":
-      return (
-        <Badge className="bg-blue-500 text-white border-transparent">
-          Pricing Received
-        </Badge>
-      );
     case "Proposal with Client":
       return (
         <Badge className="bg-purple-500 text-white border-transparent">

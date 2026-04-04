@@ -3,13 +3,10 @@
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import saSubmitQuoteForCostPricing from "@/actions/saSubmitQuoteForCostPricing";
 import saMarkQuoteConceptSentToClient from "@/actions/saMarkQuoteConceptSentToClient";
 import saDeleteQuote from "@/actions/saDeleteQuote";
 import saReopenQuote from "@/actions/saReopenQuote";
 import saReturnQuoteToDraft from "@/actions/saReturnQuoteToDraft";
-import saReturnQuoteToConceptSent from "@/actions/saReturnQuoteToConceptSent";
-import saReturnQuoteToCostPricingReceived from "@/actions/saReturnQuoteToCostPricingReceived";
 import saMarkQuoteSentToClient from "@/actions/saMarkQuoteSentToClient";
 import saCloseQuote from "@/actions/saCloseQuote";
 import {
@@ -20,7 +17,6 @@ import {
   CopyPlus,
   RotateCcw,
   RotateCw,
-  Undo2,
   XCircle,
 } from "lucide-react";
 import ChangeOwnerDialog from "./ChangeOwnerDialog";
@@ -53,15 +49,9 @@ export default function QuoteActions({
   createdByAdminUserId: string | null;
   isSuperAdmin?: boolean;
 }) {
-  const [isSubmittingForPricing, setIsSubmittingForPricing] = useState(false);
   const [isSendingConcept, setIsSendingConcept] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReturningToDraft, setIsReturningToDraft] = useState(false);
-
-  const [isReturningToConceptSent, setIsReturningToConceptSent] =
-    useState(false);
-  const [isReturningToCostPricing, setIsReturningToCostPricing] =
-    useState(false);
   const [isMarkingSentToClient, setIsMarkingSentToClient] = useState(false);
   const [isClosingWon, setIsClosingWon] = useState(false);
   const [isClosingLost, setIsClosingLost] = useState(false);
@@ -71,21 +61,11 @@ export default function QuoteActions({
 
   const router = useRouter();
 
-  // SuperAdmins can also "Mark as Proposal with Client" from Draft or Concept Sent to Client status
   const canSendConceptToClient = status === "Draft";
-  const canSubmitForPricing =
-    status === "Draft" || status === "Concept Sent to Client";
   const canReturnToDraft =
     status !== "Draft" && status !== "Closed Won" && status !== "Closed Lost";
-  const canReturnToConceptSent =
-    status === "Sent to Voxd for Cost Pricing" ||
-    status === "Cost Pricing Received from Voxd";
-  const canMarkSentToClient =
-    status === "Cost Pricing Received from Voxd" ||
-    ((status === "Draft" || status === "Concept Sent to Client") &&
-      isSuperAdmin);
+  const canMarkSentToClient = status === "Concept Sent to Client";
   const canClose = status === "Proposal with Client";
-  const canReturnToCostPricing = status === "Proposal with Client";
   const canReopen = status === "Closed Won" || status === "Closed Lost";
 
   const sendConceptToClient = async () => {
@@ -104,25 +84,6 @@ export default function QuoteActions({
     // If successful
     toast.success(`Successfully sent ${name} concept to client`);
     setIsSendingConcept(false);
-    router.refresh();
-  };
-
-  const submitForPricing = async () => {
-    setIsSubmittingForPricing(true);
-    const saResponse = await saSubmitQuoteForCostPricing({ quoteId });
-
-    if (!saResponse.success) {
-      toast.error(
-        `Error Submitting for Pricing: ${
-          saResponse.error || "There was an error submitting for pricing"
-        }`,
-      );
-      setIsSubmittingForPricing(false);
-      return;
-    }
-    // If successful
-    toast.success(`Successfully submitted ${name} for pricing`);
-    setIsSubmittingForPricing(false);
     router.refresh();
   };
 
@@ -163,31 +124,10 @@ export default function QuoteActions({
     router.refresh();
   };
 
-  const returnToConceptSent = async () => {
-    setIsReturningToConceptSent(true);
-    const saResponse = await saReturnQuoteToConceptSent({ quoteId });
-
-    if (!saResponse.success) {
-      toast.error(
-        `Error Returning to Concept Sent: ${
-          saResponse.error ||
-          "There was an error returning to concept sent status"
-        }`,
-      );
-      setIsReturningToConceptSent(false);
-      return;
-    }
-    // If successful
-    toast.success(`Successfully returned ${name} to concept sent status`);
-    setIsReturningToConceptSent(false);
-    router.refresh();
-  };
-
   const markSentToClient = async () => {
     setIsMarkingSentToClient(true);
     const saResponse = await saMarkQuoteSentToClient({
       quoteId,
-      skipFromDraft: status === "Draft" || status === "Concept Sent to Client",
     });
 
     if (!saResponse.success) {
@@ -263,25 +203,6 @@ export default function QuoteActions({
     router.refresh();
   };
 
-  const returnToCostPricingReceived = async () => {
-    setIsReturningToCostPricing(true);
-    const saResponse = await saReturnQuoteToCostPricingReceived({ quoteId });
-
-    if (!saResponse.success) {
-      toast.error(
-        `Error Returning Quote: ${
-          saResponse.error || "There was an error returning the quote"
-        }`,
-      );
-      setIsReturningToCostPricing(false);
-      return;
-    }
-    // If successful
-    toast.success(`${name} returned to Cost Pricing Received`);
-    setIsReturningToCostPricing(false);
-    router.refresh();
-  };
-
   // Build workflow buttons based on status
   const workflowButtons: ActionButton[] = [];
 
@@ -296,20 +217,6 @@ export default function QuoteActions({
         actionText: "Send Concept",
       },
       onClick: sendConceptToClient,
-    });
-  }
-
-  if (canSubmitForPricing) {
-    workflowButtons.push({
-      label: "Submit to Voxd",
-      loading: isSubmittingForPricing,
-      confirm: {
-        title: `Submit ${name} for Pricing`,
-        description:
-          "Are you sure you want to submit this quote for cost pricing from Voxd?",
-        actionText: "Submit for Pricing",
-      },
-      onClick: submitForPricing,
     });
   }
 
@@ -437,34 +344,6 @@ export default function QuoteActions({
           "Are you sure you want to return this quote to Draft status? This will allow the specification to be edited again.",
         actionText: "Return to Draft",
         onAction: returnToDraft,
-      },
-    });
-  }
-  if (canReturnToConceptSent) {
-    statusItems.push({
-      label: "Return to Concept Sent to Client",
-      icon: <Undo2 />,
-      loading: isReturningToConceptSent,
-      confirm: {
-        title: "Return to Concept Sent to Client",
-        description:
-          "Are you sure you want to return this quote to 'Concept Sent to Client' status?",
-        actionText: "Return to Concept Sent",
-        onAction: returnToConceptSent,
-      },
-    });
-  }
-  if (canReturnToCostPricing) {
-    statusItems.push({
-      label: "Return to Cost Pricing Received",
-      icon: <Undo2 />,
-      loading: isReturningToCostPricing,
-      confirm: {
-        title: "Return to Cost Pricing Received",
-        description:
-          "Are you sure you want to return this quote to 'Cost Pricing Received from Voxd' status?",
-        actionText: "Return to Cost Pricing",
-        onAction: returnToCostPricingReceived,
       },
     });
   }

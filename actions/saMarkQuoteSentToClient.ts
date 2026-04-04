@@ -5,10 +5,8 @@ import { ServerActionResponse } from "@/types/types";
 
 const saMarkQuoteSentToClient = async ({
   quoteId,
-  skipFromDraft = false,
 }: {
   quoteId: string;
-  skipFromDraft?: boolean;
 }): Promise<ServerActionResponse> => {
   if (!quoteId) {
     return {
@@ -30,19 +28,12 @@ const saMarkQuoteSentToClient = async ({
     };
   }
 
-  // Allow marking as proposal with client from "Cost Pricing Received from Voxd" status
-  // Or from "Draft" or "Concept Sent to Client" status if skipFromDraft is true (for superAdmins)
-  const allowedStatuses = ["Cost Pricing Received from Voxd"];
-  if (skipFromDraft) {
-    allowedStatuses.push("Draft", "Concept Sent to Client");
-  }
-
-  if (!allowedStatuses.includes(existingQuote.status)) {
+  // Allow marking as proposal with client from "Concept Sent to Client" status
+  if (existingQuote.status !== "Concept Sent to Client") {
     return {
       success: false,
-      error: skipFromDraft
-        ? "Quote can only be marked as proposal with client when in 'Draft', 'Concept Sent to Client', or 'Cost Pricing Received from Voxd' status"
-        : "Quote can only be marked as proposal with client when in 'Cost Pricing Received from Voxd' status",
+      error:
+        "Quote can only be marked as proposal with client when in 'Concept Sent to Client' status",
     };
   }
 

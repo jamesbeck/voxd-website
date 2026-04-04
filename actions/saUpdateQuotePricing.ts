@@ -90,21 +90,6 @@ const saUpdateQuotePricing = async ({
   // Update the quote
   await db("quote").where({ id: quoteId }).update(updateData);
 
-  // If a superAdmin is updating, the quote is at "Sent to Voxd for Cost Pricing",
-  // and both Voxd cost fields are being submitted with values, advance to stage 3
-  if (
-    isSuperAdmin &&
-    existingQuote.status === "Sent to Voxd for Cost Pricing" &&
-    setupFeeVoxdCost !== undefined &&
-    setupFeeVoxdCost !== null &&
-    monthlyFeeVoxdCost !== undefined &&
-    monthlyFeeVoxdCost !== null
-  ) {
-    await db("quote").where({ id: quoteId }).update({
-      status: "Cost Pricing Received from Voxd",
-    });
-  }
-
   return { success: true };
 };
 
