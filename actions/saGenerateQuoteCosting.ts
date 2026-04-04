@@ -331,12 +331,12 @@ The following ${source} text provides context for what functions each integratio
                           <tr>
                             <td style="text-align: center; padding: 16px; background-color: #f0f0f0; border-radius: 6px;">
                               <p style="margin: 0 0 4px 0; color: #888888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Setup Cost</p>
-                              <p style="margin: 0; color: #333333; font-size: 32px; font-weight: 700;">&pound;${costingBreakdown.totalIntegrationCost.toLocaleString()}</p>
+                              <p style="margin: 0; color: #333333; font-size: 32px; font-weight: 700;">&pound;${costingBreakdown.totalIntegrationCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                             </td>
                             <td style="width: 12px;"></td>
                             <td style="text-align: center; padding: 16px; background-color: #f0f0f0; border-radius: 6px;">
                               <p style="margin: 0 0 4px 0; color: #888888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Monthly Cost</p>
-                              <p style="margin: 0; color: #333333; font-size: 32px; font-weight: 700;">&pound;${costingBreakdown.totalMonthly.toLocaleString()}</p>
+                              <p style="margin: 0; color: #333333; font-size: 32px; font-weight: 700;">&pound;${costingBreakdown.totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                             </td>
                           </tr>
                         </table>
@@ -366,11 +366,11 @@ The following ${source} text provides context for what functions each integratio
                           </tr>
                           <tr>
                             <td style="padding: 12px 16px; font-size: 14px; color: #555555;">Setup Cost</td>
-                            <td style="padding: 12px 16px; font-size: 14px; color: #333333; font-weight: 600; text-align: right;">&pound;${costingBreakdown.totalIntegrationCost.toLocaleString()}</td>
+                            <td style="padding: 12px 16px; font-size: 14px; color: #333333; font-weight: 600; text-align: right;">&pound;${costingBreakdown.totalIntegrationCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           </tr>
                           <tr>
                             <td style="padding: 12px 16px; font-size: 14px; color: #555555;">Monthly Cost</td>
-                            <td style="padding: 12px 16px; font-size: 14px; color: #333333; font-weight: 600; text-align: right;">&pound;${costingBreakdown.totalMonthly.toLocaleString()}</td>
+                            <td style="padding: 12px 16px; font-size: 14px; color: #333333; font-weight: 600; text-align: right;">&pound;${costingBreakdown.totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           </tr>
                           <tr>
                             <td style="padding: 12px 16px; font-size: 14px; color: #555555;">Build Days</td>

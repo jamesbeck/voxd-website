@@ -473,13 +473,13 @@ export default function EditPricingForm({
                   <p className="text-sm text-muted-foreground">Setup Cost</p>
                   <p className="text-2xl font-bold">
                     &pound;
-                    {costingBreakdown.totalIntegrationCost.toLocaleString()}
+                    {costingBreakdown.totalIntegrationCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/50">
                   <p className="text-sm text-muted-foreground">Monthly Cost</p>
                   <p className="text-2xl font-bold">
-                    &pound;{costingBreakdown.totalMonthly.toLocaleString()}
+                    &pound;{costingBreakdown.totalMonthly.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>
