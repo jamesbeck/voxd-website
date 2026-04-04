@@ -40,18 +40,9 @@ const formSchema = z.object({
   accountsEmail: z.string().optional(),
   organisationId: z.string().optional(),
   prototypingAgentId: z.string().optional(),
-  hourlyRate: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : Number(v)),
-    z.number().min(0).optional(),
-  ),
-  monthlyBaseFee: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : Number(v)),
-    z.number().min(0).optional(),
-  ),
-  monthlyPerIntegration: z.preprocess(
-    (v) => (v === "" || v === undefined ? undefined : Number(v)),
-    z.number().min(0).optional(),
-  ),
+  hourlyRate: z.string().optional(),
+  monthlyBaseFee: z.string().optional(),
+  monthlyPerIntegration: z.string().optional(),
 });
 
 export default function EditPartnerForm({
@@ -121,9 +112,10 @@ export default function EditPartnerForm({
       accountsEmail: accountsEmail || "",
       organisationId: organisationId || "",
       prototypingAgentId: prototypingAgentId || "",
-      hourlyRate: hourlyRate ?? "",
-      monthlyBaseFee: monthlyBaseFee ?? "",
-      monthlyPerIntegration: monthlyPerIntegration ?? "",
+      hourlyRate: hourlyRate != null ? String(hourlyRate) : "",
+      monthlyBaseFee: monthlyBaseFee != null ? String(monthlyBaseFee) : "",
+      monthlyPerIntegration:
+        monthlyPerIntegration != null ? String(monthlyPerIntegration) : "",
     },
   });
 
@@ -148,9 +140,13 @@ export default function EditPartnerForm({
       accountsEmail: values.accountsEmail,
       organisationId: values.organisationId || null,
       prototypingAgentId: values.prototypingAgentId || null,
-      hourlyRate: values.hourlyRate ?? null,
-      monthlyBaseFee: values.monthlyBaseFee ?? null,
-      monthlyPerIntegration: values.monthlyPerIntegration ?? null,
+      hourlyRate: values.hourlyRate ? Number(values.hourlyRate) : null,
+      monthlyBaseFee: values.monthlyBaseFee
+        ? Number(values.monthlyBaseFee)
+        : null,
+      monthlyPerIntegration: values.monthlyPerIntegration
+        ? Number(values.monthlyPerIntegration)
+        : null,
     });
 
     if (!response.success) {
