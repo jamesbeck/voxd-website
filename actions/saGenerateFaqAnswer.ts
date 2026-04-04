@@ -126,7 +126,7 @@ If the question is not specifically about Voxd or its services, provide a helpfu
 
   try {
     const { text } = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,

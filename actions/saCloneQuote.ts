@@ -123,7 +123,6 @@ const saCloneQuote = async (input: {
     // --- AI rewriting ---
     let rewrittenTitle = sourceQuote.title;
     let rewrittenObjectives = sourceQuote.objectives;
-    let rewrittenDataSources = sourceQuote.dataSourcesAndIntegrations;
     let rewrittenOtherNotes = sourceQuote.otherNotes;
     let rewrittenConceptIntro = null as string | null;
     let rewrittenConcept = null as string | null;
@@ -144,10 +143,6 @@ Do not change anything else about the text - keep all other content, formatting,
       const fieldsToSubstitute = [
         { value: sourceQuote.title, label: "title" },
         { value: sourceQuote.objectives, label: "objectives" },
-        {
-          value: sourceQuote.dataSourcesAndIntegrations,
-          label: "dataSourcesAndIntegrations",
-        },
         { value: sourceQuote.otherNotes, label: "otherNotes" },
       ];
 
@@ -155,14 +150,12 @@ Do not change anything else about the text - keep all other content, formatting,
         if (field.value) {
           try {
             const { text } = await generateText({
-              model: openai("gpt-5.2"),
+              model: openai("gpt-5.4"),
               system: nameSubstitutionPrompt,
               prompt: field.value,
             });
             if (field.label === "title") rewrittenTitle = text;
             if (field.label === "objectives") rewrittenObjectives = text;
-            if (field.label === "dataSourcesAndIntegrations")
-              rewrittenDataSources = text;
             if (field.label === "otherNotes") rewrittenOtherNotes = text;
           } catch (err) {
             console.error(`Error rewriting ${field.label} during clone:`, err);
@@ -188,7 +181,6 @@ Do not change anything else about the text - keep all other content, formatting,
 - **New Background**: ${newBackground || "Not provided"}
 - **Quote Title**: ${sourceQuote.title}
 ${rewrittenObjectives ? `- **Objectives**: ${rewrittenObjectives}` : ""}
-${rewrittenDataSources ? `- **Data Sources & Integrations**: ${rewrittenDataSources}` : ""}
 ${rewrittenOtherNotes ? `- **Other Notes**: ${rewrittenOtherNotes}` : ""}
 ${prompt ? `\n## Additional Instructions from User\n${prompt}` : ""}
 `.trim();
@@ -197,7 +189,7 @@ ${prompt ? `\n## Additional Instructions from User\n${prompt}` : ""}
         if (sourceQuote.generatedConceptIntroduction) {
           try {
             const { text } = await generateText({
-              model: openai("gpt-5.2"),
+              model: openai("gpt-5.4"),
               system: `You are an expert sales consultant for ${partnerName}. You are rewriting a concept introduction that was originally written for "${sourceOrgName}" so that it now applies to "${targetOrgName}". 
 
 Rewrite the content to be about the new organisation, using the new background information provided. Maintain the same style, tone, structure, and level of detail. Do not add new sections or remove existing ones. Write in Markdown format.
@@ -223,7 +215,7 @@ ${rewriteContext}`,
         if (sourceQuote.generatedConcept) {
           try {
             const { text } = await generateText({
-              model: openai("gpt-5.2"),
+              model: openai("gpt-5.4"),
               system: `You are an expert sales consultant for ${partnerName}. You are rewriting a concept document that was originally written for "${sourceOrgName}" so that it now applies to "${targetOrgName}".
 
 Rewrite the content to be about the new organisation, using the new background information provided. Maintain the same style, tone, and structure. Adapt industry-specific examples and use cases to the new organisation's context. Write in Markdown format with clear headings (## for main sections and ### for subsections).
@@ -250,7 +242,7 @@ ${rewriteContext}`,
         if (sourceQuote.generatedProposalIntroduction) {
           try {
             const { text } = await generateText({
-              model: openai("gpt-5.2"),
+              model: openai("gpt-5.4"),
               system: `You are an expert proposal writer for ${partnerName}. You are rewriting a proposal introduction that was originally written for "${sourceOrgName}" so that it now applies to "${targetOrgName}".
 
 Rewrite the content to be about the new organisation, using the new background information provided. Maintain the same style, tone, and structure. Write in Markdown format.
@@ -273,7 +265,7 @@ ${rewriteContext}`,
         if (sourceQuote.generatedSpecification) {
           try {
             const { text } = await generateText({
-              model: openai("gpt-5.2"),
+              model: openai("gpt-5.4"),
               system: `You are an expert proposal writer for ${partnerName}. You are rewriting a technical specification that was originally written for "${sourceOrgName}" so that it now applies to "${targetOrgName}".
 
 Rewrite the content to be about the new organisation, using the new background information provided. Adapt technical details and integration specifics to the new organisation's context where appropriate. Maintain the same structure and level of detail. Write in Markdown format.
@@ -303,7 +295,6 @@ ${rewriteContext}`,
         title: rewrittenTitle,
         background: newBackground,
         objectives: rewrittenObjectives,
-        dataSourcesAndIntegrations: rewrittenDataSources,
         otherNotes: rewrittenOtherNotes,
         createdByAdminUserId: accessToken.adminUserId,
         generatedConceptIntroduction: rewrittenConceptIntro,
@@ -324,6 +315,40 @@ ${rewriteContext}`,
       .returning("id");
 
     const newQuoteId = newQuote.id;
+
+    // --- Clone knowledge sources ---
+    const sourceKnowledgeSources = await db("quoteKnowledgeSource")
+      .where("quoteId", quoteId)
+      .select("knowledgeSourceId", "note", "otherName", "otherDescription");
+
+    if (sourceKnowledgeSources.length > 0) {
+      await db("quoteKnowledgeSource").insert(
+        sourceKnowledgeSources.map((ks: any) => ({
+          quoteId: newQuoteId,
+          knowledgeSourceId: ks.knowledgeSourceId,
+          note: ks.note,
+          otherName: ks.otherName,
+          otherDescription: ks.otherDescription,
+        })),
+      );
+    }
+
+    // --- Clone integrations ---
+    const sourceIntegrations = await db("quoteIntegration")
+      .where("quoteId", quoteId)
+      .select("integrationId", "note", "otherName", "otherDescription");
+
+    if (sourceIntegrations.length > 0) {
+      await db("quoteIntegration").insert(
+        sourceIntegrations.map((int: any) => ({
+          quoteId: newQuoteId,
+          integrationId: int.integrationId,
+          note: int.note,
+          otherName: int.otherName,
+          otherDescription: int.otherDescription,
+        })),
+      );
+    }
 
     // --- Create audit trail ---
     await db("quoteAction").insert([
@@ -360,7 +385,7 @@ ${rewriteContext}`,
           try {
             const openai = createOpenAI({ apiKey: openAiApiKey });
             const { text } = await generateText({
-              model: openai("gpt-5.2"),
+              model: openai("gpt-5.4"),
               system: nameSubstitutionPrompt,
               prompt: conv.prompt,
             });

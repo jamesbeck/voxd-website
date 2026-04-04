@@ -60,8 +60,8 @@ const saSmartImportKnowledgeBlocks = async ({
     };
   }
 
-  // Use agent's configured model or fallback to gpt-5.2
-  const modelName = document.modelName || "gpt-5.2";
+  // Use agent's configured model or fallback to gpt-5.4
+  const modelName = document.modelName || "gpt-5.4";
 
   const openai = createOpenAI({ apiKey: document.openAiApiKey });
 

@@ -137,7 +137,57 @@ const saGenerateScenario = async (
 
     openAiApiKey = quote.openAiApiKey;
 
-    // Build the specification context from the 5 fields
+    // Get knowledge sources linked to this quote
+    const quoteKnowledgeSources = await db("quoteKnowledgeSource")
+      .leftJoin(
+        "knowledgeSource",
+        "quoteKnowledgeSource.knowledgeSourceId",
+        "knowledgeSource.id",
+      )
+      .where("quoteKnowledgeSource.quoteId", quoteId)
+      .select(
+        "knowledgeSource.name as itemName",
+        "quoteKnowledgeSource.otherName",
+        "quoteKnowledgeSource.note",
+      )
+      .orderBy("quoteKnowledgeSource.createdAt", "asc");
+
+    // Get integrations linked to this quote
+    const quoteIntegrations = await db("quoteIntegration")
+      .leftJoin(
+        "integration",
+        "quoteIntegration.integrationId",
+        "integration.id",
+      )
+      .where("quoteIntegration.quoteId", quoteId)
+      .select(
+        "integration.name as itemName",
+        "quoteIntegration.otherName",
+        "quoteIntegration.note",
+      )
+      .orderBy("quoteIntegration.createdAt", "asc");
+
+    // Build the specification context
+    const knowledgeSourcesList =
+      quoteKnowledgeSources.length > 0
+        ? quoteKnowledgeSources
+            .map((ks: any) => {
+              const name = ks.itemName || ks.otherName;
+              return ks.note ? `- ${name}: ${ks.note}` : `- ${name}`;
+            })
+            .join("\n")
+        : "None specified";
+
+    const integrationsList =
+      quoteIntegrations.length > 0
+        ? quoteIntegrations
+            .map((i: any) => {
+              const name = i.itemName || i.otherName;
+              return i.note ? `- ${name}: ${i.note}` : `- ${name}`;
+            })
+            .join("\n")
+        : "None specified";
+
     context = `
 Background:
 ${quote.background || "Not specified"}
@@ -145,8 +195,11 @@ ${quote.background || "Not specified"}
 Objectives:
 ${quote.objectives || "Not specified"}
 
-Data Sources & Integrations:
-${quote.dataSourcesAndIntegrations || "Not specified"}
+Knowledge Sources:
+${knowledgeSourcesList}
+
+Integrations:
+${integrationsList}
 
 Other Notes:
 ${quote.otherNotes || "Not specified"}
@@ -179,7 +232,7 @@ ${quote.otherNotes || "Not specified"}
 
   try {
     const { text } = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       prompt: `You are helping to generate realistic scenario descriptions for an AI WhatsApp chatbot.
 
 The business name is "${businessName}".
@@ -203,6 +256,8 @@ Generate ${count} concise scenario description${count > 1 ? "s" : ""} (2-3 sente
 4. ${count > 1 ? "Are" : "Is"} specific enough to guide conversation generation but not overly detailed
 
 IMPORTANT: Write textual DESCRIPTIONS of the scenarios, NOT scripts or dialogues. Do NOT use formats like "Client: ... Bot: ..." or any back-and-forth conversation format. Instead, describe the situation in prose, e.g., "A customer wants to reschedule their appointment for next week because they have a conflict."
+
+IMPORTANT: ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
 
 Most often, the user will send the first message but the bot may also send an outbound marketing message or notification that starts the conversation.
 

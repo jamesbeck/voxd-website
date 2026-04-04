@@ -101,7 +101,7 @@ Write a brief hero image prompt (max 2 sentences) for a professional website ban
 
     // Step 2: Generate the hero image using image generation tool
     const result = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       prompt: finalPrompt,
       tools: {
         image_generation: openai.tools.imageGeneration({

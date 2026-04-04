@@ -114,7 +114,7 @@ export default function EditKnowledgeSourceForm({
                     field.onChange(
                       e.target.value === ""
                         ? undefined
-                        : parseFloat(e.target.value)
+                        : parseFloat(e.target.value),
                     )
                   }
                   value={field.value ?? ""}

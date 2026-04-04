@@ -65,6 +65,57 @@ export async function generateExampleConversation({
       throw new Error("Quote not found");
     }
     openAiApiKey = quote.openAiApiKey;
+
+    // Get knowledge sources linked to this quote
+    const quoteKnowledgeSources = await db("quoteKnowledgeSource")
+      .leftJoin(
+        "knowledgeSource",
+        "quoteKnowledgeSource.knowledgeSourceId",
+        "knowledgeSource.id",
+      )
+      .where("quoteKnowledgeSource.quoteId", conversation.quoteId)
+      .select(
+        "knowledgeSource.name as itemName",
+        "quoteKnowledgeSource.otherName",
+        "quoteKnowledgeSource.note",
+      )
+      .orderBy("quoteKnowledgeSource.createdAt", "asc");
+
+    // Get integrations linked to this quote
+    const quoteIntegrations = await db("quoteIntegration")
+      .leftJoin(
+        "integration",
+        "quoteIntegration.integrationId",
+        "integration.id",
+      )
+      .where("quoteIntegration.quoteId", conversation.quoteId)
+      .select(
+        "integration.name as itemName",
+        "quoteIntegration.otherName",
+        "quoteIntegration.note",
+      )
+      .orderBy("quoteIntegration.createdAt", "asc");
+
+    const knowledgeSourcesList =
+      quoteKnowledgeSources.length > 0
+        ? quoteKnowledgeSources
+            .map((ks: any) => {
+              const name = ks.itemName || ks.otherName;
+              return ks.note ? `- ${name}: ${ks.note}` : `- ${name}`;
+            })
+            .join("\n")
+        : "None specified";
+
+    const integrationsList =
+      quoteIntegrations.length > 0
+        ? quoteIntegrations
+            .map((i: any) => {
+              const name = i.itemName || i.otherName;
+              return i.note ? `- ${name}: ${i.note}` : `- ${name}`;
+            })
+            .join("\n")
+        : "None specified";
+
     context = `
 Background:
 ${quote.background || "Not specified"}
@@ -72,8 +123,11 @@ ${quote.background || "Not specified"}
 Objectives:
 ${quote.objectives || "Not specified"}
 
-Data Sources & Integrations:
-${quote.dataSourcesAndIntegrations || "Not specified"}
+Knowledge Sources:
+${knowledgeSourcesList}
+
+Integrations:
+${integrationsList}
 
 Other Notes:
 ${quote.otherNotes || "Not specified"}
@@ -90,7 +144,7 @@ ${quote.otherNotes || "Not specified"}
     const openai = createOpenAI({ apiKey: openAiApiKey });
 
     const { object } = await generateObject({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       schema: z.object({
         summary: z
           .string()
@@ -215,6 +269,8 @@ ${quote.otherNotes || "Not specified"}
 
         Here's the scenario for the chat: ${conversation.prompt}
 
+        IMPORTANT: ONLY reference knowledge sources and integrations that are explicitly listed in the specification below. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
+
         Here's the specification for the bot:
         ${context}
       `,
@@ -301,7 +357,7 @@ async function generateConversationImages({
   for (const { index, imagePrompt } of imageMessages) {
     try {
       const result = await generateText({
-        model: openai("gpt-5.2"),
+        model: openai("gpt-5.4"),
         prompt: imagePrompt,
         tools: {
           image_generation: openai.tools.imageGeneration({

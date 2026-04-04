@@ -76,7 +76,7 @@ const generateExample = async ({
   );
 
   const { object } = await generateObject({
-    model: openai("gpt-5.2"),
+    model: openai("gpt-5.4"),
     schema: z.object({
       example: z.object({
         title: z
@@ -211,7 +211,7 @@ const generateExample = async ({
         functions: object.example.functions,
       },
       partialApiKey: partialApiKey,
-      model: "gpt-5.2",
+      model: "gpt-5.4",
     },
   });
 

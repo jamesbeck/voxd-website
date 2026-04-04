@@ -21,6 +21,17 @@ import { Textarea } from "@/components/ui/textarea";
 import saUpdateQuoteSpecification from "@/actions/saUpdateQuoteSpecification";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Info } from "lucide-react";
+import QuoteLinkedItemsSection, {
+  LinkedItem,
+} from "@/components/admin/QuoteLinkedItemsSection";
+import saGetAllIntegrations from "@/actions/saGetAllIntegrations";
+import saGetAllKnowledgeSources from "@/actions/saGetAllKnowledgeSources";
+import saAddQuoteIntegration from "@/actions/saAddQuoteIntegration";
+import saAddQuoteKnowledgeSource from "@/actions/saAddQuoteKnowledgeSource";
+import saUpdateQuoteIntegrationNote from "@/actions/saUpdateQuoteIntegrationNote";
+import saUpdateQuoteKnowledgeSourceNote from "@/actions/saUpdateQuoteKnowledgeSourceNote";
+import saDeleteQuoteIntegration from "@/actions/saDeleteQuoteIntegration";
+import saDeleteQuoteKnowledgeSource from "@/actions/saDeleteQuoteKnowledgeSource";
 
 const formSchema = z.object({
   objectives: z.string().optional(),
@@ -35,6 +46,8 @@ export default function EditSpecificationForm({
   otherNotes,
   status,
   isSuperAdmin = false,
+  quoteIntegrations,
+  quoteKnowledgeSources,
 }: {
   quoteId: string;
   objectives: string | null;
@@ -42,6 +55,8 @@ export default function EditSpecificationForm({
   otherNotes: string | null;
   status: string;
   isSuperAdmin?: boolean;
+  quoteIntegrations: LinkedItem[];
+  quoteKnowledgeSources: LinkedItem[];
 }) {
   const isReadOnly =
     !isSuperAdmin && status !== "Draft" && status !== "Concept Sent to Client";
@@ -135,19 +150,6 @@ export default function EditSpecificationForm({
           </Alert>
         )}
 
-        {!isReadOnly && (
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertTitle className="flex items-center gap-2">
-              Auto-save enabled
-              {saving && <Spinner className="h-4 w-4" />}
-            </AlertTitle>
-            <AlertDescription>
-              Changes are saved automatically as you type.
-            </AlertDescription>
-          </Alert>
-        )}
-
         <FormField
           control={form.control}
           name="objectives"
@@ -175,35 +177,59 @@ export default function EditSpecificationForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="dataSourcesAndIntegrations"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Data Sources & Integrations</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder=""
-                  {...field}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    if (!isReadOnly) debouncedSave();
-                  }}
-                  className="h-[150px]"
-                  readOnly={isReadOnly}
-                  disabled={isReadOnly}
-                />
-              </FormControl>
-              <FormDescription>
-                What data sources will the chatbot need to access and what
-                systems or APIs need to be integrated? Examples include
-                client-supplied documents, manually created knowledge base, CRM
-                systems, accountancy packages, back office systems, or bespoke
-                external systems.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+        {dataSourcesAndIntegrations && (
+          <FormField
+            control={form.control}
+            name="dataSourcesAndIntegrations"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Data Sources & Integrations (Legacy)</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder=""
+                    {...field}
+                    className="h-[150px]"
+                    readOnly
+                    disabled
+                  />
+                </FormControl>
+                <FormDescription className="text-destructive">
+                  This field is now legacy and read-only,{" "}
+                  <b>it will be deleted in a future update</b>. This data is no
+                  longer used in concept generation, proposal generation or
+                  pricing. Use the Knowledge Sources and Integrations sections
+                  below instead.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        <QuoteLinkedItemsSection
+          quoteId={quoteId}
+          title="Knowledge Sources"
+          description="What knowledge sources will the chatbot use? Examples include client-supplied documents, manually created knowledge base, FAQ databases, or product catalogues."
+          items={quoteKnowledgeSources}
+          fetchOptionsAction={saGetAllKnowledgeSources}
+          addAction={saAddQuoteKnowledgeSource}
+          updateNoteAction={saUpdateQuoteKnowledgeSourceNote}
+          deleteAction={saDeleteQuoteKnowledgeSource}
+          isReadOnly={isReadOnly}
+          itemIdField="knowledgeSourceId"
+        />
+
+        <QuoteLinkedItemsSection
+          quoteId={quoteId}
+          title="Integrations"
+          description="What systems or APIs need to be integrated? Examples include CRM systems, accountancy packages, back office systems, or bespoke external systems."
+          items={quoteIntegrations}
+          fetchOptionsAction={saGetAllIntegrations}
+          addAction={saAddQuoteIntegration}
+          updateNoteAction={saUpdateQuoteIntegrationNote}
+          deleteAction={saDeleteQuoteIntegration}
+          isReadOnly={isReadOnly}
+          itemIdField="integrationId"
         />
 
         <FormField

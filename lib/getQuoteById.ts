@@ -15,6 +15,16 @@ export type QuoteConversation = {
   }[];
 };
 
+export type QuoteLinkedItem = {
+  id: string;
+  itemId: string | null;
+  itemName: string | null;
+  itemDescription: string | null;
+  otherName: string | null;
+  otherDescription: string | null;
+  note: string | null;
+};
+
 export type Quote = {
   id: string;
   title: string;
@@ -51,6 +61,8 @@ export type Quote = {
   freeMonthlyMinutes: number | null;
   contractLength: number | null;
   costingBreakdown: CostingBreakdown | null;
+  quoteIntegrations: QuoteLinkedItem[];
+  quoteKnowledgeSources: QuoteLinkedItem[];
 };
 
 export const getQuoteById = async ({
@@ -99,9 +111,45 @@ export const getQuoteById = async ({
         : conv.messages,
   }));
 
+  // Get integrations linked to this quote
+  const quoteIntegrations = await db("quoteIntegration")
+    .leftJoin("integration", "quoteIntegration.integrationId", "integration.id")
+    .where("quoteIntegration.quoteId", quoteId)
+    .select(
+      "quoteIntegration.id",
+      "quoteIntegration.integrationId as itemId",
+      "integration.name as itemName",
+      "integration.description as itemDescription",
+      "quoteIntegration.otherName",
+      "quoteIntegration.otherDescription",
+      "quoteIntegration.note",
+    )
+    .orderBy("quoteIntegration.createdAt", "asc");
+
+  // Get knowledge sources linked to this quote
+  const quoteKnowledgeSources = await db("quoteKnowledgeSource")
+    .leftJoin(
+      "knowledgeSource",
+      "quoteKnowledgeSource.knowledgeSourceId",
+      "knowledgeSource.id",
+    )
+    .where("quoteKnowledgeSource.quoteId", quoteId)
+    .select(
+      "quoteKnowledgeSource.id",
+      "quoteKnowledgeSource.knowledgeSourceId as itemId",
+      "knowledgeSource.name as itemName",
+      "knowledgeSource.description as itemDescription",
+      "quoteKnowledgeSource.otherName",
+      "quoteKnowledgeSource.otherDescription",
+      "quoteKnowledgeSource.note",
+    )
+    .orderBy("quoteKnowledgeSource.createdAt", "asc");
+
   return {
     ...quote,
     exampleConversations: parsedConversations,
+    quoteIntegrations,
+    quoteKnowledgeSources,
   };
 };
 

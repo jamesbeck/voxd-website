@@ -87,7 +87,7 @@ const saGenerateQuoteCosting = async ({
     };
   }
 
-  // Determine input text based on source
+  // Determine input text based on source (used as context for task estimation)
   const inputText =
     source === "concept"
       ? [quote.generatedConceptIntroduction, quote.generatedConcept]
@@ -104,21 +104,77 @@ const saGenerateQuoteCosting = async ({
     };
   }
 
+  // Fetch integrations linked to this quote
+  const quoteIntegrations = await db("quoteIntegration")
+    .leftJoin("integration", "quoteIntegration.integrationId", "integration.id")
+    .where("quoteIntegration.quoteId", quoteId)
+    .select(
+      "integration.name as itemName",
+      "integration.description as itemDescription",
+      "integration.setupHours",
+      "quoteIntegration.otherName",
+      "quoteIntegration.otherDescription",
+      "quoteIntegration.note",
+    )
+    .orderBy("quoteIntegration.createdAt", "asc");
+
+  // If no integrations, save empty breakdown with zero costs
+  if (quoteIntegrations.length === 0) {
+    const costingBreakdown: CostingBreakdown = {
+      integrations: [],
+      totalIntegrationTime: 0,
+      totalIntegrationCost: 0,
+      totalMonthly: MONTHLY_BASE,
+      costingCalculatedFrom: source,
+    };
+
+    await db("quote")
+      .where({ id: quoteId })
+      .update({
+        costingBreakdown: JSON.stringify(costingBreakdown),
+        setupFeeVoxdCost: 0,
+        monthlyFeeVoxdCost: costingBreakdown.totalMonthly,
+        buildDays: 0,
+      });
+
+    return {
+      success: true,
+      data: {
+        costingBreakdown,
+        setupFeeVoxdCost: 0,
+        monthlyFeeVoxdCost: costingBreakdown.totalMonthly,
+        buildDays: 0,
+      },
+    };
+  }
+
   const openai = createOpenAI({
     apiKey: quote.openAiApiKey,
   });
+
+  // Build the integration list for the prompt
+  const integrationListText = quoteIntegrations
+    .map((i: any, idx: number) => {
+      const name = i.itemName || i.otherName;
+      const isCustom = !i.itemName;
+      const setupInfo =
+        !isCustom && i.setupHours != null
+          ? `Setup hours: ${i.setupHours}`
+          : "Setup hours: estimate required";
+      const desc = i.itemDescription || i.otherDescription;
+      const parts = [`${idx + 1}. **${name}** (${setupInfo})`];
+      if (desc) parts.push(`   Description: ${desc}`);
+      if (i.note) parts.push(`   Note: ${i.note}`);
+      return parts.join("\n");
+    })
+    .join("\n");
 
   // Build existing costing context for consistency
   const existingCosting = quote.costingBreakdown as CostingBreakdown | null;
   const existingCostingContext = existingCosting
     ? `\n\n## Previous Costing Breakdown (reference only)
 
-The following is the previous costing breakdown. Use it as a REFERENCE for time estimate consistency — if an integration or function still exists in the current ${source} and has not materially changed, keep the same time estimate to avoid price fluctuations.
-
-However, you MUST independently verify every item against the current ${source} text:
-- REMOVE any integrations or functions that are no longer mentioned or implied in the current ${source}
-- ADD any new integrations or functions that appear in the current ${source} but were not in the previous breakdown
-- Only the current ${source} text is the source of truth — do NOT include items just because they were in the previous breakdown
+The following is the previous costing breakdown. Use it as a REFERENCE for time estimate consistency — if a function for an integration has not materially changed, keep the same time estimate to avoid price fluctuations.
 
 \`\`\`json
 ${JSON.stringify(existingCosting.integrations, null, 2)}
@@ -127,18 +183,19 @@ ${JSON.stringify(existingCosting.integrations, null, 2)}
 Previous calculation was based on: ${existingCosting.costingCalculatedFrom}`
     : "";
 
-  const systemPrompt = `You are an expert at estimating development costs for WhatsApp AI chatbot integrations. Your job is to analyse a concept or proposal for an AI chatbot and identify:
+  const systemPrompt = `You are an expert at estimating development costs for WhatsApp AI chatbot integrations.
 
-1. All external integrations/services the chatbot will need to connect to (e.g. Microsoft 365, Salesforce, Google Workspace, custom APIs, etc.)
-2. For each integration, the individual tools/functions that a developer will need to code for the AI agent to interact with that service
-3. An honest time estimate in hours for a human developer to code each function
+You will be given a FIXED LIST of integrations that the chatbot requires. You MUST produce a cost breakdown for EACH integration listed and ONLY these integrations. Do NOT add, remove, or rename any integrations.
+
+For each integration, you must identify the individual tools/functions that a developer will need to code for the AI agent to interact with that service, and provide an honest time estimate in hours for each.
 
 Rules:
-- Every integration MUST include an "Initial Setup & Tooling" task that covers authentication setup, API client configuration, and basic tooling. This is typically 2-4 hours depending on the complexity of the service.
+- Every integration MUST include an "Initial Setup & Tooling" task that covers authentication setup, API client configuration, and basic tooling.
+- Where setup hours are provided for an integration, you MUST use that exact value for the "Initial Setup & Tooling" task hours. Do not change it.
+- Where setup hours say "estimate required", estimate the setup hours yourself (typically 2-4 hours depending on complexity).
 - Each additional function/tool should represent a distinct capability the AI agent needs (e.g. "Check Calendar Availability", "Create Lead", "Send Email").
+- Use the ${source} text provided as context to determine what specific functions each integration needs.
 - Time estimates should be LEAN. These functions are being built by experienced developers who work with these APIs daily, using existing tooling and patterns. Do not overestimate.
-- Be thorough — identify ALL integrations mentioned or implied in the text.
-- If the text mentions vague integrations (e.g. "CRM integration"), make reasonable assumptions about what functions would be needed.
 - For each task, provide a clear description of what the function does and justify the time estimate.
 
 CALIBRATION EXAMPLES — Use these as a guide for typical time estimates:
@@ -153,24 +210,19 @@ Salesforce CRM:
 - Check if contact already exists by email: 0.5 hours (SOQL query, parse response)
 - Create lead and add all opportunity information: 2 hours (create lead, create opportunity, link records)
 
-Time estimates can be as low as 0.25 hours (15 minutes) for very simple tasks. Most simple read/query functions take 0.5-1 hour. Write/create functions typically take 1-2 hours. Setup tasks typically take 2-3 hours. Only complex multi-step functions with significant business logic should exceed 2 hours.
+Time estimates can be as low as 0.25 hours (15 minutes) for very simple tasks. Most simple read/query functions take 0.5-1 hour. Write/create functions typically take 1-2 hours. Setup tasks typically take 2-3 hours. Only complex multi-step functions with significant business logic should exceed 2 hours.${existingCostingContext}`;
 
-IMPORTANT — Do NOT include any of the following as integrations. These are already part of the existing platform infrastructure and must be excluded:
-- WhatsApp or the WhatsApp Business API (Meta API)
-- Any other messaging channels (web chat, Telegram, SMS, etc.)
-- OpenAI, or any other LLM/AI model provider
-- Any infrastructure for managing the chatbot itself (hosting, deployment, monitoring, message processing, etc.)
-- The chatbot platform or management portal
-- Knowledge ingestion from URLs, PDFs, Word documents, other files, or manual user entry — this capability already exists in the platform
-- Static web scraping or content pulled from specific URLs or sets of URLs — the platform already supports ingesting content from web sources. However, if the scraping is dynamic, intricate, or requires custom logic (e.g. authenticated scraping, real-time data extraction, complex multi-page crawling), then it DOES require an integration.
+  const userPrompt = `## Integrations to Cost
 
-ONLY include integrations with the client's specific external applications, third-party services, or their tenancies with other providers (e.g. their CRM, their calendar system, their booking platform, their accounting software, etc.). Assume all core chatbot infrastructure already exists.${existingCostingContext}`;
+${integrationListText}
 
-  const userPrompt = `Please analyse the following ${source} and provide a detailed breakdown of all integrations and functions required:\n\n${inputText}`;
+## ${source === "concept" ? "Concept" : "Proposal"} Context
+
+The following ${source} text provides context for what functions each integration will need:\n\n${inputText}`;
 
   try {
     const { object } = await generateObject({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       schema: costingSchema,
       system: systemPrompt,
       prompt: userPrompt,

@@ -37,7 +37,7 @@ const saGetAdminUserTableData = async ({
         qb.where("adminUser.name", "ilike", `%${search}%`).orWhere(
           "adminUser.email",
           "ilike",
-          `%${search}%`
+          `%${search}%`,
         );
       }
     });
@@ -77,7 +77,7 @@ const saGetAdminUserTableData = async ({
       "organisation.name as organisationName",
       "adminUser.partnerId",
       "partner.name as partnerName",
-      "lastLoginQuery.lastLogin"
+      "lastLoginQuery.lastLogin",
     )
     .orderBy(sortField, sortDirection)
     .limit(pageSize)

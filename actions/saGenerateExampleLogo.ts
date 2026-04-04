@@ -101,7 +101,7 @@ Write a brief logo prompt (max 1 sentence). Include company name and key visual 
 
     // Step 2: Generate the logo image using image generation tool
     const result = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       prompt: finalPrompt,
       tools: {
         image_generation: openai.tools.imageGeneration({

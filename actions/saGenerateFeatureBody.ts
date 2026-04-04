@@ -98,7 +98,7 @@ Do not include the main title (# ${title}) as that will be added separately.
 Begin your article:`;
 
     const result = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       prompt,
     });
 

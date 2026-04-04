@@ -108,11 +108,38 @@ const saGenerateQuoteConcept = async ({
 
   const partnerName = quote.partnerName || "Our company";
 
+  // Get knowledge sources linked to this quote
+  const quoteKnowledgeSources = await db("quoteKnowledgeSource")
+    .leftJoin(
+      "knowledgeSource",
+      "quoteKnowledgeSource.knowledgeSourceId",
+      "knowledgeSource.id",
+    )
+    .where("quoteKnowledgeSource.quoteId", quoteId)
+    .select(
+      "knowledgeSource.name as itemName",
+      "quoteKnowledgeSource.otherName",
+      "quoteKnowledgeSource.note",
+    )
+    .orderBy("quoteKnowledgeSource.createdAt", "asc");
+
+  // Get integrations linked to this quote
+  const quoteIntegrations = await db("quoteIntegration")
+    .leftJoin("integration", "quoteIntegration.integrationId", "integration.id")
+    .where("quoteIntegration.quoteId", quoteId)
+    .select(
+      "integration.name as itemName",
+      "quoteIntegration.otherName",
+      "quoteIntegration.note",
+    )
+    .orderBy("quoteIntegration.createdAt", "asc");
+
   // Check if there's any specification content to work with
   const hasContent =
     quote.background ||
     quote.objectives ||
-    quote.dataSourcesAndIntegrations ||
+    quoteKnowledgeSources.length > 0 ||
+    quoteIntegrations.length > 0 ||
     quote.otherNotes;
 
   if (!hasContent) {
@@ -137,7 +164,26 @@ const saGenerateQuoteConcept = async ({
 
 ${quote.background ? `### Background\n${quote.background}\n` : ""}
 ${quote.objectives ? `### Objectives\n${quote.objectives}\n` : ""}
-${quote.dataSourcesAndIntegrations ? `### Data Sources & Integrations\n${quote.dataSourcesAndIntegrations}\n` : ""}
+${
+  quoteKnowledgeSources.length > 0
+    ? `### Knowledge Sources\n${quoteKnowledgeSources
+        .map((ks: any) => {
+          const name = ks.itemName || ks.otherName;
+          return ks.note ? `- **${name}**: ${ks.note}` : `- **${name}**`;
+        })
+        .join("\n")}\n`
+    : ""
+}
+${
+  quoteIntegrations.length > 0
+    ? `### Integrations\n${quoteIntegrations
+        .map((i: any) => {
+          const name = i.itemName || i.otherName;
+          return i.note ? `- **${name}**: ${i.note}` : `- **${name}**`;
+        })
+        .join("\n")}\n`
+    : ""
+}
 ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 `.trim();
 
@@ -209,7 +255,7 @@ Write in Markdown format. Use **bold** for emphasis where appropriate. Do not us
       : `Please write a concept introduction for the following client:\n\n${specificationContext}`;
 
     const { text: conceptIntro } = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       system: introSystemPrompt,
       prompt: introPrompt,
     });
@@ -243,6 +289,7 @@ IMPORTANT RULES:
 - This is a written concept document, not a live presentation
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
+- ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
 
 FORMATTING RULES:
 - Structure the concept with clear Markdown headings (## for main sections and ### for subsections).
@@ -335,6 +382,7 @@ IMPORTANT RULES:
 - This is a written concept document, not a live presentation
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
+- ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
 
 FORMATTING RULES:
 - Structure the concept with clear Markdown headings (## for main sections and ### for subsections).
@@ -351,7 +399,7 @@ Make sure to tailor every section to their specific industry and needs based on 
 
     // Generate the main concept
     const { text: concept } = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       system: mainConceptSystemPrompt,
       prompt: mainConceptPrompt,
     });

@@ -94,11 +94,38 @@ const saGenerateQuoteProposal = async ({
   const partnerName = quote.partnerName || "Our company";
   const partnerContext = getPartnerContext(partnerName);
 
+  // Get knowledge sources linked to this quote
+  const quoteKnowledgeSources = await db("quoteKnowledgeSource")
+    .leftJoin(
+      "knowledgeSource",
+      "quoteKnowledgeSource.knowledgeSourceId",
+      "knowledgeSource.id",
+    )
+    .where("quoteKnowledgeSource.quoteId", quoteId)
+    .select(
+      "knowledgeSource.name as itemName",
+      "quoteKnowledgeSource.otherName",
+      "quoteKnowledgeSource.note",
+    )
+    .orderBy("quoteKnowledgeSource.createdAt", "asc");
+
+  // Get integrations linked to this quote
+  const quoteIntegrations = await db("quoteIntegration")
+    .leftJoin("integration", "quoteIntegration.integrationId", "integration.id")
+    .where("quoteIntegration.quoteId", quoteId)
+    .select(
+      "integration.name as itemName",
+      "quoteIntegration.otherName",
+      "quoteIntegration.note",
+    )
+    .orderBy("quoteIntegration.createdAt", "asc");
+
   // Check if there's any specification content to work with
   const hasContent =
     quote.background ||
     quote.objectives ||
-    quote.dataSourcesAndIntegrations ||
+    quoteKnowledgeSources.length > 0 ||
+    quoteIntegrations.length > 0 ||
     quote.otherNotes;
 
   if (!hasContent) {
@@ -123,7 +150,26 @@ const saGenerateQuoteProposal = async ({
 
 ${quote.background ? `### Background\n${quote.background}\n` : ""}
 ${quote.objectives ? `### Objectives\n${quote.objectives}\n` : ""}
-${quote.dataSourcesAndIntegrations ? `### Data Sources & Integrations\n${quote.dataSourcesAndIntegrations}\n` : ""}
+${
+  quoteKnowledgeSources.length > 0
+    ? `### Knowledge Sources\n${quoteKnowledgeSources
+        .map((ks: any) => {
+          const name = ks.itemName || ks.otherName;
+          return ks.note ? `- **${name}**: ${ks.note}` : `- **${name}**`;
+        })
+        .join("\n")}\n`
+    : ""
+}
+${
+  quoteIntegrations.length > 0
+    ? `### Integrations\n${quoteIntegrations
+        .map((i: any) => {
+          const name = i.itemName || i.otherName;
+          return i.note ? `- **${name}**: ${i.note}` : `- **${name}**`;
+        })
+        .join("\n")}\n`
+    : ""
+}
 ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 `.trim();
 
@@ -152,7 +198,7 @@ The introduction should:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for.
+IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided.
 
 Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.
 
@@ -177,7 +223,7 @@ Your task is to write a compelling, professional INTRODUCTION section for a clie
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for.
+IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided.
 
 Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.${
           extraPrompt
@@ -191,7 +237,7 @@ Write in Markdown format. Use **bold** for emphasis. Do not use headings in this
 
     // Generate the introduction
     const { text: introduction } = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       system: introSystemPrompt,
       prompt: introPrompt,
       temperature: 0.7,
@@ -222,7 +268,7 @@ The specification MUST follow this structure:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
+CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
 
 Write in Markdown format. Use ## for numbered section headings, ### for subsections within numbered sections, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.
 
@@ -254,7 +300,7 @@ The specification MUST follow this structure:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements.
+CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
 
 Write in Markdown format. Use ## for numbered section headings, ### for subsections within numbered sections, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.${
           extraPrompt
@@ -268,7 +314,7 @@ Write in Markdown format. Use ## for numbered section headings, ### for subsecti
 
     // Generate the detailed specification
     const { text: specification } = await generateText({
-      model: openai("gpt-5.2"),
+      model: openai("gpt-5.4"),
       system: specSystemPrompt,
       prompt: specPrompt,
       temperature: 0.7,

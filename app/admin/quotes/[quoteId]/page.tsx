@@ -270,6 +270,8 @@ export default async function Page({
                 otherNotes={quote.otherNotes}
                 status={quote.status}
                 isSuperAdmin={isSuperAdmin}
+                quoteIntegrations={quote.quoteIntegrations}
+                quoteKnowledgeSources={quote.quoteKnowledgeSources}
               />
             </TabsContent>
             <TabsContent value="concept">

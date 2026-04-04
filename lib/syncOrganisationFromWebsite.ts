@@ -162,7 +162,7 @@ async function getAboutSummary(
   const openai = new OpenAI({ apiKey });
 
   const response = await openai.responses.create({
-    model: "gpt-5.2",
+    model: "gpt-5.4",
     tools: [
       {
         type: "web_search",
@@ -409,7 +409,7 @@ async function findLogoWithGpt(
   const openai = new OpenAI({ apiKey });
 
   const completion = await openai.chat.completions.create({
-    model: "gpt-5.2",
+    model: "gpt-5.4",
     messages: [
       {
         role: "system",
