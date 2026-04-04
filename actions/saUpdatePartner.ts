@@ -22,6 +22,9 @@ const saUpdatePartner = async ({
   accountsEmail,
   organisationId,
   prototypingAgentId,
+  hourlyRate,
+  monthlyBaseFee,
+  monthlyPerIntegration,
 }: {
   partnerId: string;
   name?: string;
@@ -39,6 +42,9 @@ const saUpdatePartner = async ({
   accountsEmail?: string;
   organisationId?: string | null;
   prototypingAgentId?: string | null;
+  hourlyRate?: number | null;
+  monthlyBaseFee?: number | null;
+  monthlyPerIntegration?: number | null;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -85,6 +91,9 @@ const saUpdatePartner = async ({
     accountsEmail,
     organisationId,
     prototypingAgentId,
+    hourlyRate,
+    monthlyBaseFee,
+    monthlyPerIntegration,
   });
 
   revalidateTag("partners", { expire: 0 });

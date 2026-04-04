@@ -8,9 +8,9 @@ import { CostingBreakdown } from "@/types/types";
 import sendgrid from "@sendgrid/mail";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
-const HOURLY_RATE = 100;
-const MONTHLY_BASE = 150;
-const MONTHLY_PER_INTEGRATION = 50;
+const DEFAULT_HOURLY_RATE = 100;
+const DEFAULT_MONTHLY_BASE = 150;
+const DEFAULT_MONTHLY_PER_INTEGRATION = 50;
 const HOURS_PER_DAY = 5;
 
 const costingSchema = z.object({
@@ -72,6 +72,9 @@ const saGenerateQuoteCosting = async ({
       "organisation.name as organisationName",
       "partner.openAiApiKey",
       "partner.name as partnerName",
+      "partner.hourlyRate",
+      "partner.monthlyBaseFee",
+      "partner.monthlyPerIntegration",
     )
     .where({ "quote.id": quoteId })
     .first();
@@ -86,6 +89,10 @@ const saGenerateQuoteCosting = async ({
       error: "Partner does not have an OpenAI API key configured",
     };
   }
+
+  const hourlyRate = quote.hourlyRate ?? DEFAULT_HOURLY_RATE;
+  const monthlyBase = quote.monthlyBaseFee ?? DEFAULT_MONTHLY_BASE;
+  const monthlyPerIntegration = quote.monthlyPerIntegration ?? DEFAULT_MONTHLY_PER_INTEGRATION;
 
   // Determine input text based on source (used as context for task estimation)
   const inputText =
@@ -124,7 +131,7 @@ const saGenerateQuoteCosting = async ({
       integrations: [],
       totalIntegrationTime: 0,
       totalIntegrationCost: 0,
-      totalMonthly: MONTHLY_BASE,
+      totalMonthly: monthlyBase,
       costingCalculatedFrom: source,
     };
 
@@ -240,9 +247,9 @@ The following ${source} text provides context for what functions each integratio
     const costingBreakdown: CostingBreakdown = {
       integrations: object.integrations,
       totalIntegrationTime,
-      totalIntegrationCost: totalIntegrationTime * HOURLY_RATE,
+      totalIntegrationCost: totalIntegrationTime * hourlyRate,
       totalMonthly:
-        MONTHLY_BASE + object.integrations.length * MONTHLY_PER_INTEGRATION,
+        monthlyBase + object.integrations.length * monthlyPerIntegration,
       costingCalculatedFrom: source,
     };
 

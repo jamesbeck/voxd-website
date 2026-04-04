@@ -89,6 +89,9 @@ export default async function Page({
                 organisationName={organisationName}
                 prototypingAgentId={partner.prototypingAgentId}
                 prototypingAgentLabel={prototypingAgentLabel}
+                hourlyRate={partner.hourlyRate}
+                monthlyBaseFee={partner.monthlyBaseFee}
+                monthlyPerIntegration={partner.monthlyPerIntegration}
               />
             </TabsContent>
             <TabsContent value="quotes">

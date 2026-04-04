@@ -116,6 +116,9 @@ export interface Partner {
   organisationPrimaryColour?: string | null;
   organisationLogoFileExtension?: string | null;
   organisationShowLogoOnColour?: string | null;
+  hourlyRate?: number | null;
+  monthlyBaseFee?: number | null;
+  monthlyPerIntegration?: number | null;
 }
 
 export type CostingBreakdownTask = {

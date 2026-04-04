@@ -40,6 +40,9 @@ const formSchema = z.object({
   accountsEmail: z.string().optional(),
   organisationId: z.string().optional(),
   prototypingAgentId: z.string().optional(),
+  hourlyRate: z.coerce.number().positive().optional().or(z.literal("")),
+  monthlyBaseFee: z.coerce.number().min(0).optional().or(z.literal("")),
+  monthlyPerIntegration: z.coerce.number().min(0).optional().or(z.literal("")),
 });
 
 export default function EditPartnerForm({
@@ -61,6 +64,9 @@ export default function EditPartnerForm({
   organisationName,
   prototypingAgentId,
   prototypingAgentLabel,
+  hourlyRate,
+  monthlyBaseFee,
+  monthlyPerIntegration,
 }: {
   partnerId: string;
   name?: string;
@@ -80,6 +86,9 @@ export default function EditPartnerForm({
   organisationName?: string;
   prototypingAgentId?: string | null;
   prototypingAgentLabel?: string;
+  hourlyRate?: number | null;
+  monthlyBaseFee?: number | null;
+  monthlyPerIntegration?: number | null;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -103,6 +112,9 @@ export default function EditPartnerForm({
       accountsEmail: accountsEmail || "",
       organisationId: organisationId || "",
       prototypingAgentId: prototypingAgentId || "",
+      hourlyRate: hourlyRate ?? "",
+      monthlyBaseFee: monthlyBaseFee ?? "",
+      monthlyPerIntegration: monthlyPerIntegration ?? "",
     },
   });
 
@@ -127,6 +139,9 @@ export default function EditPartnerForm({
       accountsEmail: values.accountsEmail,
       organisationId: values.organisationId || null,
       prototypingAgentId: values.prototypingAgentId || null,
+      hourlyRate: values.hourlyRate === "" ? null : Number(values.hourlyRate) || null,
+      monthlyBaseFee: values.monthlyBaseFee === "" ? null : Number(values.monthlyBaseFee) || null,
+      monthlyPerIntegration: values.monthlyPerIntegration === "" ? null : Number(values.monthlyPerIntegration) || null,
     });
 
     if (!response.success) {
@@ -388,6 +403,50 @@ export default function EditPartnerForm({
               <FormLabel>Legal Email</FormLabel>
               <FormControl>
                 <Input placeholder="legal@partner.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <H2>Pricing</H2>
+
+        <FormField
+          control={form.control}
+          name="hourlyRate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Hourly Rate (£)</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="100" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="monthlyBaseFee"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Monthly Base Fee (£)</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="150" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="monthlyPerIntegration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Monthly Per Integration (£)</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="50" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
