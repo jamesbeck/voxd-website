@@ -40,9 +40,18 @@ const formSchema = z.object({
   accountsEmail: z.string().optional(),
   organisationId: z.string().optional(),
   prototypingAgentId: z.string().optional(),
-  hourlyRate: z.coerce.number().positive().optional().or(z.literal("")),
-  monthlyBaseFee: z.coerce.number().min(0).optional().or(z.literal("")),
-  monthlyPerIntegration: z.coerce.number().min(0).optional().or(z.literal("")),
+  hourlyRate: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().positive().optional(),
+  ),
+  monthlyBaseFee: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().min(0).optional(),
+  ),
+  monthlyPerIntegration: z.preprocess(
+    (v) => (v === "" || v === undefined ? undefined : Number(v)),
+    z.number().min(0).optional(),
+  ),
 });
 
 export default function EditPartnerForm({
