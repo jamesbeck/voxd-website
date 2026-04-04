@@ -92,7 +92,8 @@ const saGenerateQuoteCosting = async ({
 
   const hourlyRate = quote.hourlyRate ?? DEFAULT_HOURLY_RATE;
   const monthlyBase = quote.monthlyBaseFee ?? DEFAULT_MONTHLY_BASE;
-  const monthlyPerIntegration = quote.monthlyPerIntegration ?? DEFAULT_MONTHLY_PER_INTEGRATION;
+  const monthlyPerIntegration =
+    quote.monthlyPerIntegration ?? DEFAULT_MONTHLY_PER_INTEGRATION;
 
   // Determine input text based on source (used as context for task estimation)
   const inputText =

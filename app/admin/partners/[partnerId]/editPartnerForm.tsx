@@ -139,9 +139,16 @@ export default function EditPartnerForm({
       accountsEmail: values.accountsEmail,
       organisationId: values.organisationId || null,
       prototypingAgentId: values.prototypingAgentId || null,
-      hourlyRate: values.hourlyRate === "" ? null : Number(values.hourlyRate) || null,
-      monthlyBaseFee: values.monthlyBaseFee === "" ? null : Number(values.monthlyBaseFee) || null,
-      monthlyPerIntegration: values.monthlyPerIntegration === "" ? null : Number(values.monthlyPerIntegration) || null,
+      hourlyRate:
+        values.hourlyRate === "" ? null : Number(values.hourlyRate) || null,
+      monthlyBaseFee:
+        values.monthlyBaseFee === ""
+          ? null
+          : Number(values.monthlyBaseFee) || null,
+      monthlyPerIntegration:
+        values.monthlyPerIntegration === ""
+          ? null
+          : Number(values.monthlyPerIntegration) || null,
     });
 
     if (!response.success) {
