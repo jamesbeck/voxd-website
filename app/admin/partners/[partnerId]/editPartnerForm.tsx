@@ -42,7 +42,7 @@ const formSchema = z.object({
   prototypingAgentId: z.string().optional(),
   hourlyRate: z.preprocess(
     (v) => (v === "" || v === undefined ? undefined : Number(v)),
-    z.number().positive().optional(),
+    z.number().min(0).optional(),
   ),
   monthlyBaseFee: z.preprocess(
     (v) => (v === "" || v === undefined ? undefined : Number(v)),
@@ -148,16 +148,9 @@ export default function EditPartnerForm({
       accountsEmail: values.accountsEmail,
       organisationId: values.organisationId || null,
       prototypingAgentId: values.prototypingAgentId || null,
-      hourlyRate:
-        values.hourlyRate === "" ? null : Number(values.hourlyRate) || null,
-      monthlyBaseFee:
-        values.monthlyBaseFee === ""
-          ? null
-          : Number(values.monthlyBaseFee) || null,
-      monthlyPerIntegration:
-        values.monthlyPerIntegration === ""
-          ? null
-          : Number(values.monthlyPerIntegration) || null,
+      hourlyRate: values.hourlyRate ?? null,
+      monthlyBaseFee: values.monthlyBaseFee ?? null,
+      monthlyPerIntegration: values.monthlyPerIntegration ?? null,
     });
 
     if (!response.success) {
