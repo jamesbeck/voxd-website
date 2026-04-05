@@ -11,6 +11,8 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 const DEFAULT_HOURLY_RATE = 100;
 const DEFAULT_MONTHLY_BASE = 150;
 const DEFAULT_MONTHLY_PER_INTEGRATION = 50;
+const MINIMUM_SETUP_FEE = 250;
+const MINIMUM_BUILD_DAYS = 1;
 const HOURS_PER_DAY = 5;
 
 const costingSchema = z.object({
@@ -72,7 +74,6 @@ const saGenerateQuoteCosting = async ({
       "organisation.name as organisationName",
       "partner.openAiApiKey",
       "partner.name as partnerName",
-      "partner.hourlyRate",
       "partner.monthlyBaseFee",
       "partner.monthlyPerIntegration",
     )
@@ -90,7 +91,9 @@ const saGenerateQuoteCosting = async ({
     };
   }
 
-  const hourlyRate = quote.hourlyRate ?? DEFAULT_HOURLY_RATE;
+  const hourlyRate = quote.hourlyRateVoxdCost != null
+    ? Number(quote.hourlyRateVoxdCost)
+    : DEFAULT_HOURLY_RATE;
   const monthlyBase = quote.monthlyBaseFee ?? DEFAULT_MONTHLY_BASE;
   const monthlyPerIntegration =
     quote.monthlyPerIntegration ?? DEFAULT_MONTHLY_PER_INTEGRATION;
@@ -128,10 +131,12 @@ const saGenerateQuoteCosting = async ({
 
   // If no integrations, save empty breakdown with zero costs
   if (quoteIntegrations.length === 0) {
+    const setupFeeVoxdCost = MINIMUM_SETUP_FEE;
+
     const costingBreakdown: CostingBreakdown = {
       integrations: [],
       totalIntegrationTime: 0,
-      totalIntegrationCost: 0,
+      totalIntegrationCost: setupFeeVoxdCost,
       totalMonthly: monthlyBase,
       costingCalculatedFrom: source,
     };
@@ -140,18 +145,18 @@ const saGenerateQuoteCosting = async ({
       .where({ id: quoteId })
       .update({
         costingBreakdown: JSON.stringify(costingBreakdown),
-        setupFeeVoxdCost: 0,
+        setupFeeVoxdCost,
         monthlyFeeVoxdCost: costingBreakdown.totalMonthly,
-        buildDays: 0,
+        buildDays: MINIMUM_BUILD_DAYS,
       });
 
     return {
       success: true,
       data: {
         costingBreakdown,
-        setupFeeVoxdCost: 0,
+        setupFeeVoxdCost,
         monthlyFeeVoxdCost: costingBreakdown.totalMonthly,
-        buildDays: 0,
+        buildDays: MINIMUM_BUILD_DAYS,
       },
     };
   }
@@ -243,12 +248,20 @@ The following ${source} text provides context for what functions each integratio
       0,
     );
 
-    const buildDays = Math.ceil(totalIntegrationTime / HOURS_PER_DAY);
+    const buildDays = Math.max(
+      Math.ceil(totalIntegrationTime / HOURS_PER_DAY),
+      MINIMUM_BUILD_DAYS,
+    );
+
+    const totalIntegrationCost = Math.max(
+      totalIntegrationTime * hourlyRate,
+      MINIMUM_SETUP_FEE,
+    );
 
     const costingBreakdown: CostingBreakdown = {
       integrations: object.integrations,
       totalIntegrationTime,
-      totalIntegrationCost: totalIntegrationTime * hourlyRate,
+      totalIntegrationCost,
       totalMonthly:
         monthlyBase + object.integrations.length * monthlyPerIntegration,
       costingCalculatedFrom: source,

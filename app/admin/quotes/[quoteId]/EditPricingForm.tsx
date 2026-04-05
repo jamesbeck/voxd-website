@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
@@ -44,11 +44,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
+import { AlertTriangle, ChevronRight, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const formSchema = z.object({
   setupFee: z.string(),
   monthlyFee: z.string(),
+  hourlyRate: z.string(),
   setupFeeVoxdCost: z.string(),
   monthlyFeeVoxdCost: z.string(),
   buildDays: z.string(),
@@ -62,12 +69,14 @@ export default function EditPricingForm({
   quoteId,
   setupFee,
   monthlyFee,
+  hourlyRate,
   setupFeeVoxdCost,
   monthlyFeeVoxdCost,
   buildDays,
   freeMonthlyMinutes,
   contractLength,
   costingBreakdown,
+  hourlyRateVoxdCost,
   hasGeneratedConcept,
   hasGeneratedProposal,
   isSuperAdmin,
@@ -76,12 +85,14 @@ export default function EditPricingForm({
   quoteId: string;
   setupFee: number | null;
   monthlyFee: number | null;
+  hourlyRate: number | null;
   setupFeeVoxdCost: number | null;
   monthlyFeeVoxdCost: number | null;
   buildDays: number | null;
   freeMonthlyMinutes: number | null;
   contractLength: number | null;
   costingBreakdown: CostingBreakdown | null;
+  hourlyRateVoxdCost: number | null;
   hasGeneratedConcept: boolean;
   hasGeneratedProposal: boolean;
   isSuperAdmin: boolean;
@@ -90,6 +101,8 @@ export default function EditPricingForm({
   const [loading, setLoading] = useState(false);
   const [calculatingCosting, setCalculatingCosting] = useState(false);
   const router = useRouter();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFirstRender = useRef(true);
 
   const canEditPartnerFields = isOwnerPartner || isSuperAdmin;
   const canEditAdminFields = isSuperAdmin;
@@ -111,7 +124,11 @@ export default function EditPricingForm({
     if (!response.success) {
       toast.error(response.error || "Failed to calculate costing");
     } else {
-      toast.success("Costing calculated successfully");
+      toast.success(
+        response.data?.costingBreakdown.integrations.length === 0
+          ? "Costing calculated — no integrations found, setup cost is £0"
+          : "Costing calculated successfully",
+      );
       if (response.data) {
         form.setValue(
           "setupFeeVoxdCost",
@@ -133,6 +150,7 @@ export default function EditPricingForm({
     defaultValues: {
       setupFee: setupFee?.toString() ?? "",
       monthlyFee: monthlyFee?.toString() ?? "",
+      hourlyRate: hourlyRate?.toString() ?? "",
       setupFeeVoxdCost: setupFeeVoxdCost?.toString() ?? "",
       monthlyFeeVoxdCost: monthlyFeeVoxdCost?.toString() ?? "",
       buildDays: buildDays?.toString() ?? "",
@@ -151,6 +169,7 @@ export default function EditPricingForm({
       quoteId: quoteId,
       setupFee: parseValue(values.setupFee),
       monthlyFee: parseValue(values.monthlyFee),
+      hourlyRate: parseValue(values.hourlyRate),
       setupFeeVoxdCost: parseValue(values.setupFeeVoxdCost),
       monthlyFeeVoxdCost: parseValue(values.monthlyFeeVoxdCost),
       buildDays: parseValue(values.buildDays),
@@ -159,8 +178,6 @@ export default function EditPricingForm({
     });
 
     if (!response.success) {
-      setLoading(false);
-
       if (response.error) {
         toast.error("There was an error updating the quote pricing");
 
@@ -187,28 +204,69 @@ export default function EditPricingForm({
     setLoading(false);
   }
 
+  const watchedValues = form.watch();
+
+  // Calculate margins (partner fee - voxd cost)
+  const setupMargin =
+    (Number(watchedValues.setupFee) || 0) -
+    (Number(watchedValues.setupFeeVoxdCost) || 0);
+  const monthlyMargin =
+    (Number(watchedValues.monthlyFee) || 0) -
+    (Number(watchedValues.monthlyFeeVoxdCost) || 0);
+  const hourlyMargin =
+    (Number(watchedValues.hourlyRate) || 0) -
+    (hourlyRateVoxdCost ?? 0);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (calculatingCosting) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      form.handleSubmit(onSubmit)();
+    }, 800);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [JSON.stringify(watchedValues)]);
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form className="space-y-8">
         {/* Partner editable fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FormField
             control={form.control}
             name="setupFee"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Setup Fee</FormLabel>
+                <FormLabel className="text-lg font-semibold inline-flex items-center gap-1">
+                  Setup Fee
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help shrink-0" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-sm">
+                        One-time setup fee that you will charge to the customer
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     placeholder="0"
+                    className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
                     {...field}
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
-                <FormDescription>
-                  One-time setup fee charged to the customer
-                </FormDescription>
+                <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${setupMargin > 0 ? "bg-green-600" : "bg-red-600"}`}>
+                  Margin: &pound;{setupMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
                 <FormMessage />
               </FormItem>
             )}
@@ -219,152 +277,348 @@ export default function EditPricingForm({
             name="monthlyFee"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Monthly Fee</FormLabel>
+                <FormLabel className="text-lg font-semibold inline-flex items-center gap-1">
+                  Monthly Fee
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help shrink-0" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-sm">
+                        Recurring monthly fee that you will charge to the customer
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     placeholder="0"
+                    className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
                     {...field}
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
-                <FormDescription>
-                  Recurring monthly fee charged to the customer
-                </FormDescription>
+                <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${monthlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}>
+                  Margin: &pound;{monthlyMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="hourlyRate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-semibold inline-flex items-center gap-1">
+                  Hourly Rate
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help shrink-0" />
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="text-sm">
+                        Hourly rate that you will charge for future changes
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
+                    {...field}
+                    disabled={!canEditPartnerFields}
+                  />
+                </FormControl>
+                <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${hourlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}>
+                  Margin: &pound;{hourlyMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
 
-        {/* Admin-only editable fields (visible to partners but not editable) */}
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-medium mb-4">Voxd Costs</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="setupFeeVoxdCost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Setup Fee (Voxd Cost)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...field}
-                      disabled={!canEditAdminFields}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Voxd&apos;s cost for setup (Voxd only)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Voxd Costs - editable form for super admin, professional read-only card for others */}
+        {canEditAdminFields ? (
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-medium mb-4">Voxd Costs</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="setupFeeVoxdCost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Setup Fee (Voxd Cost)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Voxd&apos;s cost for setup
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="monthlyFeeVoxdCost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Monthly Fee (Voxd Cost)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...field}
-                      disabled={!canEditAdminFields}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Voxd&apos;s monthly cost (Voxd only)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="monthlyFeeVoxdCost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Monthly Fee (Voxd Cost)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0" {...field} />
+                    </FormControl>
+                    <FormDescription>Voxd&apos;s monthly cost</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="freeMonthlyMinutes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Free Monthly Minutes</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...field}
-                      disabled={!canEditAdminFields}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Free minutes included per month (Voxd only)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="freeMonthlyMinutes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Free Monthly Minutes</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Free minutes included per month
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="contractLength"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contract Length (months)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...field}
-                      disabled={!canEditAdminFields}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Contract length in months (Voxd only)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="contractLength"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contract Length (months)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0" {...field} />
+                    </FormControl>
+                    <FormDescription>Contract length in months</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="buildDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Build Days</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="0" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Days required to build this chatbot
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-        </div>
-
-        {/* Build Days - Separated section, visible to all, editable by super admin only */}
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-medium mb-4">Build Estimate</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="buildDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Build Days</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0"
-                      {...field}
-                      disabled={!canEditAdminFields}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    The number of days required to build this chatbot and its
-                    integrations (Voxd only)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-
-        {canEditPartnerFields && (
-          <Button type="submit" disabled={loading}>
-            {loading && <Spinner className="mr-2" />}
-            Save Pricing
-          </Button>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Voxd Service Pricing</CardTitle>
+              <CardDescription>
+                What your partner account will be charged by Voxd for this
+                chatbot
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                    Setup Cost
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-sm">
+                          This is due in full before project commencement.
+                          Minimum &pound;250.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {setupFeeVoxdCost != null ? (
+                      <>
+                        {costingBreakdown?.costingCalculatedFrom === "concept" && "~"}
+                        &pound;
+                        {setupFeeVoxdCost.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">&mdash;</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {costingBreakdown &&
+                    costingBreakdown.totalIntegrationTime > 0 ? (
+                      <>
+                        {costingBreakdown.totalIntegrationTime}h @ &pound;
+                        {(hourlyRateVoxdCost ?? 0).toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 2,
+                        })}
+                        /hr
+                      </>
+                    ) : (
+                      "one-time"
+                    )}
+                  </p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                    Monthly Cost
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-sm">
+                          From completion of development.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {monthlyFeeVoxdCost != null ? (
+                      <>
+                        {costingBreakdown?.costingCalculatedFrom === "concept" && "~"}
+                        &pound;
+                        {monthlyFeeVoxdCost.toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">&mdash;</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    per month
+                  </p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Free Minutes
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {freeMonthlyMinutes != null ? (
+                      freeMonthlyMinutes.toLocaleString()
+                    ) : (
+                      <span className="text-muted-foreground">&mdash;</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    per month
+                  </p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                    Contract Length
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-sm">
+                          This can be reduced on request with good
+                          justification.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {contractLength != null ? (
+                      contractLength
+                    ) : (
+                      <span className="text-muted-foreground">&mdash;</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">months</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                    Build Time
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-sm">
+                          Working days from payment of setup costs. Minimum 1
+                          day.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {buildDays != null ? (
+                      <>
+                        {costingBreakdown?.costingCalculatedFrom === "concept" && "~"}
+                        {buildDays}
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">&mdash;</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">days</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-muted/50">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Hourly Rate
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {hourlyRateVoxdCost != null ? (
+                      <>
+                        &pound;
+                        {hourlyRateVoxdCost.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 2,
+                        })}
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">&mdash;</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    per hour for future changes
+                  </p>
+                </div>
+              </div>
+              {costingBreakdown &&
+                costingBreakdown.costingCalculatedFrom === "concept" && (
+                  <Alert variant="destructive" className="mt-4 bg-destructive text-white [&>svg]:text-white [&>svg~*]:text-white [&_[data-slot=alert-description]]:text-white">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      These costs have been estimated from the concept. For
+                      accurate pricing, generate or write a full proposal for
+                      the client.
+                    </AlertDescription>
+                  </Alert>
+                )}
+            </CardContent>
+          </Card>
         )}
       </form>
 
@@ -372,7 +626,13 @@ export default function EditPricingForm({
         <div className="border-t pt-6 mt-8">
           <div className="flex items-center gap-3 mb-4">
             <h3 className="text-lg font-medium">Cost Breakdown</h3>
-            <Badge variant="secondary">
+            <Badge
+              variant={
+                costingBreakdown.costingCalculatedFrom === "concept"
+                  ? "destructive"
+                  : "secondary"
+              }
+            >
               Calculated from {costingBreakdown.costingCalculatedFrom}
             </Badge>
             {costingSource && (
@@ -389,109 +649,112 @@ export default function EditPricingForm({
             )}
           </div>
 
-          <div className="space-y-4">
-            {costingBreakdown.integrations.map((integration, i) => {
+          <div className="space-y-2">
+            {costingBreakdown.integrations.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                This quote does not have any integrations defined, it will be a
+                standalone agent. If this is incorrect, add some in the
+                specification tab.
+              </p>
+            ) : (
+            costingBreakdown.integrations.map((integration, i) => {
               const integrationHours = integration.tasks.reduce(
                 (sum, task) => sum + task.hours,
                 0,
               );
+              const integrationCost = integrationHours * (hourlyRateVoxdCost ?? 0);
               return (
-                <Card key={i}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">
-                      {integration.name}
-                    </CardTitle>
-                    <CardDescription>
-                      {integration.tasks.length} task
-                      {integration.tasks.length !== 1 ? "s" : ""} &middot;{" "}
-                      {integrationHours} hour
-                      {integrationHours !== 1 ? "s" : ""} total
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Task</TableHead>
-                          <TableHead className="text-right w-[80px]">
-                            Hours
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {integration.tasks.map((task, j) => (
-                          <TableRow key={j}>
-                            <TableCell className="font-medium">
-                              <span className="inline-flex items-center gap-1.5">
-                                {task.name}
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
-                                    </TooltipTrigger>
-                                    <TooltipContent
-                                      side="top"
-                                      className="max-w-xs text-sm"
-                                    >
-                                      {task.description}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {task.hours}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                      <TableFooter>
-                        <TableRow>
-                          <TableCell>Subtotal</TableCell>
-                          <TableCell className="text-right font-medium">
-                            {integrationHours}h
-                          </TableCell>
-                        </TableRow>
-                      </TableFooter>
-                    </Table>
-                  </CardContent>
-                </Card>
+                <Collapsible key={i}>
+                  <Card className="p-0">
+                    <CollapsibleTrigger asChild>
+                      <button className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform [[data-state=open]>&]:rotate-90" />
+                          <div>
+                            <p className="font-medium text-sm">
+                              {integration.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {integration.tasks.length} task
+                              {integration.tasks.length !== 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-6 text-sm">
+                          <div className="text-right">
+                            <p className="font-medium">{integrationHours}h</p>
+                          </div>
+                          <div className="text-right min-w-[80px]">
+                            <p className="font-medium">
+                              &pound;
+                              {integrationCost.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent className="pt-0 px-4 pb-3">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Task</TableHead>
+                              <TableHead className="text-right w-[80px]">
+                                Hours
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {integration.tasks.map((task, j) => (
+                              <TableRow key={j}>
+                                <TableCell className="font-medium">
+                                  <span className="inline-flex items-center gap-1.5">
+                                    {task.name}
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                                        </TooltipTrigger>
+                                        <TooltipContent
+                                          side="top"
+                                          className="max-w-xs text-sm"
+                                        >
+                                          {task.description}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  </span>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                  {task.hours}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                          <TableFooter>
+                            <TableRow>
+                              <TableCell>Subtotal</TableCell>
+                              <TableCell className="text-right font-medium">
+                                {integrationHours}h &middot; &pound;
+                                {integrationCost.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </TableCell>
+                            </TableRow>
+                          </TableFooter>
+                        </Table>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
               );
-            })}
+            })
+            )}
           </div>
-
-          <Card className="mt-4">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground">Total Hours</p>
-                  <p className="text-2xl font-bold">
-                    {costingBreakdown.totalIntegrationTime}h
-                  </p>
-                </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground">Setup Cost</p>
-                  <p className="text-2xl font-bold">
-                    &pound;
-                    {costingBreakdown.totalIntegrationCost.toLocaleString(
-                      undefined,
-                      { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-                    )}
-                  </p>
-                </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground">Monthly Cost</p>
-                  <p className="text-2xl font-bold">
-                    &pound;
-                    {costingBreakdown.totalMonthly.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       )}
 

@@ -45,11 +45,13 @@ const saCreateQuote = async (input: {
 
   // Get the organisation with partner info
   const organisation = await db("organisation")
+    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .where("organisation.id", organisationId)
     .select(
       "organisation.about",
       "organisation.logoFileExtension",
       db.raw('organisation."showLogoOnColour"'),
+      "partner.hourlyRate",
     )
     .first();
 
@@ -63,6 +65,7 @@ const saCreateQuote = async (input: {
         createdByAdminUserId: accessToken.adminUserId,
         background: organisation?.about || null,
         shortLinkId,
+        hourlyRateVoxdCost: organisation?.hourlyRate ?? null,
       })
       .returning("id");
 

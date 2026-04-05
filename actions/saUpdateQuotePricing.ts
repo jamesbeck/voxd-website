@@ -8,6 +8,7 @@ const saUpdateQuotePricing = async ({
   quoteId,
   setupFee,
   monthlyFee,
+  hourlyRate,
   setupFeeVoxdCost,
   monthlyFeeVoxdCost,
   buildDays,
@@ -17,6 +18,7 @@ const saUpdateQuotePricing = async ({
   quoteId: string;
   setupFee?: number | null;
   monthlyFee?: number | null;
+  hourlyRate?: number | null;
   setupFeeVoxdCost?: number | null;
   monthlyFeeVoxdCost?: number | null;
   buildDays?: number | null;
@@ -65,6 +67,7 @@ const saUpdateQuotePricing = async ({
   if (isOwnerPartner || isSuperAdmin) {
     if (setupFee !== undefined) updateData.setupFee = setupFee;
     if (monthlyFee !== undefined) updateData.monthlyFee = monthlyFee;
+    if (hourlyRate !== undefined) updateData.hourlyRate = hourlyRate;
   }
 
   // Only super admins can update the Voxd cost fields, buildDays, freeMonthlyMinutes, and contractLength

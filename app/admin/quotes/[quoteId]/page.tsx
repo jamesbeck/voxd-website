@@ -301,12 +301,14 @@ export default async function Page({
                 quoteId={quote.id}
                 setupFee={quote.setupFee}
                 monthlyFee={quote.monthlyFee}
+                hourlyRate={quote.hourlyRate}
                 setupFeeVoxdCost={quote.setupFeeVoxdCost}
                 monthlyFeeVoxdCost={quote.monthlyFeeVoxdCost}
                 buildDays={quote.buildDays}
                 freeMonthlyMinutes={quote.freeMonthlyMinutes}
                 contractLength={quote.contractLength}
                 costingBreakdown={quote.costingBreakdown}
+                hourlyRateVoxdCost={quote.hourlyRateVoxdCost}
                 hasGeneratedConcept={!!quote.generatedConcept}
                 hasGeneratedProposal={!!quote.generatedSpecification}
                 isSuperAdmin={isSuperAdmin}

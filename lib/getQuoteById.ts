@@ -61,6 +61,8 @@ export type Quote = {
   freeMonthlyMinutes: number | null;
   contractLength: number | null;
   costingBreakdown: CostingBreakdown | null;
+  hourlyRate: number | null;
+  hourlyRateVoxdCost: number | null;
   quoteIntegrations: QuoteLinkedItem[];
   quoteKnowledgeSources: QuoteLinkedItem[];
 };
