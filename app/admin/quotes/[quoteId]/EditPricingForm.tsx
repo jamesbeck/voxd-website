@@ -214,8 +214,7 @@ export default function EditPricingForm({
     (Number(watchedValues.monthlyFee) || 0) -
     (Number(watchedValues.monthlyFeeVoxdCost) || 0);
   const hourlyMargin =
-    (Number(watchedValues.hourlyRate) || 0) -
-    (hourlyRateVoxdCost ?? 0);
+    (Number(watchedValues.hourlyRate) || 0) - (hourlyRateVoxdCost ?? 0);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -264,8 +263,14 @@ export default function EditPricingForm({
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
-                <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${setupMargin > 0 ? "bg-green-600" : "bg-red-600"}`}>
-                  Margin: &pound;{setupMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <span
+                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${setupMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
+                >
+                  Margin: &pound;
+                  {setupMargin.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
                 <FormMessage />
               </FormItem>
@@ -285,7 +290,8 @@ export default function EditPricingForm({
                         <Info className="h-4 w-4 text-muted-foreground cursor-help shrink-0" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="text-sm">
-                        Recurring monthly fee that you will charge to the customer
+                        Recurring monthly fee that you will charge to the
+                        customer
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -299,8 +305,14 @@ export default function EditPricingForm({
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
-                <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${monthlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}>
-                  Margin: &pound;{monthlyMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <span
+                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${monthlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
+                >
+                  Margin: &pound;
+                  {monthlyMargin.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
                 <FormMessage />
               </FormItem>
@@ -334,8 +346,14 @@ export default function EditPricingForm({
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
-                <span className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${hourlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}>
-                  Margin: &pound;{hourlyMargin.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <span
+                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${hourlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
+                >
+                  Margin: &pound;
+                  {hourlyMargin.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
                 <FormMessage />
               </FormItem>
@@ -459,7 +477,8 @@ export default function EditPricingForm({
                   <p className="text-2xl font-bold">
                     {setupFeeVoxdCost != null ? (
                       <>
-                        {costingBreakdown?.costingCalculatedFrom === "concept" && "~"}
+                        {costingBreakdown?.costingCalculatedFrom ===
+                          "concept" && "~"}
                         &pound;
                         {setupFeeVoxdCost.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
@@ -503,7 +522,8 @@ export default function EditPricingForm({
                   <p className="text-2xl font-bold">
                     {monthlyFeeVoxdCost != null ? (
                       <>
-                        {costingBreakdown?.costingCalculatedFrom === "concept" && "~"}
+                        {costingBreakdown?.costingCalculatedFrom ===
+                          "concept" && "~"}
                         &pound;
                         {monthlyFeeVoxdCost.toLocaleString(undefined, {
                           minimumFractionDigits: 2,
@@ -575,7 +595,8 @@ export default function EditPricingForm({
                   <p className="text-2xl font-bold">
                     {buildDays != null ? (
                       <>
-                        {costingBreakdown?.costingCalculatedFrom === "concept" && "~"}
+                        {costingBreakdown?.costingCalculatedFrom ===
+                          "concept" && "~"}
                         {buildDays}
                       </>
                     ) : (
@@ -608,7 +629,10 @@ export default function EditPricingForm({
               </div>
               {costingBreakdown &&
                 costingBreakdown.costingCalculatedFrom === "concept" && (
-                  <Alert variant="destructive" className="mt-4 bg-destructive text-white [&>svg]:text-white [&>svg~*]:text-white [&_[data-slot=alert-description]]:text-white">
+                  <Alert
+                    variant="destructive"
+                    className="mt-4 bg-destructive text-white [&>svg]:text-white [&>svg~*]:text-white [&_[data-slot=alert-description]]:text-white"
+                  >
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
                       These costs have been estimated from the concept. For
@@ -657,102 +681,103 @@ export default function EditPricingForm({
                 specification tab.
               </p>
             ) : (
-            costingBreakdown.integrations.map((integration, i) => {
-              const integrationHours = integration.tasks.reduce(
-                (sum, task) => sum + task.hours,
-                0,
-              );
-              const integrationCost = integrationHours * (hourlyRateVoxdCost ?? 0);
-              return (
-                <Collapsible key={i}>
-                  <Card className="p-0">
-                    <CollapsibleTrigger asChild>
-                      <button className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform [[data-state=open]>&]:rotate-90" />
-                          <div>
-                            <p className="font-medium text-sm">
-                              {integration.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {integration.tasks.length} task
-                              {integration.tasks.length !== 1 ? "s" : ""}
-                            </p>
+              costingBreakdown.integrations.map((integration, i) => {
+                const integrationHours = integration.tasks.reduce(
+                  (sum, task) => sum + task.hours,
+                  0,
+                );
+                const integrationCost =
+                  integrationHours * (hourlyRateVoxdCost ?? 0);
+                return (
+                  <Collapsible key={i}>
+                    <Card className="p-0">
+                      <CollapsibleTrigger asChild>
+                        <button className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform [[data-state=open]>&]:rotate-90" />
+                            <div>
+                              <p className="font-medium text-sm">
+                                {integration.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {integration.tasks.length} task
+                                {integration.tasks.length !== 1 ? "s" : ""}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-6 text-sm">
-                          <div className="text-right">
-                            <p className="font-medium">{integrationHours}h</p>
-                          </div>
-                          <div className="text-right min-w-[80px]">
-                            <p className="font-medium">
-                              &pound;
-                              {integrationCost.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <CardContent className="pt-0 px-4 pb-3">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Task</TableHead>
-                              <TableHead className="text-right w-[80px]">
-                                Hours
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {integration.tasks.map((task, j) => (
-                              <TableRow key={j}>
-                                <TableCell className="font-medium">
-                                  <span className="inline-flex items-center gap-1.5">
-                                    {task.name}
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
-                                        </TooltipTrigger>
-                                        <TooltipContent
-                                          side="top"
-                                          className="max-w-xs text-sm"
-                                        >
-                                          {task.description}
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  </span>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  {task.hours}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                          <TableFooter>
-                            <TableRow>
-                              <TableCell>Subtotal</TableCell>
-                              <TableCell className="text-right font-medium">
-                                {integrationHours}h &middot; &pound;
+                          <div className="flex items-center gap-6 text-sm">
+                            <div className="text-right">
+                              <p className="font-medium">{integrationHours}h</p>
+                            </div>
+                            <div className="text-right min-w-[80px]">
+                              <p className="font-medium">
+                                &pound;
                                 {integrationCost.toLocaleString(undefined, {
                                   minimumFractionDigits: 2,
                                   maximumFractionDigits: 2,
                                 })}
-                              </TableCell>
-                            </TableRow>
-                          </TableFooter>
-                        </Table>
-                      </CardContent>
-                    </CollapsibleContent>
-                  </Card>
-                </Collapsible>
-              );
-            })
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="pt-0 px-4 pb-3">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Task</TableHead>
+                                <TableHead className="text-right w-[80px]">
+                                  Hours
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {integration.tasks.map((task, j) => (
+                                <TableRow key={j}>
+                                  <TableCell className="font-medium">
+                                    <span className="inline-flex items-center gap-1.5">
+                                      {task.name}
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                                          </TooltipTrigger>
+                                          <TooltipContent
+                                            side="top"
+                                            className="max-w-xs text-sm"
+                                          >
+                                            {task.description}
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    </span>
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    {task.hours}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                            <TableFooter>
+                              <TableRow>
+                                <TableCell>Subtotal</TableCell>
+                                <TableCell className="text-right font-medium">
+                                  {integrationHours}h &middot; &pound;
+                                  {integrationCost.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </TableCell>
+                              </TableRow>
+                            </TableFooter>
+                          </Table>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                );
+              })
             )}
           </div>
         </div>

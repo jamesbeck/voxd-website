@@ -91,9 +91,10 @@ const saGenerateQuoteCosting = async ({
     };
   }
 
-  const hourlyRate = quote.hourlyRateVoxdCost != null
-    ? Number(quote.hourlyRateVoxdCost)
-    : DEFAULT_HOURLY_RATE;
+  const hourlyRate =
+    quote.hourlyRateVoxdCost != null
+      ? Number(quote.hourlyRateVoxdCost)
+      : DEFAULT_HOURLY_RATE;
   const monthlyBase = quote.monthlyBaseFee ?? DEFAULT_MONTHLY_BASE;
   const monthlyPerIntegration =
     quote.monthlyPerIntegration ?? DEFAULT_MONTHLY_PER_INTEGRATION;
