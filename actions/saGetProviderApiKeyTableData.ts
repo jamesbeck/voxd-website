@@ -68,6 +68,15 @@ const saGetProviderApiKeyTableData = async ({
       "providerApiKey.organisationId",
       "provider.name as providerName",
       "organisation.name as organisationName",
+      db.raw(
+        `(SELECT COUNT(*) FROM "providerApiKey" AS pk2 WHERE pk2."key" = "providerApiKey"."key" AND pk2."organisationId" != "providerApiKey"."organisationId")::int as "duplicateKeyCount"`,
+      ),
+      db.raw(
+        `COALESCE((SELECT json_agg(json_build_object('id', a."id", 'name', a."niceName")) FROM "agent" a WHERE a."providerApiKeyId" = "providerApiKey"."id"), '[]'::json) as "agents"`,
+      ),
+      db.raw(
+        `COALESCE((SELECT json_agg(json_build_object('id', p."id", 'name', p."name")) FROM "partner" p WHERE p."providerApiKeyId" = "providerApiKey"."id"), '[]'::json) as "partners"`,
+      ),
     )
     .orderBy(sortField, sortDirection)
     .limit(pageSize)

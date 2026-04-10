@@ -26,7 +26,14 @@ export default function ProviderApiKeysTable({
       label: "Key",
       name: "key",
       format: (row: any) => (
-        <span className="font-mono text-xs">{maskKey(row.key)}</span>
+        <span className="font-mono text-xs">
+          {maskKey(row.key)}
+          {row.duplicateKeyCount > 0 && (
+            <span className="ml-2 text-red-600 font-semibold">
+              {row.duplicateKeyCount}
+            </span>
+          )}
+        </span>
       ),
     },
     {
@@ -39,6 +46,46 @@ export default function ProviderApiKeysTable({
             {row.organisationName}
           </TableLink>
         ) : null,
+    },
+    {
+      label: "Agents",
+      name: "agents",
+      format: (row: any) => {
+        const agents = row.agents || [];
+        if (agents.length === 0) return null;
+        return (
+          <span className="text-xs">
+            {agents.map((a: any, i: number) => (
+              <span key={a.id}>
+                {i > 0 && ", "}
+                <TableLink href={`/admin/agents/${a.id}`}>
+                  {a.name}
+                </TableLink>
+              </span>
+            ))}
+          </span>
+        );
+      },
+    },
+    {
+      label: "Partners",
+      name: "partners",
+      format: (row: any) => {
+        const partners = row.partners || [];
+        if (partners.length === 0) return null;
+        return (
+          <span className="text-xs">
+            {partners.map((p: any, i: number) => (
+              <span key={p.id}>
+                {i > 0 && ", "}
+                <TableLink href={`/admin/partners/${p.id}`}>
+                  {p.name}
+                </TableLink>
+              </span>
+            ))}
+          </span>
+        );
+      },
     },
     {
       label: "Created",
