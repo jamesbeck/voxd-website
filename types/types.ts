@@ -119,6 +119,7 @@ export interface Partner {
   hourlyRate?: number | null;
   monthlyBaseFee?: number | null;
   monthlyPerIntegration?: number | null;
+  sendEmailFromDomainVerified?: boolean | null;
 }
 
 export type CostingBreakdownTask = {

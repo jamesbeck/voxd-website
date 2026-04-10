@@ -1,11 +1,14 @@
 import Link from "next/link";
 import H1 from "@/components/adminui/H1";
-import PartnersTable from "./partnersTable";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import { Button } from "@/components/ui/button";
+import PartnersContent from "./partnersContent";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page() {
+  const token = await verifyAccessToken();
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -14,15 +17,11 @@ export default async function Page() {
           { label: "Partners" },
         ]}
       />
-      <H1>Manage Partners</H1>
-
-      <div className="flex justify-end">
+      <PartnersContent superAdmin={!!token.superAdmin}>
         <Button asChild>
           <Link href="/admin/partners/new">New Partner</Link>
         </Button>
-      </div>
-
-      <PartnersTable />
+      </PartnersContent>
     </Container>
   );
 }

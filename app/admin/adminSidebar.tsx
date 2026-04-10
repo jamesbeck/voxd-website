@@ -21,6 +21,7 @@ import {
   Paperclip,
   BookOpen,
   Plug,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -80,6 +81,12 @@ const menuItems: MenuItem[] = [
     title: "Quotes",
     url: "/admin/quotes",
     icon: FileText,
+  },
+  {
+    roles: ["partner"],
+    title: "Partner Profile",
+    url: "/admin/partner-profile",
+    icon: Settings,
   },
   {
     title: "Agents",
