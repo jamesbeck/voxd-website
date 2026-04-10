@@ -58,9 +58,7 @@ export default function ProviderApiKeysTable({
             {agents.map((a: any, i: number) => (
               <span key={a.id}>
                 {i > 0 && ", "}
-                <TableLink href={`/admin/agents/${a.id}`}>
-                  {a.name}
-                </TableLink>
+                <TableLink href={`/admin/agents/${a.id}`}>{a.name}</TableLink>
               </span>
             ))}
           </span>
@@ -78,9 +76,7 @@ export default function ProviderApiKeysTable({
             {partners.map((p: any, i: number) => (
               <span key={p.id}>
                 {i > 0 && ", "}
-                <TableLink href={`/admin/partners/${p.id}`}>
-                  {p.name}
-                </TableLink>
+                <TableLink href={`/admin/partners/${p.id}`}>{p.name}</TableLink>
               </span>
             ))}
           </span>
