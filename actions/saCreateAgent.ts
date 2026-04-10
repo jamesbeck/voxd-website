@@ -6,11 +6,11 @@ import { ServerActionResponse } from "@/types/types";
 const saCreateAgent = async ({
   name,
   niceName,
-  openAiApiKey,
+  providerApiKeyId,
 }: {
   name: string;
   niceName: string;
-  openAiApiKey?: string;
+  providerApiKeyId?: string;
 }): Promise<ServerActionResponse> => {
   //check agent name is unique
   const existingAgentByName = await db("agent")
@@ -32,7 +32,7 @@ const saCreateAgent = async ({
     .insert({
       name,
       niceName,
-      openAiApiKey,
+      providerApiKeyId: providerApiKeyId || null,
       targetMessageLengthCharacters: 130,
       maxMessageHistory: 50,
       autoCloseSessionAfterSeconds: 86400,

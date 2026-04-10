@@ -27,12 +27,13 @@ const saUpdateKnowledgeBlock = async ({
       "knowledgeDocument.id",
     )
     .join("agent", "knowledgeDocument.agentId", "agent.id")
+    .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .where("knowledgeBlock.id", blockId)
     .select(
       "knowledgeBlock.*",
       "knowledgeDocument.agentId",
       "knowledgeDocument.title as documentTitle",
-      "agent.openAiApiKey",
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
     )
     .first();
 
@@ -48,10 +49,10 @@ const saUpdateKnowledgeBlock = async ({
     return { success: false, error: "Unauthorized" };
   }
 
-  if (!block.openAiApiKey) {
+  if (!block.providerApiKey) {
     return {
       success: false,
-      error: "Agent does not have an OpenAI API key configured",
+      error: "Agent does not have a provider API key configured",
     };
   }
 
@@ -69,7 +70,7 @@ const saUpdateKnowledgeBlock = async ({
   let embeddingVector: number[] | null = null;
   let tokenCount: number | null = null;
   try {
-    const openai = createOpenAI({ apiKey: block.openAiApiKey });
+    const openai = createOpenAI({ apiKey: block.providerApiKey });
     const { embedding, usage } = await embed({
       model: openai.embedding("text-embedding-3-small"),
       value: embeddingText,

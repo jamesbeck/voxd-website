@@ -12,7 +12,7 @@ const cloneAgentSchema = z.object({
   niceName: z.string().min(1, "Nice name is required"),
   organisationId: z.string().min(1, "Organisation is required"),
   phoneNumberId: z.string().optional().nullable(),
-  openAiApiKey: z.string().optional().nullable(),
+  providerApiKeyId: z.string().optional().nullable(),
 });
 
 const saCloneAgent = async (input: {
@@ -21,7 +21,7 @@ const saCloneAgent = async (input: {
   niceName: string;
   organisationId: string;
   phoneNumberId?: string | null;
-  openAiApiKey?: string | null;
+  providerApiKeyId?: string | null;
 }): Promise<ServerActionResponse> => {
   const parsed = cloneAgentSchema.safeParse(input);
   if (!parsed.success) {
@@ -37,7 +37,7 @@ const saCloneAgent = async (input: {
     niceName,
     organisationId,
     phoneNumberId,
-    openAiApiKey,
+    providerApiKeyId,
   } = parsed.data;
 
   const accessToken = await verifyAccessToken();
@@ -62,11 +62,11 @@ const saCloneAgent = async (input: {
       };
     }
 
-    // Determine OpenAI API key
-    const resolvedOpenAiApiKey =
+    // Determine provider API key
+    const resolvedProviderApiKeyId =
       organisationId === sourceAgent.organisationId
-        ? sourceAgent.openAiApiKey
-        : openAiApiKey || null;
+        ? sourceAgent.providerApiKeyId
+        : providerApiKeyId || null;
 
     // Use a transaction for the entire clone operation
     const newAgentId = await db.transaction(async (trx) => {
@@ -77,7 +77,7 @@ const saCloneAgent = async (input: {
           niceName,
           organisationId,
           phoneNumberId: phoneNumberId || null,
-          openAiApiKey: resolvedOpenAiApiKey,
+          providerApiKeyId: resolvedProviderApiKeyId,
           targetMessageLengthCharacters:
             sourceAgent.targetMessageLengthCharacters,
           maxMessageHistory: sourceAgent.maxMessageHistory,

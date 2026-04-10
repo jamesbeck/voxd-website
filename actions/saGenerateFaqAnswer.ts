@@ -29,7 +29,7 @@ const saGenerateFaqAnswer = async ({
     return { success: false, error: "Question is required" };
   }
 
-  // Get the partner's OpenAI API key
+  // Get the partner's provider API key
   if (!accessToken.partnerId) {
     return {
       success: false,
@@ -38,20 +38,21 @@ const saGenerateFaqAnswer = async ({
   }
 
   const partner = await db("partner")
-    .where("id", accessToken.partnerId)
-    .select("openAiApiKey")
+    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
+    .where("partner.id", accessToken.partnerId)
+    .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
     .first();
 
-  if (!partner?.openAiApiKey) {
+  if (!partner?.providerApiKey) {
     return {
       success: false,
       error:
-        "Your partner account does not have an OpenAI API key configured. Please contact an administrator.",
+        "Your partner account does not have a provider API key configured. Please contact an administrator.",
     };
   }
 
   const openai = createOpenAI({
-    apiKey: partner.openAiApiKey,
+    apiKey: partner.providerApiKey,
   });
 
   const systemPrompt = `You are an expert FAQ writer for Voxd, a company that provides WhatsApp-based AI chatbot services for businesses.

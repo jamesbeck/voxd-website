@@ -32,22 +32,23 @@ async function generateMissingFeatureBodies() {
   });
   console.log("");
 
-  // Get OpenAI API key from a partner in the database
+  // Get provider API key from a partner in the database
   const partner = await db("partner")
-    .whereNotNull("openAiApiKey")
-    .select("openAiApiKey")
+    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
+    .whereNotNull("providerApiKey.key")
+    .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
     .first();
 
-  if (!partner?.openAiApiKey) {
+  if (!partner?.providerApiKey) {
     console.error(
-      "❌ Error: No partner found with an OpenAI API key configured",
+      "❌ Error: No partner found with a provider API key configured",
     );
     await db.destroy();
     process.exit(1);
   }
 
-  const openAiApiKey = partner.openAiApiKey;
-  console.log("✅ Found OpenAI API key from partner\n");
+  const providerApiKey = partner.providerApiKey;
+  console.log("✅ Found provider API key from partner\n");
 
   // Read the what-is-voxd.md file
   const voxdInfoPath = path.join(process.cwd(), ".github", "what-is-voxd.md");
@@ -55,7 +56,7 @@ async function generateMissingFeatureBodies() {
 
   // Create OpenAI client
   const openai = createOpenAI({
-    apiKey: openAiApiKey,
+    apiKey: providerApiKey,
   });
 
   let successCount = 0;

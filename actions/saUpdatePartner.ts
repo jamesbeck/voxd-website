@@ -13,7 +13,7 @@ const saUpdatePartner = async ({
   name,
   domain,
   coreDomain,
-  openAiApiKey,
+  providerApiKeyId,
   sendEmailFromDomain,
   salesBotName,
   legalName,
@@ -34,7 +34,7 @@ const saUpdatePartner = async ({
   name?: string;
   domain?: string;
   coreDomain?: string;
-  openAiApiKey?: string;
+  providerApiKeyId?: string;
   sendEmailFromDomain?: string;
   salesBotName?: string;
   legalName?: string;
@@ -80,27 +80,29 @@ const saUpdatePartner = async ({
   }
 
   //update the partner
-  await db("partner").where({ id: partnerId }).update({
-    name,
-    domain,
-    coreDomain,
-    openAiApiKey,
-    sendEmailFromDomain,
-    salesBotName,
-    legalName,
-    companyNumber,
-    registeredAddress,
-    legalEmail,
-    goCardlessMandateLink,
-    salesEmail,
-    accountsEmail,
-    organisationId,
-    prototypingAgentId,
-    salesBotAgentId,
-    hourlyRate,
-    monthlyBaseFee,
-    monthlyPerIntegration,
-  });
+  await db("partner")
+    .where({ id: partnerId })
+    .update({
+      name,
+      domain,
+      coreDomain,
+      providerApiKeyId: providerApiKeyId || null,
+      sendEmailFromDomain,
+      salesBotName,
+      legalName,
+      companyNumber,
+      registeredAddress,
+      legalEmail,
+      goCardlessMandateLink,
+      salesEmail,
+      accountsEmail,
+      organisationId,
+      prototypingAgentId,
+      salesBotAgentId,
+      hourlyRate,
+      monthlyBaseFee,
+      monthlyPerIntegration,
+    });
 
   // If sendEmailFromDomain changed, ensure it exists in Resend
   if (

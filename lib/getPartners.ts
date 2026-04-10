@@ -16,7 +16,7 @@ const getPartners = unstable_cache(
       );
     return partners.map(
       ({
-        openAiApiKey,
+        providerApiKeyId,
         colour,
         logoFileExtension,
         showLogoOnColour,

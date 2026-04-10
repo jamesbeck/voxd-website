@@ -223,7 +223,8 @@ export default async function Page({
                     agentId={agentId}
                     name={agent?.name}
                     niceName={agent?.niceName}
-                    openAiApiKey={agent?.openAiApiKey}
+                    providerApiKeyId={agent?.providerApiKeyId}
+                    providerApiKeyLabel={agent?.providerApiKeyLabel}
                     organisationId={agent?.organisationId}
                     organisationName={agent?.organisationName}
                     phoneNumberId={agent?.phoneNumberId}

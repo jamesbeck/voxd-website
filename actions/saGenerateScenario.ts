@@ -50,7 +50,7 @@ const saGenerateScenario = async (
 
   let context: string = "";
   let businessName: string = "";
-  let openAiApiKey: string | null = null;
+  let providerApiKey: string | null = null;
   let existingScenarios: string[] = [];
 
   if (exampleId) {
@@ -74,13 +74,18 @@ const saGenerateScenario = async (
       }
     }
 
-    // Get the partner's OpenAI API key
+    // Get the partner's provider API key
     if (accessToken.partnerId) {
       const partner = await db("partner")
-        .where("id", accessToken.partnerId)
-        .select("openAiApiKey")
+        .leftJoin(
+          "providerApiKey",
+          "partner.providerApiKeyId",
+          "providerApiKey.id",
+        )
+        .where("partner.id", accessToken.partnerId)
+        .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
         .first();
-      openAiApiKey = partner?.openAiApiKey || null;
+      providerApiKey = partner?.providerApiKey || null;
     }
 
     context = example.body || "No specification provided";
@@ -99,12 +104,17 @@ const saGenerateScenario = async (
     const quote = await db("quote")
       .leftJoin("organisation", "quote.organisationId", "organisation.id")
       .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .leftJoin(
+        "providerApiKey",
+        "partner.providerApiKeyId",
+        "providerApiKey.id",
+      )
       .where("quote.id", quoteId)
       .select(
         "quote.*",
         "organisation.name as organisationName",
         "organisation.partnerId",
-        "partner.openAiApiKey",
+        db.raw('"providerApiKey"."key" as "providerApiKey"'),
       )
       .first();
 
@@ -127,15 +137,15 @@ const saGenerateScenario = async (
       };
     }
 
-    // Check if partner has an OpenAI API key
-    if (!quote.openAiApiKey) {
+    // Check if partner has a provider API key
+    if (!quote.providerApiKey) {
       return {
         success: false,
-        error: "Partner does not have an OpenAI API key configured",
+        error: "Partner does not have a provider API key configured",
       };
     }
 
-    openAiApiKey = quote.openAiApiKey;
+    providerApiKey = quote.providerApiKey;
 
     // Get knowledge sources linked to this quote
     const quoteKnowledgeSources = await db("quoteKnowledgeSource")
@@ -217,17 +227,17 @@ ${quote.otherNotes || "Not specified"}
       .filter((p) => p);
   }
 
-  if (!openAiApiKey) {
+  if (!providerApiKey) {
     return {
       success: false,
       error:
-        "Your partner account does not have an OpenAI API key configured. Please contact an administrator.",
+        "Your partner account does not have a provider API key configured. Please contact an administrator.",
     };
   }
 
   // Create OpenAI client with partner's API key
   const openai = createOpenAI({
-    apiKey: openAiApiKey,
+    apiKey: providerApiKey,
   });
 
   try {

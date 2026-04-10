@@ -22,13 +22,14 @@ import saUpdateAgent from "@/actions/saUpdateAgent";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetPhoneNumbersTableData from "@/actions/saGetPhoneNumbersTableData";
+import saGetProviderApiKeyTableData from "@/actions/saGetProviderApiKeyTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   niceName: z.string().nonempty("Nice Name is required"),
   organisationId: z.string().nonempty("Organisation is required"),
   phoneNumberId: z.string().optional(),
-  openAiApiKey: z.string().optional(),
+  providerApiKeyId: z.string().optional(),
   codeDirectory: z.string().optional(),
   targetMessageLengthCharacters: z.number().int().positive().optional(),
   maxMessageHistory: z.number().int().positive().optional(),
@@ -43,7 +44,8 @@ export default function EditAgentForm({
   organisationName,
   phoneNumberId,
   phoneNumberDisplay,
-  openAiApiKey,
+  providerApiKeyId,
+  providerApiKeyLabel,
   codeDirectory,
   targetMessageLengthCharacters,
   maxMessageHistory,
@@ -56,7 +58,8 @@ export default function EditAgentForm({
   organisationName?: string;
   phoneNumberId?: string;
   phoneNumberDisplay?: string;
-  openAiApiKey?: string;
+  providerApiKeyId?: string;
+  providerApiKeyLabel?: string;
   codeDirectory?: string;
   targetMessageLengthCharacters?: number;
   maxMessageHistory?: number;
@@ -73,7 +76,7 @@ export default function EditAgentForm({
       niceName: niceName || "",
       organisationId: organisationId || "",
       phoneNumberId: phoneNumberId || "",
-      openAiApiKey: openAiApiKey || "",
+      providerApiKeyId: providerApiKeyId || "",
       codeDirectory: codeDirectory || "",
       targetMessageLengthCharacters: targetMessageLengthCharacters || undefined,
       maxMessageHistory: maxMessageHistory || undefined,
@@ -91,7 +94,7 @@ export default function EditAgentForm({
       niceName: values.niceName,
       organisationId: values.organisationId,
       phoneNumberId: values.phoneNumberId,
-      openAiApiKey: values.openAiApiKey,
+      providerApiKeyId: values.providerApiKeyId,
       codeDirectory: values.codeDirectory,
       targetMessageLengthCharacters: values.targetMessageLengthCharacters,
       maxMessageHistory: values.maxMessageHistory,
@@ -214,13 +217,23 @@ export default function EditAgentForm({
 
         <FormField
           control={form.control}
-          name="openAiApiKey"
-          rules={{ required: true }}
+          name="providerApiKeyId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>OpenAI API Key</FormLabel>
+              <FormLabel>Provider API Key</FormLabel>
               <FormControl>
-                <Input placeholder="sk-..." {...field} />
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetProviderApiKeyTableData}
+                  label={(record) =>
+                    `${record.providerName} — ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}`
+                  }
+                  valueField="id"
+                  sortField="providerName"
+                  placeholder="Select a provider API key..."
+                  emptyMessage="No provider API keys found"
+                  initialLabel={providerApiKeyLabel}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

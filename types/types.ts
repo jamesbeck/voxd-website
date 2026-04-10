@@ -100,7 +100,7 @@ export interface Partner {
   name: string;
   domain: string;
   coreDomain?: string | null;
-  openAiApiKey?: string;
+  providerApiKeyId?: string | null;
   sendEmailFromDomain?: string;
   salesBotName?: string;
   salesBotAgentId?: string;

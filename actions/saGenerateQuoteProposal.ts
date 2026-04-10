@@ -69,11 +69,12 @@ const saGenerateQuoteProposal = async ({
   const quote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
     .select(
       "quote.*",
       "organisation.name as organisationName",
       "partner.name as partnerName",
-      "partner.openAiApiKey",
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
     )
     .where({ "quote.id": quoteId })
     .first();
@@ -82,11 +83,11 @@ const saGenerateQuoteProposal = async ({
     return { success: false, error: "Quote not found" };
   }
 
-  // Check if partner has an OpenAI API key
-  if (!quote.openAiApiKey) {
+  // Check if partner has a provider API key
+  if (!quote.providerApiKey) {
     return {
       success: false,
-      error: "Partner does not have an OpenAI API key configured",
+      error: "Partner does not have a provider API key configured",
     };
   }
 
@@ -137,7 +138,7 @@ const saGenerateQuoteProposal = async ({
   }
 
   const openai = createOpenAI({
-    apiKey: quote.openAiApiKey,
+    apiKey: quote.providerApiKey,
   });
 
   // Build the specification context

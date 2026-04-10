@@ -40,15 +40,15 @@ const saSearchKnowledgeByEmbedding = async ({
       return { success: false, error: "Unauthorized" };
     }
 
-    // Get agent to retrieve OpenAI API key
+    // Get agent to retrieve API key
     const agent = await getAgentById({ agentId });
-    if (!agent || !agent.openAiApiKey) {
+    if (!agent || !agent.providerApiKey) {
       return { success: false, error: "Agent not found or missing API key" };
     }
 
     // Create OpenAI client for embeddings
     const openai = createOpenAI({
-      apiKey: agent.openAiApiKey,
+      apiKey: agent.providerApiKey,
     });
 
     // Generate embedding for the query
@@ -87,7 +87,7 @@ const saSearchKnowledgeByEmbedding = async ({
         embeddingString,
         similarityThreshold,
         embeddingString,
-      ]
+      ],
     );
 
     // Map results to block array (already sorted by similarity from SQL)
@@ -102,7 +102,7 @@ const saSearchKnowledgeByEmbedding = async ({
         title: row.title,
         similarity: parseFloat(row.similarity),
         blockIndex: row.blockIndex,
-      })
+      }),
     );
 
     return {

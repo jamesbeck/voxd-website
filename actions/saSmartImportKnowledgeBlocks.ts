@@ -34,14 +34,15 @@ const saSmartImportKnowledgeBlocks = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Get the document and its associated agent's OpenAI API key and model
+  // Get the document and its associated agent's API key and model
   const document = await db("knowledgeDocument")
     .join("agent", "knowledgeDocument.agentId", "agent.id")
     .leftJoin("model", "agent.modelId", "model.id")
+    .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .where("knowledgeDocument.id", documentId)
     .select(
       "knowledgeDocument.*",
-      "agent.openAiApiKey",
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "model.model as modelName",
     )
     .first();
@@ -53,17 +54,17 @@ const saSmartImportKnowledgeBlocks = async ({
     };
   }
 
-  if (!document.openAiApiKey) {
+  if (!document.providerApiKey) {
     return {
       success: false,
-      error: "Agent does not have an OpenAI API key configured",
+      error: "Agent does not have a provider API key configured",
     };
   }
 
   // Use agent's configured model or fallback to gpt-5.4
   const modelName = document.modelName || "gpt-5.4";
 
-  const openai = createOpenAI({ apiKey: document.openAiApiKey });
+  const openai = createOpenAI({ apiKey: document.providerApiKey });
 
   // Get the next block index
   const lastBlock = await db("knowledgeBlock")

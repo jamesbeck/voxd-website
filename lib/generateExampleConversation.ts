@@ -24,7 +24,7 @@ export async function generateExampleConversation({
     throw new Error("Conversation not found");
   }
 
-  let openAiApiKey: string | null = null;
+  let providerApiKey: string | null = null;
   let context: string = "";
   let businessName: string = "";
 
@@ -40,10 +40,15 @@ export async function generateExampleConversation({
     // Get partner's API key via example
     if (example.partnerId) {
       const partner = await db("partner")
-        .where("id", example.partnerId)
-        .select("openAiApiKey")
+        .leftJoin(
+          "providerApiKey",
+          "partner.providerApiKeyId",
+          "providerApiKey.id",
+        )
+        .where("partner.id", example.partnerId)
+        .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
         .first();
-      openAiApiKey = partner?.openAiApiKey || null;
+      providerApiKey = partner?.providerApiKey || null;
     }
 
     context = example.body || "No specification provided";
@@ -52,19 +57,24 @@ export async function generateExampleConversation({
     const quote = await db("quote")
       .leftJoin("organisation", "quote.organisationId", "organisation.id")
       .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .leftJoin(
+        "providerApiKey",
+        "partner.providerApiKeyId",
+        "providerApiKey.id",
+      )
       .where("quote.id", conversation.quoteId)
       .select(
         "quote.*",
         "organisation.name as organisationName",
         "organisation.partnerId",
-        "partner.openAiApiKey",
+        db.raw('"providerApiKey"."key" as "providerApiKey"'),
       )
       .first();
     if (!quote) {
       await markError(conversationId, "Quote not found");
       throw new Error("Quote not found");
     }
-    openAiApiKey = quote.openAiApiKey;
+    providerApiKey = quote.providerApiKey;
 
     // Get knowledge sources linked to this quote
     const quoteKnowledgeSources = await db("quoteKnowledgeSource")
@@ -135,13 +145,13 @@ ${quote.otherNotes || "Not specified"}
     businessName = quote.organisationName || "the organisation";
   }
 
-  if (!openAiApiKey) {
+  if (!providerApiKey) {
     await markError(conversationId, "No API key configured");
-    throw new Error("No OpenAI API key configured");
+    throw new Error("No provider API key configured");
   }
 
   try {
-    const openai = createOpenAI({ apiKey: openAiApiKey });
+    const openai = createOpenAI({ apiKey: providerApiKey });
 
     const { object } = await generateObject({
       model: openai("gpt-5.4"),
@@ -293,7 +303,7 @@ ${quote.otherNotes || "Not specified"}
     if (hasImages) {
       await generateConversationImages({
         conversationId,
-        openAiApiKey: openAiApiKey!,
+        providerApiKey: providerApiKey!,
       });
     }
 
@@ -310,10 +320,10 @@ ${quote.otherNotes || "Not specified"}
 
 async function generateConversationImages({
   conversationId,
-  openAiApiKey,
+  providerApiKey,
 }: {
   conversationId: string;
-  openAiApiKey: string;
+  providerApiKey: string;
 }) {
   const conversation = await db("exampleConversation")
     .where("id", conversationId)
@@ -338,7 +348,7 @@ async function generateConversationImages({
     return;
   }
 
-  const openai = createOpenAI({ apiKey: openAiApiKey });
+  const openai = createOpenAI({ apiKey: providerApiKey });
 
   const s3Client = new S3Client({
     region: process.env.WASABI_REGION || "eu-west-1",

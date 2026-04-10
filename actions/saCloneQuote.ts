@@ -58,13 +58,18 @@ const saCloneQuote = async (input: {
     const sourceQuote = await db("quote")
       .leftJoin("organisation", "quote.organisationId", "organisation.id")
       .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .leftJoin(
+        "providerApiKey",
+        "partner.providerApiKeyId",
+        "providerApiKey.id",
+      )
       .where("quote.id", quoteId)
       .select(
         "quote.*",
         "organisation.name as sourceOrgName",
         "organisation.partnerId as sourcePartnerId",
         "partner.name as partnerName",
-        "partner.openAiApiKey",
+        db.raw('"providerApiKey"."key" as "providerApiKey"'),
       )
       .first();
 
@@ -118,7 +123,7 @@ const saCloneQuote = async (input: {
     const sourceOrgName = sourceQuote.sourceOrgName || "the organisation";
     const targetOrgName = targetOrg.name || "the organisation";
     const newBackground = targetOrg.about || null;
-    const openAiApiKey = sourceQuote.openAiApiKey;
+    const providerApiKey = sourceQuote.providerApiKey;
 
     // --- AI rewriting ---
     let rewrittenTitle = sourceQuote.title;
@@ -136,8 +141,8 @@ const saCloneQuote = async (input: {
 
 Do not change anything else about the text - keep all other content, formatting, and structure exactly as it is. If the organisation name does not appear in the text in any form, return the text unchanged. Return only the updated text with no preamble or explanation.`;
 
-    if (openAiApiKey) {
-      const openai = createOpenAI({ apiKey: openAiApiKey });
+    if (providerApiKey) {
+      const openai = createOpenAI({ apiKey: providerApiKey });
 
       // Name substitution for title, objectives, dataSources, otherNotes
       const fieldsToSubstitute = [
@@ -381,9 +386,9 @@ ${rewriteContext}`,
       for (const conv of sourceConversations) {
         // Rewrite conversation prompt to replace source org name
         let rewrittenPrompt = conv.prompt;
-        if (openAiApiKey && conv.prompt) {
+        if (providerApiKey && conv.prompt) {
           try {
-            const openai = createOpenAI({ apiKey: openAiApiKey });
+            const openai = createOpenAI({ apiKey: providerApiKey });
             const { text } = await generateText({
               model: openai("gpt-5.4"),
               system: nameSubstitutionPrompt,

@@ -1,4 +1,5 @@
 "use client";
+
 import { AlertCircleIcon } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -13,26 +14,30 @@ import {
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import saUpdatePartner from "@/actions/saUpdatePartner";
+import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { saUpdateProviderApiKey } from "@/actions/saUpdateProviderApiKey";
+import saGetProviderTableData from "@/actions/saGetProviderTableData";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
-import saGetProviderApiKeyTableData from "@/actions/saGetProviderApiKeyTableData";
 
 const formSchema = z.object({
-  providerApiKeyId: z.string().optional(),
+  key: z.string().min(1, "API key is required"),
+  providerId: z.string().min(1, "Provider is required"),
 });
 
-export default function EditPartnerApiKeysForm({
-  partnerId,
+export default function EditProviderApiKeyForm({
   providerApiKeyId,
-  providerApiKeyLabel,
+  currentKey,
+  providerId,
+  providerName,
 }: {
-  partnerId: string;
-  providerApiKeyId?: string;
-  providerApiKeyLabel?: string;
+  providerApiKeyId: string;
+  currentKey: string;
+  providerId: string;
+  providerName?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -40,32 +45,32 @@ export default function EditPartnerApiKeysForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      providerApiKeyId: providerApiKeyId || "",
+      key: currentKey || "",
+      providerId: providerId || "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
 
-    const response = await saUpdatePartner({
-      partnerId,
-      providerApiKeyId: values.providerApiKeyId,
+    const response = await saUpdateProviderApiKey({
+      providerApiKeyId,
+      key: values.key,
+      providerId: values.providerId,
     });
 
     if (!response.success) {
       setLoading(false);
-      toast.error("There was an error updating the partner");
+      toast.error("There was an error updating the key");
       if (response.error) {
         form.setError("root", { type: "manual", message: response.error });
       }
+      return;
     }
 
-    if (response.success) {
-      toast.success("Partner API keys updated");
-      router.refresh();
-    }
-
+    toast.success("Provider API key updated");
     setLoading(false);
+    router.refresh();
   }
 
   return (
@@ -73,23 +78,35 @@ export default function EditPartnerApiKeysForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="providerApiKeyId"
+          name="providerId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Provider API Key</FormLabel>
+              <FormLabel>Provider</FormLabel>
               <FormControl>
                 <RemoteSelect
                   {...field}
-                  serverAction={saGetProviderApiKeyTableData}
-                  label={(record) =>
-                    `${record.providerName} \u2014 ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}`
-                  }
+                  serverAction={saGetProviderTableData}
+                  label={(record) => record.name}
                   valueField="id"
-                  sortField="providerName"
-                  placeholder="Select a provider API key..."
-                  emptyMessage="No provider API keys found"
-                  initialLabel={providerApiKeyLabel}
+                  sortField="name"
+                  placeholder="Select a provider..."
+                  emptyMessage="No providers found"
+                  initialLabel={providerName}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="key"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>API Key</FormLabel>
+              <FormControl>
+                <Input placeholder="sk-..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

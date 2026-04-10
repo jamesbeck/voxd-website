@@ -69,10 +69,11 @@ const saGenerateQuoteCosting = async ({
   const quote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
     .select(
       "quote.*",
       "organisation.name as organisationName",
-      "partner.openAiApiKey",
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "partner.name as partnerName",
       "partner.monthlyBaseFee",
       "partner.monthlyPerIntegration",
@@ -84,10 +85,10 @@ const saGenerateQuoteCosting = async ({
     return { success: false, error: "Quote not found" };
   }
 
-  if (!quote.openAiApiKey) {
+  if (!quote.providerApiKey) {
     return {
       success: false,
-      error: "Partner does not have an OpenAI API key configured",
+      error: "Partner does not have a provider API key configured",
     };
   }
 
@@ -163,7 +164,7 @@ const saGenerateQuoteCosting = async ({
   }
 
   const openai = createOpenAI({
-    apiKey: quote.openAiApiKey,
+    apiKey: quote.providerApiKey,
   });
 
   // Build the integration list for the prompt

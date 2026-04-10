@@ -57,10 +57,14 @@ const syncOrganisationFromWebsite = async ({
     };
   }
 
-  // Get the organisation with partner's OpenAI API key
+  // Get the organisation with partner's provider API key
   const organisation = await db("organisation")
     .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .select("organisation.*", "partner.openAiApiKey")
+    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
+    .select(
+      "organisation.*",
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
+    )
     .where({ "organisation.id": organisationId })
     .first();
 
@@ -71,10 +75,10 @@ const syncOrganisationFromWebsite = async ({
     };
   }
 
-  if (!organisation.openAiApiKey) {
+  if (!organisation.providerApiKey) {
     return {
       success: false,
-      error: "Partner does not have an OpenAI API key configured",
+      error: "Partner does not have a provider API key configured",
     };
   }
 
@@ -85,7 +89,7 @@ const syncOrganisationFromWebsite = async ({
 
   try {
     // Step 1: Use AI with web search to get the about summary
-    const about = await getAboutSummary(organisation.openAiApiKey, url);
+    const about = await getAboutSummary(organisation.providerApiKey, url);
 
     if (!about) {
       return {
@@ -99,7 +103,7 @@ const syncOrganisationFromWebsite = async ({
     let showLogoOnColour: string | null | undefined;
     let prominentColour: string | null | undefined;
     try {
-      const logoUrl = await findLogoUrl(organisation.openAiApiKey, url);
+      const logoUrl = await findLogoUrl(organisation.providerApiKey, url);
 
       if (logoUrl) {
         // Step 3: Download and upload the logo

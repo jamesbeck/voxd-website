@@ -49,23 +49,27 @@ const generateExample = async ({
   }
 
   const partner = await db("partner")
-    .where("id", partnerIdForApiKey)
-    .select("openAiApiKey", "name")
+    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
+    .where("partner.id", partnerIdForApiKey)
+    .select(
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
+      "partner.name",
+    )
     .first();
 
-  if (!partner?.openAiApiKey) {
+  if (!partner?.providerApiKey) {
     return {
       success: false,
       error:
-        "The selected partner does not have an OpenAI API key configured. Please contact an administrator.",
+        "The selected partner does not have a provider API key configured. Please contact an administrator.",
     };
   }
 
-  const openAiApiKey = partner.openAiApiKey;
+  const providerApiKey = partner.providerApiKey;
 
   // Create OpenAI client with partner's API key
   const openai = createOpenAI({
-    apiKey: openAiApiKey,
+    apiKey: providerApiKey,
   });
 
   const industries = (await db("industry").select("name")).map(
@@ -186,8 +190,8 @@ const generateExample = async ({
 
   // Create a partial API key for logging (show first 4 and last 4 characters)
   const partialApiKey =
-    openAiApiKey.length > 12
-      ? `${openAiApiKey.slice(0, 4)}...${openAiApiKey.slice(-4)}`
+    providerApiKey.length > 12
+      ? `${providerApiKey.slice(0, 4)}...${providerApiKey.slice(-4)}`
       : "****";
 
   // Log the example creation

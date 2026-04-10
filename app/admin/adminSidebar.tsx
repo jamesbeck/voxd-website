@@ -22,6 +22,7 @@ import {
   BookOpen,
   Plug,
   Settings,
+  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -120,6 +121,12 @@ const menuItems: MenuItem[] = [
     title: "Connected Accounts",
     url: "/admin/oauth-accounts",
     icon: Link2,
+  },
+  {
+    roles: ["admin"],
+    title: "Provider API Keys",
+    url: "/admin/provider-api-keys",
+    icon: KeyRound,
   },
   {
     roles: ["admin"],

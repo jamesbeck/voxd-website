@@ -37,22 +37,27 @@ const saGenerateFeatureBody = async ({
     };
   }
 
-  // Get the partner's OpenAI API key
-  let openAiApiKey: string | null = null;
+  // Get the partner's provider API key
+  let providerApiKey: string | null = null;
 
   if (accessToken.partnerId) {
     const partner = await db("partner")
-      .where("id", accessToken.partnerId)
-      .select("openAiApiKey")
+      .leftJoin(
+        "providerApiKey",
+        "partner.providerApiKeyId",
+        "providerApiKey.id",
+      )
+      .where("partner.id", accessToken.partnerId)
+      .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
       .first();
-    openAiApiKey = partner?.openAiApiKey || null;
+    providerApiKey = partner?.providerApiKey || null;
   }
 
-  if (!openAiApiKey) {
+  if (!providerApiKey) {
     return {
       success: false,
       error:
-        "Your partner account does not have an OpenAI API key configured. Please contact an administrator.",
+        "Your partner account does not have a provider API key configured. Please contact an administrator.",
     };
   }
 
@@ -63,7 +68,7 @@ const saGenerateFeatureBody = async ({
 
     // Create OpenAI client with partner's API key
     const openai = createOpenAI({
-      apiKey: openAiApiKey,
+      apiKey: providerApiKey,
     });
 
     const prompt = `You are a professional marketing content writer for Voxd, a WhatsApp AI chatbot platform.

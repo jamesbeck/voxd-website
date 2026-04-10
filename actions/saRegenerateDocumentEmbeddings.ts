@@ -15,11 +15,15 @@ const saRegenerateDocumentEmbeddings = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  // Get the document and its associated agent's OpenAI API key
+  // Get the document and its associated agent's API key
   const document = await db("knowledgeDocument")
     .join("agent", "knowledgeDocument.agentId", "agent.id")
+    .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .where("knowledgeDocument.id", documentId)
-    .select("knowledgeDocument.*", "agent.openAiApiKey")
+    .select(
+      "knowledgeDocument.*",
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
+    )
     .first();
 
   if (!document) {
@@ -34,10 +38,10 @@ const saRegenerateDocumentEmbeddings = async ({
     return { success: false, error: "Unauthorized" };
   }
 
-  if (!document.openAiApiKey) {
+  if (!document.providerApiKey) {
     return {
       success: false,
-      error: "Agent does not have an OpenAI API key configured",
+      error: "Agent does not have a provider API key configured",
     };
   }
 
@@ -54,7 +58,7 @@ const saRegenerateDocumentEmbeddings = async ({
     };
   }
 
-  const openai = createOpenAI({ apiKey: document.openAiApiKey });
+  const openai = createOpenAI({ apiKey: document.providerApiKey });
   let successCount = 0;
   let errorCount = 0;
 

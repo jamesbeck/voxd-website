@@ -9,7 +9,7 @@ const saUpdateAgent = async ({
   niceName,
   organisationId,
   phoneNumberId,
-  openAiApiKey,
+  providerApiKeyId,
   modelId,
   codeDirectory,
   targetMessageLengthCharacters,
@@ -21,7 +21,7 @@ const saUpdateAgent = async ({
   niceName?: string;
   organisationId?: string;
   phoneNumberId?: string;
-  openAiApiKey?: string;
+  providerApiKeyId?: string;
   modelId?: string;
   codeDirectory?: string;
   targetMessageLengthCharacters?: number;
@@ -56,7 +56,8 @@ const saUpdateAgent = async ({
     updateData.organisationId = organisationId || null;
   if (phoneNumberId !== undefined)
     updateData.phoneNumberId = phoneNumberId || null;
-  if (openAiApiKey !== undefined) updateData.openAiApiKey = openAiApiKey;
+  if (providerApiKeyId !== undefined)
+    updateData.providerApiKeyId = providerApiKeyId || null;
   if (modelId !== undefined) updateData.modelId = modelId || null;
   if (codeDirectory !== undefined)
     updateData.codeDirectory = codeDirectory || null;

@@ -5,9 +5,10 @@ const getKnowledgeBlockById = async ({ blockId }: { blockId: string }) => {
     .leftJoin(
       "knowledgeDocument",
       "knowledgeBlock.documentId",
-      "knowledgeDocument.id"
+      "knowledgeDocument.id",
     )
     .leftJoin("agent", "knowledgeDocument.agentId", "agent.id")
+    .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .where("knowledgeBlock.id", blockId)
     .select(
       "knowledgeBlock.id",
@@ -18,13 +19,13 @@ const getKnowledgeBlockById = async ({ blockId }: { blockId: string }) => {
       "knowledgeBlock.tokenCount",
       "knowledgeBlock.createdAt",
       db.raw(
-        'CASE WHEN "knowledgeBlock"."embedding" IS NOT NULL THEN true ELSE false END as "hasEmbedding"'
+        'CASE WHEN "knowledgeBlock"."embedding" IS NOT NULL THEN true ELSE false END as "hasEmbedding"',
       ),
       "knowledgeDocument.title as documentTitle",
       "knowledgeDocument.agentId",
       "agent.name as agentName",
       "agent.niceName as agentNiceName",
-      "agent.openAiApiKey"
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
     )
     .first();
   return block;

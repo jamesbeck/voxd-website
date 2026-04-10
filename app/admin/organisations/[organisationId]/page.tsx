@@ -15,6 +15,7 @@ import OrganisationActions from "./organisationActions";
 import NewQuoteButton from "@/components/admin/NewQuoteButton";
 import AboutTab from "./aboutTab";
 import LogoTab from "./logoTab";
+import ProviderApiKeysTable from "@/app/admin/provider-api-keys/providerApiKeysTable";
 
 export default async function Page({
   params,
@@ -67,7 +68,10 @@ export default async function Page({
                 { value: "chatUsers", label: "Chat Users" },
                 { value: "agents", label: "Agents" },
                 ...(token.superAdmin || token.partner
-                  ? [{ value: "quotes", label: "Quotes" }]
+                  ? [
+                      { value: "providerApiKeys", label: "API Keys" },
+                      { value: "quotes", label: "Quotes" },
+                    ]
                   : []),
               ] satisfies RecordTab[]
             }
@@ -116,6 +120,13 @@ export default async function Page({
                 <AgentsTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
+            {token.superAdmin || token.partner ? (
+              <TabsContent value="providerApiKeys">
+                <Container>
+                  <ProviderApiKeysTable organisationId={organisation.id} />
+                </Container>
+              </TabsContent>
+            ) : null}
             {token.superAdmin || token.partner ? (
               <TabsContent value="quotes">
                 <Container>

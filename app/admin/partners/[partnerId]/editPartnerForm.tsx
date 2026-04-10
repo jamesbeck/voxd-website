@@ -28,7 +28,6 @@ const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   domain: z.string().nonempty("Domain is required"),
   coreDomain: z.string().optional(),
-  openAiApiKey: z.string().optional(),
   sendEmailFromDomain: z.string().optional(),
   salesBotName: z.string().optional(),
   legalName: z.string().optional(),
@@ -51,7 +50,6 @@ export default function EditPartnerForm({
   name,
   domain,
   coreDomain,
-  openAiApiKey,
   sendEmailFromDomain,
   salesBotName,
   legalName,
@@ -75,7 +73,6 @@ export default function EditPartnerForm({
   name?: string;
   domain?: string;
   coreDomain?: string;
-  openAiApiKey?: string;
   sendEmailFromDomain?: string;
   salesBotName?: string;
   legalName?: string;
@@ -105,7 +102,6 @@ export default function EditPartnerForm({
       name: name || "",
       domain: domain || "",
       coreDomain: coreDomain || "",
-      openAiApiKey: openAiApiKey || "",
       sendEmailFromDomain: sendEmailFromDomain || "",
       salesBotName: salesBotName || "",
       legalName: legalName || "",
@@ -134,7 +130,6 @@ export default function EditPartnerForm({
       name: values.name,
       domain: values.domain,
       coreDomain: values.coreDomain,
-      openAiApiKey: values.openAiApiKey,
       sendEmailFromDomain: values.sendEmailFromDomain,
       salesBotName: values.salesBotName,
       legalName: values.legalName,
@@ -253,20 +248,6 @@ export default function EditPartnerForm({
               <FormLabel>Core Domain</FormLabel>
               <FormControl>
                 <Input placeholder="corepartner.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="openAiApiKey"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>OpenAI API Key</FormLabel>
-              <FormControl>
-                <Input placeholder="sk-..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

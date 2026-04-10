@@ -118,7 +118,10 @@ export default async function Page({
             <TabsContent value="apikeys">
               <EditPartnerApiKeysForm
                 partnerId={partnerId}
-                openAiApiKey={partner.openAiApiKey}
+                providerApiKeyId={partner.providerApiKeyId ?? undefined}
+                providerApiKeyLabel={
+                  (partner as any).providerApiKeyLabel ?? undefined
+                }
               />
             </TabsContent>
             <TabsContent value="prototyping">

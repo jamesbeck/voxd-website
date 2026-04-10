@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import saGetPhoneNumbersTableData from "@/actions/saGetPhoneNumbersTableData";
+import saGetProviderApiKeyTableData from "@/actions/saGetProviderApiKeyTableData";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,7 +35,7 @@ const formSchema = z.object({
   niceName: z.string().min(1, "Nice name is required"),
   organisationId: z.string().min(1, "Please select an organisation"),
   phoneNumberId: z.string().optional(),
-  openAiApiKey: z.string().optional(),
+  providerApiKeyId: z.string().optional(),
 });
 
 export default function CloneAgentDialog({
@@ -62,7 +63,7 @@ export default function CloneAgentDialog({
       niceName: `${niceName} (Copy)`,
       organisationId: organisationId,
       phoneNumberId: "",
-      openAiApiKey: "",
+      providerApiKeyId: "",
     },
   });
 
@@ -78,7 +79,7 @@ export default function CloneAgentDialog({
       niceName: values.niceName,
       organisationId: values.organisationId,
       phoneNumberId: values.phoneNumberId || null,
-      openAiApiKey: orgChanged ? values.openAiApiKey || null : null,
+      providerApiKeyId: orgChanged ? values.providerApiKeyId || null : null,
     });
 
     if (!response.success) {
@@ -184,12 +185,22 @@ export default function CloneAgentDialog({
             {orgChanged && (
               <FormField
                 control={form.control}
-                name="openAiApiKey"
+                name="providerApiKeyId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>OpenAI API Key</FormLabel>
+                    <FormLabel>Provider API Key</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="sk-..." type="password" />
+                      <RemoteSelect
+                        {...field}
+                        serverAction={saGetProviderApiKeyTableData}
+                        label={(record) =>
+                          `${record.providerName} — ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}`
+                        }
+                        valueField="id"
+                        sortField="providerName"
+                        placeholder="Select a provider API key..."
+                        emptyMessage="No provider API keys found"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
