@@ -46,7 +46,7 @@ ${partnerName} runs "workers" - separate AI-powered scripts that monitor convers
 - Proactive customer engagement through workers
 - Cost-effective messaging within reply windows
 - Interactive outbound marketing where customers can reply and engage with the AI agent
-- Where relevant offer multilingual support for diverse customer bases`;
+- Offer multilingual support for diverse customer bases`;
 
 const saGenerateQuoteProposal = async ({
   quoteId,

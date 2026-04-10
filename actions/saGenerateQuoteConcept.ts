@@ -316,7 +316,7 @@ Your task is to write a compelling, persuasive concept that helps the client und
    - Focus on logical, specific features relevant to their sector
    - Describe the types of enquiries and tasks it could handle
    - Explain how it would work in their specific context
-   - Where relevant offer multilingual support for diverse customer bases
+   - Offer multilingual support for diverse customer bases
 
 2. **Saving money and time while improving customer experience**
    - Identify specific areas where they can reduce costs (staffing, response times)
