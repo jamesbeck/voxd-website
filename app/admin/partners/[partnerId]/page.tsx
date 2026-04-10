@@ -50,6 +50,22 @@ export default async function Page({
     }
   }
 
+  let salesBotAgentLabel: string | undefined;
+  if (partner?.salesBotAgentId) {
+    const agent = await db("agent")
+      .select(
+        "agent.niceName",
+        "agent.name",
+        "organisation.name as organisationName",
+      )
+      .leftJoin("organisation", "agent.organisationId", "organisation.id")
+      .where("agent.id", partner.salesBotAgentId)
+      .first();
+    if (agent) {
+      salesBotAgentLabel = `${agent.organisationName || "No Organisation"} - ${agent.niceName || agent.name}`;
+    }
+  }
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -89,6 +105,8 @@ export default async function Page({
                 organisationName={organisationName}
                 prototypingAgentId={partner.prototypingAgentId}
                 prototypingAgentLabel={prototypingAgentLabel}
+                salesBotAgentId={partner.salesBotAgentId}
+                salesBotAgentLabel={salesBotAgentLabel}
                 hourlyRate={partner.hourlyRate}
                 monthlyBaseFee={partner.monthlyBaseFee}
                 monthlyPerIntegration={partner.monthlyPerIntegration}

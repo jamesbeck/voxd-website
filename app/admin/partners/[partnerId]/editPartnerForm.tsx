@@ -40,6 +40,7 @@ const formSchema = z.object({
   accountsEmail: z.string().optional(),
   organisationId: z.string().optional(),
   prototypingAgentId: z.string().optional(),
+  salesBotAgentId: z.string().optional(),
   hourlyRate: z.string().optional(),
   monthlyBaseFee: z.string().optional(),
   monthlyPerIntegration: z.string().optional(),
@@ -64,6 +65,8 @@ export default function EditPartnerForm({
   organisationName,
   prototypingAgentId,
   prototypingAgentLabel,
+  salesBotAgentId,
+  salesBotAgentLabel,
   hourlyRate,
   monthlyBaseFee,
   monthlyPerIntegration,
@@ -86,6 +89,8 @@ export default function EditPartnerForm({
   organisationName?: string;
   prototypingAgentId?: string | null;
   prototypingAgentLabel?: string;
+  salesBotAgentId?: string | null;
+  salesBotAgentLabel?: string;
   hourlyRate?: number | null;
   monthlyBaseFee?: number | null;
   monthlyPerIntegration?: number | null;
@@ -112,6 +117,7 @@ export default function EditPartnerForm({
       accountsEmail: accountsEmail || "",
       organisationId: organisationId || "",
       prototypingAgentId: prototypingAgentId || "",
+      salesBotAgentId: salesBotAgentId || "",
       hourlyRate: hourlyRate != null ? String(hourlyRate) : "",
       monthlyBaseFee: monthlyBaseFee != null ? String(monthlyBaseFee) : "",
       monthlyPerIntegration:
@@ -140,6 +146,7 @@ export default function EditPartnerForm({
       accountsEmail: values.accountsEmail,
       organisationId: values.organisationId || null,
       prototypingAgentId: values.prototypingAgentId || null,
+      salesBotAgentId: values.salesBotAgentId || null,
       hourlyRate: values.hourlyRate ? Number(values.hourlyRate) : null,
       monthlyBaseFee: values.monthlyBaseFee
         ? Number(values.monthlyBaseFee)
@@ -338,6 +345,31 @@ export default function EditPartnerForm({
         />
 
         <H2>Sales Bot</H2>
+
+        <FormField
+          control={form.control}
+          name="salesBotAgentId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sales Agent</FormLabel>
+              <FormControl>
+                <RemoteSelect
+                  {...field}
+                  serverAction={saGetAgentTableData}
+                  label={(record) =>
+                    `${record.organisationName || "No Organisation"} - ${record.niceName || record.name}`
+                  }
+                  valueField="id"
+                  sortField="niceName"
+                  placeholder="Select a sales agent..."
+                  emptyMessage="No agents found"
+                  initialLabel={salesBotAgentLabel}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

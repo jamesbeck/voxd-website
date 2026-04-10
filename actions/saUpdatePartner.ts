@@ -22,6 +22,7 @@ const saUpdatePartner = async ({
   accountsEmail,
   organisationId,
   prototypingAgentId,
+  salesBotAgentId,
   hourlyRate,
   monthlyBaseFee,
   monthlyPerIntegration,
@@ -42,6 +43,7 @@ const saUpdatePartner = async ({
   accountsEmail?: string;
   organisationId?: string | null;
   prototypingAgentId?: string | null;
+  salesBotAgentId?: string | null;
   hourlyRate?: number | null;
   monthlyBaseFee?: number | null;
   monthlyPerIntegration?: number | null;
@@ -91,6 +93,7 @@ const saUpdatePartner = async ({
     accountsEmail,
     organisationId,
     prototypingAgentId,
+    salesBotAgentId,
     hourlyRate,
     monthlyBaseFee,
     monthlyPerIntegration,
