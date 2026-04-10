@@ -1,5 +1,10 @@
 import Image from "next/image";
-import { Package, Zap, Shield, BarChart3 } from "lucide-react";
+import {
+  MessageSquare,
+  Globe,
+  Smartphone,
+  MousePointerClick,
+} from "lucide-react";
 
 export default function DemoWebsite({
   orgName,
@@ -41,7 +46,7 @@ export default function DemoWebsite({
               Home
             </span>
             <span className="cursor-default text-gray-700 hover:text-gray-900 transition-colors">
-              Products
+              Services
             </span>
             <span className="cursor-default text-gray-700 hover:text-gray-900 transition-colors">
               About
@@ -64,21 +69,22 @@ export default function DemoWebsite({
         </div>
         <div className="relative max-w-6xl mx-auto px-6 py-24 md:py-32 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Innovative Widget Solutions
+            Sample Website
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mx-auto opacity-90 mb-10">
-            Empowering businesses with next-generation widgets that streamline
-            operations, boost productivity, and deliver measurable results.
+            This is a sample website demonstrating how a chatbot integration
+            could look on your site. Try the chat assistant in the bottom-right
+            corner to see it in action.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <span
               className="inline-block px-8 py-3 bg-white font-semibold rounded-lg shadow-lg cursor-default"
               style={{ color: primaryColour }}
             >
-              Get Started
+              Sample Button
             </span>
             <span className="inline-block px-8 py-3 border-2 border-white text-white font-semibold rounded-lg cursor-default">
-              Learn More
+              Sample Link
             </span>
           </div>
         </div>
@@ -87,33 +93,35 @@ export default function DemoWebsite({
       {/* Features Grid */}
       <section className="max-w-6xl mx-auto px-6 py-20">
         <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold mb-4">Why Choose Our Widgets?</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            How the Chatbot Integration Works
+          </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Our comprehensive widget platform delivers everything your business
-            needs to stay ahead of the competition.
+            This preview shows how an AI-powered chatbot can be embedded into
+            any website, providing instant support for your visitors.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             {
-              icon: Package,
-              title: "Premium Quality",
-              desc: "Crafted with the highest standards to ensure durability and performance in any environment.",
+              icon: MessageSquare,
+              title: "Instant Responses",
+              desc: "The chatbot provides immediate answers to visitor questions, available around the clock.",
             },
             {
-              icon: Zap,
-              title: "Lightning Fast",
-              desc: "Optimised for speed and efficiency, our widgets deliver results in record time.",
+              icon: MousePointerClick,
+              title: "Easy to Embed",
+              desc: "A simple code snippet is all it takes to add the chatbot to any page on your website.",
             },
             {
-              icon: Shield,
-              title: "Enterprise Secure",
-              desc: "Built with security at the core, meeting the strictest industry compliance standards.",
+              icon: Globe,
+              title: "Works Everywhere",
+              desc: "The chat assistant works seamlessly across desktop and mobile browsers.",
             },
             {
-              icon: BarChart3,
-              title: "Data-Driven",
-              desc: "Advanced analytics and reporting to help you make smarter business decisions.",
+              icon: Smartphone,
+              title: "WhatsApp Integration",
+              desc: "Connect the same AI assistant to WhatsApp for a unified customer experience.",
             },
           ].map((feature) => (
             <div
@@ -136,39 +144,30 @@ export default function DemoWebsite({
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Info Banner */}
       <section style={{ backgroundColor: `${primaryColour}08` }}>
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: "10,000+", label: "Active Clients" },
-              { value: "99.9%", label: "Uptime" },
-              { value: "50M+", label: "Widgets Deployed" },
-              { value: "24/7", label: "Support" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <div
-                  className="text-3xl md:text-4xl font-bold mb-1"
-                  style={{ color: primaryColour }}
-                >
-                  {stat.value}
-                </div>
-                <div className="text-gray-600 text-sm">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+        <div className="max-w-4xl mx-auto px-6 py-16 text-center">
+          <h2 className="text-2xl font-bold mb-4">This Is a Sample Website</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-2">
+            The content on this page is placeholder text. This site exists
+            purely to demonstrate how a chatbot looks and feels when embedded
+            into a real web page.
+          </p>
+          <p className="text-gray-500 text-sm">
+            Try clicking the chat icon in the bottom-right corner to interact
+            with the AI assistant.
+          </p>
         </div>
       </section>
 
       {/* Testimonial */}
       <section className="max-w-4xl mx-auto px-6 py-20 text-center">
         <blockquote className="text-xl md:text-2xl text-gray-700 italic mb-6">
-          &ldquo;Switching to {orgName} widgets transformed our workflow. The
-          quality and reliability are unmatched in the industry.&rdquo;
+          &ldquo;This is a preview of how the chatbot will appear on your
+          website. The page layout, navigation, and content are all
+          placeholders.&rdquo;
         </blockquote>
-        <p className="text-gray-500 font-medium">
-          — Alex Johnson, VP of Operations at TechCorp
-        </p>
+        <p className="text-gray-500 font-medium">— Sample Website Preview</p>
       </section>
 
       {/* CTA Section */}
@@ -177,18 +176,17 @@ export default function DemoWebsite({
         style={{ backgroundColor: primaryColour }}
       >
         <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Upgrade Your Widgets?
-          </h2>
+          <h2 className="text-3xl font-bold mb-4">Try the Chat Assistant</h2>
           <p className="opacity-90 mb-8">
-            Join thousands of businesses already benefiting from our platform.
-            Get started today with a free consultation.
+            Click the chat icon in the bottom-right corner of this page to see
+            the AI assistant in action. This is exactly how it would appear on
+            your own website.
           </p>
           <span
             className="inline-block px-8 py-3 bg-white font-semibold rounded-lg shadow-lg cursor-default"
             style={{ color: primaryColour }}
           >
-            Request a Demo
+            Sample Button
           </span>
         </div>
       </section>
@@ -211,7 +209,7 @@ export default function DemoWebsite({
             )}
           </div>
           <p className="text-gray-400 text-sm">
-            &copy; {new Date().getFullYear()} {orgName}. All rights reserved.
+            Sample website for chatbot preview purposes only.
           </p>
         </div>
       </footer>
