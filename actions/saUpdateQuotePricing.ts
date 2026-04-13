@@ -73,7 +73,8 @@ const saUpdateQuotePricing = async ({
       if (!isSuperAdmin && contractLength !== null && contractLength < 12) {
         return {
           success: false,
-          error: "Contract length must be at least 12 months. Contact Voxd if you need a shorter contract.",
+          error:
+            "Contract length must be at least 12 months. Contact Voxd if you need a shorter contract.",
         };
       }
       updateData.contractLength = contractLength;
