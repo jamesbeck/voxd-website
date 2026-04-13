@@ -95,6 +95,7 @@ async function syncSingleWaba(waba: Waba, accessToken: string): Promise<void> {
       .insert({
         metaId: waba.id,
         metaBusinessId: dbBusinessId,
+        appId: "019bef67-646a-7a47-ac0a-d84b3429d085",
         name: waba.name,
         status: waba.status,
         ownershipType: waba.ownership_type,

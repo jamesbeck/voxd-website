@@ -63,14 +63,24 @@ const saUpdateQuotePricing = async ({
   // Build the update object based on permissions
   const updateData: Record<string, number | null | undefined> = {};
 
-  // Partners can update setupFee and monthlyFee
+  // Partners can update setupFee, monthlyFee, hourlyRate, and contractLength
   if (isOwnerPartner || isSuperAdmin) {
     if (setupFee !== undefined) updateData.setupFee = setupFee;
     if (monthlyFee !== undefined) updateData.monthlyFee = monthlyFee;
     if (hourlyRate !== undefined) updateData.hourlyRate = hourlyRate;
+    if (contractLength !== undefined) {
+      // Non-admin users cannot set contract length below 12 months
+      if (!isSuperAdmin && contractLength !== null && contractLength < 12) {
+        return {
+          success: false,
+          error: "Contract length must be at least 12 months. Contact Voxd if you need a shorter contract.",
+        };
+      }
+      updateData.contractLength = contractLength;
+    }
   }
 
-  // Only super admins can update the Voxd cost fields, buildDays, freeMonthlyMinutes, and contractLength
+  // Only super admins can update the Voxd cost fields, buildDays, and freeMonthlyMinutes
   if (isSuperAdmin) {
     if (setupFeeVoxdCost !== undefined)
       updateData.setupFeeVoxdCost = setupFeeVoxdCost;
@@ -79,8 +89,6 @@ const saUpdateQuotePricing = async ({
     if (buildDays !== undefined) updateData.buildDays = buildDays;
     if (freeMonthlyMinutes !== undefined)
       updateData.freeMonthlyMinutes = freeMonthlyMinutes;
-    if (contractLength !== undefined)
-      updateData.contractLength = contractLength;
   }
 
   if (Object.keys(updateData).length === 0) {

@@ -216,12 +216,29 @@ export default function EditPricingForm({
   const hourlyMargin =
     (Number(watchedValues.hourlyRate) || 0) - (hourlyRateVoxdCost ?? 0);
 
+  // Save on blur for the 4 big partner fields
+  const handleBigFieldBlur = useCallback(() => {
+    form.handleSubmit(onSubmit)();
+  }, []);
+
+  // Debounced auto-save for admin-only fields (Voxd Costs section)
+  const adminFields = JSON.stringify({
+    setupFeeVoxdCost: watchedValues.setupFeeVoxdCost,
+    monthlyFeeVoxdCost: watchedValues.monthlyFeeVoxdCost,
+    buildDays: watchedValues.buildDays,
+    freeMonthlyMinutes: watchedValues.freeMonthlyMinutes,
+    ...(canEditAdminFields
+      ? { contractLength: watchedValues.contractLength }
+      : {}),
+  });
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
     if (calculatingCosting) return;
+    if (!canEditAdminFields) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       form.handleSubmit(onSubmit)();
@@ -229,13 +246,13 @@ export default function EditPricingForm({
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [JSON.stringify(watchedValues)]);
+  }, [adminFields]);
 
   return (
     <Form {...form}>
       <form className="space-y-8">
         {/* Partner editable fields */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <FormField
             control={form.control}
             name="setupFee"
@@ -260,6 +277,10 @@ export default function EditPricingForm({
                     placeholder="0"
                     className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
                     {...field}
+                    onBlur={(e) => {
+                      field.onBlur();
+                      handleBigFieldBlur();
+                    }}
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
@@ -302,6 +323,10 @@ export default function EditPricingForm({
                     placeholder="0"
                     className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
                     {...field}
+                    onBlur={(e) => {
+                      field.onBlur();
+                      handleBigFieldBlur();
+                    }}
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
@@ -343,6 +368,10 @@ export default function EditPricingForm({
                     placeholder="0"
                     className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
                     {...field}
+                    onBlur={(e) => {
+                      field.onBlur();
+                      handleBigFieldBlur();
+                    }}
                     disabled={!canEditPartnerFields}
                   />
                 </FormControl>
@@ -359,6 +388,53 @@ export default function EditPricingForm({
               </FormItem>
             )}
           />
+
+          {!canEditAdminFields && (
+            <FormField
+              control={form.control}
+              name="contractLength"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-lg font-semibold inline-flex items-center gap-1">
+                    Contract
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-sm">
+                          Contract length in months. Minimum 12 months. Contact
+                          Voxd if you need a shorter contract length.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="12"
+                      min={12}
+                      className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
+                      {...field}
+                      onBlur={(e) => {
+                        field.onBlur();
+                        const val = e.target.value;
+                        if (val !== "" && Number(val) < 12) {
+                          field.onChange("12");
+                        }
+                        handleBigFieldBlur();
+                      }}
+                      disabled={!canEditPartnerFields}
+                    />
+                  </FormControl>
+                  <span className="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium opacity-0">
+                    &nbsp;
+                  </span>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
         {/* Voxd Costs - editable form for super admin, professional read-only card for others */}
