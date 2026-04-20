@@ -320,15 +320,9 @@
           "children": []
         },
         {
-          "id": "fees.price_changes",
-          "title": "Fee Changes",
-          "text": "{{company.shortName}} will give at least 30 days’ notice of changes to recurring Fees. Fees will not increase during an agreed Initial Term except where expressly stated in the Order Form.",
-          "children": []
-        },
-        {
           "id": "fees.price_adjustments",
           "title": "Price Adjustments",
-          "text": "{{company.shortName}} may review and adjust Fees from time to time. Any increase to the core service Fees will not exceed 10% in any 12-month period.",
+          "text": "{{company.shortName}} may review and adjust Fees from time to time. Any increase to the core service Fees will not exceed 5% in any 12-month period. Fees will not increase during an agreed Initial Term except where expressly stated in the Order Form.",
           "children": [
             {
               "id": "fees.price_adjustments.exclusions",
