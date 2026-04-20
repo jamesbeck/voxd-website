@@ -31,7 +31,7 @@ export default async function ExampleConversationIframePage({
     conversation.organizationShowLogoOnColour || null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center">
       <WhatsAppSim
         messages={conversation.messages.map((m: any) => ({
           role: m.role,
