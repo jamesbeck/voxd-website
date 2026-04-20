@@ -35,23 +35,23 @@ export default async function ExampleConversationIframePage({
       <style>{`body { background: transparent !important; }`}</style>
       <div className="min-h-screen flex items-center justify-center">
         <WhatsAppSim
-        messages={conversation.messages.map((m: any) => ({
-          role: m.role,
-          content: m.content,
-          time: m.time,
-          annotation: m.annotation || "",
-          imageUrl: m.imageUrl,
-          fileName: m.fileName,
-          fileSize: m.fileSize,
-        }))}
-        businessName={businessName}
-        startTime={conversation.startTime}
-        exampleId={exampleId}
-        logoFileExtension={logoFileExtension}
-        organizationId={organizationId}
-        organizationLogoFileExtension={organizationLogoFileExtension}
-        organizationShowLogoOnColour={organizationShowLogoOnColour}
-      />
+          messages={conversation.messages.map((m: any) => ({
+            role: m.role,
+            content: m.content,
+            time: m.time,
+            annotation: m.annotation || "",
+            imageUrl: m.imageUrl,
+            fileName: m.fileName,
+            fileSize: m.fileSize,
+          }))}
+          businessName={businessName}
+          startTime={conversation.startTime}
+          exampleId={exampleId}
+          logoFileExtension={logoFileExtension}
+          organizationId={organizationId}
+          organizationLogoFileExtension={organizationLogoFileExtension}
+          organizationShowLogoOnColour={organizationShowLogoOnColour}
+        />
       </div>
     </>
   );
