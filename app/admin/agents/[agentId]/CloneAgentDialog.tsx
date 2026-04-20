@@ -194,7 +194,7 @@ export default function CloneAgentDialog({
                         {...field}
                         serverAction={saGetProviderApiKeyTableData}
                         label={(record) =>
-                          `${record.providerName} — ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}`
+                          `${record.providerName} — ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}${record.organisationName ? ` (${record.organisationName})` : ""}`
                         }
                         valueField="id"
                         sortField="providerName"

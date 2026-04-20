@@ -12,6 +12,11 @@ const getAgentById = async ({ agentId }: { agentId: string }) => {
       "providerApiKey.providerId",
       "keyProvider.id",
     )
+    .leftJoin(
+      "organisation as keyOrganisation",
+      "providerApiKey.organisationId",
+      "keyOrganisation.id",
+    )
     .where("agent.id", agentId)
     .select(
       "agent.*",
@@ -24,7 +29,7 @@ const getAgentById = async ({ agentId }: { agentId: string }) => {
       "organisation.name as organisationName",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       db.raw(
-        `CASE WHEN "providerApiKey"."id" IS NOT NULL THEN "keyProvider"."name" || ' — ' || LEFT("providerApiKey"."key", 6) || '...' || RIGHT("providerApiKey"."key", 4) ELSE NULL END as "providerApiKeyLabel"`,
+        `CASE WHEN "providerApiKey"."id" IS NOT NULL THEN "keyProvider"."name" || ' — ' || LEFT("providerApiKey"."key", 6) || '...' || RIGHT("providerApiKey"."key", 4) || COALESCE(' (' || "keyOrganisation"."name" || ')', '') ELSE NULL END as "providerApiKeyLabel"`,
       ),
     )
     .first();

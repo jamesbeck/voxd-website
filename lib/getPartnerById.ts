@@ -10,6 +10,11 @@ export const getPartnerById = async ({
     .leftJoin("organisation", "partner.organisationId", "organisation.id")
     .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
     .leftJoin("provider", "providerApiKey.providerId", "provider.id")
+    .leftJoin(
+      "organisation as keyOrganisation",
+      "providerApiKey.organisationId",
+      "keyOrganisation.id",
+    )
     .select(
       "partner.*",
       "organisation.primaryColour as organisationPrimaryColour",
@@ -18,7 +23,7 @@ export const getPartnerById = async ({
         'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
       ),
       db.raw(
-        `CASE WHEN "providerApiKey"."id" IS NOT NULL THEN "provider"."name" || ' — ' || LEFT("providerApiKey"."key", 6) || '...' || RIGHT("providerApiKey"."key", 4) ELSE NULL END as "providerApiKeyLabel"`,
+        `CASE WHEN "providerApiKey"."id" IS NOT NULL THEN "provider"."name" || ' — ' || LEFT("providerApiKey"."key", 6) || '...' || RIGHT("providerApiKey"."key", 4) || COALESCE(' (' || "keyOrganisation"."name" || ')', '') ELSE NULL END as "providerApiKeyLabel"`,
       ),
     )
     .where("partner.id", partnerId)

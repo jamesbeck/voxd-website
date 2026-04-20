@@ -82,7 +82,7 @@ export default function EditPartnerApiKeysForm({
                   {...field}
                   serverAction={saGetProviderApiKeyTableData}
                   label={(record) =>
-                    `${record.providerName} \u2014 ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}`
+                    `${record.providerName} \u2014 ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}${record.organisationName ? ` (${record.organisationName})` : ""}`
                   }
                   valueField="id"
                   sortField="providerName"
