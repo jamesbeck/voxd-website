@@ -324,6 +324,28 @@
           "title": "Fee Changes",
           "text": "{{company.shortName}} will give at least 30 days’ notice of changes to recurring Fees. Fees will not increase during an agreed Initial Term except where expressly stated in the Order Form.",
           "children": []
+        },
+        {
+          "id": "fees.price_adjustments",
+          "title": "Price Adjustments",
+          "text": "{{company.shortName}} may review and adjust Fees from time to time. Any increase to the core service Fees will not exceed 10% in any 12-month period.",
+          "children": [
+            {
+              "id": "fees.price_adjustments.exclusions",
+              "title": "Exclusions from Cap",
+              "text": "The above cap does not apply to: (a) third-party costs, including but not limited to fees charged by AI model providers, messaging platforms (including Meta/WhatsApp), or other external service providers, which may be passed through to the Client as incurred or adjusted in line with supplier pricing; or (b) any material or significant changes to the scope, functionality, usage levels, or requirements of the Services requested by the Client."
+            },
+            {
+              "id": "fees.price_adjustments.notice_and_termination",
+              "title": "Notice and Right to Terminate",
+              "text": "Where a price increase applies, {{company.shortName}} will provide reasonable prior written notice. If the Client does not agree to a proposed increase (other than pass-through third-party costs), the Client may terminate the affected Services on written notice before the increase takes effect."
+            },
+            {
+              "id": "fees.price_adjustments.significant_change",
+              "title": "Significant Change",
+              "text": "For the purposes of this clause, a \"significant change\" includes (but is not limited to) increases in message volume, additional integrations, expanded automation scope, new features, or changes that materially increase infrastructure, compute, or support requirements."
+            }
+          ]
         }
       ]
     },
