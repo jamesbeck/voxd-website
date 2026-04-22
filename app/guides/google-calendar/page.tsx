@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import type { Metadata } from "next";
 import {
   Calendar,
@@ -9,12 +8,15 @@ import {
   Key,
   Settings,
   ExternalLink,
-  Copy,
   Building,
   Mail,
   Lock,
 } from "lucide-react";
 import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
+import PartnerGuideShell, {
+  getPartnerGuideAssets,
+  getPartnerGuideFavicon,
+} from "@/components/guides/PartnerGuideShell";
 
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
@@ -30,16 +32,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     "Step-by-step guide for Google Workspace admins to create an internal OAuth app for calendar integration.";
 
-  const favicon =
-    partner.organisationLogoFileExtension && partner.organisationId
-      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
-      : "/logo.svg";
-
   return {
     title,
     description,
     icons: {
-      icon: favicon,
+      icon: getPartnerGuideFavicon(partner),
     },
     robots: {
       index: false,
@@ -55,42 +52,12 @@ export default async function GoogleCalendarGuidePage() {
     return notFound();
   }
 
-  const brandColor = partner.organisationPrimaryColour || "#6366f1";
-  const organisationLogoUrl =
-    partner.organisationLogoFileExtension && partner.organisationId
-      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
-      : "/logo.svg";
+  const { brandColor } = getPartnerGuideAssets(partner);
 
   const callbackUrl = `https://${partner.domain}/api/auth/google/callback`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header with organisation logo */}
-      <header className="sticky top-0 z-50 py-4 px-4 bg-white border-b">
-        <div className="max-w-3xl xl:max-w-6xl mx-auto flex items-center justify-center">
-          <div
-            className="py-1 px-2"
-            style={
-              partner.organisationShowLogoOnColour
-                ? { backgroundColor: partner.organisationShowLogoOnColour }
-                : undefined
-            }
-          >
-            <Image
-              src={organisationLogoUrl}
-              alt={partner.name || "Partner"}
-              width={180}
-              height={60}
-              unoptimized
-              className="h-8 sm:h-12 w-auto object-contain"
-            />
-          </div>
-        </div>
-      </header>
-
-      {/* Content wrapper */}
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <main className="space-y-8">
+    <PartnerGuideShell partner={partner}>
           {/* Title Section */}
           <section className="bg-white rounded-xl shadow-sm p-6 space-y-4">
             <div className="flex items-start gap-4">
@@ -668,29 +635,6 @@ export default async function GoogleCalendarGuidePage() {
               Setup complete
             </div>
           </section>
-
-          {/* Footer */}
-          <footer className="flex justify-center py-8">
-            <div
-              className="py-1 px-2"
-              style={
-                partner.organisationShowLogoOnColour
-                  ? { backgroundColor: partner.organisationShowLogoOnColour }
-                  : undefined
-              }
-            >
-              <Image
-                src={organisationLogoUrl}
-                alt={partner.name || "Partner"}
-                width={120}
-                height={40}
-                unoptimized
-                className="h-8 w-auto object-contain opacity-50"
-              />
-            </div>
-          </footer>
-        </main>
-      </div>
-    </div>
+    </PartnerGuideShell>
   );
 }
