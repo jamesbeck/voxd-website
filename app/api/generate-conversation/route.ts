@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
   after(
     generateExampleConversation({
       conversationId,
-      adminUserId: accessToken.adminUserId,
     }).catch((error) => {
       console.error("Background conversation generation error:", error);
     }),

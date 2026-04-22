@@ -11,10 +11,8 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
  */
 export async function generateExampleConversation({
   conversationId,
-  adminUserId,
 }: {
   conversationId: string;
-  adminUserId: string;
 }) {
   await markGenerating(conversationId);
 

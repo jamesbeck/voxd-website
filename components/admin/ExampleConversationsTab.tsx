@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -1219,10 +1220,12 @@ export default function ExampleConversationsTab({
                           Image
                         </Label>
                         <div className="flex items-start gap-3">
-                          <img
+                          <Image
                             src={message.imageUrl}
                             alt="User shared photo"
-                            className="w-20 h-20 rounded-md object-cover border"
+                            width={80}
+                            height={80}
+                            className="h-20 w-20 rounded-md object-cover border"
                           />
                           <Button
                             variant="outline"
