@@ -857,7 +857,9 @@ export default async function PublicQuotePage({
           )}
 
           {/* Pricing Section */}
-          {(quote.setupFee !== null || quote.monthlyFee !== null || hasContractNotes) && (
+          {(quote.setupFee !== null ||
+            quote.monthlyFee !== null ||
+            hasContractNotes) && (
             <section
               id="pricing"
               className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
