@@ -23,8 +23,6 @@ import {
   CalendarClock,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 import QuoteProgress from "./QuoteProgress";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import EditProposalForm from "./EditProposalForm";
@@ -302,6 +300,7 @@ export default async function Page({
                 setupFee={quote.setupFee}
                 monthlyFee={quote.monthlyFee}
                 hourlyRate={quote.hourlyRate}
+                contractNotes={quote.contractNotes}
                 setupFeeVoxdCost={quote.setupFeeVoxdCost}
                 monthlyFeeVoxdCost={quote.monthlyFeeVoxdCost}
                 buildDays={quote.buildDays}

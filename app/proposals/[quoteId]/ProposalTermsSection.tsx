@@ -121,6 +121,7 @@ function TermsContent({ data }: { data: TermsData }) {
 
 interface ProposalTermsSectionProps {
   brandColor: string;
+  contractNotes: string | null;
   partner: {
     name: string;
     legalName: string | null;
@@ -132,9 +133,11 @@ interface ProposalTermsSectionProps {
 
 export default function ProposalTermsSection({
   brandColor,
+  contractNotes,
   partner,
 }: ProposalTermsSectionProps) {
   const [activeTab, setActiveTab] = useState("terms");
+  const hasContractNotes = !!contractNotes?.trim();
 
   // Build company info from partner data, falling back to Voxd defaults
   const companyInfo: CompanyInfo = {
@@ -250,9 +253,25 @@ export default function ProposalTermsSection({
         </div>
       </Tabs>
 
-      <p className="text-xs text-gray-500 text-center">
-        By proceeding, you agree to these terms and conditions.
-      </p>
+      <div className="space-y-2 text-center">
+        <p className="text-xs text-gray-500">
+          By proceeding, you agree to these terms and conditions.
+        </p>
+        {hasContractNotes && (
+          <p className="text-xs text-gray-500">
+            Please also refer to any contract notes or agreed terms specific to
+            this quote{" "}
+            <a
+              href="#contract-notes"
+              className="underline underline-offset-2"
+              style={{ color: brandColor }}
+            >
+              here
+            </a>
+            .
+          </p>
+        )}
+      </div>
     </section>
   );
 }

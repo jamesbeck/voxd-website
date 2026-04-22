@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { format } from "date-fns";
 import { verifyIdToken } from "@/lib/auth/verifyToken";
-import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import {
@@ -159,6 +158,7 @@ export default async function PublicQuotePage({
   const buildEndDay = 2 + effectiveBuildDays;
   const testStartDay = buildEndDay + 1;
   const testEndDay = buildEndDay + effectiveBuildDays;
+  const hasContractNotes = !!quote.contractNotes?.trim();
 
   const sections = [
     ...(quote.proposalPersonalMessage
@@ -194,7 +194,7 @@ export default async function PublicQuotePage({
           },
         ]
       : []),
-    ...(quote.setupFee !== null || quote.monthlyFee !== null
+    ...(quote.setupFee !== null || quote.monthlyFee !== null || hasContractNotes
       ? [{ id: "pricing", label: "Investment", icon: "FileCheck" as const }]
       : []),
     { id: "next-steps", label: "Next Steps", icon: "Rocket" as const },
@@ -857,7 +857,7 @@ export default async function PublicQuotePage({
           )}
 
           {/* Pricing Section */}
-          {(quote.setupFee !== null || quote.monthlyFee !== null) && (
+          {(quote.setupFee !== null || quote.monthlyFee !== null || hasContractNotes) && (
             <section
               id="pricing"
               className="bg-white rounded-xl shadow-sm p-4 md:p-6 space-y-6 scroll-mt-8"
@@ -974,6 +974,24 @@ export default async function PublicQuotePage({
                 Additional changes and amendments beyond the included free time
                 will be quoted on a case-by-case basis.
               </p>
+
+              {hasContractNotes && (
+                <div
+                  id="contract-notes"
+                  className="rounded-lg border px-4 py-4 scroll-mt-24"
+                  style={{
+                    borderColor: `${brandColor}30`,
+                    backgroundColor: `${brandColor}08`,
+                  }}
+                >
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Contract Notes
+                  </h3>
+                  <p className="text-sm text-gray-600 whitespace-pre-line">
+                    {quote.contractNotes}
+                  </p>
+                </div>
+              )}
 
               {/* LLM Costs Sub-section */}
               <div className="border-t pt-6">
@@ -1224,6 +1242,7 @@ export default async function PublicQuotePage({
           {/* Terms & Conditions Section */}
           <ProposalTermsSection
             brandColor={brandColor}
+            contractNotes={quote.contractNotes}
             partner={{
               name: quote.partner.name,
               legalName: quote.partner.legalName,

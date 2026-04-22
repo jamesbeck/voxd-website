@@ -39,6 +39,7 @@ export type Quote = {
   objectives: string | null;
   dataSourcesAndIntegrations: string | null;
   otherNotes: string | null;
+  contractNotes: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
   setupFeeVoxdCost: number | null;

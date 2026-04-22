@@ -9,6 +9,7 @@ const saUpdateQuotePricing = async ({
   setupFee,
   monthlyFee,
   hourlyRate,
+  contractNotes,
   setupFeeVoxdCost,
   monthlyFeeVoxdCost,
   buildDays,
@@ -19,6 +20,7 @@ const saUpdateQuotePricing = async ({
   setupFee?: number | null;
   monthlyFee?: number | null;
   hourlyRate?: number | null;
+  contractNotes?: string | null;
   setupFeeVoxdCost?: number | null;
   monthlyFeeVoxdCost?: number | null;
   buildDays?: number | null;
@@ -61,13 +63,14 @@ const saUpdateQuotePricing = async ({
   }
 
   // Build the update object based on permissions
-  const updateData: Record<string, number | null | undefined> = {};
+  const updateData: Record<string, number | string | null | undefined> = {};
 
   // Partners can update setupFee, monthlyFee, hourlyRate, and contractLength
   if (isOwnerPartner || isSuperAdmin) {
     if (setupFee !== undefined) updateData.setupFee = setupFee;
     if (monthlyFee !== undefined) updateData.monthlyFee = monthlyFee;
     if (hourlyRate !== undefined) updateData.hourlyRate = hourlyRate;
+    if (contractNotes !== undefined) updateData.contractNotes = contractNotes;
     if (contractLength !== undefined) {
       // Non-admin users cannot set contract length below 12 months
       if (!isSuperAdmin && contractLength !== null && contractLength < 12) {

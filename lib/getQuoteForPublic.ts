@@ -30,6 +30,7 @@ export type PublicQuote = {
   objectives: string | null;
   dataSourcesAndIntegrations: string | null;
   otherNotes: string | null;
+  contractNotes: string | null;
   proposalPersonalMessage: string | null;
   generatedProposalIntroduction: string | null;
   generatedSpecification: string | null;
@@ -104,6 +105,7 @@ export const getQuoteForPublic = async ({
       "quote.objectives",
       "quote.dataSourcesAndIntegrations",
       "quote.otherNotes",
+      "quote.contractNotes",
       "quote.proposalPersonalMessage",
       "quote.generatedProposalIntroduction",
       "quote.generatedSpecification",
@@ -211,6 +213,7 @@ export const getQuoteForPublic = async ({
     objectives: quote.objectives,
     dataSourcesAndIntegrations: quote.dataSourcesAndIntegrations,
     otherNotes: quote.otherNotes,
+    contractNotes: quote.contractNotes,
     proposalPersonalMessage: quote.proposalPersonalMessage,
     generatedProposalIntroduction: quote.generatedProposalIntroduction,
     generatedSpecification: quote.generatedSpecification,
