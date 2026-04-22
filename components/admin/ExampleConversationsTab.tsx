@@ -75,7 +75,6 @@ type ExampleConversation = {
   description: string;
   prompt: string;
   startTime: string;
-  generating?: boolean;
   generationStatus?: "pending" | "generating" | "completed" | "error";
   generationErrorSummary?: string | null;
   generationErrorDetail?: string | null;
@@ -109,6 +108,7 @@ function SortableConversationItem({
   onRegenerate: () => void;
   isRegenerating: boolean;
 }) {
+  const isGenerating = isConversationGenerating(conversation.generationStatus);
   const {
     attributes,
     listeners,
@@ -116,14 +116,13 @@ function SortableConversationItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: conversation.id, disabled: conversation.generating });
+  } = useSortable({ id: conversation.id, disabled: isGenerating });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
-  const isGenerating = conversation.generating;
   const isErrored = conversation.generationStatus === "error";
   const summary = conversation.generationErrorSummary || "Generation failed";
 
@@ -304,12 +303,7 @@ export default function ExampleConversationsTab({
     useState<ExampleConversation[]>(initialConversations);
   const [generatingIds, setGeneratingIds] = useState<string[]>(() =>
     initialConversations
-      .filter(
-        (c) =>
-          c.generating ||
-          c.generationStatus === "pending" ||
-          c.generationStatus === "generating",
-      )
+      .filter((c) => isConversationGenerating(c.generationStatus))
       .map((c) => c.id),
   );
   const [regeneratingIds, setRegeneratingIds] = useState<string[]>([]);
@@ -363,7 +357,7 @@ export default function ExampleConversationsTab({
       const terminalIds: string[] = [];
 
       for (const conv of polled) {
-        if (!conv.generating) {
+        if (!isConversationGenerating(conv.generationStatus)) {
           terminalIds.push(conv.id);
 
           if (conv.generationStatus === "error") {
@@ -377,7 +371,6 @@ export default function ExampleConversationsTab({
               c.id === conv.id
                 ? {
                     ...c,
-                    generating: false,
                     generationStatus:
                       conv.generationStatus ?? c.generationStatus,
                     generationErrorSummary:
@@ -532,7 +525,6 @@ export default function ExampleConversationsTab({
         prompt,
         startTime: "--:--",
         messages: [],
-        generating: true,
         generationStatus: "pending",
         generationErrorSummary: null,
         generationErrorDetail: null,
@@ -604,7 +596,6 @@ export default function ExampleConversationsTab({
           conversation.id === conversationId
             ? {
                 ...conversation,
-                generating: false,
                 generationStatus: "error",
                 generationErrorSummary: summary,
                 generationErrorDetail: detail,
@@ -634,7 +625,6 @@ export default function ExampleConversationsTab({
               description: "Generating...",
               startTime: "--:--",
               messages: [],
-              generating: true,
               generationStatus: "pending",
               generationErrorSummary: null,
               generationErrorDetail: null,
@@ -756,7 +746,6 @@ export default function ExampleConversationsTab({
               description: editDescription,
               startTime: editStartTime,
               messages: editMessages,
-              generating: false,
               generationStatus: "completed",
               generationErrorSummary: null,
               generationErrorDetail: null,
@@ -1470,4 +1459,10 @@ export default function ExampleConversationsTab({
       </Dialog>
     </div>
   );
+}
+
+function isConversationGenerating(
+  status?: ExampleConversation["generationStatus"],
+) {
+  return status === "pending" || status === "generating";
 }

@@ -50,7 +50,6 @@ export default async function ExamplesPage({
       description?: string;
       prompt?: string;
       startTime?: string;
-      generating?: boolean;
       generationStatus?: "pending" | "generating" | "completed" | "error";
       generationErrorSummary?: string | null;
       generationErrorDetail?: string | null;
@@ -62,7 +61,6 @@ export default async function ExamplesPage({
       description: conv.description || "",
       prompt: conv.prompt || "",
       startTime: conv.startTime || "09:00",
-      generating: conv.generating || false,
       generationStatus: conv.generationStatus,
       generationErrorSummary: conv.generationErrorSummary,
       generationErrorDetail: conv.generationErrorDetail,

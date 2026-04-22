@@ -65,7 +65,6 @@ const saMarkExampleConversationGenerationError = async ({
   await db("exampleConversation")
     .where("id", conversationId)
     .update({
-      generating: false,
       generationStatus: "error",
       generationErrorSummary: summary,
       generationErrorDetail: detail || summary,

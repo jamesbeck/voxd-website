@@ -6,7 +6,6 @@ export type QuoteConversation = {
   description: string;
   prompt: string;
   startTime: string;
-  generating?: boolean;
   generationStatus?: "pending" | "generating" | "completed" | "error";
   generationErrorSummary?: string | null;
   generationErrorDetail?: string | null;
@@ -103,7 +102,6 @@ export const getQuoteById = async ({
       "startTime",
       "messages",
       "order",
-      "generating",
       "generationStatus",
       "generationErrorSummary",
       "generationErrorDetail",

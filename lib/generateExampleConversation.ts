@@ -297,7 +297,7 @@ ${quote.otherNotes || "Not specified"}
       `,
     });
 
-    // Save the generated conversation text first (keep generating=true while images are processed)
+    // Save the generated conversation text first while image processing is still in progress.
     await db("exampleConversation")
       .where("id", conversationId)
       .update({
@@ -322,7 +322,6 @@ ${quote.otherNotes || "Not specified"}
 
     // Mark generation as complete
     await db("exampleConversation").where("id", conversationId).update({
-      generating: false,
       generationStatus: "completed",
       generationErrorSummary: null,
       generationErrorDetail: null,
@@ -443,7 +442,6 @@ async function generateConversationImages({
 
 async function markGenerating(conversationId: string) {
   await db("exampleConversation").where("id", conversationId).update({
-    generating: true,
     generationStatus: "generating",
     generationErrorSummary: null,
     generationErrorDetail: null,
@@ -462,7 +460,6 @@ async function markError({
   await db("exampleConversation")
     .where("id", conversationId)
     .update({
-      generating: false,
       generationStatus: "error",
       generationErrorSummary: summary,
       generationErrorDetail: detail || summary,

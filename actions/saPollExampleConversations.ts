@@ -6,7 +6,6 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export type PollConversationResult = {
   id: string;
-  generating: boolean;
   generationStatus?: "pending" | "generating" | "completed" | "error";
   generationErrorSummary?: string | null;
   generationErrorDetail?: string | null;
@@ -41,7 +40,6 @@ const saPollExampleConversations = async (input: {
       .whereIn("id", input.conversationIds)
       .select(
         "id",
-        "generating",
         "generationStatus",
         "generationErrorSummary",
         "generationErrorDetail",
@@ -52,11 +50,10 @@ const saPollExampleConversations = async (input: {
       );
 
     const results: PollConversationResult[] = conversations.map((conv: any) => {
-      if (conv.generating) {
+      if (isGenerationInProgress(conv.generationStatus)) {
         // Still generating — return minimal data
         return {
           id: conv.id,
-          generating: true,
           generationStatus: conv.generationStatus,
           generationErrorSummary: conv.generationErrorSummary,
           generationErrorDetail: conv.generationErrorDetail,
@@ -71,7 +68,6 @@ const saPollExampleConversations = async (input: {
 
       return {
         id: conv.id,
-        generating: false,
         generationStatus: conv.generationStatus,
         generationErrorSummary: conv.generationErrorSummary,
         generationErrorDetail: conv.generationErrorDetail,
@@ -91,5 +87,9 @@ const saPollExampleConversations = async (input: {
     };
   }
 };
+
+function isGenerationInProgress(status?: string | null) {
+  return status === "pending" || status === "generating";
+}
 
 export default saPollExampleConversations;
