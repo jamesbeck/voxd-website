@@ -74,6 +74,10 @@ const saUpdateExampleConversation = async ({
   // Update the conversation
   const updateData: Record<string, unknown> = {
     messages: JSON.stringify(messages),
+    generating: false,
+    generationStatus: "completed",
+    generationErrorSummary: null,
+    generationErrorDetail: null,
   };
 
   if (description !== undefined) {

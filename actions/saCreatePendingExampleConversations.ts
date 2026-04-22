@@ -111,6 +111,9 @@ const saCreatePendingExampleConversations = async (
         startTime: "--:--",
         messages: JSON.stringify([]),
         generating: true,
+        generationStatus: "pending",
+        generationErrorSummary: null,
+        generationErrorDetail: null,
         order: nextOrder++,
       })
       .returning("id");

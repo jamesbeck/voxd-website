@@ -411,6 +411,9 @@ ${rewriteContext}`,
             startTime: "--:--",
             messages: JSON.stringify([]),
             generating: true,
+            generationStatus: "pending",
+            generationErrorSummary: null,
+            generationErrorDetail: null,
             order: conv.order,
           })
           .returning("id");

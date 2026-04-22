@@ -3,7 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +34,8 @@ import {
   Sparkles,
   ImagePlus,
   FileText,
+  AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 import saGenerateScenario from "@/actions/saGenerateScenario";
 import saDeleteQuoteExampleConversation from "@/actions/saDeleteQuoteExampleConversation";
@@ -37,6 +46,8 @@ import saReorderExampleConversations from "@/actions/saReorderExampleConversatio
 import saCreatePendingExampleConversations from "@/actions/saCreatePendingExampleConversations";
 import saPollExampleConversations from "@/actions/saPollExampleConversations";
 import type { PollConversationResult } from "@/actions/saPollExampleConversations";
+import saRegenerateExampleConversation from "@/actions/saRegenerateExampleConversation";
+import saMarkExampleConversationGenerationError from "@/actions/saMarkExampleConversationGenerationError";
 import saUploadConversationMessageImage from "@/actions/saUploadConversationMessageImage";
 import WhatsAppSim from "@/components/whatsAppSim";
 import {
@@ -65,6 +76,9 @@ type ExampleConversation = {
   prompt: string;
   startTime: string;
   generating?: boolean;
+  generationStatus?: "pending" | "generating" | "completed" | "error";
+  generationErrorSummary?: string | null;
+  generationErrorDetail?: string | null;
   messages: {
     role: "user" | "assistant";
     content: string;
@@ -83,6 +97,8 @@ function SortableConversationItem({
   onEdit,
   onEmbed,
   onDelete,
+  onRegenerate,
+  isRegenerating,
 }: {
   conversation: ExampleConversation;
   isSelected: boolean;
@@ -90,6 +106,8 @@ function SortableConversationItem({
   onEdit: () => void;
   onEmbed: () => void;
   onDelete: () => void;
+  onRegenerate: () => void;
+  isRegenerating: boolean;
 }) {
   const {
     attributes,
@@ -106,6 +124,8 @@ function SortableConversationItem({
   };
 
   const isGenerating = conversation.generating;
+  const isErrored = conversation.generationStatus === "error";
+  const summary = conversation.generationErrorSummary || "Generation failed";
 
   return (
     <div
@@ -148,6 +168,26 @@ function SortableConversationItem({
               <Spinner className="h-3 w-3" />
               Generating conversation...
             </span>
+          ) : isErrored ? (
+            <span className="flex items-center gap-2 flex-wrap">
+              <span>{summary}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="destructive"
+                      className="inline-flex items-center gap-1"
+                    >
+                      <AlertCircle className="h-3 w-3" />
+                      Error
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm whitespace-pre-wrap">
+                    {conversation.generationErrorDetail || summary}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </span>
           ) : (
             conversation.description
           )}
@@ -163,38 +203,64 @@ function SortableConversationItem({
         )}
       </button>
       <div className="flex flex-col gap-1 p-2 border-l">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!isGenerating) onEdit();
-          }}
-          className={cn(
-            "p-1.5 rounded-md text-muted-foreground",
-            isGenerating
-              ? "cursor-not-allowed opacity-50"
-              : "hover:bg-muted hover:text-foreground",
-          )}
-          title="Edit conversation"
-          disabled={isGenerating}
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!isGenerating) onEmbed();
-          }}
-          className={cn(
-            "p-1.5 rounded-md text-muted-foreground",
-            isGenerating
-              ? "cursor-not-allowed opacity-50"
-              : "hover:bg-muted hover:text-foreground",
-          )}
-          title="Get embed code"
-          disabled={isGenerating}
-        >
-          <Code2 className="h-4 w-4" />
-        </button>
+        {isErrored && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onRegenerate();
+            }}
+            className={cn(
+              "p-1.5 rounded-md text-muted-foreground",
+              isRegenerating
+                ? "cursor-wait opacity-50"
+                : "hover:bg-muted hover:text-foreground",
+            )}
+            title="Re-generate conversation"
+            disabled={isRegenerating}
+          >
+            {isRegenerating ? (
+              <Spinner className="h-4 w-4" />
+            ) : (
+              <RotateCcw className="h-4 w-4" />
+            )}
+          </button>
+        )}
+        {!isErrored && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isGenerating) onEdit();
+            }}
+            className={cn(
+              "p-1.5 rounded-md text-muted-foreground",
+              isGenerating
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-muted hover:text-foreground",
+            )}
+            title="Edit conversation"
+            disabled={isGenerating}
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        )}
+        {!isErrored && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!isGenerating) onEmbed();
+            }}
+            className={cn(
+              "p-1.5 rounded-md text-muted-foreground",
+              isGenerating
+                ? "cursor-not-allowed opacity-50"
+                : "hover:bg-muted hover:text-foreground",
+            )}
+            title="Get embed code"
+            disabled={isGenerating}
+          >
+            <Code2 className="h-4 w-4" />
+          </button>
+        )}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -237,8 +303,16 @@ export default function ExampleConversationsTab({
   const [conversations, setConversations] =
     useState<ExampleConversation[]>(initialConversations);
   const [generatingIds, setGeneratingIds] = useState<string[]>(() =>
-    initialConversations.filter((c) => c.generating).map((c) => c.id),
+    initialConversations
+      .filter(
+        (c) =>
+          c.generating ||
+          c.generationStatus === "pending" ||
+          c.generationStatus === "generating",
+      )
+      .map((c) => c.id),
   );
+  const [regeneratingIds, setRegeneratingIds] = useState<string[]>([]);
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(initialConversations.length > 0 ? initialConversations[0].id : null);
@@ -286,24 +360,30 @@ export default function ExampleConversationsTab({
       if (!result.success || !result.data) return;
 
       const polled = result.data as PollConversationResult[];
-      const completedIds: string[] = [];
+      const terminalIds: string[] = [];
 
       for (const conv of polled) {
-        if (!conv.generating && conv.messages) {
-          completedIds.push(conv.id);
+        if (!conv.generating) {
+          terminalIds.push(conv.id);
 
-          // Check if it was an error
-          if (conv.description?.startsWith("Error:")) {
-            toast.error(conv.description);
+          if (conv.generationStatus === "error") {
+            toast.error(
+              conv.generationErrorSummary || "Conversation generation failed",
+            );
           }
 
-          // Update the conversation in local state with full data
           setConversations((prev) =>
             prev.map((c) =>
               c.id === conv.id
                 ? {
                     ...c,
                     generating: false,
+                    generationStatus:
+                      conv.generationStatus ?? c.generationStatus,
+                    generationErrorSummary:
+                      conv.generationErrorSummary ?? c.generationErrorSummary,
+                    generationErrorDetail:
+                      conv.generationErrorDetail ?? c.generationErrorDetail,
                     description: conv.description ?? c.description,
                     startTime: conv.startTime ?? c.startTime,
                     messages: conv.messages ?? c.messages,
@@ -314,9 +394,12 @@ export default function ExampleConversationsTab({
         }
       }
 
-      if (completedIds.length > 0) {
+      if (terminalIds.length > 0) {
         setGeneratingIds((prev) =>
-          prev.filter((id) => !completedIds.includes(id)),
+          prev.filter((id) => !terminalIds.includes(id)),
+        );
+        setRegeneratingIds((prev) =>
+          prev.filter((id) => !terminalIds.includes(id)),
         );
       }
     };
@@ -450,6 +533,9 @@ export default function ExampleConversationsTab({
         startTime: "--:--",
         messages: [],
         generating: true,
+        generationStatus: "pending",
+        generationErrorSummary: null,
+        generationErrorDetail: null,
       }),
     );
 
@@ -467,13 +553,125 @@ export default function ExampleConversationsTab({
 
     // Fire off generation requests in background via API route (doesn't block server action queue)
     for (const conversationId of conversationIds) {
-      fetch("/api/generate-conversation", {
+      await triggerConversationGeneration({
+        conversationId,
+        summary: "Failed to start conversation generation",
+      });
+    }
+  };
+
+  const triggerConversationGeneration = async ({
+    conversationId,
+    summary,
+  }: {
+    conversationId: string;
+    summary: string;
+  }) => {
+    try {
+      const response = await fetch("/api/generate-conversation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversationId }),
-      }).catch((error) => {
-        console.error("Background generation error:", error);
       });
+
+      if (!response.ok) {
+        let detail = `${response.status} ${response.statusText}`.trim();
+
+        try {
+          const body = await response.json();
+          if (body?.error) {
+            detail = body.error;
+          }
+        } catch {
+          // Ignore non-JSON error responses.
+        }
+
+        throw new Error(detail || summary);
+      }
+
+      return true;
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : summary;
+
+      await saMarkExampleConversationGenerationError({
+        conversationId,
+        summary,
+        detail,
+      });
+
+      setConversations((prev) =>
+        prev.map((conversation) =>
+          conversation.id === conversationId
+            ? {
+                ...conversation,
+                generating: false,
+                generationStatus: "error",
+                generationErrorSummary: summary,
+                generationErrorDetail: detail,
+              }
+            : conversation,
+        ),
+      );
+      setGeneratingIds((prev) => prev.filter((id) => id !== conversationId));
+      setRegeneratingIds((prev) => prev.filter((id) => id !== conversationId));
+      toast.error(summary);
+      console.error("Background generation error:", error);
+      return false;
+    }
+  };
+
+  const handleRegenerate = async (conversationId: string) => {
+    const previousConversation = conversations.find(
+      (conversation) => conversation.id === conversationId,
+    );
+
+    setRegeneratingIds((prev) => [...prev, conversationId]);
+    setConversations((prev) =>
+      prev.map((conversation) =>
+        conversation.id === conversationId
+          ? {
+              ...conversation,
+              description: "Generating...",
+              startTime: "--:--",
+              messages: [],
+              generating: true,
+              generationStatus: "pending",
+              generationErrorSummary: null,
+              generationErrorDetail: null,
+            }
+          : conversation,
+      ),
+    );
+    setGeneratingIds((prev) =>
+      prev.includes(conversationId) ? prev : [...prev, conversationId],
+    );
+
+    const response = await saRegenerateExampleConversation({ conversationId });
+
+    if (!response.success) {
+      toast.error(response.error || "Failed to re-generate conversation");
+      setRegeneratingIds((prev) => prev.filter((id) => id !== conversationId));
+
+      if (previousConversation) {
+        setConversations((prev) =>
+          prev.map((conversation) =>
+            conversation.id === conversationId
+              ? previousConversation
+              : conversation,
+          ),
+        );
+      }
+      setGeneratingIds((prev) => prev.filter((id) => id !== conversationId));
+      return;
+    }
+
+    const started = await triggerConversationGeneration({
+      conversationId,
+      summary: "Failed to restart conversation generation",
+    });
+
+    if (started) {
+      toast.success("Conversation re-generation started");
     }
   };
 
@@ -558,6 +756,10 @@ export default function ExampleConversationsTab({
               description: editDescription,
               startTime: editStartTime,
               messages: editMessages,
+              generating: false,
+              generationStatus: "completed",
+              generationErrorSummary: null,
+              generationErrorDetail: null,
             }
           : c,
       ),
@@ -752,6 +954,8 @@ export default function ExampleConversationsTab({
                       onEdit={() => openEditDialog(conversation)}
                       onEmbed={() => setEmbedId(conversation.id)}
                       onDelete={() => setDeleteId(conversation.id)}
+                      onRegenerate={() => handleRegenerate(conversation.id)}
+                      isRegenerating={regeneratingIds.includes(conversation.id)}
                     />
                   ))}
                 </div>

@@ -16,6 +16,8 @@ export async function generateExampleConversation({
   conversationId: string;
   adminUserId: string;
 }) {
+  await markGenerating(conversationId);
+
   const conversation = await db("exampleConversation")
     .where("id", conversationId)
     .first();
@@ -33,7 +35,10 @@ export async function generateExampleConversation({
       .where("id", conversation.exampleId)
       .first();
     if (!example) {
-      await markError(conversationId, "Example not found");
+      await markError({
+        conversationId,
+        summary: "Example not found",
+      });
       throw new Error("Example not found");
     }
 
@@ -71,7 +76,10 @@ export async function generateExampleConversation({
       )
       .first();
     if (!quote) {
-      await markError(conversationId, "Quote not found");
+      await markError({
+        conversationId,
+        summary: "Quote not found",
+      });
       throw new Error("Quote not found");
     }
     providerApiKey = quote.providerApiKey;
@@ -146,7 +154,10 @@ ${quote.otherNotes || "Not specified"}
   }
 
   if (!providerApiKey) {
-    await markError(conversationId, "No API key configured");
+    await markError({
+      conversationId,
+      summary: "No API key configured",
+    });
     throw new Error("No provider API key configured");
   }
 
@@ -293,6 +304,8 @@ ${quote.otherNotes || "Not specified"}
         messages: JSON.stringify(object.messages),
         description: object.summary,
         startTime: object.startTime,
+        generationErrorSummary: null,
+        generationErrorDetail: null,
       });
 
     // Check if any messages have images to generate
@@ -308,12 +321,19 @@ ${quote.otherNotes || "Not specified"}
     }
 
     // Mark generation as complete
-    await db("exampleConversation")
-      .where("id", conversationId)
-      .update({ generating: false });
+    await db("exampleConversation").where("id", conversationId).update({
+      generating: false,
+      generationStatus: "completed",
+      generationErrorSummary: null,
+      generationErrorDetail: null,
+    });
   } catch (error) {
     console.error("Error generating conversation:", error);
-    await markError(conversationId, "Failed to generate");
+    await markError({
+      conversationId,
+      summary: "Failed to generate conversation",
+      detail: getErrorDetail(error),
+    });
     throw error;
   }
 }
@@ -408,9 +428,8 @@ async function generateConversationImages({
       const imageUrl = `https://${process.env.NEXT_PUBLIC_WASABI_ENDPOINT}/${bucketName}/${key}`;
       messages[index].imageUrl = imageUrl;
     } catch (imageError) {
-      console.error(
-        `Error generating image for message ${index} in conversation ${conversationId}:`,
-        imageError,
+      throw new Error(
+        `Image generation failed for message ${index + 1}: ${getErrorDetail(imageError)}`,
       );
     }
   }
@@ -422,11 +441,46 @@ async function generateConversationImages({
     });
 }
 
-async function markError(conversationId: string, message: string) {
+async function markGenerating(conversationId: string) {
+  await db("exampleConversation").where("id", conversationId).update({
+    generating: true,
+    generationStatus: "generating",
+    generationErrorSummary: null,
+    generationErrorDetail: null,
+  });
+}
+
+async function markError({
+  conversationId,
+  summary,
+  detail,
+}: {
+  conversationId: string;
+  summary: string;
+  detail?: string;
+}) {
   await db("exampleConversation")
     .where("id", conversationId)
     .update({
       generating: false,
-      description: `Error: ${message}`,
+      generationStatus: "error",
+      generationErrorSummary: summary,
+      generationErrorDetail: detail || summary,
     });
+}
+
+function getErrorDetail(error: unknown) {
+  if (error instanceof Error) {
+    return error.message || error.name;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Unknown error";
+  }
 }

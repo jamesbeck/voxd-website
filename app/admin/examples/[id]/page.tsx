@@ -51,6 +51,9 @@ export default async function ExamplesPage({
       prompt?: string;
       startTime?: string;
       generating?: boolean;
+      generationStatus?: "pending" | "generating" | "completed" | "error";
+      generationErrorSummary?: string | null;
+      generationErrorDetail?: string | null;
       messages:
         | string
         | { role: string; content: string; time: number; annotation: string }[];
@@ -60,6 +63,9 @@ export default async function ExamplesPage({
       prompt: conv.prompt || "",
       startTime: conv.startTime || "09:00",
       generating: conv.generating || false,
+      generationStatus: conv.generationStatus,
+      generationErrorSummary: conv.generationErrorSummary,
+      generationErrorDetail: conv.generationErrorDetail,
       messages:
         typeof conv.messages === "string"
           ? JSON.parse(conv.messages)
