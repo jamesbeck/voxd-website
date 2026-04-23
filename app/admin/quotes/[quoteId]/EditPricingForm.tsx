@@ -66,6 +66,7 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+type PricingFieldName = keyof FormValues;
 
 export default function EditPricingForm({
   quoteId,
@@ -104,11 +105,18 @@ export default function EditPricingForm({
 }) {
   const [calculatingCosting, setCalculatingCosting] = useState(false);
   const router = useRouter();
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveTimeoutsRef = useRef<
+    Partial<Record<PricingFieldName, ReturnType<typeof setTimeout>>>
+  >({});
   const isFirstRender = useRef(true);
+  const previousAutoSaveValuesRef = useRef<Partial<FormValues> | null>(null);
 
   const canEditPartnerFields = isOwnerPartner || isSuperAdmin;
   const canEditAdminFields = isSuperAdmin;
+  const minimumPartnerContractLength =
+    !isSuperAdmin && contractLength != null && contractLength < 12
+      ? contractLength
+      : 12;
 
   // Determine best source for costing calculation
   const costingSource = hasGeneratedProposal
@@ -163,62 +171,112 @@ export default function EditPricingForm({
     },
   });
 
-  const submitPricing = useCallback(
+  const submitPricingFields = useCallback(
     async (
-      values: FormValues,
+      fieldNames: PricingFieldName[],
       options?: {
         silent?: boolean;
       },
     ) => {
-      // Convert string values to numbers (or null if empty)
+      const values = form.getValues();
       const parseValue = (val: string) => (val === "" ? null : Number(val));
+      const payload: Parameters<typeof saUpdateQuotePricing>[0] = { quoteId };
 
-      const response = await saUpdateQuotePricing({
-        quoteId,
-        setupFee: parseValue(values.setupFee),
-        monthlyFee: parseValue(values.monthlyFee),
-        hourlyRate: parseValue(values.hourlyRate),
-        contractNotes:
-          values.contractNotes.trim() === "" ? null : values.contractNotes,
-        setupFeeVoxdCost: parseValue(values.setupFeeVoxdCost),
-        monthlyFeeVoxdCost: parseValue(values.monthlyFeeVoxdCost),
-        buildDays: parseValue(values.buildDays),
-        freeMonthlyMinutes: parseValue(values.freeMonthlyMinutes),
-        contractLength: parseValue(values.contractLength),
-      });
+      for (const fieldName of fieldNames) {
+        const existingTimeout = autoSaveTimeoutsRef.current[fieldName];
+        if (existingTimeout) {
+          clearTimeout(existingTimeout);
+          delete autoSaveTimeoutsRef.current[fieldName];
+        }
+
+        form.clearErrors(fieldName);
+
+        switch (fieldName) {
+          case "setupFee":
+            payload.setupFee = parseValue(values.setupFee);
+            break;
+          case "monthlyFee":
+            payload.monthlyFee = parseValue(values.monthlyFee);
+            break;
+          case "hourlyRate":
+            payload.hourlyRate = parseValue(values.hourlyRate);
+            break;
+          case "contractNotes":
+            payload.contractNotes =
+              values.contractNotes.trim() === "" ? null : values.contractNotes;
+            break;
+          case "setupFeeVoxdCost":
+            payload.setupFeeVoxdCost = parseValue(values.setupFeeVoxdCost);
+            break;
+          case "monthlyFeeVoxdCost":
+            payload.monthlyFeeVoxdCost = parseValue(values.monthlyFeeVoxdCost);
+            break;
+          case "buildDays":
+            payload.buildDays = parseValue(values.buildDays);
+            break;
+          case "freeMonthlyMinutes":
+            payload.freeMonthlyMinutes = parseValue(values.freeMonthlyMinutes);
+            break;
+          case "contractLength":
+            payload.contractLength = parseValue(values.contractLength);
+            break;
+        }
+      }
+
+      form.clearErrors("root");
+
+      const response = await saUpdateQuotePricing(payload);
 
       if (!response.success) {
-        if (response.error) {
-          toast.error("There was an error updating the quote pricing");
-
-          form.setError("root", {
-            type: "manual",
-            message: response.error,
-          });
-        }
         if (response.fieldErrors) {
           for (const key in response.fieldErrors) {
-            form.setError(key as keyof typeof values, {
+            form.setError(key as keyof FormValues, {
               type: "manual",
               message: response.fieldErrors[key],
             });
           }
         }
+
+        if (response.error) {
+          toast.error(response.error);
+
+          if (!response.fieldErrors) {
+            form.setError("root", {
+              type: "manual",
+              message: response.error,
+            });
+          }
+        } else {
+          const fallbackMessage =
+            "There was an error updating the quote pricing.";
+
+          if (!options?.silent) {
+            toast.error(fallbackMessage);
+          }
+
+          form.setError("root", {
+            type: "manual",
+            message: fallbackMessage,
+          });
+        }
+
+        return;
       }
 
-      if (response.success) {
-        if (!options?.silent) {
-          toast.success("Quote pricing updated");
-        }
-        router.refresh();
+      if (!options?.silent) {
+        toast.success("Quote pricing updated");
       }
+      router.refresh();
     },
     [form, quoteId, router],
   );
 
-  const submitWithFeedback = useCallback(() => {
-    form.handleSubmit((values) => submitPricing(values))();
-  }, [form, submitPricing]);
+  const submitWithFeedback = useCallback(
+    (fieldName: PricingFieldName) => {
+      void submitPricingFields([fieldName]);
+    },
+    [submitPricingFields],
+  );
 
   const watchedValues = form.watch();
 
@@ -232,51 +290,87 @@ export default function EditPricingForm({
   const hourlyMargin =
     (Number(watchedValues.hourlyRate) || 0) - (hourlyRateVoxdCost ?? 0);
 
-  // Save on blur for the 4 big partner fields
-  // Debounced auto-save for fields that should save while typing.
-  const debouncedFields = JSON.stringify({
-    ...(canEditAdminFields
-      ? {
-          setupFeeVoxdCost: watchedValues.setupFeeVoxdCost,
-          monthlyFeeVoxdCost: watchedValues.monthlyFeeVoxdCost,
-          buildDays: watchedValues.buildDays,
-          freeMonthlyMinutes: watchedValues.freeMonthlyMinutes,
-          contractLength: watchedValues.contractLength,
-        }
-      : {}),
-    ...(canEditPartnerFields
-      ? {
-          contractNotes: watchedValues.contractNotes,
-        }
-      : {}),
-  });
-
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      previousAutoSaveValuesRef.current = {
+        ...(canEditAdminFields
+          ? {
+              setupFeeVoxdCost: watchedValues.setupFeeVoxdCost,
+              monthlyFeeVoxdCost: watchedValues.monthlyFeeVoxdCost,
+              buildDays: watchedValues.buildDays,
+              freeMonthlyMinutes: watchedValues.freeMonthlyMinutes,
+              contractLength: watchedValues.contractLength,
+            }
+          : {}),
+        ...(canEditPartnerFields
+          ? {
+              contractNotes: watchedValues.contractNotes,
+            }
+          : {}),
+      };
       return;
     }
     if (calculatingCosting) return;
     if (!canEditAdminFields && !canEditPartnerFields) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      form.handleSubmit((values) => submitPricing(values, { silent: true }))();
-    }, 800);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+
+    const autoSaveFieldNames: PricingFieldName[] = [
+      ...(canEditAdminFields
+        ? ([
+            "setupFeeVoxdCost",
+            "monthlyFeeVoxdCost",
+            "buildDays",
+            "freeMonthlyMinutes",
+            "contractLength",
+          ] as PricingFieldName[])
+        : []),
+      ...(canEditPartnerFields
+        ? (["contractNotes"] as PricingFieldName[])
+        : []),
+    ];
+    const previousValues = previousAutoSaveValuesRef.current;
+
+    for (const fieldName of autoSaveFieldNames) {
+      if (previousValues?.[fieldName] === watchedValues[fieldName]) {
+        continue;
+      }
+
+      const existingTimeout = autoSaveTimeoutsRef.current[fieldName];
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+      }
+
+      autoSaveTimeoutsRef.current[fieldName] = setTimeout(() => {
+        void submitPricingFields([fieldName], { silent: true });
+      }, 800);
+    }
+
+    previousAutoSaveValuesRef.current = Object.fromEntries(
+      autoSaveFieldNames.map((fieldName) => [
+        fieldName,
+        watchedValues[fieldName],
+      ]),
+    ) as Partial<FormValues>;
   }, [
-    debouncedFields,
+    watchedValues,
     calculatingCosting,
     canEditAdminFields,
     canEditPartnerFields,
-    form,
-    submitPricing,
+    submitPricingFields,
   ]);
+
+  const rootError = form.formState.errors.root?.message;
 
   return (
     <Form {...form}>
       <form className="space-y-8">
+        {rootError && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{rootError}</AlertDescription>
+          </Alert>
+        )}
+
         {/* Partner editable fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <FormField
@@ -305,7 +399,7 @@ export default function EditPricingForm({
                     {...field}
                     onBlur={() => {
                       field.onBlur();
-                      submitWithFeedback();
+                      submitWithFeedback("setupFee");
                     }}
                     disabled={!canEditPartnerFields}
                   />
@@ -319,7 +413,9 @@ export default function EditPricingForm({
                     maximumFractionDigits: 2,
                   })}
                 </span>
-                <FormMessage />
+                <div className="min-h-16">
+                  <FormMessage className="leading-5" />
+                </div>
               </FormItem>
             )}
           />
@@ -351,7 +447,7 @@ export default function EditPricingForm({
                     {...field}
                     onBlur={() => {
                       field.onBlur();
-                      submitWithFeedback();
+                      submitWithFeedback("monthlyFee");
                     }}
                     disabled={!canEditPartnerFields}
                   />
@@ -365,7 +461,9 @@ export default function EditPricingForm({
                     maximumFractionDigits: 2,
                   })}
                 </span>
-                <FormMessage />
+                <div className="min-h-16">
+                  <FormMessage className="leading-5" />
+                </div>
               </FormItem>
             )}
           />
@@ -396,7 +494,7 @@ export default function EditPricingForm({
                     {...field}
                     onBlur={() => {
                       field.onBlur();
-                      submitWithFeedback();
+                      submitWithFeedback("hourlyRate");
                     }}
                     disabled={!canEditPartnerFields}
                   />
@@ -410,7 +508,9 @@ export default function EditPricingForm({
                     maximumFractionDigits: 2,
                   })}
                 </span>
-                <FormMessage />
+                <div className="min-h-16">
+                  <FormMessage className="leading-5" />
+                </div>
               </FormItem>
             )}
           />
@@ -429,8 +529,11 @@ export default function EditPricingForm({
                           <Info className="h-4 w-4 text-muted-foreground cursor-help shrink-0" />
                         </TooltipTrigger>
                         <TooltipContent side="top" className="text-sm">
-                          Contract length in months. Minimum 12 months. Contact
-                          Voxd if you need a shorter contract length.
+                          Contract length in months. Minimum{" "}
+                          {minimumPartnerContractLength} months.
+                          {minimumPartnerContractLength < 12
+                            ? " Voxd has already approved a shorter term for this quote."
+                            : " Contact Voxd if you need a shorter contract length."}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -438,17 +541,13 @@ export default function EditPricingForm({
                   <FormControl>
                     <Input
                       type="number"
-                      placeholder="12"
-                      min={12}
+                      placeholder={minimumPartnerContractLength.toString()}
+                      min={minimumPartnerContractLength}
                       className="text-4xl md:text-4xl h-16 font-bold border-2 border-primary"
                       {...field}
-                      onBlur={(e) => {
+                      onBlur={() => {
                         field.onBlur();
-                        const val = e.target.value;
-                        if (val !== "" && Number(val) < 12) {
-                          field.onChange("12");
-                        }
-                        submitWithFeedback();
+                        submitWithFeedback("contractLength");
                       }}
                       disabled={!canEditPartnerFields}
                     />
@@ -456,7 +555,9 @@ export default function EditPricingForm({
                   <span className="inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium opacity-0">
                     &nbsp;
                   </span>
-                  <FormMessage />
+                  <div className="min-h-16">
+                    <FormMessage className="leading-5" />
+                  </div>
                 </FormItem>
               )}
             />

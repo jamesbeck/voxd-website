@@ -72,12 +72,29 @@ const saUpdateQuotePricing = async ({
     if (hourlyRate !== undefined) updateData.hourlyRate = hourlyRate;
     if (contractNotes !== undefined) updateData.contractNotes = contractNotes;
     if (contractLength !== undefined) {
-      // Non-admin users cannot set contract length below 12 months
-      if (!isSuperAdmin && contractLength !== null && contractLength < 12) {
+      const minimumPartnerContractLength =
+        existingQuote.contractLength != null &&
+        existingQuote.contractLength < 12
+          ? existingQuote.contractLength
+          : 12;
+
+      if (
+        !isSuperAdmin &&
+        contractLength !== null &&
+        contractLength < minimumPartnerContractLength
+      ) {
         return {
           success: false,
           error:
-            "Contract length must be at least 12 months. Contact Voxd if you need a shorter contract.",
+            minimumPartnerContractLength < 12
+              ? `Contract length must be at least ${minimumPartnerContractLength} months because this quote has already been approved below 12 months.`
+              : "Contract length must be at least 12 months. Contact Voxd if you need a shorter contract.",
+          fieldErrors: {
+            contractLength:
+              minimumPartnerContractLength < 12
+                ? `Enter ${minimumPartnerContractLength} months or more, or ask Voxd to approve a shorter term.`
+                : "Enter 12 months or more, or ask Voxd to approve a shorter term.",
+          },
         };
       }
       updateData.contractLength = contractLength;
