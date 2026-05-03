@@ -63,10 +63,12 @@ const saUpdateAdminUser = async ({
   }
 
   if (organisationId && organisationId !== existingUser.organisationId) {
-    const accessibleOrganisation = await getAccessibleOrganisationForAdminUsers({
-      organisationId,
-      accessToken,
-    });
+    const accessibleOrganisation = await getAccessibleOrganisationForAdminUsers(
+      {
+        organisationId,
+        accessToken,
+      },
+    );
 
     if (!accessibleOrganisation) {
       return {

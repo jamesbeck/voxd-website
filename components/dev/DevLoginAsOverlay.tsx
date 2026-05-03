@@ -290,7 +290,9 @@ export default function DevLoginAsOverlay({
                         label={user.organisationName || "No organisation"}
                         logoUrl={organisationLogoUrl}
                         backgroundColor={user.organisationShowLogoOnColour}
-                        fallback={<Building2 className="h-3.5 w-3.5 text-slate-500" />}
+                        fallback={
+                          <Building2 className="h-3.5 w-3.5 text-slate-500" />
+                        }
                       />
                       <BrandChip
                         label={user.effectivePartnerName || "No partner"}
@@ -312,7 +314,8 @@ export default function DevLoginAsOverlay({
                       <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500">
                         <span className="text-slate-400">Tenant</span>
                         <span className="truncate font-medium text-slate-700">
-                          {user.effectivePartnerDomain || user.effectivePartnerName}
+                          {user.effectivePartnerDomain ||
+                            user.effectivePartnerName}
                         </span>
                       </div>
                     )}
@@ -335,7 +338,8 @@ function getOrganisationLogoUrl(
     return null;
   }
 
-  const endpoint = process.env.NEXT_PUBLIC_WASABI_ENDPOINT || "s3.eu-west-1.wasabisys.com";
+  const endpoint =
+    process.env.NEXT_PUBLIC_WASABI_ENDPOINT || "s3.eu-west-1.wasabisys.com";
   const bucketName = process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd";
 
   return `https://${endpoint}/${bucketName}/organisationLogos/${organisationId}.${logoFileExtension}`;

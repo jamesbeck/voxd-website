@@ -35,7 +35,10 @@ const getInitialPermissionValues = (
       group.permissions.flatMap((permission) => {
         if (permission.scopeMode === "agent") {
           return permission.agentValues.map((agentValue) => [
-            getPermissionValueKey(permission.permissionDefinitionId, agentValue.agentId),
+            getPermissionValueKey(
+              permission.permissionDefinitionId,
+              agentValue.agentId,
+            ),
             agentValue.effectiveValue,
           ]);
         }
@@ -73,11 +76,11 @@ export default function AdminUserPermissionsTabClient({
   const writeUserPermissionsName =
     permissionGroups
       .flatMap((group) => group.permissions)
-      .find((permission) => permission.key === "write_user_permissions")?.name ||
-    "Write User Permissions";
-  const [permissionValues, setPermissionValues] = useState<Record<string, boolean>>(
-    () => getInitialPermissionValues(permissionGroups),
-  );
+      .find((permission) => permission.key === "write_user_permissions")
+      ?.name || "Write User Permissions";
+  const [permissionValues, setPermissionValues] = useState<
+    Record<string, boolean>
+  >(() => getInitialPermissionValues(permissionGroups));
   const [pendingPermissions, setPendingPermissions] = useState<
     Record<string, boolean>
   >({});
@@ -181,52 +184,49 @@ export default function AdminUserPermissionsTabClient({
     const isPending = Boolean(pendingPermissions[permissionValueKey]);
     const isSuperAdminManaged =
       permission.requiresSuperAdminToManage && !isSuperAdmin;
-    const isDisabled =
-      isPending || !canWritePermissions || isSuperAdminManaged;
+    const isDisabled = isPending || !canWritePermissions || isSuperAdminManaged;
 
     return (
       <div
         key={agentValue.agentId}
         className={cn(
-            "rounded-md border px-3 py-2.5 transition-colors",
+          "rounded-md border px-3 py-2.5 transition-colors",
           isGranted
             ? "bg-emerald-50/40 border-emerald-200/50"
             : "bg-rose-50/30 border-rose-200/40",
         )}
       >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 space-y-0.5">
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <div className="text-sm font-medium leading-5">
-                  {agentValue.agentName}
-                </div>
-                <span className="text-xs text-muted-foreground leading-4">
-                  {agentValue.organisationName || "No organisation"}
-                </span>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 space-y-0.5">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <div className="text-sm font-medium leading-5">
+                {agentValue.agentName}
               </div>
-              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground leading-4">
-                <span>
-              Default: {permission.defaultValue ? "Enabled" : "Disabled"}
-                </span>
-                <span>
-                  Effective: {isGranted ? "Granted" : "Not granted"}
-                </span>
-              </div>
+              <span className="text-xs text-muted-foreground leading-4">
+                {agentValue.organisationName || "No organisation"}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground leading-4">
+              <span>
+                Default: {permission.defaultValue ? "Enabled" : "Disabled"}
+              </span>
+              <span>Effective: {isGranted ? "Granted" : "Not granted"}</span>
+            </div>
           </div>
 
-            {renderPermissionSwitch({
-              checked: permissionValues[permissionValueKey],
-              isDisabled,
-              isPending,
-              isSuperAdminManaged,
-              onCheckedChange: (checked) =>
-                onTogglePermission(
-                  permission,
-                  permissionValueKey,
-                  checked,
-                  agentValue.agentId,
-                ),
-            })}
+          {renderPermissionSwitch({
+            checked: permissionValues[permissionValueKey],
+            isDisabled,
+            isPending,
+            isSuperAdminManaged,
+            onCheckedChange: (checked) =>
+              onTogglePermission(
+                permission,
+                permissionValueKey,
+                checked,
+                agentValue.agentId,
+              ),
+          })}
         </div>
 
         {permission.globalExplicitValue !== null ? (
@@ -235,7 +235,6 @@ export default function AdminUserPermissionsTabClient({
             all agents.
           </div>
         ) : null}
-
       </div>
     );
   };
@@ -277,7 +276,8 @@ export default function AdminUserPermissionsTabClient({
             {permission.description}
           </p>
           <p className="mt-1.5 text-xs text-muted-foreground leading-4">
-            This permission uses an unsupported scope mode and is shown read-only.
+            This permission uses an unsupported scope mode and is shown
+            read-only.
           </p>
         </div>
       );
@@ -304,17 +304,17 @@ export default function AdminUserPermissionsTabClient({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-0.5">
-            <div className="text-sm font-medium leading-5">{permission.name}</div>
+            <div className="text-sm font-medium leading-5">
+              {permission.name}
+            </div>
             <p className="text-xs text-muted-foreground leading-4">
               {permission.description}
             </p>
             <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground leading-4">
               <span>
-              Default: {permission.defaultValue ? "Enabled" : "Disabled"}
+                Default: {permission.defaultValue ? "Enabled" : "Disabled"}
               </span>
-              <span>
-                Effective: {isGranted ? "Granted" : "Not granted"}
-              </span>
+              <span>Effective: {isGranted ? "Granted" : "Not granted"}</span>
             </div>
           </div>
 
@@ -372,7 +372,9 @@ export default function AdminUserPermissionsTabClient({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 px-5 pb-5">
-            {group.permissions.map((permission) => renderPermission(permission))}
+            {group.permissions.map((permission) =>
+              renderPermission(permission),
+            )}
           </CardContent>
         </Card>
       ))}

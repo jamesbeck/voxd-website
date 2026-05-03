@@ -33,15 +33,18 @@ const saCreateAdminUser = async ({
   }
 
   if (organisationId) {
-    const accessibleOrganisation = await getAccessibleOrganisationForAdminUsers({
-      organisationId,
-      accessToken,
-    });
+    const accessibleOrganisation = await getAccessibleOrganisationForAdminUsers(
+      {
+        organisationId,
+        accessToken,
+      },
+    );
 
     if (!accessibleOrganisation) {
       return {
         success: false,
-        error: "You do not have permission to create a user for this organisation.",
+        error:
+          "You do not have permission to create a user for this organisation.",
       };
     }
   }

@@ -54,7 +54,11 @@ function walkDelta(
 
     for (let index = 0; index < maxLength; index += 1) {
       entries.push(
-        ...walkDelta(before[index], after[index], `${path}${toPathSegment(index)}`),
+        ...walkDelta(
+          before[index],
+          after[index],
+          `${path}${toPathSegment(index)}`,
+        ),
       );
     }
 
