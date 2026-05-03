@@ -1,12 +1,15 @@
 import db from "../database/db";
 import { verifyAccessToken } from "./auth/verifyToken";
+import { AccessTokenPayload } from "@/types/tokenTypes";
 
 const userCanViewAgent = async ({
   agentId,
+  accessToken,
 }: {
   agentId: string;
+  accessToken?: AccessTokenPayload;
 }): Promise<boolean> => {
-  const token = await verifyAccessToken();
+  const token = accessToken ?? (await verifyAccessToken());
 
   if (token.superAdmin) return true;
 

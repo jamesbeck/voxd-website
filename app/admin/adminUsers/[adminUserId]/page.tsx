@@ -11,15 +11,24 @@ import AdminUserActions from "./AdminUserActions";
 import EditAdminUserForm from "./editAdminUserForm";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import LogExplorer from "@/components/admin/LogExplorer";
+import AdminUserPermissionsTab from "./AdminUserPermissionsTab";
+import { RecordTab } from "@/components/admin/RecordTabs";
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: { adminUserId: string };
+  searchParams: { tab?: string };
 }) {
   const token = await verifyAccessToken();
 
   const adminUserId = (await params).adminUserId;
+  const activeTab = (await searchParams).tab || "edit";
+
+  if (adminUserId === "new" && !token.superAdmin && !token.partner) {
+    return notFound();
+  }
 
   let user: AdminUser | null = null;
 
@@ -41,13 +50,30 @@ export default async function Page({
       {user && (
         <>
           <RecordTabs
-            defaultValue="edit"
-            tabs={[
-              { value: "edit", label: "Edit User" },
-              ...(token.superAdmin
-                ? [{ value: "log", label: "Activity Log" }]
-                : []),
-            ]}
+            value={activeTab}
+            tabs={
+              [
+                {
+                  value: "edit",
+                  label: "Edit User",
+                  href: `/admin/adminUsers/${user.id}?tab=edit`,
+                },
+                {
+                  value: "permissions",
+                  label: "Permissions",
+                  href: `/admin/adminUsers/${user.id}?tab=permissions`,
+                },
+                ...(token.superAdmin
+                  ? [
+                      {
+                        value: "log",
+                        label: "Activity Log",
+                        href: `/admin/adminUsers/${user.id}?tab=log`,
+                      },
+                    ]
+                  : []),
+              ] satisfies RecordTab[]
+            }
             actions={
               <AdminUserActions
                 user={user}
@@ -66,6 +92,13 @@ export default async function Page({
                 organisationName={user.organisationName}
                 canEditOrganisation={token.superAdmin || token.partner}
                 superAdmin={token.superAdmin}
+              />
+            </TabsContent>
+
+            <TabsContent value="permissions">
+              <AdminUserPermissionsTab
+                adminUserId={adminUserId}
+                accessToken={token}
               />
             </TabsContent>
 

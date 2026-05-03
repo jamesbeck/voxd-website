@@ -17,10 +17,17 @@ import SendTemplateTab from "./sendTemplateTab";
 import JsonDataEditor from "./JsonDataEditor";
 import getAgentById from "@/lib/getAgentById";
 
-export default async function Page({ params }: { params: { userId: string } }) {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: { userId: string };
+  searchParams: { tab?: string };
+}) {
   const token = await verifyAccessToken();
 
   const userId = (await params).userId;
+  const activeTab = (await searchParams).tab || "sessions";
 
   let user: ChatUser | null = null;
   let agent;
@@ -65,12 +72,28 @@ export default async function Page({ params }: { params: { userId: string } }) {
       {user && (
         <>
           <RecordTabs
-            defaultValue="sessions"
+            value={activeTab}
             tabs={[
-              { value: "edit", label: "Edit User" },
-              { value: "sessions", label: "Sessions" },
-              { value: "send-template", label: "Send Template" },
-              { value: "data", label: "Data" },
+              {
+                value: "edit",
+                label: "Edit User",
+                href: `/admin/chatUsers/${userId}?tab=edit`,
+              },
+              {
+                value: "sessions",
+                label: "Sessions",
+                href: `/admin/chatUsers/${userId}?tab=sessions`,
+              },
+              {
+                value: "send-template",
+                label: "Send Template",
+                href: `/admin/chatUsers/${userId}?tab=send-template`,
+              },
+              {
+                value: "data",
+                label: "Data",
+                href: `/admin/chatUsers/${userId}?tab=data`,
+              },
             ]}
             actions={<UserActions user={user} />}
           >

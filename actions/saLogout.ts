@@ -1,17 +1,18 @@
 "use server";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { clearDevelopmentPartnerOverride } from "@/lib/development/devPartnerOverride";
 
 export default async function saLogout() {
   const cookieStore = await cookies();
 
-  //   cookieStore.set("id_token", "", {
-  //     httpOnly: false,
-  //     sameSite: "lax",
-  //     path: "/",
-  //     secure: process.env.NODE_ENV !== "development" ? true : false,
-  //     expires: 0,
-  //   });
+  cookieStore.set("id_token", "", {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV !== "development" ? true : false,
+    expires: 0,
+  });
 
   cookieStore.set("access_token", "", {
     httpOnly: true,
@@ -20,6 +21,8 @@ export default async function saLogout() {
     secure: process.env.NODE_ENV !== "development" ? true : false,
     expires: 0,
   });
+
+  await clearDevelopmentPartnerOverride();
 
   return redirect("/login");
 }

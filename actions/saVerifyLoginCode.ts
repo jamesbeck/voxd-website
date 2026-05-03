@@ -3,13 +3,13 @@ import { ServerActionResponse } from "@/types/types";
 import db from "@/database/db";
 import { compare } from "bcryptjs";
 import { verifyIdToken } from "@/lib/auth/verifyToken";
-import { AccessTokenPayload, IdTokenPayload } from "@/types/tokenTypes";
+import { IdTokenPayload } from "@/types/tokenTypes";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { addSeconds } from "date-fns";
 import userCanLogInToThisDomain from "@/lib/userCanLogInToThisDomain";
 import { addLog } from "@/lib/addLog";
+import setAuthenticatedSession from "@/lib/auth/setAuthenticatedSession";
 
 const saVerifyLoginCode = async ({
   otp,
@@ -141,47 +141,14 @@ const saVerifyLoginCode = async ({
     },
   });
 
-  // TODO: Set session/cookie here
-  const cookiesStore = await cookies();
-
-  //new id token without otp info
-  const newIdToken = jwt.sign(
-    {
-      email: idToken.email,
-    } as IdTokenPayload,
-    process.env.ID_TOKEN_SECRET,
-  );
-
-  cookiesStore.set("id_token", newIdToken, {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: false,
-    sameSite: "lax",
-  });
-
-  //new access token
-  const newAccessToken = jwt.sign(
-    {
-      adminUserId: adminUser.id,
-      email: idToken.email,
-      name: adminUser.name,
-      superAdmin: adminUser.superAdmin,
-      partner: !!adminUser.partnerId,
-      partnerId: adminUser.partnerId,
-      organisationId: adminUser.organisationId,
-      organisationName: adminUser.organisationName,
-    } as AccessTokenPayload,
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) },
-  );
-
-  cookiesStore.set("access_token", newAccessToken, {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: false,
-    sameSite: "lax",
-    expires: addSeconds(
-      Date.now(),
-      parseInt(process.env.ACCESS_TOKEN_LIFE_SEC),
-    ),
+  await setAuthenticatedSession({
+    adminUserId: adminUser.id,
+    email: idToken.email,
+    name: adminUser.name,
+    superAdmin: adminUser.superAdmin,
+    partnerId: adminUser.partnerId,
+    organisationId: adminUser.organisationId,
+    organisationName: adminUser.organisationName,
   });
 
   redirect(redirectTo || "/admin");

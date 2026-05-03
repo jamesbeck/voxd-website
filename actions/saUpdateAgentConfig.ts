@@ -5,6 +5,9 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { addLog } from "@/lib/addLog";
 import { validateAgentConfig } from "@/lib/validateAgentConfig";
+import { buildJsonDelta } from "@/lib/buildJsonDelta";
+import userCanViewAgent from "@/lib/userCanViewAgent";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 
 const saUpdateAgentConfig = async ({
   agentId,
@@ -15,16 +18,41 @@ const saUpdateAgentConfig = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.superAdmin)
-    return {
-      success: false,
-      error: "You do not have permission to update agent config.",
-    };
-
   if (!agentId) {
     return {
       success: false,
       error: "Agent ID is required",
+    };
+  }
+
+  if (!(await userCanViewAgent({ agentId, accessToken }))) {
+    return {
+      success: false,
+      error: "Agent not found",
+    };
+  }
+
+  const canReadAgentConfig =
+    !!accessToken.superAdmin ||
+    (await hasAdminUserPermission({
+      adminUserId: accessToken.adminUserId,
+      permissionKey: "read_agent_config",
+      agentId,
+    }));
+
+  const canWriteAgentConfig =
+    canReadAgentConfig &&
+    (!!accessToken.superAdmin ||
+      (await hasAdminUserPermission({
+        adminUserId: accessToken.adminUserId,
+        permissionKey: "write_agent_config",
+        agentId,
+      })));
+
+  if (!canWriteAgentConfig) {
+    return {
+      success: false,
+      error: "You do not have permission to update agent config.",
     };
   }
 
@@ -59,12 +87,20 @@ const saUpdateAgentConfig = async ({
     config,
   });
 
+  const previousConfig = existingAgent.config ?? null;
+  const nextConfig = config ?? null;
+
   // Log the action
   await addLog({
-    event: "agent.update_config",
+    event: "Agent Config Updated",
     description: `Updated config for agent ${existingAgent.niceName}`,
     adminUserId: accessToken.adminUserId,
     agentId,
+    data: {
+      before: previousConfig,
+      after: nextConfig,
+      delta: buildJsonDelta(previousConfig, nextConfig),
+    },
   });
 
   return { success: true };

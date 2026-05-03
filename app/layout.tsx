@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "@/app/globals.css";
+import DevLoginAsOverlay from "@/components/dev/DevLoginAsOverlay";
 
 const roboto = Roboto({
   variable: "--font-geist-sans",
@@ -24,6 +25,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${roboto.variable} antialiased text-darkgrey`}>
         {children}
+        {process.env.NODE_ENV === "development" && <DevLoginAsOverlay />}
       </body>
     </html>
   );

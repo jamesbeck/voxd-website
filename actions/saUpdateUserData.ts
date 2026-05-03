@@ -5,6 +5,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { addLog } from "@/lib/addLog";
 import { validateAgentConfig } from "@/lib/validateAgentConfig";
+import { buildJsonDelta } from "@/lib/buildJsonDelta";
 
 const saUpdateUserData = async ({
   userId,
@@ -60,12 +61,20 @@ const saUpdateUserData = async ({
     data,
   });
 
+  const previousData = existingUser.data ?? null;
+  const nextData = data ?? null;
+
   // Log the action
   await addLog({
-    event: "chatUser.update_data",
+    event: "User Data Updated",
     description: `Updated data for user ${existingUser.name}`,
     adminUserId: accessToken.adminUserId,
     chatUserId: userId,
+    data: {
+      before: previousData,
+      after: nextData,
+      delta: buildJsonDelta(previousData, nextData),
+    },
   });
 
   return { success: true };

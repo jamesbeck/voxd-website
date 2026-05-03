@@ -19,12 +19,15 @@ import ProviderApiKeysTable from "@/app/admin/provider-api-keys/providerApiKeysT
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: { organisationId: string };
+  searchParams: { tab?: string };
 }) {
   const token = await verifyAccessToken();
 
   const organisationId = (await params).organisationId;
+  const activeTab = (await searchParams).tab || "agents";
 
   let organisation;
 
@@ -59,18 +62,46 @@ export default async function Page({
       {organisation && (
         <>
           <RecordTabs
-            defaultValue="agents"
+            value={activeTab}
             tabs={
               [
-                { value: "about", label: "About" },
-                { value: "logo", label: "Logo & Branding" },
-                { value: "adminUsers", label: "Admin Users" },
-                { value: "chatUsers", label: "Chat Users" },
-                { value: "agents", label: "Agents" },
+                {
+                  value: "about",
+                  label: "About",
+                  href: `/admin/organisations/${organisation.id}?tab=about`,
+                },
+                {
+                  value: "logo",
+                  label: "Logo & Branding",
+                  href: `/admin/organisations/${organisation.id}?tab=logo`,
+                },
+                {
+                  value: "adminUsers",
+                  label: "Admin Users",
+                  href: `/admin/organisations/${organisation.id}?tab=adminUsers`,
+                },
+                {
+                  value: "chatUsers",
+                  label: "Chat Users",
+                  href: `/admin/organisations/${organisation.id}?tab=chatUsers`,
+                },
+                {
+                  value: "agents",
+                  label: "Agents",
+                  href: `/admin/organisations/${organisation.id}?tab=agents`,
+                },
                 ...(token.superAdmin || token.partner
                   ? [
-                      { value: "providerApiKeys", label: "API Keys" },
-                      { value: "quotes", label: "Quotes" },
+                      {
+                        value: "providerApiKeys",
+                        label: "API Keys",
+                        href: `/admin/organisations/${organisation.id}?tab=providerApiKeys`,
+                      },
+                      {
+                        value: "quotes",
+                        label: "Quotes",
+                        href: `/admin/organisations/${organisation.id}?tab=quotes`,
+                      },
                     ]
                   : []),
               ] satisfies RecordTab[]

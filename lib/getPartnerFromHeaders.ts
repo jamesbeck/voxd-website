@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import getPartners from "@/lib/getPartners";
+import { getDevelopmentPartnerOverride } from "@/lib/development/devPartnerOverride";
 
 export default async function getPartnerFromHeaders() {
   const headersList = await headers();
@@ -7,7 +8,9 @@ export default async function getPartnerFromHeaders() {
   let domain = host?.split(":")[0];
 
   if (process.env.NODE_ENV === "development") {
-    const devDomain = process.env.DEVELOPTMENT_PARTNER_DOMAIN;
+    const devDomain =
+      (await getDevelopmentPartnerOverride()) ||
+      process.env.DEVELOPTMENT_PARTNER_DOMAIN;
     if (devDomain) {
       domain = devDomain;
     }
@@ -20,7 +23,11 @@ export default async function getPartnerFromHeaders() {
   const partners = await getPartners();
   const partner = partners.find((p) => p.domain === domain);
 
-  if (!partner && process.env.NODE_ENV === "development") {
+  if (
+    !partner &&
+    partners.length > 0 &&
+    process.env.NODE_ENV === "development"
+  ) {
     const validDomains = partners.map((p) => p.domain);
     throw new Error(
       `Invalid partner domain: "${domain}"\n` +

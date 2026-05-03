@@ -5,6 +5,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { addLog } from "@/lib/addLog";
 import { validateAgentConfig } from "@/lib/validateAgentConfig";
+import { buildJsonDelta } from "@/lib/buildJsonDelta";
 
 const saUpdateSessionData = async ({
   sessionId,
@@ -61,12 +62,20 @@ const saUpdateSessionData = async ({
     data,
   });
 
+  const previousData = existingSession.data ?? null;
+  const nextData = data ?? null;
+
   // Log the action
   await addLog({
-    event: "session.update_data",
+    event: "Session Data Updated",
     description: `Updated data for session ${sessionId}`,
     adminUserId: accessToken.adminUserId,
     sessionId: sessionId,
+    data: {
+      before: previousData,
+      after: nextData,
+      delta: buildJsonDelta(previousData, nextData),
+    },
   });
 
   return { success: true };

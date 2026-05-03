@@ -8,12 +8,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
 import { validateAgentConfig } from "@/lib/validateAgentConfig";
 import { ServerActionResponse } from "@/types/types";
+import JsonSchemaDataViewer from "@/components/admin/JsonSchemaDataViewer";
 
 interface JsonSchemaEditorProps {
   editorPath: string;
   initialData: unknown;
   schema: unknown;
   onSave: (data: unknown) => Promise<ServerActionResponse>;
+  readOnly?: boolean;
   saveSuccessMessage: string;
   saveErrorMessage: string;
   validMessage: string;
@@ -59,6 +61,7 @@ export default function JsonSchemaEditor({
   initialData,
   schema,
   onSave,
+  readOnly = false,
   saveSuccessMessage,
   saveErrorMessage,
   validMessage,
@@ -82,6 +85,7 @@ export default function JsonSchemaEditor({
   const [serverFieldErrors, setServerFieldErrors] = useState<
     Record<string, string>
   >({});
+  const [isEditing, setIsEditing] = useState(false);
   const hasValidationErrors = Object.keys(clientFieldErrors).length > 0;
   const hasMonacoSchema = typeof schema === "object" && schema !== null;
   const isBlocked = !!schemaError || !!parseError || hasValidationErrors;
@@ -148,6 +152,7 @@ export default function JsonSchemaEditor({
         setClientFieldErrors({});
         setSchemaError(null);
         setServerFieldErrors({});
+        setIsEditing(false);
       } else {
         setServerFieldErrors(result.fieldErrors || {});
         toast.error(result.error || saveErrorMessage);
@@ -180,6 +185,19 @@ export default function JsonSchemaEditor({
   ];
 
   const uniqueDisplayErrors = Array.from(new Set(displayErrors));
+
+  if (!isEditing || readOnly) {
+    return (
+      <div className="space-y-4">
+        {!readOnly && (
+          <div className="flex items-center justify-end">
+            <Button onClick={() => setIsEditing(true)}>Edit</Button>
+          </div>
+        )}
+        <JsonSchemaDataViewer data={JSON.parse(savedData)} schema={schema} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -216,6 +234,16 @@ export default function JsonSchemaEditor({
             )}
         </div>
         <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              handleReset();
+              setIsEditing(false);
+            }}
+            variant="outline"
+            disabled={isSaving}
+          >
+            Cancel
+          </Button>
           <Button
             onClick={handleFormat}
             variant="outline"
@@ -268,7 +296,7 @@ export default function JsonSchemaEditor({
             fontSize: 14,
             formatOnPaste: true,
             formatOnType: true,
-            readOnly: !!schemaError,
+            readOnly: readOnly || !!schemaError,
             scrollBeyondLastLine: false,
             quickSuggestions: {
               comments: false,

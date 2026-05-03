@@ -6,6 +6,7 @@ import {
 } from "@/types/types";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { applyAdminUserScope } from "@/lib/adminUserAccess";
 
 const saGetAdminUserTableData = async ({
   search,
@@ -42,20 +43,13 @@ const saGetAdminUserTableData = async ({
       }
     });
 
-  //filter by organisationId if provided
+  // When this table is loaded within an organisation page, keep it scoped to
+  // that organisation regardless of the viewer's role.
   if (organisationId) {
     base.where("adminUser.organisationId", organisationId);
   }
 
-  //if organisation is logged in, restrict to their organisation
-  if (!accessToken.partner && !accessToken.superAdmin) {
-    base.where("adminUser.organisationId", accessToken.organisationId);
-  }
-
-  //if partner is logged in and not super admin, restrict to partner-level admin users only
-  if (accessToken?.partner && !accessToken.superAdmin) {
-    base.where("adminUser.partnerId", accessToken!.partnerId);
-  }
+  applyAdminUserScope(base, accessToken);
 
   //count query
   const countQuery = base.clone().select("adminUser.id");

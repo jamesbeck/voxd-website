@@ -3,6 +3,10 @@
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import {
+  applyAdminUserScope,
+  getAccessibleOrganisationForAdminUsers,
+} from "@/lib/adminUserAccess";
 
 const saUpdateAdminUser = async ({
   adminUserId,
@@ -35,11 +39,14 @@ const saUpdateAdminUser = async ({
   }
 
   //find the existing user
-  const existingUser = await db("adminUser")
+  const existingUserQuery = db("adminUser")
     .select("adminUser.*", "organisation.partnerId as orgPartnerId")
     .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
-    .where("adminUser.id", adminUserId)
-    .first();
+    .where("adminUser.id", adminUserId);
+
+  applyAdminUserScope(existingUserQuery, accessToken);
+
+  const existingUser = await existingUserQuery.first();
 
   if (!existingUser) {
     return {
@@ -48,30 +55,29 @@ const saUpdateAdminUser = async ({
     };
   }
 
-  // Partners can only update users belonging to their organisations
-  if (accessToken.partner && !accessToken.superAdmin) {
-    if (existingUser.orgPartnerId !== accessToken.partnerId) {
+  if (!accessToken.superAdmin && !organisationId) {
+    return {
+      success: false,
+      error: "Admin users must belong to an organisation.",
+    };
+  }
+
+  if (organisationId && organisationId !== existingUser.organisationId) {
+    const accessibleOrganisation = await getAccessibleOrganisationForAdminUsers({
+      organisationId,
+      accessToken,
+    });
+
+    if (!accessibleOrganisation) {
       return {
         success: false,
-        error: "You do not have permission to update this user.",
+        error:
+          "You can only assign users to your organisation or organisations your partner manages.",
       };
     }
+  }
 
-    // If changing organisation, verify new organisation also belongs to the partner
-    if (organisationId && organisationId !== existingUser.organisationId) {
-      const newOrg = await db("organisation")
-        .where("id", organisationId)
-        .first();
-      if (!newOrg || newOrg.partnerId !== accessToken.partnerId) {
-        return {
-          success: false,
-          error:
-            "You can only assign users to organisations within your partner.",
-        };
-      }
-    }
-
-    // Partners cannot set partnerId on the admin user
+  if (!accessToken.superAdmin) {
     partnerId = undefined;
   }
 

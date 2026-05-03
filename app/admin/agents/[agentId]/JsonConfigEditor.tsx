@@ -7,18 +7,21 @@ interface JsonConfigEditorProps {
   agentId: string;
   initialData: unknown;
   configSchema: unknown;
+  canEdit?: boolean;
 }
 
 export default function JsonConfigEditor({
   agentId,
   initialData,
   configSchema,
+  canEdit = true,
 }: JsonConfigEditorProps) {
   return (
     <JsonSchemaEditor
       editorPath={`file:///agent-config/${agentId}.json`}
       initialData={initialData}
       schema={configSchema}
+      readOnly={!canEdit}
       onSave={(config) => saUpdateAgentConfig({ agentId, config })}
       saveSuccessMessage="Config saved successfully"
       saveErrorMessage="Failed to save config"

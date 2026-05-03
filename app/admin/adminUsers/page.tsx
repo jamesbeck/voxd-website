@@ -4,8 +4,11 @@ import AdminUsersTable from "./adminUserTable";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import { Button } from "@/components/ui/button";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page() {
+  const token = await verifyAccessToken();
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -14,11 +17,13 @@ export default async function Page() {
       <H1>Admin Users</H1>
       <p>These are users that can log in and manage your agents.</p>
 
-      <div className="flex justify-end">
-        <Button asChild>
-          <Link href="/admin/adminUsers/new">New User</Link>
-        </Button>
-      </div>
+      {(token.superAdmin || token.partner) && (
+        <div className="flex justify-end">
+          <Button asChild>
+            <Link href="/admin/adminUsers/new">New User</Link>
+          </Button>
+        </div>
+      )}
 
       <AdminUsersTable />
     </Container>

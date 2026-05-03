@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import ModelTab from "./modelTab";
 import JsonConfigEditor from "./JsonConfigEditor";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 
 export default async function Page({
   params,
@@ -58,9 +59,29 @@ export default async function Page({
   const token = await verifyAccessToken();
 
   //can the user view this agent?
-  if (!(await userCanViewAgent({ agentId: agentId! }))) {
+  if (!(await userCanViewAgent({ agentId: agentId!, accessToken: token }))) {
     return notFound();
   }
+
+  const canReadAgentConfig =
+    !!token.superAdmin ||
+    (await hasAdminUserPermission({
+      adminUserId: token.adminUserId,
+      permissionKey: "read_agent_config",
+      agentId,
+    }));
+
+  const canWriteAgentConfig =
+    canReadAgentConfig &&
+    (!!token.superAdmin ||
+      (await hasAdminUserPermission({
+        adminUserId: token.adminUserId,
+        permissionKey: "write_agent_config",
+        agentId,
+      })));
+
+  const resolvedActiveTab =
+    activeTab === "config" && !canReadAgentConfig ? "info" : activeTab;
 
   // Fetch tickets for this agent
   const ticketsResponse = await saGetTicketsByAgentId({ agentId });
@@ -79,7 +100,7 @@ export default async function Page({
       {agent && (
         <>
           <RecordTabs
-            value={activeTab}
+            value={resolvedActiveTab}
             tabs={
               [
                 {
@@ -131,7 +152,7 @@ export default async function Page({
                   label: "Partial Prompts",
                   href: `/admin/agents/${agentId}?tab=partial-prompts`,
                 },
-                ...(token.superAdmin
+                ...(canReadAgentConfig
                   ? [
                       {
                         value: "config",
@@ -349,7 +370,7 @@ export default async function Page({
                 </Container>
               </TabsContent>
             )}
-            {!!token.superAdmin && (
+            {canReadAgentConfig && (
               <TabsContent value="config">
                 <Container>
                   <H2>Agent Config</H2>
@@ -358,6 +379,7 @@ export default async function Page({
                       agentId={agentId}
                       initialData={agent.config}
                       configSchema={agent.configSchema}
+                      canEdit={canWriteAgentConfig}
                     />
                   ) : (
                     <div className="space-y-4">
@@ -368,6 +390,7 @@ export default async function Page({
                         agentId={agentId}
                         initialData={{}}
                         configSchema={agent.configSchema}
+                        canEdit={canWriteAgentConfig}
                       />
                     </div>
                   )}

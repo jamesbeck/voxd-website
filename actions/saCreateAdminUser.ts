@@ -2,6 +2,8 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { getAccessibleOrganisationForAdminUsers } from "@/lib/adminUserAccess";
 
 const saCreateAdminUser = async ({
   name,
@@ -14,6 +16,40 @@ const saCreateAdminUser = async ({
   partnerId?: string;
   organisationId?: string;
 }): Promise<ServerActionResponse> => {
+  const accessToken = await verifyAccessToken();
+
+  if (!accessToken.superAdmin && !accessToken.partner) {
+    return {
+      success: false,
+      error: "You do not have permission to create users.",
+    };
+  }
+
+  if (!accessToken.superAdmin && !organisationId) {
+    return {
+      success: false,
+      error: "Admin users must belong to an organisation.",
+    };
+  }
+
+  if (organisationId) {
+    const accessibleOrganisation = await getAccessibleOrganisationForAdminUsers({
+      organisationId,
+      accessToken,
+    });
+
+    if (!accessibleOrganisation) {
+      return {
+        success: false,
+        error: "You do not have permission to create a user for this organisation.",
+      };
+    }
+  }
+
+  if (!accessToken.superAdmin) {
+    partnerId = undefined;
+  }
+
   //check user number and email is unique
   const existingUser = await db("adminUser")
     .select("*")
@@ -34,7 +70,7 @@ const saCreateAdminUser = async ({
     .insert({
       name,
       email: email?.toLowerCase(),
-      partnerId: partnerId || null,
+      partnerId: accessToken.superAdmin ? partnerId || null : null,
       organisationId: organisationId || null,
     })
     .returning("id");
