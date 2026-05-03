@@ -4,6 +4,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { addLog } from "@/lib/addLog";
+import { validateAgentConfig } from "@/lib/validateAgentConfig";
 
 const saUpdateAgentConfig = async ({
   agentId,
@@ -37,6 +38,19 @@ const saUpdateAgentConfig = async ({
     return {
       success: false,
       error: "Agent not found",
+    };
+  }
+
+  const validationResult = validateAgentConfig({
+    schema: existingAgent.configSchema,
+    config,
+  });
+
+  if (!validationResult.valid) {
+    return {
+      success: false,
+      error: validationResult.error,
+      fieldErrors: validationResult.fieldErrors,
     };
   }
 

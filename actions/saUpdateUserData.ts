@@ -4,6 +4,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { addLog } from "@/lib/addLog";
+import { validateAgentConfig } from "@/lib/validateAgentConfig";
 
 const saUpdateUserData = async ({
   userId,
@@ -29,14 +30,28 @@ const saUpdateUserData = async ({
 
   // Find the existing chatUser
   const existingUser = await db("chatUser")
-    .select("*")
-    .where({ id: userId })
+    .leftJoin("agent", "chatUser.agentId", "agent.id")
+    .select("chatUser.*", "agent.userDataSchema")
+    .where("chatUser.id", userId)
     .first();
 
   if (!existingUser) {
     return {
       success: false,
       error: "User not found",
+    };
+  }
+
+  const validationResult = validateAgentConfig({
+    schema: existingUser.userDataSchema,
+    config: data,
+  });
+
+  if (!validationResult.valid) {
+    return {
+      success: false,
+      error: validationResult.error,
+      fieldErrors: validationResult.fieldErrors,
     };
   }
 

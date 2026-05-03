@@ -3,25 +3,16 @@ import getAgentById from "@/lib/getAgentById";
 import getUserById from "@/lib/getChatUserById";
 import saGetTicketsByMessageIds from "@/actions/saGetTicketsByMessageIds";
 import saGetTicketsBySessionId from "@/actions/saGetTicketsBySessionId";
-import {
-  differenceInMilliseconds,
-  differenceInSeconds,
-  format,
-  formatDistance,
-  addSeconds,
-} from "date-fns";
+import { format, formatDistance } from "date-fns";
 import getSessionById from "@/lib/getSessionById";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import H1 from "@/components/adminui/H1";
-import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { notFound } from "next/navigation";
-import SendMessageForm from "./sendMessageForm";
 import { TabsContent } from "@/components/ui/tabs";
 import RecordTabs from "@/components/admin/RecordTabs";
 import Link from "next/link";
 import H2 from "@/components/adminui/H2";
-import { Spinner } from "@/components/ui/spinner";
 import Conversation from "./conversation";
 import SessionActions from "./sessionActions";
 import WorkerRunsTable from "./workerRunsTable";
@@ -52,8 +43,6 @@ export default async function Page({
 }) {
   const activeTab = (await searchParams).tab || "conversation";
 
-  const accessToken = await verifyAccessToken();
-
   const awaitedParams = await params;
 
   const sessionId = awaitedParams.sessionId;
@@ -68,13 +57,6 @@ export default async function Page({
   let sessionStatus = "Active";
   if (!!session.closedAt) sessionStatus = "Closed";
   else if (session.paused) sessionStatus = "Paused";
-
-  if (session.lastUserMessageDate && !session.closedAt) {
-    const sessionExpiresAt = addSeconds(
-      session.lastUserMessageDate,
-      agent.autoCloseSessionAfterSecs,
-    );
-  }
 
   const messages = await getMessages({ sessionId: sessionId });
 
@@ -110,6 +92,7 @@ export default async function Page({
           { label: "Admin", href: "/admin" },
           { label: "Agents", href: "/admin/agents" },
           { label: agent.niceName, href: `/admin/agents/${agent.id}` },
+          { label: "Sessions", href: `/admin/agents/${agent.id}?tab=sessions` },
           { label: session.id },
         ]}
       />
@@ -299,13 +282,18 @@ export default async function Page({
               <SessionJsonDataEditor
                 sessionId={sessionId}
                 initialData={session.data}
+                sessionDataSchema={agent.sessionDataSchema}
               />
             ) : (
               <div className="space-y-4">
                 <p className="text-muted-foreground">
                   No data stored for this session.
                 </p>
-                <SessionJsonDataEditor sessionId={sessionId} initialData={{}} />
+                <SessionJsonDataEditor
+                  sessionId={sessionId}
+                  initialData={{}}
+                  sessionDataSchema={agent.sessionDataSchema}
+                />
               </div>
             )}
           </Container>

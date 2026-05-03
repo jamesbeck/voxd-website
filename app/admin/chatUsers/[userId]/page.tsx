@@ -15,6 +15,7 @@ import getAgents from "@/lib/getAgents";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import SendTemplateTab from "./sendTemplateTab";
 import JsonDataEditor from "./JsonDataEditor";
+import getAgentById from "@/lib/getAgentById";
 
 export default async function Page({ params }: { params: { userId: string } }) {
   const token = await verifyAccessToken();
@@ -22,8 +23,13 @@ export default async function Page({ params }: { params: { userId: string } }) {
   const userId = (await params).userId;
 
   let user: ChatUser | null = null;
+  let agent;
 
   if (userId && userId != "new") user = await getUserById({ userId: userId });
+
+  if (user?.agentId) {
+    agent = await getAgentById({ agentId: user.agentId });
+  }
 
   if (!user && userId !== "new") return notFound();
 
@@ -33,11 +39,27 @@ export default async function Page({ params }: { params: { userId: string } }) {
   return (
     <Container>
       <BreadcrumbSetter
-        breadcrumbs={[
-          { label: "Admin", href: "/admin" },
-          { label: "Users", href: "/admin/chatUsers" },
-          { label: user?.name || "New User" },
-        ]}
+        breadcrumbs={
+          agent
+            ? [
+                { label: "Admin", href: "/admin" },
+                { label: "Agents", href: "/admin/agents" },
+                {
+                  label: agent.niceName,
+                  href: `/admin/agents/${agent.id}`,
+                },
+                {
+                  label: "Users",
+                  href: `/admin/agents/${agent.id}?tab=users`,
+                },
+                { label: user?.name || "New User" },
+              ]
+            : [
+                { label: "Admin", href: "/admin" },
+                { label: "Users", href: "/admin/chatUsers" },
+                { label: user?.name || "New User" },
+              ]
+        }
       />
       <H1>{user?.name || "New User"}</H1>
       {user && (
@@ -78,13 +100,21 @@ export default async function Page({ params }: { params: { userId: string } }) {
             <TabsContent value="data">
               <H2>User Data</H2>
               {user.data ? (
-                <JsonDataEditor userId={userId} initialData={user.data} />
+                <JsonDataEditor
+                  userId={userId}
+                  initialData={user.data}
+                  userDataSchema={agent?.userDataSchema}
+                />
               ) : (
                 <div className="space-y-4">
                   <p className="text-muted-foreground">
                     No data stored for this user.
                   </p>
-                  <JsonDataEditor userId={userId} initialData={{}} />
+                  <JsonDataEditor
+                    userId={userId}
+                    initialData={{}}
+                    userDataSchema={agent?.userDataSchema}
+                  />
                 </div>
               )}
             </TabsContent>

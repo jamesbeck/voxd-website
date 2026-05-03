@@ -357,13 +357,18 @@ export default async function Page({
                     <JsonConfigEditor
                       agentId={agentId}
                       initialData={agent.config}
+                      configSchema={agent.configSchema}
                     />
                   ) : (
                     <div className="space-y-4">
                       <p className="text-muted-foreground">
                         No config stored for this agent.
                       </p>
-                      <JsonConfigEditor agentId={agentId} initialData={{}} />
+                      <JsonConfigEditor
+                        agentId={agentId}
+                        initialData={{}}
+                        configSchema={agent.configSchema}
+                      />
                     </div>
                   )}
                 </Container>
