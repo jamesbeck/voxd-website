@@ -5,12 +5,16 @@ import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import OrganisationsTable from "./organisationsTable";
 import NewOrganisationButton from "@/components/admin/NewOrganisationButton";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { canAdminUserReadAllOrganisations } from "@/lib/organisationAccess";
 
 export default async function Page() {
   const accessToken = await verifyAccessToken();
 
   const isSuperAdmin = accessToken?.superAdmin ?? false;
   const userPartnerId = accessToken?.partnerId ?? null;
+  const canReadAllOrganisations = await canAdminUserReadAllOrganisations({
+    accessToken,
+  });
 
   return (
     <Container>
@@ -29,6 +33,7 @@ export default async function Page() {
       <OrganisationsTable
         isSuperAdmin={isSuperAdmin}
         userPartnerId={userPartnerId}
+        showOwnerFilter={canReadAllOrganisations}
       />
     </Container>
   );

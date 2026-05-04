@@ -6,6 +6,7 @@ import {
   ServerActionReadResponse,
   ServerActionReadParams,
 } from "@/types/types";
+import { applyOrganisationReadScope } from "@/lib/organisationAccess";
 
 const saGetOrganisationTableData = async ({
   search,
@@ -14,47 +15,40 @@ const saGetOrganisationTableData = async ({
   sortField = "id",
   sortDirection = "asc",
   partnerId,
+  ownerId,
 }: ServerActionReadParams & {
   partnerId?: string;
+  ownerId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
   const base = db("organisation")
-    .leftJoin("agent", "organisation.id", "agent.organisationId")
-    .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")
     .leftJoin("adminUser as owner", "organisation.ownerId", "owner.id")
-    .groupBy("organisation.id", "owner.id")
     .where((qb) => {
       if (search) {
         qb.where("organisation.name", "ilike", `%${search}%`);
       }
     });
 
-  //if organisation user is logged in, restrict to their organisations only
-  if (!accessToken.superAdmin && !accessToken.partner) {
-    base.whereExists(function () {
-      this.select("*")
-        .from("adminUser as au")
-        .whereRaw('"au"."organisationId" = "organisation"."id"')
-        .where("au.id", accessToken!.adminUserId);
-    });
-  }
-
-  //if partner is logged in (not super admin), restrict to their organisations
-  if (accessToken?.partner && !accessToken.superAdmin) {
-    base.where("organisation.partnerId", accessToken!.partnerId);
-  }
+  await applyOrganisationReadScope({
+    query: base,
+    accessToken,
+  });
 
   // Allow superAdmins to filter by a specific partnerId
   if (accessToken?.superAdmin && partnerId) {
     base.where("organisation.partnerId", partnerId);
   }
 
-  //count query
-  const countQuery = base.clone().select("organisation.id");
-  const countResult = await db
-    .count<{ count: string }>("id")
-    .from(countQuery)
+  if (ownerId) {
+    base.where("organisation.ownerId", ownerId);
+  }
+
+  const countResult = await base
+    .clone()
+    .clearSelect()
+    .clearOrder()
+    .countDistinct<{ count: string }>("organisation.id as count")
     .first();
 
   const totalAvailable = countResult ? parseInt(countResult.count) : 0;
@@ -63,9 +57,19 @@ const saGetOrganisationTableData = async ({
     .clone()
     .select("organisation.*")
     .select("owner.name as ownerName")
-    .select([db.raw('COUNT(DISTINCT "agent"."id")::int as "agentCount"')])
     .select([
-      db.raw('COUNT(DISTINCT "adminUser"."id")::int as "adminUserCount"'),
+      db.raw(`(
+        SELECT COUNT(DISTINCT "agent"."id")::int
+        FROM "agent"
+        WHERE "agent"."organisationId" = "organisation"."id"
+      ) as "agentCount"`),
+    ])
+    .select([
+      db.raw(`(
+        SELECT COUNT(DISTINCT "adminUser"."id")::int
+        FROM "adminUser"
+        WHERE "adminUser"."organisationId" = "organisation"."id"
+      ) as "adminUserCount"`),
     ])
     .orderBy(sortField, sortDirection)
     .limit(pageSize)

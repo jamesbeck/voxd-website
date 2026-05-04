@@ -6,6 +6,7 @@ import TableFilters from "@/components/adminui/TableFilters";
 import Image from "next/image";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
 import saGetAllPartners from "@/actions/saGetAllPartners";
+import saGetPartnerAdminUsers from "@/actions/saGetPartnerAdminUsers";
 import { useTableFilters } from "@/hooks/useTableFilters";
 import { TableFilterConfig } from "@/types/types";
 import TableActions from "@/components/admin/TableActions";
@@ -13,11 +14,13 @@ import TableActions from "@/components/admin/TableActions";
 interface OrganisationsTableProps {
   isSuperAdmin?: boolean;
   userPartnerId?: string | null;
+  showOwnerFilter?: boolean;
 }
 
 const OrganisationsTable = ({
   isSuperAdmin,
   userPartnerId,
+  showOwnerFilter = true,
 }: OrganisationsTableProps) => {
   // Define filter configuration
   const filterConfig: TableFilterConfig[] = useMemo(
@@ -39,8 +42,23 @@ const OrganisationsTable = ({
             },
           ]
         : []),
+      ...(showOwnerFilter
+        ? [
+            {
+              name: "ownerId",
+              label: "Owner",
+              type: "select" as const,
+              defaultValue: "",
+              placeholder: "All Owners",
+              loadOptions: async () => {
+                const result = await saGetPartnerAdminUsers();
+                return result.success && result.data ? result.data : [];
+              },
+            },
+          ]
+        : []),
     ],
-    [isSuperAdmin, userPartnerId],
+    [isSuperAdmin, showOwnerFilter, userPartnerId],
   );
 
   // Use the table filters hook with localStorage persistence
@@ -130,6 +148,9 @@ const OrganisationsTable = ({
     // Add partner filter if set (super admin only - server enforces this)
     ...(filterValues.partnerId
       ? { partnerId: filterValues.partnerId as string }
+      : {}),
+    ...(filterValues.ownerId
+      ? { ownerId: filterValues.ownerId as string }
       : {}),
   };
 

@@ -16,6 +16,7 @@ import NewQuoteButton from "@/components/admin/NewQuoteButton";
 import AboutTab from "./aboutTab";
 import LogoTab from "./logoTab";
 import ProviderApiKeysTable from "@/app/admin/provider-api-keys/providerApiKeysTable";
+import userCanViewOrganisation from "@/lib/organisationAccess";
 
 export default async function Page({
   params,
@@ -37,16 +38,11 @@ export default async function Page({
     });
   if (!organisation && organisationId !== "new") return notFound();
 
-  // Authorization check: user must be super admin, partner of this org, or belong to the organisation
-  if (organisation) {
-    const isSuperAdmin = token.superAdmin;
-    const isPartnerOfOrg =
-      token.partnerId && organisation.partnerId === token.partnerId;
-    const isMemberOfOrg = token.organisationId === organisation.id;
-
-    if (!isSuperAdmin && !isPartnerOfOrg && !isMemberOfOrg) {
-      return notFound();
-    }
+  if (
+    organisation &&
+    !(await userCanViewOrganisation({ organisationId, accessToken: token }))
+  ) {
+    return notFound();
   }
 
   return (
