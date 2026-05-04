@@ -57,26 +57,41 @@ const OrganisationsTable = ({
 
   const columns = [
     {
-      label: "Logo",
+      label: "Brand",
       name: "logoFileExtension",
       format: (row: any) =>
-        row.logoFileExtension ? (
-          <div
-            className="inline-flex rounded p-1"
-            style={
-              row.showLogoOnColour
-                ? { backgroundColor: row.showLogoOnColour }
-                : undefined
-            }
-          >
-            <Image
-              src={`https://s3.eu-west-1.wasabisys.com/voxd/organisationLogos/${row.id}.${row.logoFileExtension}`}
-              alt={row.name || "Organisation logo"}
-              width={80}
-              height={32}
-              className="h-8 w-auto object-contain"
-              unoptimized
-            />
+        row.logoFileExtension || row.primaryColour ? (
+          <div className="flex items-center gap-3">
+            {row.logoFileExtension ? (
+              <div
+                className="inline-flex rounded p-1"
+                style={
+                  row.showLogoOnColour
+                    ? { backgroundColor: row.showLogoOnColour }
+                    : undefined
+                }
+              >
+                <Image
+                  src={`https://s3.eu-west-1.wasabisys.com/voxd/organisationLogos/${row.id}.${row.logoFileExtension}`}
+                  alt={row.name || "Organisation logo"}
+                  width={80}
+                  height={32}
+                  className="h-8 w-auto object-contain"
+                  unoptimized
+                />
+              </div>
+            ) : null}
+            {row.primaryColour ? (
+              <div className="flex items-center gap-2">
+                <div
+                  className="h-6 w-6 rounded border"
+                  style={{ backgroundColor: row.primaryColour }}
+                />
+                <span className="text-xs text-muted-foreground">
+                  {row.primaryColour}
+                </span>
+              </div>
+            ) : null}
           </div>
         ) : null,
     },
@@ -88,20 +103,10 @@ const OrganisationsTable = ({
       format: (row: any) => row.name || "",
     },
     {
-      label: "Colour",
-      name: "primaryColour",
-      format: (row: any) =>
-        row.primaryColour ? (
-          <div className="flex items-center gap-2">
-            <div
-              className="h-6 w-6 rounded border"
-              style={{ backgroundColor: row.primaryColour }}
-            />
-            <span className="text-xs text-muted-foreground">
-              {row.primaryColour}
-            </span>
-          </div>
-        ) : null,
+      label: "Owner",
+      name: "ownerName",
+      sort: true,
+      format: (row: any) => row.ownerName || "-",
     },
     {
       label: "Agents",

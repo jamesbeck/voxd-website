@@ -6,6 +6,7 @@ import {
   ServerActionReadResponse,
   ServerActionReadParams,
 } from "@/types/types";
+import userCanViewQuote from "@/lib/quoteAccess";
 
 export interface QuoteViewFilters {
   quoteId?: string;
@@ -27,6 +28,13 @@ const saGetQuoteViewTableData = async ({
     return {
       success: false,
       error: "Unauthorized",
+    };
+  }
+
+  if (quoteId && !(await userCanViewQuote({ quoteId, accessToken: token }))) {
+    return {
+      success: false,
+      error: "Quote not found",
     };
   }
 
@@ -60,8 +68,8 @@ const saGetQuoteViewTableData = async ({
     base.whereNotIn("quoteView.ipAddress", ["::1", "127.0.0.1", "localhost"]);
   }
 
-  // For non-super admins, restrict to their partner's quotes
-  if (!token.superAdmin && token.partnerId) {
+  // For quote-specific requests the visibility check above is sufficient.
+  if (!quoteId && !token.superAdmin && token.partnerId) {
     base
       .leftJoin("organisation", "quote.organisationId", "organisation.id")
       .where("organisation.partnerId", token.partnerId);

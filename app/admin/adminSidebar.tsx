@@ -112,7 +112,7 @@ const menuItems: MenuItem[] = [
   },
 
   {
-    roles: ["admin", "organisation"],
+    roles: ["admin", "partner", "organisation"],
     title: "Admin Users",
     url: "/admin/adminUsers",
     icon: UserCog,

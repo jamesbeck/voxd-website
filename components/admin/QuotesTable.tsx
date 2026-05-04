@@ -19,6 +19,16 @@ import { TableFilterConfig } from "@/types/types";
 import { format, isToday, isPast, startOfDay } from "date-fns";
 import TableActions from "@/components/admin/TableActions";
 
+const STATUS_OPTIONS = [
+  { value: "open", label: "Open Quotes" },
+  { value: "Draft", label: "Draft" },
+  { value: "Concept Sent to Client", label: "Concept Sent" },
+  { value: "Proposal with Client", label: "With Client" },
+  { value: "Closed Won", label: "Closed Won" },
+  { value: "Closed Lost", label: "Closed Lost" },
+  { value: "all", label: "All Quotes" },
+];
+
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "Draft":
@@ -70,6 +80,7 @@ interface QuotesTableProps {
   partnerId?: string;
   isSuperAdmin?: boolean;
   userPartnerId?: string | null;
+  showOwnerFilter?: boolean;
 }
 
 const QuotesTable = ({
@@ -77,18 +88,8 @@ const QuotesTable = ({
   partnerId,
   isSuperAdmin,
   userPartnerId,
+  showOwnerFilter = true,
 }: QuotesTableProps) => {
-  // Status filter options
-  const statusOptions = [
-    { value: "open", label: "Open Quotes" },
-    { value: "Draft", label: "Draft" },
-    { value: "Concept Sent to Client", label: "Concept Sent" },
-    { value: "Proposal with Client", label: "With Client" },
-    { value: "Closed Won", label: "Closed Won" },
-    { value: "Closed Lost", label: "Closed Lost" },
-    { value: "all", label: "All Quotes" },
-  ];
-
   // Define filter configuration
   const filterConfig: TableFilterConfig[] = useMemo(
     () => [
@@ -99,7 +100,7 @@ const QuotesTable = ({
         type: "select",
         defaultValue: "open",
         placeholder: "All Statuses",
-        options: statusOptions,
+        options: STATUS_OPTIONS,
       },
       // Partner filter (only for super admins, not on organisation page, not when partnerId prop is set)
       ...(isSuperAdmin && !organisationId && !partnerId
@@ -119,7 +120,7 @@ const QuotesTable = ({
           ]
         : []),
       // Owner filter (only if not filtered by organisation)
-      ...(!organisationId
+      ...(!organisationId && showOwnerFilter
         ? [
             {
               name: "ownerId",
@@ -135,7 +136,7 @@ const QuotesTable = ({
           ]
         : []),
     ],
-    [organisationId, partnerId, isSuperAdmin, userPartnerId],
+    [organisationId, partnerId, isSuperAdmin, showOwnerFilter, userPartnerId],
   );
 
   // Use the table filters hook with localStorage persistence

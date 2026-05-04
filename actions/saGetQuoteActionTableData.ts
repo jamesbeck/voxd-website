@@ -1,10 +1,12 @@
 "use server";
 
 import db from "../database/db";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import {
   ServerActionReadParams,
   ServerActionReadResponse,
 } from "@/types/types";
+import userCanViewQuote from "@/lib/quoteAccess";
 
 const saGetQuoteActionTableData = async ({
   quoteId,
@@ -15,10 +17,19 @@ const saGetQuoteActionTableData = async ({
 }: ServerActionReadParams<{
   quoteId: string;
 }>): Promise<ServerActionReadResponse> => {
+  const accessToken = await verifyAccessToken();
+
   if (!quoteId) {
     return {
       success: false,
       error: "Quote ID is required",
+    };
+  }
+
+  if (!(await userCanViewQuote({ quoteId, accessToken }))) {
+    return {
+      success: false,
+      error: "Quote not found",
     };
   }
 

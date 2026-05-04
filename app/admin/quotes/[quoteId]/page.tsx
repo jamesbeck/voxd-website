@@ -32,6 +32,7 @@ import EditConceptForm from "./EditConceptForm";
 import QuoteViewsTable from "./QuoteViewsTable";
 import QuoteHeroImageTab from "./QuoteHeroImageTab";
 import QuoteActionsTab from "./QuoteActionsTab";
+import userCanViewQuote from "@/lib/quoteAccess";
 
 export default async function Page({
   params,
@@ -55,6 +56,11 @@ export default async function Page({
 
   // Get access token to determine user permissions
   const accessToken = await verifyAccessToken();
+
+  if (quote && !(await userCanViewQuote({ quoteId, accessToken }))) {
+    return notFound();
+  }
+
   const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && quote?.partnerId === accessToken.partnerId;

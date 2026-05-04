@@ -6,6 +6,7 @@ import {
   ServerActionReadResponse,
   ServerActionReadParams,
 } from "@/types/types";
+import { applyQuoteReadScope } from "@/lib/quoteAccess";
 
 const saGetQuoteTableData = async ({
   search,
@@ -56,10 +57,10 @@ const saGetQuoteTableData = async ({
     }
   }
 
-  //if not super admin add where clause to only get the quote for relevant organisations
-  if (accessToken?.partner && !accessToken?.superAdmin) {
-    base.where("organisation.partnerId", accessToken.partnerId);
-  }
+  await applyQuoteReadScope({
+    query: base,
+    accessToken,
+  });
 
   // Allow superAdmins to filter by a specific partnerId
   if (accessToken?.superAdmin && partnerId) {

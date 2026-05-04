@@ -16,6 +16,88 @@ Use the open ai key of the relevant partner, either logged in OR the partner tha
 
 See [user-access-levels.md](.github/user-access-levels.md) for detailed documentation on the three user levels (Admin, Partner, Organisation) and what data each can access.
 
+## Permissions
+
+This project now has two permission layers for admin-facing features:
+
+1. **Access scope** answers whether the current admin user can see a resource at all.
+2. **Permission definitions** answer whether the current admin user can perform a specific action on that resource.
+
+Do not rely on `superAdmin` checks alone when a permission key exists for the feature. Super admins still bypass permission checks, but feature code should prefer the shared permission helpers so non-super-admin access behaves consistently.
+
+### Permission sources
+
+- `permissionDefinition` stores the permission key, display metadata, `scopeMode`, default value, and whether only super admins can manage that permission.
+- `adminUserPermission` stores global explicit overrides for an admin user.
+- `adminUserAgentPermission` stores agent-scoped explicit overrides for an admin user.
+
+### Effective permission resolution
+
+Use the shared helpers in `lib/adminUserPermissions.ts` to resolve permissions. The effective value is resolved with the same precedence used by the admin permissions UI:
+
+- For `global` permissions: `adminUserPermission.value ?? permissionDefinition.defaultValue`
+- For `agent` permissions: `adminUserPermission.value ?? adminUserAgentPermission.value ?? permissionDefinition.defaultValue`
+
+This means a global explicit value currently overrides an agent-specific explicit value. Keep runtime checks aligned with this precedence unless the permission model itself is intentionally changed.
+
+### Shared helpers
+
+The main permission helpers live in `lib/adminUserPermissions.ts`:
+
+- `getAdminUserPermissionValue({ adminUserId, permissionKey, agentId? })`
+  Returns the effective boolean value for a permission. This is the main reusable resolver for new permission-gated features.
+- `hasAdminUserPermission({ adminUserId, permissionKey, agentId? })`
+  Thin boolean helper that currently delegates to `getAdminUserPermissionValue`. Use this when the calling code only needs a yes/no check.
+- `applyAgentScope({ query, accessToken })`
+  Applies the current admin user's organisation/partner/super-admin visibility rules to an agent query.
+- `getScopedAgentForAdminUser({ agentId, targetAdminUser })`
+  Confirms whether a specific agent is within the target admin user's scope.
+- `getAccessibleAgentsForAdminUser({ targetAdminUser })`
+  Returns the agents available to that admin user for agent-scoped permission management.
+- `getAdminUserPermissionsAccess({ targetAdminUserId, accessToken? })`
+  Resolves whether the acting admin user can manage another admin user's permissions.
+
+### Resource visibility vs action permissions
+
+Keep resource visibility checks separate from action permission checks:
+
+- Use `userCanViewAgent(...)` for coarse agent visibility.
+- Use `hasAdminUserPermission(...)` or `getAdminUserPermissionValue(...)` for feature-specific access such as `read_agent_config` or `write_agent_config`.
+
+For agent-scoped features, compose both checks. A user should not be able to exercise a permission for an agent they cannot access.
+
+### UI requirements
+
+When a feature is not available to the current user:
+
+- Do not render the related tab, button, action, or navigation item.
+- If the page is URL-driven and the user manually lands on a hidden tab, normalize to a visible tab instead of rendering an empty state.
+- If the user has read access but not write access, prefer rendering the data in a read-only state instead of exposing edit affordances that will fail later.
+
+### Server action requirements
+
+UI hiding is not sufficient. Always enforce the same permission server-side in the action or backend helper that performs the mutation or sensitive read.
+
+Recommended pattern for agent-scoped server actions:
+
+1. Verify the access token.
+2. Validate required identifiers.
+3. Confirm the user can access the resource with `userCanViewAgent(...)` or the equivalent resource visibility helper.
+4. Resolve the feature permission with `hasAdminUserPermission(...)` or `getAdminUserPermissionValue(...)`.
+5. Reject the request before performing the read or mutation if the permission check fails.
+
+### Current example
+
+Agent config uses this model:
+
+- `read_agent_config` controls whether the Config tab is visible.
+- `write_agent_config` controls whether config can be edited.
+- The UI hides the Config tab entirely without read access.
+- The config editor becomes read-only when the user can read but cannot write.
+- The server action still re-checks access before updating config.
+
+Use this pattern as the template for future permission-gated features across the app.
+
 ## Logging
 
 See [logging.md](.github/logging.md) for documentation on how to use the `addLog` function to record audit logs for important events.

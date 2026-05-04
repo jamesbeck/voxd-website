@@ -22,7 +22,8 @@ const saGetOrganisationTableData = async ({
   const base = db("organisation")
     .leftJoin("agent", "organisation.id", "agent.organisationId")
     .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")
-    .groupBy("organisation.id")
+    .leftJoin("adminUser as owner", "organisation.ownerId", "owner.id")
+    .groupBy("organisation.id", "owner.id")
     .where((qb) => {
       if (search) {
         qb.where("organisation.name", "ilike", `%${search}%`);
@@ -61,6 +62,7 @@ const saGetOrganisationTableData = async ({
   const organisations = await base
     .clone()
     .select("organisation.*")
+    .select("owner.name as ownerName")
     .select([db.raw('COUNT(DISTINCT "agent"."id")::int as "agentCount"')])
     .select([
       db.raw('COUNT(DISTINCT "adminUser"."id")::int as "adminUserCount"'),

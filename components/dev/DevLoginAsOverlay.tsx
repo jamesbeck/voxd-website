@@ -41,18 +41,25 @@ type DevAdminUserSearchResult = {
   effectivePartnerOrganisationShowLogoOnColour: string | null;
 };
 
+type RecentDevUser = {
+  id: string;
+  email: string;
+  name: string | null;
+};
+
 const QUICK_SWITCH_USER = {
   id: "019aa02a-9206-7d15-80e4-ed58f59d5655",
   email: "james.beck@voxd.ai",
+  name: "James Beck",
 };
+
+const RECENT_DEV_USERS_STORAGE_KEY = "dev-login-recent-users";
 
 export default function DevLoginAsOverlay({
   currentEmail,
-  currentPartnerName,
   redirectTo,
 }: {
   currentEmail?: string | null;
-  currentPartnerName?: string | null;
   redirectTo?: string;
 }) {
   const pathname = usePathname();
@@ -60,11 +67,38 @@ export default function DevLoginAsOverlay({
   const [isOpen, setIsOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [results, setResults] = React.useState<DevAdminUserSearchResult[]>([]);
+  const [recentUsers, setRecentUsers] = React.useState<RecentDevUser[]>([]);
   const [searchLoading, setSearchLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [loginLoadingId, setLoginLoadingId] = React.useState<string | null>(
     null,
   );
+
+  React.useEffect(() => {
+    try {
+      const storedValue = window.localStorage.getItem(
+        RECENT_DEV_USERS_STORAGE_KEY,
+      );
+
+      if (!storedValue) {
+        return;
+      }
+
+      const parsedValue = JSON.parse(storedValue) as RecentDevUser[];
+      if (!Array.isArray(parsedValue)) {
+        return;
+      }
+
+      setRecentUsers(
+        parsedValue.filter(
+          (entry) =>
+            typeof entry?.id === "string" && typeof entry?.email === "string",
+        ),
+      );
+    } catch {
+      window.localStorage.removeItem(RECENT_DEV_USERS_STORAGE_KEY);
+    }
+  }, []);
 
   React.useEffect(() => {
     const trimmedQuery = query.trim();
@@ -108,12 +142,30 @@ export default function DevLoginAsOverlay({
     };
   }, [query]);
 
-  async function handleLogInAsUser(adminUserId: string) {
-    setLoginLoadingId(adminUserId);
+  async function handleLogInAsUser(user: {
+    id: string;
+    email: string;
+    name?: string | null;
+  }) {
+    setRecentUsers((previousUsers) => {
+      const nextUsers = [
+        { id: user.id, email: user.email, name: user.name ?? null },
+        ...previousUsers.filter((previousUser) => previousUser.id !== user.id),
+      ].slice(0, 5);
+
+      window.localStorage.setItem(
+        RECENT_DEV_USERS_STORAGE_KEY,
+        JSON.stringify(nextUsers),
+      );
+
+      return nextUsers;
+    });
+
+    setLoginLoadingId(user.id);
     setError(null);
 
     const response = await saLogInAsAdminUserForDevelopment({
-      adminUserId,
+      adminUserId: user.id,
     });
 
     if (!response.success) {
@@ -133,6 +185,11 @@ export default function DevLoginAsOverlay({
     setResults([]);
     window.location.assign(targetUrl);
   }
+
+  const hasSearchQuery = query.trim().length > 0;
+  const filteredRecentUsers = recentUsers.filter(
+    (recentUser) => recentUser.email !== currentEmail,
+  );
 
   if (!isOpen) {
     return (
@@ -189,47 +246,65 @@ export default function DevLoginAsOverlay({
               className="h-10 rounded-full border-slate-200 bg-slate-50 pl-9 pr-4 text-sm"
             />
           </div>
-          <button
-            type="button"
-            onClick={() => handleLogInAsUser(QUICK_SWITCH_USER.id)}
-            disabled={loginLoadingId === QUICK_SWITCH_USER.id}
-            className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs text-slate-700 transition hover:border-slate-300 hover:bg-white disabled:cursor-wait disabled:opacity-70"
-          >
-            <div>
-              <div className="font-medium text-slate-900">Quick switch</div>
-              <div className="mt-0.5 text-slate-500">
-                {QUICK_SWITCH_USER.email}
-              </div>
-            </div>
-            {loginLoadingId === QUICK_SWITCH_USER.id ? (
-              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-slate-400" />
-            ) : (
-              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
-            )}
-          </button>
         </CardHeader>
         <CardContent className="space-y-3 px-4 py-4">
-          {(currentEmail || currentPartnerName) && (
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-              <div className="font-medium text-slate-800">Current context</div>
-              <div className="mt-1 flex flex-wrap gap-2">
-                {currentEmail && (
-                  <Badge variant="outline" className="rounded-full bg-white">
-                    {currentEmail}
-                  </Badge>
-                )}
-                {currentPartnerName && (
-                  <Badge variant="outline" className="rounded-full bg-white">
-                    {currentPartnerName}
-                  </Badge>
-                )}
+          {!hasSearchQuery && (
+            <button
+              type="button"
+              onClick={() => handleLogInAsUser(QUICK_SWITCH_USER)}
+              disabled={loginLoadingId === QUICK_SWITCH_USER.id}
+              className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-left text-xs text-slate-700 transition hover:border-slate-300 hover:bg-white disabled:cursor-wait disabled:opacity-70"
+            >
+              <div>
+                <div className="font-medium text-slate-900">Quick switch</div>
+                <div className="mt-0.5 text-slate-500">
+                  {QUICK_SWITCH_USER.email}
+                </div>
               </div>
-            </div>
+              {loginLoadingId === QUICK_SWITCH_USER.id ? (
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin text-slate-400" />
+              ) : (
+                <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+              )}
+            </button>
           )}
 
           {error && (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
               {error}
+            </div>
+          )}
+
+          {!hasSearchQuery && filteredRecentUsers.length > 0 && (
+            <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                Recent users
+              </div>
+              <div className="space-y-2">
+                {filteredRecentUsers.map((recentUser) => (
+                  <button
+                    key={recentUser.id}
+                    type="button"
+                    onClick={() => handleLogInAsUser(recentUser)}
+                    disabled={loginLoadingId === recentUser.id}
+                    className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-xs text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-70"
+                  >
+                    <div className="min-w-0">
+                      <div className="truncate font-medium text-slate-900">
+                        {recentUser.name || recentUser.email}
+                      </div>
+                      <div className="mt-0.5 truncate text-slate-500">
+                        {recentUser.email}
+                      </div>
+                    </div>
+                    {loginLoadingId === recentUser.id ? (
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin text-slate-400" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -258,7 +333,13 @@ export default function DevLoginAsOverlay({
                   <button
                     key={user.id}
                     type="button"
-                    onClick={() => handleLogInAsUser(user.id)}
+                    onClick={() =>
+                      handleLogInAsUser({
+                        id: user.id,
+                        email: user.email || "",
+                        name: user.name,
+                      })
+                    }
                     disabled={loginLoadingId === user.id}
                     className="w-full rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-70"
                   >
