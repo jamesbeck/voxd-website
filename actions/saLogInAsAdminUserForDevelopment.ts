@@ -39,7 +39,7 @@ const saLogInAsAdminUserForDevelopment = async ({
     adminUserId: adminUser.id,
     event: "User Login",
     description: `User ${adminUser.email} logged in via development overlay`,
-    partnerId: adminUser.partnerId || undefined,
+    partnerId: adminUser.effectivePartnerId || undefined,
     organisationId: adminUser.organisationId || undefined,
     data: {
       email: adminUser.email,
@@ -52,9 +52,14 @@ const saLogInAsAdminUserForDevelopment = async ({
     email: adminUser.email,
     name: adminUser.name,
     superAdmin: adminUser.superAdmin,
-    partnerId: adminUser.partnerId,
+    isPartner: adminUser.organisationIsPartner,
+    partnerId: adminUser.organisationIsPartner ? adminUser.organisationId : null,
     organisationId: adminUser.organisationId,
     organisationName: adminUser.organisationName,
+    organisationIsPartner: adminUser.organisationIsPartner,
+    organisationPartnerId: adminUser.organisationIsPartner
+      ? null
+      : adminUser.effectivePartnerId,
   });
 
   return {

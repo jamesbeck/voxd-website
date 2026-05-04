@@ -57,7 +57,7 @@ const saUploadExampleLogo = async ({
 
   // Partners can only upload logos for their own examples
   if (accessToken.partner && !accessToken.superAdmin) {
-    if (example.partnerId !== accessToken.partnerId) {
+    if (example.organisationId !== accessToken.partnerId) {
       return {
         success: false,
         error: "You can only upload logos for your own examples",

@@ -34,7 +34,7 @@ export type PublicConcept = {
   setupFee: number | null;
   monthlyFee: number | null;
   freeMonthlyMinutes: number | null;
-  partnerId: string;
+  partnerId: string | null;
   partner: {
     name: string;
     domain: string | null;
@@ -60,14 +60,13 @@ export const getConceptForPublic = async ({
 
   const query = db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .leftJoin(
       "organisation as partnerOrg",
-      "partner.organisationId",
+      "organisation.partnerId",
       "partnerOrg.id",
     )
     .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
-    .leftJoin("agent", "partner.salesBotAgentId", "agent.id")
+    .leftJoin("agent", "partnerOrg.salesBotAgentId", "agent.id")
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id");
 
   // Look up by shortLinkId or quote.id depending on format
@@ -108,12 +107,12 @@ export const getConceptForPublic = async ({
       db.raw(
         '"partnerOrg"."showLogoOnColour" as "partnerOrganisationShowLogoOnColour"',
       ),
-      "partner.id as partnerId",
-      "partner.name as partnerName",
-      "partner.domain as partnerDomain",
+      "partnerOrg.id as partnerId",
+      "partnerOrg.name as partnerName",
+      "partnerOrg.domain as partnerDomain",
     )
     .select(
-      "partner.salesBotName",
+      "partnerOrg.salesBotName",
       "phoneNumber.displayPhoneNumber as salesBotPhoneNumber",
       "adminUser.name as createdByName",
       "adminUser.email as createdByEmail",

@@ -10,7 +10,10 @@ export interface AccessTokenPayload {
   name: string;
   superAdmin: boolean;
   partner: boolean;
+  // Transitional field: now represents the partner organisation id.
   partnerId?: string;
   organisationId?: string;
   organisationName?: string;
+  organisationIsPartner?: boolean;
+  organisationPartnerId?: string;
 }

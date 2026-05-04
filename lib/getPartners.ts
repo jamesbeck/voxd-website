@@ -4,33 +4,43 @@ import { Partner } from "@/types/types";
 
 const getPartners = unstable_cache(
   async (): Promise<Partner[]> => {
-    try {
-      const partners = await db("partner")
-        .leftJoin("organisation", "partner.organisationId", "organisation.id")
-        .select(
-          "partner.*",
-          "organisation.primaryColour as organisationPrimaryColour",
-          "organisation.logoFileExtension as organisationLogoFileExtension",
-          db.raw(
-            'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
-          ),
-        );
-      return partners.map((partner: any) => {
-        const sanitizedPartner = { ...partner };
-        delete sanitizedPartner.providerApiKeyId;
-        delete sanitizedPartner.colour;
-        delete sanitizedPartner.logoFileExtension;
-        delete sanitizedPartner.showLogoOnColour;
+    const partners = await db("organisation")
+      .where("organisation.partner", true)
+      .select(
+        "organisation.id",
+        "organisation.name",
+        "organisation.domain",
+        "organisation.coreDomain",
+        "organisation.providerApiKeyId",
+        "organisation.sendEmailFromDomain",
+        "organisation.salesBotName",
+        "organisation.salesBotAgentId",
+        "organisation.prototypingAgentId",
+        "organisation.legalName",
+        "organisation.companyNumber",
+        "organisation.registeredAddress",
+        "organisation.legalEmail",
+        "organisation.goCardlessMandateLink",
+        "organisation.salesEmail",
+        "organisation.accountsEmail",
+        "organisation.hourlyRate",
+        "organisation.monthlyBaseFee",
+        "organisation.monthlyPerIntegration",
+        "organisation.sendEmailFromDomainVerified",
+        db.raw('organisation.id as "organisationId"'),
+        db.raw(
+          'organisation."primaryColour" as "organisationPrimaryColour"',
+        ),
+        db.raw(
+          'organisation."logoFileExtension" as "organisationLogoFileExtension"',
+        ),
+        db.raw(
+          'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
+        ),
+      )
+      .orderBy("organisation.name", "asc");
 
-        return sanitizedPartner;
-      });
-    } catch (error: any) {
-      if (error?.code === "42P01") {
-        return [];
-      }
-
-      throw error;
-    }
+    return partners;
   },
   ["partners"],
   { revalidate: 60, tags: ["partners"] },

@@ -58,7 +58,7 @@ const saSearchMentionableUsers = async ({
   const users = await db("adminUser")
     .where(function () {
       this.where("organisationId", ticket.organisationId)
-        .orWhere("partnerId", ticket.partnerId)
+        .orWhere("organisationId", ticket.partnerId)
         .orWhere("superAdmin", true);
     })
     .andWhere("id", "!=", accessToken.adminUserId)

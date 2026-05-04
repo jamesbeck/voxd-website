@@ -68,13 +68,20 @@ const saVerifyLoginCode = async ({
       "adminUser.name",
       "adminUser.otp",
       "adminUser.otpAttempts",
-      "adminUser.partnerId",
       "adminUser.superAdmin",
       "adminUser.organisationId",
       "organisation.name as organisationName",
+      db.raw('organisation.partner as "organisationIsPartner"'),
+      db.raw('organisation."partnerId" as "organisationPartnerId"'),
     )
     .whereRaw('LOWER("adminUser".email) = LOWER(?)', [idToken.email])
     .first();
+
+  const partnerOrganisationId = adminUser?.organisationIsPartner
+    ? adminUser.organisationId
+    : null;
+  const effectivePartnerId =
+    partnerOrganisationId || adminUser?.organisationPartnerId || undefined;
 
   const attempts = (adminUser?.otpAttempts || 0) + 1;
 
@@ -98,7 +105,7 @@ const saVerifyLoginCode = async ({
       adminUserId: adminUser?.id,
       event: "OTP Verification Failed",
       description: `Failed login attempt for ${idToken.email} (attempt ${attempts})`,
-      partnerId: adminUser?.partnerId,
+      partnerId: effectivePartnerId,
       organisationId: adminUser?.organisationId,
       data: {
         email: idToken.email,
@@ -134,7 +141,7 @@ const saVerifyLoginCode = async ({
     adminUserId: adminUser.id,
     event: "User Login",
     description: `User ${idToken.email} logged in successfully`,
-    partnerId: adminUser.partnerId,
+    partnerId: effectivePartnerId,
     organisationId: adminUser.organisationId,
     data: {
       email: idToken.email,
@@ -146,9 +153,12 @@ const saVerifyLoginCode = async ({
     email: idToken.email,
     name: adminUser.name,
     superAdmin: adminUser.superAdmin,
-    partnerId: adminUser.partnerId,
+    isPartner: !!partnerOrganisationId,
+    partnerId: partnerOrganisationId,
     organisationId: adminUser.organisationId,
     organisationName: adminUser.organisationName,
+    organisationIsPartner: !!adminUser.organisationIsPartner,
+    organisationPartnerId: adminUser.organisationPartnerId,
   });
 
   redirect(redirectTo || "/admin");

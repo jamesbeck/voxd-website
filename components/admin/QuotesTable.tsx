@@ -283,7 +283,7 @@ const QuotesTable = ({
             label: "Partner",
             name: "partnerName",
             sort: true,
-            linkTo: (row: any) => `/admin/partners/${row.partnerId}`,
+            linkTo: (row: any) => `/admin/organisations/${row.partnerId}`,
             format: (row: any) => row.partnerName || "-",
           },
         ]

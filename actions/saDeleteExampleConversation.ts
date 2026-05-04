@@ -32,7 +32,7 @@ const saDeleteExampleConversation = async ({
     .leftJoin("example", "example.id", "exampleConversation.exampleId")
     .where("exampleConversation.id", conversationId)
     .whereNotNull("exampleConversation.exampleId")
-    .select("exampleConversation.*", "example.partnerId")
+    .select("exampleConversation.*", "example.organisationId as partnerId")
     .first();
 
   if (!conversation) {

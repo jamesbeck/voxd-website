@@ -5,7 +5,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { TableFilterOption } from "@/types/types";
 
 /**
- * Get admin users belonging to the logged-in user's partner.
+ * Get admin users belonging to partner organisations.
  * Used for filter dropdowns where we need to show partner-scoped admin users.
  */
 const saGetPartnerAdminUsers = async (): Promise<{
@@ -22,20 +22,24 @@ const saGetPartnerAdminUsers = async (): Promise<{
     };
   }
 
-  // Get admin users for the logged-in user's partner
-  const partnerId = accessToken.partnerId;
+  const adminUsersQuery = db("adminUser")
+    .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
+    .select("adminUser.id", "adminUser.name", "adminUser.email")
+    .where("organisation.partner", true)
+    .orderBy("name", "asc");
 
-  if (!partnerId) {
-    return {
-      success: false,
-      error: "No partner ID found for the logged-in user.",
-    };
+  if (!accessToken.superAdmin) {
+    if (!accessToken.partnerId) {
+      return {
+        success: false,
+        error: "No partner organisation found for the logged-in user.",
+      };
+    }
+
+    adminUsersQuery.where("adminUser.organisationId", accessToken.partnerId);
   }
 
-  const adminUsers = await db("adminUser")
-    .select("id", "name", "email")
-    .where("partnerId", partnerId)
-    .orderBy("name", "asc");
+  const adminUsers = await adminUsersQuery;
 
   const options: TableFilterOption[] = adminUsers.map((user) => ({
     label: user.name + (user.email ? ` (${user.email})` : ""),

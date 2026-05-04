@@ -20,7 +20,7 @@ const saDeleteExample = async ({
     // Get the example
     const example = await db("example")
       .where({ id: exampleId })
-      .select("partnerId", "title")
+      .select("organisationId", "title")
       .first();
 
     if (!example) {
@@ -29,7 +29,7 @@ const saDeleteExample = async ({
 
     // If user is a partner, verify they own this example
     if (accessToken.partner && !accessToken.superAdmin) {
-      if (example.partnerId !== accessToken.partnerId) {
+      if (example.organisationId !== accessToken.partnerId) {
         return { success: false, error: "Unauthorized" };
       }
     }

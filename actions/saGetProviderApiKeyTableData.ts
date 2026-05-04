@@ -47,7 +47,12 @@ const saGetProviderApiKeyTableData = async ({
     base.whereIn("providerApiKey.organisationId", function () {
       this.select("id")
         .from("organisation")
-        .where("partnerId", accessToken.partnerId);
+        .where((qb) => {
+          qb.where("partnerId", accessToken.partnerId).orWhere(
+            "id",
+            accessToken.partnerId,
+          );
+        });
     });
   }
 
@@ -75,7 +80,7 @@ const saGetProviderApiKeyTableData = async ({
         `COALESCE((SELECT json_agg(json_build_object('id', a."id", 'name', a."niceName")) FROM "agent" a WHERE a."providerApiKeyId" = "providerApiKey"."id"), '[]'::json) as "agents"`,
       ),
       db.raw(
-        `COALESCE((SELECT json_agg(json_build_object('id', p."id", 'name', p."name")) FROM "partner" p WHERE p."providerApiKeyId" = "providerApiKey"."id"), '[]'::json) as "partners"`,
+        `COALESCE((SELECT json_agg(json_build_object('id', o."id", 'name', o."name")) FROM "organisation" o WHERE o."partner" = true AND o."providerApiKeyId" = "providerApiKey"."id"), '[]'::json) as "partners"`,
       ),
     )
     .orderBy(sortField, sortDirection)

@@ -30,6 +30,8 @@ export async function addLog({
   description,
   data,
 }: AddLogParams): Promise<void> {
+  void partnerId;
+
   // Get IP address from headers
   const headersList = await headers();
 
@@ -44,7 +46,6 @@ export async function addLog({
     adminUserId: adminUserId || null,
     apiKeyId: apiKeyId || null,
     organisationId: organisationId || null,
-    partnerId: partnerId || null,
     sessionId: sessionId || null,
     agentId: agentId || null,
     chatUserId: chatUserId || null,

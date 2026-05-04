@@ -23,8 +23,9 @@ const saGetAllPartners = async (): Promise<{
     };
   }
 
-  const partners = await db("partner")
+  const partners = await db("organisation")
     .select("id", "name")
+    .where("partner", true)
     .orderBy("name", "asc");
 
   const options: TableFilterOption[] = partners.map((partner) => ({

@@ -99,7 +99,9 @@ const getScopedAdminUserQuery = ({
       "adminUser.id",
       "adminUser.name",
       "adminUser.organisationId",
-      "adminUser.partnerId",
+      db.raw(
+        'CASE WHEN "organisation"."partner" = true THEN "organisation"."id" ELSE "organisation"."partnerId" END as "partnerId"',
+      ),
       "adminUser.superAdmin",
     )
     .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
@@ -235,13 +237,16 @@ export const getAdminUserPermissionValue = async ({
       "permissionDefinition.scopeMode",
       "adminUserPermission.value as globalExplicitValue",
     )
-    .leftJoin("adminUserPermission", function joinAdminUserPermission() {
-      this.on(
-        "adminUserPermission.permissionDefinitionId",
-        "=",
-        "permissionDefinition.id",
-      ).andOnVal("adminUserPermission.adminUserId", "=", adminUserId);
-    })
+    .leftJoin(
+      "adminUserPermission",
+      function joinAdminUserPermission() {
+        this.on(
+          "adminUserPermission.permissionDefinitionId",
+          "=",
+          "permissionDefinition.id",
+        ).andOnVal("adminUserPermission.adminUserId", "=", adminUserId);
+      },
+    )
     .where("permissionDefinition.key", permissionKey);
 
   if (agentId) {
@@ -268,9 +273,7 @@ export const getAdminUserPermissionValue = async ({
   }
 
   if (row.scopeMode === "agent") {
-    return (
-      row.globalExplicitValue ?? row.agentExplicitValue ?? row.defaultValue
-    );
+    return row.globalExplicitValue ?? row.agentExplicitValue ?? row.defaultValue;
   }
 
   return row.globalExplicitValue ?? row.defaultValue;
@@ -344,7 +347,15 @@ export const getGroupedAdminUserPermissions = async ({
   trx?: Knex | Knex.Transaction;
 }): Promise<AdminUserPermissionGroup[]> => {
   const targetUser = await trx("adminUser")
-    .select("id", "partnerId", "organisationId", "superAdmin")
+    .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
+    .select(
+      "adminUser.id",
+      db.raw(
+        'CASE WHEN "organisation"."partner" = true THEN "organisation"."id" ELSE "organisation"."partnerId" END as "partnerId"',
+      ),
+      "adminUser.organisationId",
+      "adminUser.superAdmin",
+    )
     .where("id", adminUserId)
     .first();
 
@@ -373,13 +384,16 @@ export const getGroupedAdminUserPermissions = async ({
       "permissionDefinition.permissionGroupId",
       "permissionGroup.id",
     )
-    .leftJoin("adminUserPermission", function joinAdminUserPermission() {
-      this.on(
-        "adminUserPermission.permissionDefinitionId",
-        "=",
-        "permissionDefinition.id",
-      ).andOnVal("adminUserPermission.adminUserId", "=", adminUserId);
-    })
+    .leftJoin(
+      "adminUserPermission",
+      function joinAdminUserPermission() {
+        this.on(
+          "adminUserPermission.permissionDefinitionId",
+          "=",
+          "permissionDefinition.id",
+        ).andOnVal("adminUserPermission.adminUserId", "=", adminUserId);
+      },
+    )
     .orderBy([
       { column: "permissionGroup.sortOrder", order: "asc" },
       { column: "permissionGroup.name", order: "asc" },
@@ -397,7 +411,11 @@ export const getGroupedAdminUserPermissions = async ({
     }),
     agentScopedPermissionDefinitionIds.length > 0
       ? ((await trx("adminUserAgentPermission")
-          .select("permissionDefinitionId", "agentId", "value as explicitValue")
+          .select(
+            "permissionDefinitionId",
+            "agentId",
+            "value as explicitValue",
+          )
           .where("adminUserId", adminUserId)
           .whereIn(
             "permissionDefinitionId",
@@ -454,7 +472,8 @@ export const getGroupedAdminUserPermissions = async ({
         description: row.permissionDescription,
         scopeMode: row.permissionScopeMode,
         defaultValue: row.permissionDefaultValue,
-        requiresSuperAdminToManage: row.permissionRequiresSuperAdminToManage,
+        requiresSuperAdminToManage:
+          row.permissionRequiresSuperAdminToManage,
         globalExplicitValue: row.globalExplicitValue,
         effectiveValue: row.globalExplicitValue ?? row.permissionDefaultValue,
         agentValues,
@@ -477,7 +496,8 @@ export const getGroupedAdminUserPermissions = async ({
           description: row.permissionDescription,
           scopeMode: row.permissionScopeMode,
           defaultValue: row.permissionDefaultValue,
-          requiresSuperAdminToManage: row.permissionRequiresSuperAdminToManage,
+          requiresSuperAdminToManage:
+            row.permissionRequiresSuperAdminToManage,
           globalExplicitValue: row.globalExplicitValue,
           effectiveValue: row.globalExplicitValue ?? row.permissionDefaultValue,
           agentValues,

@@ -37,16 +37,20 @@ const saCreateSupportTicket = async (
     // Verify user has access to this agent
     agent = await db("agent")
       .leftJoin("organisation", "agent.organisationId", "organisation.id")
-      .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .leftJoin(
+        "organisation as partnerOrganisation",
+        "organisation.partnerId",
+        "partnerOrganisation.id",
+      )
       .where("agent.id", agentId)
       .select(
         "agent.id",
         "agent.niceName",
         "organisation.partnerId",
         "organisation.id as organisationId",
-        "partner.domain as partnerDomain",
-        "partner.name as partnerName",
-        "partner.sendEmailFromDomain",
+        "partnerOrganisation.domain as partnerDomain",
+        "partnerOrganisation.name as partnerName",
+        "partnerOrganisation.sendEmailFromDomain",
       )
       .first();
 
@@ -161,12 +165,16 @@ const saCreateSupportTicket = async (
     } else {
       // Fetch organisation/partner info if no agent
       const orgInfo = await db("organisation")
-        .leftJoin("partner", "organisation.partnerId", "partner.id")
+        .leftJoin(
+          "organisation as partnerOrganisation",
+          "organisation.partnerId",
+          "partnerOrganisation.id",
+        )
         .where("organisation.id", organisationId)
         .select(
-          "partner.domain as partnerDomain",
-          "partner.name as partnerName",
-          "partner.sendEmailFromDomain",
+          "partnerOrganisation.domain as partnerDomain",
+          "partnerOrganisation.name as partnerName",
+          "partnerOrganisation.sendEmailFromDomain",
         )
         .first();
 

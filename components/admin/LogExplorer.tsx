@@ -199,7 +199,7 @@ function LogEntryCard({ log }: { log: LogEntry }) {
                     </Link>
                   )}
                   {log.partnerId && (
-                    <Link href={`/admin/partners/${log.partnerId}`}>
+                    <Link href={`/admin/organisations/${log.partnerId}`}>
                       <Badge
                         variant="outline"
                         className="cursor-pointer hover:bg-accent"

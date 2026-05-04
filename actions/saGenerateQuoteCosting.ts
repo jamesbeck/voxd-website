@@ -66,15 +66,23 @@ const saGenerateQuoteCosting = async ({
 
   const quote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
+    .leftJoin(
+      "providerApiKey",
+      "partnerOrganisation.providerApiKeyId",
+      "providerApiKey.id",
+    )
     .select(
       "quote.*",
       "organisation.name as organisationName",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
-      "partner.name as partnerName",
-      "partner.monthlyBaseFee",
-      "partner.monthlyPerIntegration",
+      "partnerOrganisation.name as partnerName",
+      "partnerOrganisation.monthlyBaseFee",
+      "partnerOrganisation.monthlyPerIntegration",
     )
     .where({ "quote.id": quoteId })
     .first();

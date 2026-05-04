@@ -5,6 +5,7 @@ import { Knex } from "knex";
 const query = (db: Knex) =>
   db("example")
     .select("example.*")
+    .leftJoin("organisation", "organisation.id", "example.organisationId")
     .leftJoin(
       db.raw(`(
       SELECT ei."exampleId",
@@ -40,6 +41,7 @@ const query = (db: Knex) =>
 
     .select(db.raw(`COALESCE(i.industries, '[]') as industries`))
     .select(db.raw(`COALESCE(f.functions,  '[]') as functions`))
+    .select(db.raw('"example"."organisationId" as "partnerId"'))
     .select(
       db.raw(
         `COALESCE(ec."exampleConversations",  '[]') as "exampleConversations"`,

@@ -13,26 +13,23 @@ import {
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import saUpdatePartner from "@/actions/saUpdatePartner";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { RemoteSelect } from "@/components/inputs/RemoteSelect";
-import saGetProviderApiKeyTableData from "@/actions/saGetProviderApiKeyTableData";
 
 const formSchema = z.object({
-  providerApiKeyId: z.string().optional(),
+  name: z.string().nonempty("Name is required"),
 });
 
-export default function EditPartnerApiKeysForm({
+export default function EditPartnerDetailsForm({
   partnerId,
-  providerApiKeyId,
-  providerApiKeyLabel,
+  name,
 }: {
   partnerId: string;
-  providerApiKeyId?: string;
-  providerApiKeyLabel?: string;
+  name?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -40,7 +37,7 @@ export default function EditPartnerApiKeysForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      providerApiKeyId: providerApiKeyId || "",
+      name: name || "",
     },
   });
 
@@ -49,7 +46,7 @@ export default function EditPartnerApiKeysForm({
 
     const response = await saUpdatePartner({
       partnerId,
-      providerApiKeyId: values.providerApiKeyId,
+      name: values.name,
     });
 
     if (!response.success) {
@@ -58,10 +55,18 @@ export default function EditPartnerApiKeysForm({
       if (response.error) {
         form.setError("root", { type: "manual", message: response.error });
       }
+      if (response.fieldErrors) {
+        for (const key in response.fieldErrors) {
+          form.setError(key as keyof typeof values, {
+            type: "manual",
+            message: response.fieldErrors[key],
+          });
+        }
+      }
     }
 
     if (response.success) {
-      toast.success("Partner API keys updated");
+      toast.success("Partner details updated");
       router.refresh();
     }
 
@@ -73,29 +78,18 @@ export default function EditPartnerApiKeysForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="providerApiKeyId"
+          name="name"
+          rules={{ required: true }}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Provider API Key</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
-                <RemoteSelect
-                  {...field}
-                  serverAction={saGetProviderApiKeyTableData}
-                  label={(record) =>
-                    `${record.providerName} \u2014 ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}${record.organisationName ? ` (${record.organisationName})` : ""}`
-                  }
-                  valueField="id"
-                  sortField="providerName"
-                  placeholder="Select a provider API key..."
-                  emptyMessage="No provider API keys found"
-                  initialLabel={providerApiKeyLabel}
-                />
+                <Input placeholder="Partner Ltd" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
         {form.formState.errors.root && (
           <div className="max-w-xl">
             <Alert variant="destructive">

@@ -65,10 +65,10 @@ export default async function Page({
   const isOwnerPartner =
     accessToken.partner && quote?.partnerId === accessToken.partnerId;
 
-  // Fetch prototypingAgentId from the partner that owns this quote's organisation
+  // Fetch prototypingAgentId from the partner organisation that owns this quote's organisation
   let prototypingAgentId: string | null = null;
   if (quote?.partnerId) {
-    const partner = await db("partner")
+    const partner = await db("organisation")
       .select("prototypingAgentId")
       .where("id", quote.partnerId)
       .first();

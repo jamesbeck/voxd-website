@@ -42,7 +42,7 @@ const adminUsersTable = () => {
           return <span className="text-muted-foreground">None</span>;
         }
         return (
-          <TableLink href={`/admin/partners/${row.partnerId}`}>
+          <TableLink href={`/admin/organisations/${row.partnerId}`}>
             {row.partnerName}
           </TableLink>
         );

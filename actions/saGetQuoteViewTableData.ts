@@ -52,8 +52,10 @@ const saGetQuoteViewTableData = async ({
   // Exclude views from users who belong to the same partner
   if (excludePartnerViews && token.partnerId) {
     const partnerEmails = db("adminUser")
+      .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
       .select("email")
-      .where("partnerId", token.partnerId)
+      .where("organisation.id", token.partnerId)
+      .where("organisation.partner", true)
       .whereNotNull("email");
     base.where((qb) => {
       qb.whereNull("quoteView.loggedInEmail").orWhereNotIn(

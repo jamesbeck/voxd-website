@@ -15,11 +15,13 @@ import { addLog } from "@/lib/addLog";
 
 const saSendLoginCode = async ({
   email,
-  redirectTo,
+  redirectTo: _redirectTo,
 }: {
   email: string;
   redirectTo?: string;
 }): Promise<ServerActionResponse> => {
+  void _redirectTo;
+
   //use zod to cehck if email is valid
   const emailSchema = z.email();
   const parseResult = emailSchema.safeParse(email);
@@ -42,7 +44,7 @@ const saSendLoginCode = async ({
 
   //find the user by email
   const adminUser = await db("adminUser")
-    .select("*")
+    .select("id", "email", "organisationId")
     .where({ email: email?.toLowerCase() })
     .first();
 
@@ -77,7 +79,6 @@ const saSendLoginCode = async ({
 
     if (process.env.NODE_ENV !== "development") {
       try {
-        const partnerDomain = partner?.domain || "voxd.ai";
         const partnerName = partner?.name || "Voxd";
         const emailFromDomain = partner?.sendEmailFromDomain || "voxd.ai";
         const emailR = await sendgrid.send({
@@ -160,7 +161,6 @@ const saSendLoginCode = async ({
           adminUserId: adminUser.id,
           event: "OTP Email Sent",
           description: `Login code sent to ${adminUser.email}`,
-          partnerId: adminUser.partnerId || undefined,
           organisationId: adminUser.organisationId || undefined,
           data: {
             email: adminUser.email,

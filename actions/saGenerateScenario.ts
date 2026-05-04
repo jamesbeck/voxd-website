@@ -66,7 +66,7 @@ const saGenerateScenario = async (
 
     // Partners can only generate scenarios for their own examples
     if (accessToken.partner && !accessToken.superAdmin) {
-      if (example.partnerId !== accessToken.partnerId) {
+      if (example.organisationId !== accessToken.partnerId) {
         return {
           success: false,
           error: "You can only generate scenarios for your own examples",
@@ -76,13 +76,13 @@ const saGenerateScenario = async (
 
     // Get the partner's provider API key
     if (accessToken.partnerId) {
-      const partner = await db("partner")
+      const partner = await db("organisation")
         .leftJoin(
           "providerApiKey",
-          "partner.providerApiKeyId",
+          "organisation.providerApiKeyId",
           "providerApiKey.id",
         )
-        .where("partner.id", accessToken.partnerId)
+        .where("organisation.id", accessToken.partnerId)
         .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
         .first();
       providerApiKey = partner?.providerApiKey || null;
@@ -103,10 +103,14 @@ const saGenerateScenario = async (
     // Get the quote with organisation and partner data
     const quote = await db("quote")
       .leftJoin("organisation", "quote.organisationId", "organisation.id")
-      .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .leftJoin(
+        "organisation as partnerOrganisation",
+        "organisation.partnerId",
+        "partnerOrganisation.id",
+      )
       .leftJoin(
         "providerApiKey",
-        "partner.providerApiKeyId",
+        "partnerOrganisation.providerApiKeyId",
         "providerApiKey.id",
       )
       .where("quote.id", quoteId)

@@ -9,14 +9,12 @@ const saUpdateUser = async ({
   name,
   number,
   email,
-  partnerId,
   testingAgentId,
 }: {
   userId: string;
   name?: string;
   number?: string;
   email?: string;
-  partnerId?: string;
   testingAgentId?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
@@ -54,7 +52,6 @@ const saUpdateUser = async ({
       name,
       number,
       email: email?.toLowerCase(),
-      partnerId: partnerId || null,
       testingAgentId: testingAgentId || null,
     });
 

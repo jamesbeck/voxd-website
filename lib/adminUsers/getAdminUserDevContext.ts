@@ -8,6 +8,7 @@ export type AdminUserDevContext = {
   partnerId: string | null;
   organisationId: string | null;
   organisationName: string | null;
+  organisationIsPartner: boolean;
   organisationLogoFileExtension: string | null;
   organisationShowLogoOnColour: string | null;
   effectivePartnerId: string | null;
@@ -23,79 +24,48 @@ type AdminUserDevContextRow = {
   name: string | null;
   email: string | null;
   superAdmin: boolean;
-  partnerId: string | null;
   organisationId: string | null;
   organisationName: string | null;
+  organisationIsPartner: boolean;
+  organisationDomain: string | null;
   organisationLogoFileExtension: string | null;
   organisationShowLogoOnColour: string | null;
-  directPartnerId: string | null;
-  directPartnerName: string | null;
-  directPartnerDomain: string | null;
-  directPartnerOrganisationId: string | null;
-  directPartnerOrganisationLogoFileExtension: string | null;
-  directPartnerOrganisationShowLogoOnColour: string | null;
   organisationPartnerId: string | null;
   organisationPartnerName: string | null;
   organisationPartnerDomain: string | null;
-  organisationPartnerOrganisationId: string | null;
-  organisationPartnerOrganisationLogoFileExtension: string | null;
-  organisationPartnerOrganisationShowLogoOnColour: string | null;
+  organisationPartnerLogoFileExtension: string | null;
+  organisationPartnerShowLogoOnColour: string | null;
 };
 
 export function getAdminUserDevContextBaseQuery() {
   return db("adminUser")
     .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
     .leftJoin(
-      { directPartner: "partner" },
-      "adminUser.partnerId",
-      "directPartner.id",
-    )
-    .leftJoin(
-      { organisationPartner: "partner" },
+      { organisationPartner: "organisation" },
       "organisation.partnerId",
       "organisationPartner.id",
-    )
-    .leftJoin(
-      { directPartnerOrganisation: "organisation" },
-      "directPartner.organisationId",
-      "directPartnerOrganisation.id",
-    )
-    .leftJoin(
-      { organisationPartnerOrganisation: "organisation" },
-      "organisationPartner.organisationId",
-      "organisationPartnerOrganisation.id",
     )
     .select(
       "adminUser.id",
       "adminUser.name",
       "adminUser.email",
       "adminUser.superAdmin",
-      "adminUser.partnerId",
       "adminUser.organisationId",
       "organisation.name as organisationName",
+      db.raw('COALESCE(organisation.partner, false) as "organisationIsPartner"'),
+      "organisation.domain as organisationDomain",
       "organisation.logoFileExtension as organisationLogoFileExtension",
       db.raw(
         'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
       ),
-      "directPartner.id as directPartnerId",
-      "directPartner.name as directPartnerName",
-      "directPartner.domain as directPartnerDomain",
-      "directPartnerOrganisation.id as directPartnerOrganisationId",
-      db.raw(
-        '"directPartnerOrganisation"."logoFileExtension" as "directPartnerOrganisationLogoFileExtension"',
-      ),
-      db.raw(
-        '"directPartnerOrganisation"."showLogoOnColour" as "directPartnerOrganisationShowLogoOnColour"',
-      ),
       "organisationPartner.id as organisationPartnerId",
       "organisationPartner.name as organisationPartnerName",
       "organisationPartner.domain as organisationPartnerDomain",
-      "organisationPartnerOrganisation.id as organisationPartnerOrganisationId",
       db.raw(
-        '"organisationPartnerOrganisation"."logoFileExtension" as "organisationPartnerOrganisationLogoFileExtension"',
+        '"organisationPartner"."logoFileExtension" as "organisationPartnerLogoFileExtension"',
       ),
       db.raw(
-        '"organisationPartnerOrganisation"."showLogoOnColour" as "organisationPartnerOrganisationShowLogoOnColour"',
+        '"organisationPartner"."showLogoOnColour" as "organisationPartnerShowLogoOnColour"',
       ),
     );
 }
@@ -103,28 +73,32 @@ export function getAdminUserDevContextBaseQuery() {
 export function mapAdminUserDevContext(
   row: AdminUserDevContextRow,
 ): AdminUserDevContext {
-  const effectivePartnerId = row.directPartnerId || row.organisationPartnerId;
-  const effectivePartnerName =
-    row.directPartnerName || row.organisationPartnerName;
-  const effectivePartnerDomain =
-    row.directPartnerDomain || row.organisationPartnerDomain;
-  const effectivePartnerOrganisationId =
-    row.directPartnerOrganisationId || row.organisationPartnerOrganisationId;
-  const effectivePartnerOrganisationLogoFileExtension =
-    row.directPartnerOrganisationLogoFileExtension ||
-    row.organisationPartnerOrganisationLogoFileExtension;
-  const effectivePartnerOrganisationShowLogoOnColour =
-    row.directPartnerOrganisationShowLogoOnColour ||
-    row.organisationPartnerOrganisationShowLogoOnColour;
+  const effectivePartnerId = row.organisationIsPartner
+    ? row.organisationId
+    : row.organisationPartnerId;
+  const effectivePartnerName = row.organisationIsPartner
+    ? row.organisationName
+    : row.organisationPartnerName;
+  const effectivePartnerDomain = row.organisationIsPartner
+    ? row.organisationDomain
+    : row.organisationPartnerDomain;
+  const effectivePartnerOrganisationId = effectivePartnerId;
+  const effectivePartnerOrganisationLogoFileExtension = row.organisationIsPartner
+    ? row.organisationLogoFileExtension
+    : row.organisationPartnerLogoFileExtension;
+  const effectivePartnerOrganisationShowLogoOnColour = row.organisationIsPartner
+    ? row.organisationShowLogoOnColour
+    : row.organisationPartnerShowLogoOnColour;
 
   return {
     id: row.id,
     name: row.name,
     email: row.email,
     superAdmin: row.superAdmin,
-    partnerId: row.partnerId,
+    partnerId: effectivePartnerId,
     organisationId: row.organisationId,
     organisationName: row.organisationName,
+    organisationIsPartner: row.organisationIsPartner,
     organisationLogoFileExtension: row.organisationLogoFileExtension,
     organisationShowLogoOnColour: row.organisationShowLogoOnColour,
     effectivePartnerId,

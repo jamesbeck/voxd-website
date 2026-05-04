@@ -61,21 +61,25 @@ const saSignQuoteContract = async ({
   // Find the existing quote with organisation, partner, and owner details
   const existingQuote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
     .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
     .where("quote.id", quoteId)
     .select(
       "quote.*",
       "organisation.name as organisationName",
-      "partner.id as partnerId",
-      "partner.name as partnerName",
-      "partner.domain as partnerDomain",
-      "partner.sendEmailFromDomain",
-      "partner.salesEmail as partnerSalesEmail",
-      "partner.legalName as partnerLegalName",
-      "partner.companyNumber as partnerCompanyNumber",
-      "partner.registeredAddress as partnerRegisteredAddress",
-      "partner.goCardlessMandateLink as partnerGoCardlessMandateLink",
+      "partnerOrganisation.id as partnerId",
+      "partnerOrganisation.name as partnerName",
+      "partnerOrganisation.domain as partnerDomain",
+      "partnerOrganisation.sendEmailFromDomain",
+      "partnerOrganisation.salesEmail as partnerSalesEmail",
+      "partnerOrganisation.legalName as partnerLegalName",
+      "partnerOrganisation.companyNumber as partnerCompanyNumber",
+      "partnerOrganisation.registeredAddress as partnerRegisteredAddress",
+      "partnerOrganisation.goCardlessMandateLink as partnerGoCardlessMandateLink",
       "adminUser.name as ownerName",
       "adminUser.email as ownerEmail",
     )
@@ -116,7 +120,7 @@ const saSignQuoteContract = async ({
   // Get all partner admin users for BCC
   const partnerAdmins = existingQuote.partnerId
     ? await db("adminUser")
-        .where("partnerId", existingQuote.partnerId)
+        .where("organisationId", existingQuote.partnerId)
         .whereNotNull("email")
         .select("email")
     : [];

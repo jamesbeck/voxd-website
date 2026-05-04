@@ -34,9 +34,18 @@ const saGetQuoteTableData = async ({
 
   const base = db("quote")
     .leftJoin("organisation", "organisation.id", "quote.organisationId")
-    .leftJoin("partner", "partner.id", "organisation.partnerId")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "partnerOrganisation.id",
+      "organisation.partnerId",
+    )
     .leftJoin("adminUser as owner", "owner.id", "quote.createdByAdminUserId")
-    .groupBy("quote.id", "organisation.id", "partner.id", "owner.id")
+    .groupBy(
+      "quote.id",
+      "organisation.id",
+      "partnerOrganisation.id",
+      "owner.id",
+    )
     .where((qb) => {
       if (search) {
         qb.where("organisation.name", "ilike", `%${search}%`);
@@ -85,8 +94,10 @@ const saGetQuoteTableData = async ({
   // Excludes views from users belonging to the same partner
   const partnerEmails = accessToken.partnerId
     ? db("adminUser")
+        .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
         .select("email")
-        .where("partnerId", accessToken.partnerId)
+        .where("organisation.id", accessToken.partnerId)
+        .where("organisation.partner", true)
         .whereNotNull("email")
     : null;
 
@@ -111,8 +122,8 @@ const saGetQuoteTableData = async ({
     .select(
       "quote.*",
       "organisation.name as organisationName",
-      "partner.name as partnerName",
-      "partner.id as partnerId",
+      "partnerOrganisation.name as partnerName",
+      "partnerOrganisation.id as partnerId",
       "lastViewed.lastViewedAt",
       "owner.name as ownerName",
     )

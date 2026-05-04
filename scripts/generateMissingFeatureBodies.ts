@@ -32,9 +32,14 @@ async function generateMissingFeatureBodies() {
   });
   console.log("");
 
-  // Get provider API key from a partner in the database
-  const partner = await db("partner")
-    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
+  // Get provider API key from a partner organisation in the database
+  const partner = await db("organisation")
+    .leftJoin(
+      "providerApiKey",
+      "organisation.providerApiKeyId",
+      "providerApiKey.id",
+    )
+    .where("organisation.partner", true)
     .whereNotNull("providerApiKey.key")
     .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
     .first();

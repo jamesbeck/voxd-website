@@ -22,14 +22,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
-import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 
 const getFormSchema = (isSuperAdmin: boolean) =>
   z.object({
     name: z.string().nonempty("Name is required"),
     //only accept number characters including any hidden or RTL characters
     email: z.email("Invalid email address").nonempty("Email is required"),
-    partnerId: z.string().optional(),
     organisationId: isSuperAdmin
       ? z.string().optional()
       : z.string().nonempty("Organisation is required"),
@@ -53,7 +51,6 @@ export default function NewAdminUserForm({
     defaultValues: {
       name: "",
       email: "",
-      partnerId: "",
       organisationId: "",
     },
   });
@@ -81,7 +78,6 @@ export default function NewAdminUserForm({
     const response = await saCreateAdminUser({
       name: values.name,
       email: values.email,
-      partnerId: values.partnerId,
       organisationId: values.organisationId,
     });
 
@@ -146,31 +142,6 @@ export default function NewAdminUserForm({
                 <Input placeholder="john.doe@example.com" {...field} />
               </FormControl>
               {/* <FormDescription>Put your user email here</FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="partnerId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Partner (Optional)</FormLabel>
-              <FormDescription>
-                Optionally assign this user to a partner.
-              </FormDescription>
-              <FormControl>
-                <RemoteSelect
-                  {...field}
-                  serverAction={saGetPartnerTableData}
-                  label={(record) => `${record.name}`}
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Select a partner..."
-                  emptyMessage="No partners found"
-                />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

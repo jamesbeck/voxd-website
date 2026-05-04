@@ -26,9 +26,9 @@ export async function saGetPartnerVercelDomainStatus(
     throw new Error("Unauthorized");
   }
 
-  const partner = await db("partner")
+  const partner = await db("organisation")
     .select("domain")
-    .where({ id: partnerId })
+    .where({ id: partnerId, partner: true })
     .first();
 
   if (!partner?.domain) {
@@ -55,7 +55,7 @@ export async function saGetPartnerVercelDomainStatus(
     const misconfigured = config.misconfigured ?? false;
 
     const isFullyVerified = verified && !misconfigured;
-    await db("partner")
+    await db("organisation")
       .update({ domainVerified: isFullyVerified })
       .where({ id: partnerId });
 
@@ -78,7 +78,7 @@ export async function saGetPartnerVercelDomainStatus(
     };
   } catch (e: any) {
     if (e?.statusCode === 404 || e?.message?.includes("not found")) {
-      await db("partner")
+      await db("organisation")
         .update({ domainVerified: false })
         .where({ id: partnerId });
       return {
@@ -100,9 +100,9 @@ export async function saAddPartnerVercelDomain(
     throw new Error("Unauthorized");
   }
 
-  const partner = await db("partner")
+  const partner = await db("organisation")
     .select("domain")
-    .where({ id: partnerId })
+    .where({ id: partnerId, partner: true })
     .first();
 
   if (!partner?.domain) {
@@ -140,8 +140,9 @@ export async function saCheckAllVercelDomains(): Promise<{
   const vercel = getVercelClient();
 
   // Get all partners with a domain
-  const partners = await db("partner")
+  const partners = await db("organisation")
     .select("id", "domain")
+    .where("partner", true)
     .whereNotNull("domain")
     .andWhere("domain", "!=", "");
 
@@ -183,7 +184,7 @@ export async function saCheckAllVercelDomains(): Promise<{
           requestBody: { name: domainName },
         });
         added++;
-        await db("partner")
+        await db("organisation")
           .update({ domainVerified: false })
           .whereIn("id", partnerIds);
       } catch {
@@ -201,23 +202,23 @@ export async function saCheckAllVercelDomains(): Promise<{
         });
         if (config.misconfigured) {
           misconfigured++;
-          await db("partner")
+          await db("organisation")
             .update({ domainVerified: false })
             .whereIn("id", partnerIds);
         } else {
           verified++;
-          await db("partner")
+          await db("organisation")
             .update({ domainVerified: true })
             .whereIn("id", partnerIds);
         }
       } catch {
         verified++;
-        await db("partner")
+        await db("organisation")
           .update({ domainVerified: true })
           .whereIn("id", partnerIds);
       }
     } else {
-      await db("partner")
+      await db("organisation")
         .update({ domainVerified: false })
         .whereIn("id", partnerIds);
     }

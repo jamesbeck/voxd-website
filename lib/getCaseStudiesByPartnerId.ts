@@ -33,7 +33,7 @@ const query = (db: Knex) =>
 export const getCaseStudiesByPartnerId = async (
   partnerId: string,
 ): Promise<Example[]> => {
-  const examples = await query(db).where("example.partnerId", partnerId);
+  const examples = await query(db).where("example.organisationId", partnerId);
 
   return examples;
 };

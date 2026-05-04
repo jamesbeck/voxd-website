@@ -32,9 +32,9 @@ export async function saGetPartnerCoreDomainStatus(
     throw new Error("Unauthorized");
   }
 
-  const partner = await db("partner")
+  const partner = await db("organisation")
     .select("coreDomain")
-    .where({ id: partnerId })
+    .where({ id: partnerId, partner: true })
     .first();
 
   if (!partner?.coreDomain) {
@@ -45,7 +45,7 @@ export async function saGetPartnerCoreDomainStatus(
 
   // Skip check if it's already core.voxd.ai
   if (domainName === CORE_CNAME_TARGET) {
-    await db("partner")
+    await db("organisation")
       .update({ coreDomainVerified: true })
       .where({ id: partnerId });
     return { status: "verified", domain: domainName, cname: CORE_CNAME_TARGET };
@@ -53,7 +53,7 @@ export async function saGetPartnerCoreDomainStatus(
 
   const { verified, cname } = await checkCoreDomainCname(domainName);
 
-  await db("partner")
+  await db("organisation")
     .update({ coreDomainVerified: verified })
     .where({ id: partnerId });
 
@@ -78,8 +78,9 @@ export async function saCheckAllCoreDomains(): Promise<{
     return { success: false, error: "Unauthorized" };
   }
 
-  const partners = await db("partner")
+  const partners = await db("organisation")
     .select("id", "coreDomain")
+    .where("partner", true)
     .whereNotNull("coreDomain")
     .andWhere("coreDomain", "!=", "");
 
@@ -102,7 +103,7 @@ export async function saCheckAllCoreDomains(): Promise<{
     // Skip core.voxd.ai itself
     if (domainName === CORE_CNAME_TARGET) {
       verified++;
-      await db("partner")
+      await db("organisation")
         .update({ coreDomainVerified: true })
         .whereIn("id", partnerIds);
       continue;
@@ -110,7 +111,7 @@ export async function saCheckAllCoreDomains(): Promise<{
 
     const result = await checkCoreDomainCname(domainName);
 
-    await db("partner")
+    await db("organisation")
       .update({ coreDomainVerified: result.verified })
       .whereIn("id", partnerIds);
 

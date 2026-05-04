@@ -38,7 +38,11 @@ const saGetSupportTicketById = async ({
   const ticket = await db("supportTicket")
     .leftJoin("agent", "supportTicket.agentId", "agent.id")
     .join("organisation", "supportTicket.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
     .leftJoin(
       "adminUser as createdBy",
       "supportTicket.adminUserId",
@@ -66,7 +70,7 @@ const saGetSupportTicketById = async ({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.partnerId",
-      "partner.domain as partnerDomain",
+      "partnerOrganisation.domain as partnerDomain",
       "createdBy.id as createdById",
       "createdBy.name as createdByName",
       "createdBy.email as createdByEmail",

@@ -57,10 +57,14 @@ const saCloneQuote = async (input: {
     // Fetch source quote with org and partner info
     const sourceQuote = await db("quote")
       .leftJoin("organisation", "quote.organisationId", "organisation.id")
-      .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .leftJoin(
+        "organisation as partnerOrganisation",
+        "organisation.partnerId",
+        "partnerOrganisation.id",
+      )
       .leftJoin(
         "providerApiKey",
-        "partner.providerApiKeyId",
+        "partnerOrganisation.providerApiKeyId",
         "providerApiKey.id",
       )
       .where("quote.id", quoteId)
@@ -68,7 +72,7 @@ const saCloneQuote = async (input: {
         "quote.*",
         "organisation.name as sourceOrgName",
         "organisation.partnerId as sourcePartnerId",
-        "partner.name as partnerName",
+        "partnerOrganisation.name as partnerName",
         db.raw('"providerApiKey"."key" as "providerApiKey"'),
       )
       .first();

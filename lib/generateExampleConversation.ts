@@ -40,15 +40,15 @@ export async function generateExampleConversation({
       throw new Error("Example not found");
     }
 
-    // Get partner's API key via example
-    if (example.partnerId) {
-      const partner = await db("partner")
+    // Get partner organisation API key via example
+    if (example.organisationId) {
+      const partner = await db("organisation")
         .leftJoin(
           "providerApiKey",
-          "partner.providerApiKeyId",
+          "organisation.providerApiKeyId",
           "providerApiKey.id",
         )
-        .where("partner.id", example.partnerId)
+        .where("organisation.id", example.organisationId)
         .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
         .first();
       providerApiKey = partner?.providerApiKey || null;
@@ -59,10 +59,14 @@ export async function generateExampleConversation({
   } else if (conversation.quoteId) {
     const quote = await db("quote")
       .leftJoin("organisation", "quote.organisationId", "organisation.id")
-      .leftJoin("partner", "organisation.partnerId", "partner.id")
+      .leftJoin(
+        "organisation as partnerOrganisation",
+        "organisation.partnerId",
+        "partnerOrganisation.id",
+      )
       .leftJoin(
         "providerApiKey",
-        "partner.providerApiKeyId",
+        "partnerOrganisation.providerApiKeyId",
         "providerApiKey.id",
       )
       .where("quote.id", conversation.quoteId)

@@ -20,7 +20,11 @@ export default async function saGetAgentDemoData({
 }): Promise<AgentDemoData | null> {
   const row = await db("agent")
     .join("organisation", "organisation.id", "agent.organisationId")
-    .join("partner", "partner.id", "organisation.partnerId")
+    .join(
+      "organisation as partnerOrganisation",
+      "partnerOrganisation.id",
+      "organisation.partnerId",
+    )
     .select(
       "agent.id as agentId",
       "agent.niceName as agentNiceName",
@@ -29,7 +33,7 @@ export default async function saGetAgentDemoData({
       "organisation.logoFileExtension",
       "organisation.showLogoOnColour",
       "organisation.primaryColour",
-      "partner.coreDomain",
+      "partnerOrganisation.coreDomain",
     )
     .where("agent.id", agentId)
     .first();

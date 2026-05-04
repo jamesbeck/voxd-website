@@ -37,9 +37,13 @@ const saGenerateFaqAnswer = async ({
     };
   }
 
-  const partner = await db("partner")
-    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
-    .where("partner.id", accessToken.partnerId)
+  const partner = await db("organisation")
+    .leftJoin(
+      "providerApiKey",
+      "organisation.providerApiKeyId",
+      "providerApiKey.id",
+    )
+    .where("organisation.id", accessToken.partnerId)
     .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
     .first();
 

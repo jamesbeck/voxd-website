@@ -60,7 +60,6 @@ const saUploadQuoteHeroImage = async ({
   // Get the organisation with partner info to check partnerId
   const organisation = await db("organisation")
     .where("organisation.id", quote.organisationId)
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .select("organisation.*")
     .first();
 

@@ -48,7 +48,11 @@ const saAddSupportTicketComment = async ({
         "organisation.id",
       );
     })
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
     .where("supportTicket.id", ticketId)
     .select(
       "supportTicket.id",
@@ -57,9 +61,9 @@ const saAddSupportTicketComment = async ({
       "supportTicket.status",
       "organisation.partnerId",
       "organisation.id as organisationId",
-      "partner.domain as partnerDomain",
-      "partner.name as partnerName",
-      "partner.sendEmailFromDomain",
+      "partnerOrganisation.domain as partnerDomain",
+      "partnerOrganisation.name as partnerName",
+      "partnerOrganisation.sendEmailFromDomain",
       "agent.niceName as agentName",
     )
     .first();
@@ -158,9 +162,13 @@ const saAddSupportTicketComment = async ({
           // Notify all users in the organization (except the commenter)
           const allOrgUsers = await db("adminUser")
             .where(function () {
-              this.where("organisationId", ticket.organisationId)
-                .orWhere("partnerId", ticket.partnerId)
-                .orWhere("superAdmin", true);
+              this.where("adminUser.organisationId", ticket.organisationId);
+
+              if (ticket.partnerId) {
+                this.orWhere("adminUser.organisationId", ticket.partnerId);
+              }
+
+              this.orWhere("adminUser.superAdmin", true);
             })
             .andWhere("id", "!=", accessToken.adminUserId)
             .select("email");

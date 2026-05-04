@@ -24,17 +24,16 @@ const saGetPartnerTableData = async ({
   }
 
   //base query
-  const base = db("partner")
-    .leftJoin("organisation", "partner.organisationId", "organisation.id")
-    .groupBy("partner.id", "organisation.id")
+  const base = db("organisation")
+    .where("organisation.partner", true)
     .where((qb) => {
       if (search) {
-        qb.where("partner.name", "ilike", `%${search}%`);
+        qb.where("organisation.name", "ilike", `%${search}%`);
       }
     });
 
   //count query
-  const countQuery = base.clone().select("partner.id");
+  const countQuery = base.clone().select("organisation.id");
   const countResult = await db
     .count<{ count: string }>("id")
     .from(countQuery)
@@ -45,7 +44,7 @@ const saGetPartnerTableData = async ({
   // now select and query what we want for the data and apply pagination
   const dataQuery = base
     .clone()
-    .select("partner.*")
+    .select("organisation.*")
     .select(db.raw('"organisation"."name" as "organisationName"'))
     .select(
       "organisation.primaryColour as organisationPrimaryColour",

@@ -11,7 +11,14 @@ export default async function userCanLogInToThisDomain() {
   }
 
   const adminUser = await db("adminUser")
-    .select("*")
+    .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
+    .select(
+      "adminUser.id",
+      "adminUser.organisationId",
+      "adminUser.superAdmin",
+      db.raw('organisation.partner as "organisationIsPartner"'),
+      db.raw('organisation."partnerId" as "organisationPartnerId"'),
+    )
     .whereRaw("LOWER(email) = LOWER(?)", [idToken.email])
     .first();
 
@@ -24,52 +31,38 @@ export default async function userCanLogInToThisDomain() {
 
   const partnerFromDomain = await getPartnerFromHeaders();
   console.log(
-    `[userCanLogInToThisDomain] email: ${idToken.email}, partnerId: ${adminUser.partnerId}, organisationId: ${adminUser.organisationId}, superAdmin: ${adminUser.superAdmin}, partnerFromDomain: ${JSON.stringify(partnerFromDomain)}`,
+    `[userCanLogInToThisDomain] email: ${idToken.email}, organisationId: ${adminUser.organisationId}, organisationIsPartner: ${adminUser.organisationIsPartner}, organisationPartnerId: ${adminUser.organisationPartnerId}, superAdmin: ${adminUser.superAdmin}, partnerFromDomain: ${JSON.stringify(partnerFromDomain)}`,
   );
 
-  //if we're a partner (but not super admin), make sure they're logging in to the right domain
-  if (!adminUser.superAdmin && adminUser.partnerId) {
-    const partnerFromToken = await db("partner")
-      .select("domain")
-      .where({ id: adminUser.partnerId })
-      .first();
-
-    //if domain doesn't match
-    if (partnerFromDomain?.domain !== partnerFromToken.domain) {
-      console.log(
-        `[userCanLogInToThisDomain] FAILED: Domain mismatch for partner user. Expected: ${partnerFromToken.domain}, Got: ${partnerFromDomain?.domain}`,
-      );
-      return false;
-    }
+  if (adminUser.superAdmin) {
+    console.log(`[userCanLogInToThisDomain] SUCCESS: ${idToken.email} allowed`);
+    return true;
   }
 
-  //if user belongs to an organisation, check that organisation belongs to this partner's domain
-  //skip this check if the user already belongs directly to this partner
-  if (
-    adminUser.organisationId &&
-    adminUser.partnerId !== partnerFromDomain?.id
-  ) {
-    const organisation = await db("organisation")
-      .select("partnerId")
-      .where({ id: adminUser.organisationId })
-      .first();
-
-    if (organisation?.partnerId !== partnerFromDomain?.id) {
-      console.log(
-        `[userCanLogInToThisDomain] FAILED: Organisation partner mismatch. Org partnerId: ${organisation?.partnerId}, Domain partnerId: ${partnerFromDomain?.id}`,
-      );
-      return false;
-    }
-  }
-
-  //if no organisation and not a partner (or super admin), fail
-  if (
-    !adminUser.superAdmin &&
-    !adminUser.partnerId &&
-    !adminUser.organisationId
-  ) {
+  if (!adminUser.organisationId) {
     console.log(
-      `[userCanLogInToThisDomain] FAILED: User has no superAdmin, no partnerId, and no organisationId`,
+      `[userCanLogInToThisDomain] FAILED: User has no organisation and is not super admin`,
+    );
+    return false;
+  }
+
+  if (!partnerFromDomain) {
+    console.log(
+      `[userCanLogInToThisDomain] FAILED: No partner organisation resolved for the current domain`,
+    );
+    return false;
+  }
+
+  if (adminUser.organisationIsPartner) {
+    if (adminUser.organisationId !== partnerFromDomain.id) {
+      console.log(
+        `[userCanLogInToThisDomain] FAILED: Partner organisation mismatch. User organisationId: ${adminUser.organisationId}, Domain partner organisationId: ${partnerFromDomain.id}`,
+      );
+      return false;
+    }
+  } else if (adminUser.organisationPartnerId !== partnerFromDomain.id) {
+    console.log(
+      `[userCanLogInToThisDomain] FAILED: Organisation partner mismatch. Org partnerId: ${adminUser.organisationPartnerId}, Domain partner organisationId: ${partnerFromDomain.id}`,
     );
     return false;
   }

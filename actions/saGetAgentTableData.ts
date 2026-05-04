@@ -25,13 +25,17 @@ const saGetAgentTableData = async ({
     .leftJoin("userMessage", "session.id", "userMessage.sessionId")
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
     .leftJoin("organisation", "agent.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
     .groupBy(
       "agent.id",
       "phoneNumber.id",
       "organisation.name",
       "organisation.partnerId",
-      "partner.name",
+      "partnerOrganisation.name",
     )
     .where((qb) => {
       if (search) {
@@ -83,7 +87,7 @@ const saGetAgentTableData = async ({
     .select("phoneNumber.displayPhoneNumber as phoneNumber")
     .select("organisation.name as organisationName")
     .select("organisation.partnerId as partnerId")
-    .select("partner.name as partnerName")
+    .select("partnerOrganisation.name as partnerName")
     .select(
       db.raw(
         'COUNT(CASE WHEN "session"."sessionType" != \'development\' THEN "userMessage"."id" END)::int as "messageCount"',

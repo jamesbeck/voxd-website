@@ -20,7 +20,11 @@ export default async function saGetPrototypeData({
 }): Promise<PrototypeData | null> {
   const row = await db("quote")
     .join("organisation", "organisation.id", "quote.organisationId")
-    .join("partner", "partner.id", "organisation.partnerId")
+    .join(
+      "organisation as partnerOrganisation",
+      "partnerOrganisation.id",
+      "organisation.partnerId",
+    )
     .select(
       "quote.id as quoteId",
       "organisation.id as organisationId",
@@ -28,11 +32,11 @@ export default async function saGetPrototypeData({
       "organisation.logoFileExtension",
       "organisation.showLogoOnColour",
       "organisation.primaryColour",
-      "partner.prototypingAgentId",
-      "partner.coreDomain",
+      "partnerOrganisation.prototypingAgentId",
+      "partnerOrganisation.coreDomain",
     )
     .where("quote.shortLinkId", shortLinkId)
-    .whereNotNull("partner.prototypingAgentId")
+    .whereNotNull("partnerOrganisation.prototypingAgentId")
     .first();
 
   if (!row || !row.prototypingAgentId) return null;

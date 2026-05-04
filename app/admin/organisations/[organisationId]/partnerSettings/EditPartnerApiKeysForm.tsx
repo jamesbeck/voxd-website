@@ -13,30 +13,26 @@ import {
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
 import saUpdatePartner from "@/actions/saUpdatePartner";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
-import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
+import saGetProviderApiKeyTableData from "@/actions/saGetProviderApiKeyTableData";
 
 const formSchema = z.object({
-  name: z.string().nonempty("Name is required"),
-  organisationId: z.string().optional(),
+  providerApiKeyId: z.string().optional(),
 });
 
-export default function EditPartnerDetailsForm({
+export default function EditPartnerApiKeysForm({
   partnerId,
-  name,
-  organisationId,
-  organisationName,
+  providerApiKeyId,
+  providerApiKeyLabel,
 }: {
   partnerId: string;
-  name?: string;
-  organisationId?: string | null;
-  organisationName?: string;
+  providerApiKeyId?: string;
+  providerApiKeyLabel?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -44,8 +40,7 @@ export default function EditPartnerDetailsForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: name || "",
-      organisationId: organisationId || "",
+      providerApiKeyId: providerApiKeyId || "",
     },
   });
 
@@ -54,8 +49,7 @@ export default function EditPartnerDetailsForm({
 
     const response = await saUpdatePartner({
       partnerId,
-      name: values.name,
-      organisationId: values.organisationId || null,
+      providerApiKeyId: values.providerApiKeyId,
     });
 
     if (!response.success) {
@@ -64,18 +58,10 @@ export default function EditPartnerDetailsForm({
       if (response.error) {
         form.setError("root", { type: "manual", message: response.error });
       }
-      if (response.fieldErrors) {
-        for (const key in response.fieldErrors) {
-          form.setError(key as keyof typeof values, {
-            type: "manual",
-            message: response.fieldErrors[key],
-          });
-        }
-      }
     }
 
     if (response.success) {
-      toast.success("Partner details updated");
+      toast.success("Partner API keys updated");
       router.refresh();
     }
 
@@ -87,35 +73,22 @@ export default function EditPartnerDetailsForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="name"
-          rules={{ required: true }}
+          name="providerApiKeyId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Partner Ltd" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="organisationId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Organisation</FormLabel>
+              <FormLabel>Provider API Key</FormLabel>
               <FormControl>
                 <RemoteSelect
                   {...field}
-                  serverAction={saGetOrganisationTableData}
-                  label={(record) => `${record.name}`}
+                  serverAction={saGetProviderApiKeyTableData}
+                  label={(record) =>
+                    `${record.providerName} — ${record.key && record.key.length > 12 ? `${record.key.slice(0, 6)}...${record.key.slice(-4)}` : "***"}${record.organisationName ? ` (${record.organisationName})` : ""}`
+                  }
                   valueField="id"
-                  sortField="name"
-                  placeholder="Select an organisation..."
-                  emptyMessage="No organisations found"
-                  initialLabel={organisationName}
+                  sortField="providerName"
+                  placeholder="Select a provider API key..."
+                  emptyMessage="No provider API keys found"
+                  initialLabel={providerApiKeyLabel}
                 />
               </FormControl>
               <FormMessage />

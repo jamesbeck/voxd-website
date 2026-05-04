@@ -58,7 +58,7 @@ const saUploadExampleHeroImage = async ({
 
   // Partners can only upload hero images for their own examples
   if (accessToken.partner && !accessToken.superAdmin) {
-    if (example.partnerId !== accessToken.partnerId) {
+    if (example.organisationId !== accessToken.partnerId) {
       return {
         success: false,
         error: "You can only upload hero images for your own examples",

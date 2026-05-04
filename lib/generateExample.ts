@@ -48,12 +48,16 @@ const generateExample = async ({
     };
   }
 
-  const partner = await db("partner")
-    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
-    .where("partner.id", partnerIdForApiKey)
+  const partner = await db("organisation")
+    .leftJoin(
+      "providerApiKey",
+      "organisation.providerApiKeyId",
+      "providerApiKey.id",
+    )
+    .where({ id: partnerIdForApiKey, partner: true })
     .select(
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
-      "partner.name",
+      "organisation.name",
     )
     .first();
 
@@ -170,7 +174,7 @@ const generateExample = async ({
       body: object.example.body,
       prompt: prompt,
       businessName: object.example.companyName,
-      partnerId: effectivePartnerId,
+      organisationId: effectivePartnerId,
     })
     .returning("id");
 

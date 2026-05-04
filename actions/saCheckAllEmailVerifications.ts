@@ -16,9 +16,10 @@ export default async function saCheckAllEmailVerifications(): Promise<{
 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
-  // Get all partners with a sendEmailFromDomain
-  const partners = await db("partner")
+  // Get all partner organisations with a sendEmailFromDomain
+  const partners = await db("organisation")
     .select("id", "sendEmailFromDomain")
+    .where("partner", true)
     .whereNotNull("sendEmailFromDomain")
     .andWhere("sendEmailFromDomain", "!=", "");
 
@@ -48,7 +49,7 @@ export default async function saCheckAllEmailVerifications(): Promise<{
   }
 
   for (const [domainName, partnerIds] of domainToPartnerIds) {
-    let domain = existingDomains.find((d) => d.name === domainName);
+    const domain = existingDomains.find((d) => d.name === domainName);
 
     // Create domain in Resend if it doesn't exist
     if (!domain) {
@@ -63,7 +64,7 @@ export default async function saCheckAllEmailVerifications(): Promise<{
       const isVerified = createData.status === "verified";
       if (isVerified) verified++;
 
-      await db("partner")
+      await db("organisation")
         .update({ sendEmailFromDomainVerified: isVerified })
         .whereIn("id", partnerIds);
 
@@ -74,7 +75,7 @@ export default async function saCheckAllEmailVerifications(): Promise<{
     if (domain.status === "verified") {
       // Already verified, just sync the DB
       verified++;
-      await db("partner")
+      await db("organisation")
         .update({ sendEmailFromDomainVerified: true })
         .whereIn("id", partnerIds);
       continue;
@@ -92,7 +93,7 @@ export default async function saCheckAllEmailVerifications(): Promise<{
     const isVerified = domainData.status === "verified";
     if (isVerified) verified++;
 
-    await db("partner")
+    await db("organisation")
       .update({ sendEmailFromDomainVerified: isVerified })
       .whereIn("id", partnerIds);
   }

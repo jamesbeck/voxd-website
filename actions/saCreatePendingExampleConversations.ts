@@ -53,7 +53,7 @@ const saCreatePendingExampleConversations = async (
     }
 
     if (accessToken.partner && !accessToken.superAdmin) {
-      if (example.partnerId !== accessToken.partnerId) {
+      if (example.organisationId !== accessToken.partnerId) {
         return {
           success: false,
           error: "You can only generate conversations for your own examples",

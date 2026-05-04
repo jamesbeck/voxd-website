@@ -40,8 +40,7 @@ export const getExampleForPublic = async ({
   slug?: string;
 }): Promise<PublicExample | null> => {
   let query = db("example")
-    .leftJoin("partner", "example.partnerId", "partner.id")
-    .leftJoin("organisation", "partner.organisationId", "organisation.id");
+    .leftJoin("organisation", "example.organisationId", "organisation.id");
 
   if (exampleId) {
     query = query.where("example.id", exampleId);
@@ -61,8 +60,8 @@ export const getExampleForPublic = async ({
       "example.logoFileExtension",
       "example.heroImageFileExtension",
       "example.createdAt",
-      "partner.name as partnerName",
-      "partner.domain as partnerDomain",
+      "organisation.name as partnerName",
+      "organisation.domain as partnerDomain",
       "organisation.id as organisationId",
       "organisation.logoFileExtension as organisationLogoFileExtension",
       db.raw(

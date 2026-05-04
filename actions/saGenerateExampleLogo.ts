@@ -45,7 +45,7 @@ const saGenerateExampleLogo = async ({
 
   // Partners can only generate logos for their own examples
   if (accessToken.partner && !accessToken.superAdmin) {
-    if (example.partnerId !== accessToken.partnerId) {
+    if (example.organisationId !== accessToken.partnerId) {
       return {
         success: false,
         error: "You can only generate logos for your own examples",
@@ -57,13 +57,13 @@ const saGenerateExampleLogo = async ({
   let providerApiKey: string | null = null;
 
   if (accessToken.partnerId) {
-    const partner = await db("partner")
+    const partner = await db("organisation")
       .leftJoin(
         "providerApiKey",
-        "partner.providerApiKeyId",
+        "organisation.providerApiKeyId",
         "providerApiKey.id",
       )
-      .where("partner.id", accessToken.partnerId)
+      .where("organisation.id", accessToken.partnerId)
       .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
       .first();
     providerApiKey = partner?.providerApiKey || null;
@@ -199,7 +199,7 @@ Write a brief logo prompt (max 1 sentence). Include company name and key visual 
     // Step 6: Log the action
     await addLog({
       adminUserId: accessToken.adminUserId,
-      partnerId: example.partnerId,
+      partnerId: example.organisationId,
       event: "Logo Generated",
       description: `Generated logo for example "${example.title}"`,
       data: {

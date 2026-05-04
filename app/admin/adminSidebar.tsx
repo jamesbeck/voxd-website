@@ -8,7 +8,6 @@ import {
   Phone,
   BotMessageSquare,
   Building,
-  Handshake,
   User,
   UserCog,
   MessageCircle,
@@ -39,7 +38,6 @@ import {
   SidebarMenuSub,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Collapsible } from "@radix-ui/react-collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -98,12 +96,6 @@ const menuItems: MenuItem[] = [
     title: "Sessions",
     url: "/admin/sessions",
     icon: MessageCircle,
-  },
-  {
-    roles: ["admin"],
-    title: "Partners",
-    url: "/admin/partners",
-    icon: Handshake,
   },
   {
     title: "Chat Users",
@@ -287,26 +279,26 @@ export default function AdminSidebar({
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href="/admin/industries">
+                    <Link href="/admin/industries">
                       <Inbox />
                       <span>Industries</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href="/admin/functions">
+                    <Link href="/admin/functions">
                       <Inbox />
                       <span>Functions</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href="/admin/features">
+                    <Link href="/admin/features">
                       <Inbox />
                       <span>Features</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

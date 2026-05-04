@@ -8,12 +8,10 @@ import { getAccessibleOrganisationForAdminUsers } from "@/lib/adminUserAccess";
 const saCreateAdminUser = async ({
   name,
   email,
-  partnerId,
   organisationId,
 }: {
   name: string;
   email?: string;
-  partnerId?: string;
   organisationId?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
@@ -49,10 +47,6 @@ const saCreateAdminUser = async ({
     }
   }
 
-  if (!accessToken.superAdmin) {
-    partnerId = undefined;
-  }
-
   //check user number and email is unique
   const existingUser = await db("adminUser")
     .select("*")
@@ -73,7 +67,6 @@ const saCreateAdminUser = async ({
     .insert({
       name,
       email: email?.toLowerCase(),
-      partnerId: accessToken.superAdmin ? partnerId || null : null,
       organisationId: organisationId || null,
     })
     .returning("id");

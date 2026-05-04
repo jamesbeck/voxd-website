@@ -84,12 +84,20 @@ const saGenerateQuoteConcept = async ({
   // Get the quote with all specification details and partner's API key
   const quote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
-    .leftJoin("providerApiKey", "partner.providerApiKeyId", "providerApiKey.id")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
+    .leftJoin(
+      "providerApiKey",
+      "partnerOrganisation.providerApiKeyId",
+      "providerApiKey.id",
+    )
     .select(
       "quote.*",
       "organisation.name as organisationName",
-      "partner.name as partnerName",
+      "partnerOrganisation.name as partnerName",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
     )
     .where({ "quote.id": quoteId })

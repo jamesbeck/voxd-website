@@ -43,7 +43,7 @@ const saUpdateExample = async ({
 
   // Partners can only edit their own examples
   if (accessToken.partner && !accessToken.superAdmin) {
-    if (existingExample.partnerId !== accessToken.partnerId) {
+    if (existingExample.organisationId !== accessToken.partnerId) {
       return {
         success: false,
         error: "You can only edit your own examples.",
@@ -56,7 +56,7 @@ const saUpdateExample = async ({
     title: string;
     short: string;
     body: string;
-    partnerId?: string | null;
+    organisationId?: string | null;
   } = {
     title,
     short,
@@ -65,7 +65,7 @@ const saUpdateExample = async ({
 
   // Only super admins can change the partnerId
   if (accessToken.superAdmin && partnerId !== undefined) {
-    updateData.partnerId = partnerId || null;
+    updateData.organisationId = partnerId || null;
   }
 
   await db("example").where("id", id).update(updateData);

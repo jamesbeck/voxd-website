@@ -36,7 +36,7 @@ const saRegenerateExampleConversation = async ({
       "exampleConversation.exampleId",
       "exampleConversation.quoteId",
       "exampleConversation.generationStatus",
-      "example.partnerId as examplePartnerId",
+      "example.organisationId as examplePartnerId",
       "organisation.partnerId as quotePartnerId",
     )
     .first();

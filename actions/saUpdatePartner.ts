@@ -23,7 +23,6 @@ const saUpdatePartner = async ({
   goCardlessMandateLink,
   salesEmail,
   accountsEmail,
-  organisationId,
   prototypingAgentId,
   salesBotAgentId,
   hourlyRate,
@@ -44,7 +43,6 @@ const saUpdatePartner = async ({
   goCardlessMandateLink?: string;
   salesEmail?: string;
   accountsEmail?: string;
-  organisationId?: string | null;
   prototypingAgentId?: string | null;
   salesBotAgentId?: string | null;
   hourlyRate?: number | null;
@@ -66,10 +64,10 @@ const saUpdatePartner = async ({
     };
   }
 
-  //find the existing partner
-  const existingPartner = await db("partner")
+  // Treat partnerId as the partner organisation id.
+  const existingPartner = await db("organisation")
     .select("*")
-    .where({ id: partnerId })
+    .where({ id: partnerId, partner: true })
     .first();
 
   if (!existingPartner) {
@@ -79,8 +77,8 @@ const saUpdatePartner = async ({
     };
   }
 
-  //update the partner
-  await db("partner")
+  //update the partner organisation
+  await db("organisation")
     .where({ id: partnerId })
     .update({
       name,
@@ -96,7 +94,6 @@ const saUpdatePartner = async ({
       goCardlessMandateLink,
       salesEmail,
       accountsEmail,
-      organisationId,
       prototypingAgentId,
       salesBotAgentId,
       hourlyRate,
@@ -120,13 +117,13 @@ const saUpdatePartner = async ({
         const { data: createData } = await resend.domains.create({
           name: sendEmailFromDomain,
         });
-        await db("partner")
+        await db("organisation")
           .update({
             sendEmailFromDomainVerified: createData?.status === "verified",
           })
           .where({ id: partnerId });
       } else {
-        await db("partner")
+        await db("organisation")
           .update({
             sendEmailFromDomainVerified: exists.status === "verified",
           })
@@ -162,7 +159,7 @@ const saUpdatePartner = async ({
   // If coreDomain changed, check CNAME points to core.voxd.ai
   if (coreDomain && coreDomain !== existingPartner.coreDomain) {
     if (coreDomain === "core.voxd.ai") {
-      await db("partner")
+      await db("organisation")
         .update({ coreDomainVerified: true })
         .where({ id: partnerId });
     } else {
@@ -171,11 +168,11 @@ const saUpdatePartner = async ({
         const verified = addresses.some(
           (a) => a.replace(/\.$/, "") === "core.voxd.ai",
         );
-        await db("partner")
+        await db("organisation")
           .update({ coreDomainVerified: verified })
           .where({ id: partnerId });
       } catch {
-        await db("partner")
+        await db("organisation")
           .update({ coreDomainVerified: false })
           .where({ id: partnerId });
       }

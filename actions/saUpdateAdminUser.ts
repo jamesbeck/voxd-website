@@ -12,13 +12,11 @@ const saUpdateAdminUser = async ({
   adminUserId,
   name,
   email,
-  partnerId,
   organisationId,
 }: {
   adminUserId: string;
   name?: string;
   email?: string;
-  partnerId?: string;
   organisationId?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
@@ -79,17 +77,12 @@ const saUpdateAdminUser = async ({
     }
   }
 
-  if (!accessToken.superAdmin) {
-    partnerId = undefined;
-  }
-
   //update the user
   await db("adminUser")
     .where({ id: adminUserId })
     .update({
       name,
       email: email?.toLowerCase(),
-      ...(accessToken.superAdmin && { partnerId: partnerId || null }),
       organisationId: organisationId || null,
     });
 

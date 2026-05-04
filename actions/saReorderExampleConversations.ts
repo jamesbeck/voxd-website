@@ -59,7 +59,7 @@ const saReorderExampleConversations = async ({
         error: "Example not found",
       };
     }
-    partnerId = example.partnerId;
+    partnerId = example.organisationId;
   }
 
   // Check if user is super admin or the partner that owns this quote/example

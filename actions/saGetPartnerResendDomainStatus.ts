@@ -13,9 +13,9 @@ export default async function saGetPartnerResendDomainStatus(
     throw new Error("Unauthorized");
   }
 
-  const partner = await db("partner")
+  const partner = await db("organisation")
     .select("sendEmailFromDomain")
-    .where({ id: partnerId })
+    .where({ id: partnerId, partner: true })
     .first();
 
   if (!partner?.sendEmailFromDomain) {
@@ -45,7 +45,7 @@ export default async function saGetPartnerResendDomainStatus(
   }
 
   const isVerified = domainData.status === "verified";
-  await db("partner")
+  await db("organisation")
     .update({ sendEmailFromDomainVerified: isVerified })
     .where({ id: partnerId });
 

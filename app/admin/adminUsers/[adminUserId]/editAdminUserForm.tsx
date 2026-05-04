@@ -20,23 +20,14 @@ import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import H2 from "@/components/adminui/H2";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { RemoteSelect } from "@/components/inputs/RemoteSelect";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
-import saGetPartnerTableData from "@/actions/saGetPartnerTableData";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   //only accept number characters including any hidden or RTL characters
   email: z.email("Invalid email address").nonempty("Email is required"),
   testingAgentId: z.string().optional(),
-  partnerId: z.string().optional(),
   organisationId: z.string().nonempty("Organisation is required"),
 });
 
@@ -44,17 +35,15 @@ export default function EditAdminUserForm({
   adminUserId,
   name,
   email,
-  partnerId,
   organisationId,
   organisationName,
   canEditOrganisation,
-  superAdmin,
+  superAdmin: _superAdmin,
 }: {
   adminUserId: string;
   name?: string;
   number?: string;
   email?: string;
-  partnerId?: string;
   organisationId?: string;
   organisationName?: string;
   canEditOrganisation: boolean;
@@ -63,13 +52,14 @@ export default function EditAdminUserForm({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  void _superAdmin;
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: name || "",
       email: email || "",
-      partnerId: partnerId || "",
       organisationId: organisationId || "",
     },
   });
@@ -82,7 +72,6 @@ export default function EditAdminUserForm({
       adminUserId: adminUserId,
       name: values.name,
       email: values.email,
-      partnerId: values.partnerId,
       organisationId: values.organisationId,
     });
 
@@ -152,30 +141,6 @@ export default function EditAdminUserForm({
             </FormItem>
           )}
         />
-
-        {superAdmin && (
-          <FormField
-            control={form.control}
-            name="partnerId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Partner (Optional)</FormLabel>
-                <FormControl>
-                  <RemoteSelect
-                    {...field}
-                    serverAction={saGetPartnerTableData}
-                    label={(record) => `${record.name}`}
-                    valueField="id"
-                    sortField="name"
-                    placeholder="Select a partner..."
-                    emptyMessage="No partners found"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
 
         {canEditOrganisation ? (
           <FormField

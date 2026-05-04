@@ -28,8 +28,8 @@ const saMoveOrganisationToPartner = async ({
       return { success: false, error: "Organisation not found" };
     }
 
-    const partner = await db("partner")
-      .where({ id: partnerId })
+    const partner = await db("organisation")
+      .where({ id: partnerId, partner: true })
       .select("id", "name")
       .first();
 
@@ -49,8 +49,8 @@ const saMoveOrganisationToPartner = async ({
     // Get old partner name for logging
     let oldPartnerName = "None";
     if (oldPartnerId) {
-      const oldPartner = await db("partner")
-        .where({ id: oldPartnerId })
+      const oldPartner = await db("organisation")
+        .where({ id: oldPartnerId, partner: true })
         .select("name")
         .first();
       if (oldPartner) oldPartnerName = oldPartner.name;

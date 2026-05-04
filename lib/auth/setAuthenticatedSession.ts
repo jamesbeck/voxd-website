@@ -8,9 +8,12 @@ type AuthenticatedSessionInput = {
   email: string;
   name?: string | null;
   superAdmin: boolean;
+  isPartner?: boolean;
   partnerId?: string | null;
   organisationId?: string | null;
   organisationName?: string | null;
+  organisationIsPartner?: boolean;
+  organisationPartnerId?: string | null;
 };
 
 export default async function setAuthenticatedSession({
@@ -18,9 +21,12 @@ export default async function setAuthenticatedSession({
   email,
   name,
   superAdmin,
+  isPartner,
   partnerId,
   organisationId,
   organisationName,
+  organisationIsPartner,
+  organisationPartnerId,
 }: AuthenticatedSessionInput) {
   const cookieStore = await cookies();
   const safeName = name || email;
@@ -44,10 +50,12 @@ export default async function setAuthenticatedSession({
       email,
       name: safeName,
       superAdmin,
-      partner: !!partnerId,
+      partner: isPartner ?? !!partnerId,
       partnerId: partnerId || undefined,
       organisationId: organisationId || undefined,
       organisationName: organisationName || undefined,
+      organisationIsPartner: organisationIsPartner ?? undefined,
+      organisationPartnerId: organisationPartnerId || undefined,
     } as AccessTokenPayload,
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE_SEC) },

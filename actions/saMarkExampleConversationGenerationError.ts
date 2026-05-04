@@ -37,7 +37,7 @@ const saMarkExampleConversationGenerationError = async ({
     .where("exampleConversation.id", conversationId)
     .select(
       "exampleConversation.id",
-      "example.partnerId as examplePartnerId",
+      "example.organisationId as examplePartnerId",
       "organisation.partnerId as quotePartnerId",
     )
     .first();

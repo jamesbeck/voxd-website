@@ -13,7 +13,7 @@ export default async function saRecheckResendDomain(
     throw new Error("Unauthorized");
   }
 
-  const partner = await db("partner")
+  const partner = await db("organisation")
     .select("sendEmailFromDomain")
     .where({ id: accessToken.partnerId })
     .first();
@@ -50,7 +50,7 @@ export default async function saRecheckResendDomain(
 
   // Update verified status in DB
   const isVerified = updatedData.status === "verified";
-  await db("partner")
+  await db("organisation")
     .update({ sendEmailFromDomainVerified: isVerified })
     .where({ id: accessToken.partnerId });
 

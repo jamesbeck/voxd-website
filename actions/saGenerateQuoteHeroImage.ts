@@ -38,7 +38,6 @@ const saGenerateQuoteHeroImage = async ({
   const quote = await db("quote")
     .where("quote.id", quoteId)
     .join("organisation", "quote.organisationId", "organisation.id")
-    .leftJoin("partner", "organisation.partnerId", "partner.id")
     .select(
       "quote.*",
       "organisation.id as organisationId",
@@ -72,13 +71,13 @@ const saGenerateQuoteHeroImage = async ({
   let providerApiKey: string | null = null;
 
   if (accessToken.partnerId) {
-    const partner = await db("partner")
+    const partner = await db("organisation")
       .leftJoin(
         "providerApiKey",
-        "partner.providerApiKeyId",
+        "organisation.providerApiKeyId",
         "providerApiKey.id",
       )
-      .where("partner.id", accessToken.partnerId)
+      .where("organisation.id", accessToken.partnerId)
       .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
       .first();
     providerApiKey = partner?.providerApiKey || null;

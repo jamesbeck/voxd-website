@@ -43,13 +43,21 @@ const saGetLogTableData = async ({
 
   const base = db("log")
     .leftJoin("adminUser", "log.adminUserId", "adminUser.id")
-    .leftJoin("apiKey", "log.apiKeyId", "apiKey.id");
+    .leftJoin("apiKey", "log.apiKeyId", "apiKey.id")
+    .leftJoin("organisation as logOrganisation", "log.organisationId", "logOrganisation.id");
 
   // Apply filters
   if (adminUserId) base.where("log.adminUserId", adminUserId);
   if (apiKeyId) base.where("log.apiKeyId", apiKeyId);
   if (organisationId) base.where("log.organisationId", organisationId);
-  if (partnerId) base.where("log.partnerId", partnerId);
+  if (partnerId) {
+    base.where((qb) => {
+      qb.where("log.organisationId", partnerId).orWhere(
+        "logOrganisation.partnerId",
+        partnerId,
+      );
+    });
+  }
   if (sessionId) base.where("log.sessionId", sessionId);
   if (agentId) base.where("log.agentId", agentId);
   if (chatUserId) base.where("log.chatUserId", chatUserId);
@@ -83,13 +91,15 @@ const saGetLogTableData = async ({
       "log.adminUserId",
       "log.apiKeyId",
       "log.organisationId",
-      "log.partnerId",
+      db.raw(
+        'CASE WHEN "logOrganisation"."partner" = true THEN "logOrganisation"."id" ELSE "logOrganisation"."partnerId" END as "partnerId"',
+      ),
       "log.sessionId",
       "log.agentId",
       "log.chatUserId",
       "adminUser.name as adminUserName",
       "adminUser.email as adminUserEmail",
-      "apiKey.name as apiKeyName"
+      "apiKey.name as apiKeyName",
     )
     .orderBy(`log.${sortField}`, sortDirection)
     .limit(pageSize)

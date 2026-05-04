@@ -13,7 +13,9 @@ const getFunctions = async (partnerId?: string) => {
     query = query
       .leftJoin("example", "example.id", "exampleFunction.exampleId")
       .where(function () {
-        this.where("example.partnerId", partnerId).orWhereNull("example.id");
+        this.where("example.organisationId", partnerId).orWhereNull(
+          "example.id",
+        );
       });
   }
 

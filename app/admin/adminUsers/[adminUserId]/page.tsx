@@ -87,7 +87,6 @@ export default async function Page({
                 adminUserId={adminUserId}
                 name={user.name}
                 email={user.email}
-                partnerId={user.partnerId}
                 organisationId={user.organisationId}
                 organisationName={user.organisationName}
                 canEditOrganisation={token.superAdmin || token.partner}

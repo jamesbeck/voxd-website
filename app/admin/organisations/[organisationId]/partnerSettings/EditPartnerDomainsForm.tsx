@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import saUpdatePartner from "@/actions/saUpdatePartner";
 import { useRouter } from "next/navigation";
@@ -80,7 +80,7 @@ export default function EditPartnerDomainsForm({
   const [coreLoading, setCoreLoading] = useState(true);
   const router = useRouter();
 
-  const fetchDomainStatus = async () => {
+  const fetchDomainStatus = useCallback(async () => {
     setDomainLoading(true);
     try {
       const result = await saGetPartnerResendDomainStatus(partnerId);
@@ -90,9 +90,9 @@ export default function EditPartnerDomainsForm({
     } finally {
       setDomainLoading(false);
     }
-  };
+  }, [partnerId]);
 
-  const fetchVercelStatus = async () => {
+  const fetchVercelStatus = useCallback(async () => {
     setVercelLoading(true);
     try {
       const result = await saGetPartnerVercelDomainStatus(partnerId);
@@ -102,9 +102,9 @@ export default function EditPartnerDomainsForm({
     } finally {
       setVercelLoading(false);
     }
-  };
+  }, [partnerId]);
 
-  const fetchCoreStatus = async () => {
+  const fetchCoreStatus = useCallback(async () => {
     setCoreLoading(true);
     try {
       const result = await saGetPartnerCoreDomainStatus(partnerId);
@@ -114,13 +114,13 @@ export default function EditPartnerDomainsForm({
     } finally {
       setCoreLoading(false);
     }
-  };
+  }, [partnerId]);
 
   useEffect(() => {
     fetchDomainStatus();
     fetchVercelStatus();
     fetchCoreStatus();
-  }, [partnerId]);
+  }, [fetchCoreStatus, fetchDomainStatus, fetchVercelStatus]);
 
   const handleRecheck = async () => {
     if (!domainStatus || domainStatus.status === "not_configured") return;
@@ -321,34 +321,91 @@ export default function EditPartnerDomainsForm({
               <FormLabel>Send Email From Domain</FormLabel>
               <div className="flex items-center gap-2">
                 <FormControl>
-                  <Input placeholder="mail.partner.com" {...field} />
+                  <Input placeholder="emails.partner.com" {...field} />
                 </FormControl>
                 {domainLoading ? (
                   <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+                ) : domainStatus && domainStatus.status === "verified" ? (
+                  <Badge
+                    variant="default"
+                    className="shrink-0 bg-green-600 hover:bg-green-600"
+                  >
+                    <CheckCircle2 className="h-3 w-3" />
+                    Verified
+                  </Badge>
                 ) : domainStatus && domainStatus.status !== "not_configured" ? (
-                  domainStatus.status === "verified" ? (
-                    <Badge
-                      variant="default"
-                      className="shrink-0 bg-green-600 hover:bg-green-600"
-                    >
-                      <CheckCircle2 className="h-3 w-3" />
-                      Verified
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="secondary"
-                      className="shrink-0 text-amber-700 bg-amber-50 border-amber-200"
-                    >
-                      <AlertTriangle className="h-3 w-3" />
-                      Pending
-                    </Badge>
-                  )
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={rechecking}
+                    onClick={handleRecheck}
+                  >
+                    {rechecking ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-3 w-3" />
+                    )}
+                    Recheck
+                  </Button>
                 ) : null}
               </div>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {domainStatus && domainStatus.status !== "not_configured" && (
+          <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Resend DNS Records</p>
+                <p className="text-sm text-muted-foreground">
+                  Configure these DNS records to verify {domainStatus.domain}
+                </p>
+              </div>
+              <Badge variant="outline">{domainStatus.status}</Badge>
+            </div>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Value</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[80px]">Copy</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {domainStatus.records.map((record, index) => (
+                  <TableRow key={`${record.name}-${index}`}>
+                    <TableCell>{record.type}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {record.name}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs break-all">
+                      {record.value}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{record.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => copyToClipboard(record.value)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
         {form.formState.errors.root && (
           <div className="max-w-xl">
@@ -367,109 +424,6 @@ export default function EditPartnerDomainsForm({
           Save
         </Button>
       </form>
-
-      {/* DNS Records for email domain */}
-      {!domainLoading &&
-        domainStatus &&
-        domainStatus.status !== "not_configured" &&
-        domainStatus.status !== "verified" && (
-          <div className="mt-6 space-y-4">
-            <Alert className="border-amber-200 bg-amber-50">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-800">
-                DNS Configuration Required
-              </AlertTitle>
-              <AlertDescription className="text-amber-700">
-                Add the following DNS records to verify ownership and enable
-                email sending. DNS changes can take up to 72 hours to propagate.
-              </AlertDescription>
-            </Alert>
-
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">Type</TableHead>
-                    <TableHead>Host / Name</TableHead>
-                    <TableHead>Value</TableHead>
-                    <TableHead className="w-[80px]">Priority</TableHead>
-                    <TableHead className="w-[100px]">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {domainStatus.records.map((record, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <Badge variant="secondary">{record.type}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <code className="text-xs bg-muted px-1.5 py-0.5 rounded break-all">
-                            {record.name}
-                          </code>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 shrink-0"
-                            onClick={() => copyToClipboard(record.name)}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <code className="text-xs bg-muted px-1.5 py-0.5 rounded break-all max-w-[400px]">
-                            {record.value}
-                          </code>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 shrink-0"
-                            onClick={() => copyToClipboard(record.value)}
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>{record.priority ?? "—"}</TableCell>
-                      <TableCell>
-                        {record.status === "verified" ? (
-                          <span className="flex items-center gap-1 text-green-600 text-sm">
-                            <CheckCircle2 className="h-4 w-4" />
-                            Verified
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-1 text-amber-600 text-sm">
-                            <AlertTriangle className="h-4 w-4" />
-                            Pending
-                          </span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                onClick={handleRecheck}
-                disabled={rechecking}
-              >
-                {rechecking ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                {rechecking ? "Checking..." : "Re-check Domain"}
-              </Button>
-            </div>
-          </div>
-        )}
     </Form>
   );
 }

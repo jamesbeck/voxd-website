@@ -27,8 +27,9 @@ const saDeleteProviderApiKey = async ({
     };
   }
 
-  const partnerRef = await db("partner")
+  const partnerRef = await db("organisation")
     .where("providerApiKeyId", providerApiKeyId)
+    .andWhere("partner", true)
     .first();
   if (partnerRef) {
     return {

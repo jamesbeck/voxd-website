@@ -34,7 +34,7 @@ export default async function saGetResendDomainStatus(): Promise<ResendDomainSta
     throw new Error("Unauthorized");
   }
 
-  const partner = await db("partner")
+  const partner = await db("organisation")
     .select("sendEmailFromDomain")
     .where({ id: accessToken.partnerId })
     .first();
@@ -53,7 +53,7 @@ export default async function saGetResendDomainStatus(): Promise<ResendDomainSta
     throw new Error(`Failed to list Resend domains: ${listError.message}`);
   }
 
-  let existingDomain = listData?.data?.find((d) => d.name === domainName);
+  const existingDomain = listData?.data?.find((d) => d.name === domainName);
 
   // Auto-create if not found
   if (!existingDomain) {
@@ -68,7 +68,7 @@ export default async function saGetResendDomainStatus(): Promise<ResendDomainSta
 
     if (createData) {
       // Update verified status in DB
-      await db("partner")
+      await db("organisation")
         .update({
           sendEmailFromDomainVerified: createData.status === "verified",
         })
@@ -107,7 +107,7 @@ export default async function saGetResendDomainStatus(): Promise<ResendDomainSta
 
   // Update verified status in DB
   const isVerified = domainData.status === "verified";
-  await db("partner")
+  await db("organisation")
     .update({ sendEmailFromDomainVerified: isVerified })
     .where({ id: accessToken.partnerId });
 
