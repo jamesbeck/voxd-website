@@ -76,7 +76,9 @@ export default function ProviderApiKeysTable({
             {partners.map((p: any, i: number) => (
               <span key={p.id}>
                 {i > 0 && ", "}
-                <TableLink href={`/admin/organisations/${p.id}`}>{p.name}</TableLink>
+                <TableLink href={`/admin/organisations/${p.id}`}>
+                  {p.name}
+                </TableLink>
               </span>
             ))}
           </span>

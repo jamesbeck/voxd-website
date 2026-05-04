@@ -28,9 +28,7 @@ const getPartners = unstable_cache(
         "organisation.monthlyPerIntegration",
         "organisation.sendEmailFromDomainVerified",
         db.raw('organisation.id as "organisationId"'),
-        db.raw(
-          'organisation."primaryColour" as "organisationPrimaryColour"',
-        ),
+        db.raw('organisation."primaryColour" as "organisationPrimaryColour"'),
         db.raw(
           'organisation."logoFileExtension" as "organisationLogoFileExtension"',
         ),

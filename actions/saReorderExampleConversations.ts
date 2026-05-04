@@ -80,8 +80,8 @@ const saReorderExampleConversations = async ({
     conversationIds.map((id, index) =>
       db("exampleConversation")
         .where({ id, ...whereClause })
-        .update({ order: index + 1 })
-    )
+        .update({ order: index + 1 }),
+    ),
   );
 
   return { success: true };

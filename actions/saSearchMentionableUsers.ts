@@ -67,7 +67,7 @@ const saSearchMentionableUsers = async ({
         this.where("name", "ilike", `%${search}%`).orWhere(
           "email",
           "ilike",
-          `%${search}%`
+          `%${search}%`,
         );
       }
     })

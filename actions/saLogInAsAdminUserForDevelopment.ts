@@ -53,7 +53,9 @@ const saLogInAsAdminUserForDevelopment = async ({
     name: adminUser.name,
     superAdmin: adminUser.superAdmin,
     isPartner: adminUser.organisationIsPartner,
-    partnerId: adminUser.organisationIsPartner ? adminUser.organisationId : null,
+    partnerId: adminUser.organisationIsPartner
+      ? adminUser.organisationId
+      : null,
     organisationId: adminUser.organisationId,
     organisationName: adminUser.organisationName,
     organisationIsPartner: adminUser.organisationIsPartner,

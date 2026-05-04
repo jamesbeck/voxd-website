@@ -52,7 +52,9 @@ export function getAdminUserDevContextBaseQuery() {
       "adminUser.superAdmin",
       "adminUser.organisationId",
       "organisation.name as organisationName",
-      db.raw('COALESCE(organisation.partner, false) as "organisationIsPartner"'),
+      db.raw(
+        'COALESCE(organisation.partner, false) as "organisationIsPartner"',
+      ),
       "organisation.domain as organisationDomain",
       "organisation.logoFileExtension as organisationLogoFileExtension",
       db.raw(
@@ -83,9 +85,10 @@ export function mapAdminUserDevContext(
     ? row.organisationDomain
     : row.organisationPartnerDomain;
   const effectivePartnerOrganisationId = effectivePartnerId;
-  const effectivePartnerOrganisationLogoFileExtension = row.organisationIsPartner
-    ? row.organisationLogoFileExtension
-    : row.organisationPartnerLogoFileExtension;
+  const effectivePartnerOrganisationLogoFileExtension =
+    row.organisationIsPartner
+      ? row.organisationLogoFileExtension
+      : row.organisationPartnerLogoFileExtension;
   const effectivePartnerOrganisationShowLogoOnColour = row.organisationIsPartner
     ? row.organisationShowLogoOnColour
     : row.organisationPartnerShowLogoOnColour;

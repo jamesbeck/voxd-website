@@ -295,7 +295,7 @@ export default function LogExplorer({
       filters?.sessionId,
       filters?.agentId,
       filters?.chatUserId,
-    ]
+    ],
   );
 
   const totalPages = Math.max(1, Math.ceil(totalAvailable / pageSize));

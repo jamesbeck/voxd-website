@@ -125,9 +125,10 @@ export default async function PublicConceptPage({
   // Fetch case studies for the partner (only if section is not hidden)
   const showCaseStudies =
     !concept.conceptHideSections?.includes("case-studies");
-  const caseStudies = showCaseStudies && concept.partnerId
-    ? await getCaseStudiesByPartnerId(concept.partnerId)
-    : [];
+  const caseStudies =
+    showCaseStudies && concept.partnerId
+      ? await getCaseStudiesByPartnerId(concept.partnerId)
+      : [];
 
   // Record the view
   const headersList = await headers();

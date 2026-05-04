@@ -39,8 +39,11 @@ export const getExampleForPublic = async ({
   exampleId?: string;
   slug?: string;
 }): Promise<PublicExample | null> => {
-  let query = db("example")
-    .leftJoin("organisation", "example.organisationId", "organisation.id");
+  let query = db("example").leftJoin(
+    "organisation",
+    "example.organisationId",
+    "organisation.id",
+  );
 
   if (exampleId) {
     query = query.where("example.id", exampleId);

@@ -742,9 +742,7 @@ function getContentType(ext: string): string {
  *    - If edges are very light, the logo content is probably dark (light bg OK)
  *    - If edges are dark or image has no clear background, analyze overall brightness
  */
-async function analyzeLogoBackground(
-  buffer: Buffer,
-): Promise<boolean> {
+async function analyzeLogoBackground(buffer: Buffer): Promise<boolean> {
   try {
     const image = sharp(buffer);
 

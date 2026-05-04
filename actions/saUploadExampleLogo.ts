@@ -72,7 +72,7 @@ const saUploadExampleLogo = async ({
     return {
       success: false,
       error: `Invalid file type. Allowed types: ${allowedExtensions.join(
-        ", "
+        ", ",
       )}`,
     };
   }
@@ -106,7 +106,7 @@ const saUploadExampleLogo = async ({
         ACL: "public-read",
         ContentType: getContentType(ext),
         CacheControl: "public, max-age=31536000",
-      })
+      }),
     );
 
     // Update the example record with the logo extension

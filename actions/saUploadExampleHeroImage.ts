@@ -73,7 +73,7 @@ const saUploadExampleHeroImage = async ({
     return {
       success: false,
       error: `Invalid file type. Allowed types: ${allowedExtensions.join(
-        ", "
+        ", ",
       )}`,
     };
   }

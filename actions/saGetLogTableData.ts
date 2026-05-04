@@ -44,7 +44,11 @@ const saGetLogTableData = async ({
   const base = db("log")
     .leftJoin("adminUser", "log.adminUserId", "adminUser.id")
     .leftJoin("apiKey", "log.apiKeyId", "apiKey.id")
-    .leftJoin("organisation as logOrganisation", "log.organisationId", "logOrganisation.id");
+    .leftJoin(
+      "organisation as logOrganisation",
+      "log.organisationId",
+      "logOrganisation.id",
+    );
 
   // Apply filters
   if (adminUserId) base.where("log.adminUserId", adminUserId);

@@ -80,7 +80,7 @@ const saUpdateExample = async ({
         industries.map((industryId) => ({
           exampleId: id,
           industryId: industryId,
-        }))
+        })),
       )
       .returning("*");
   }
@@ -95,7 +95,7 @@ const saUpdateExample = async ({
         functions.map((funcId) => ({
           exampleId: id,
           functionId: funcId,
-        }))
+        })),
       )
       .returning("*");
   }
