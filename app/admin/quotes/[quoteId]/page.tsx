@@ -334,7 +334,9 @@ export default async function Page({
                   canViewCostPrice ? quote.freeMonthlyMinutes : null
                 }
                 contractLength={quote.contractLength}
-                costingBreakdown={canViewCostPrice ? quote.costingBreakdown : null}
+                costingBreakdown={
+                  canViewCostPrice ? quote.costingBreakdown : null
+                }
                 hourlyRateVoxdCost={
                   canViewCostPrice ? quote.hourlyRateVoxdCost : null
                 }

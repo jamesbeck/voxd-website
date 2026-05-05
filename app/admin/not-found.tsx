@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <Container>
-      <BreadcrumbSetter breadcrumbs={[{ label: "Admin" }, { label: "Not Found" }]} />
+      <BreadcrumbSetter
+        breadcrumbs={[{ label: "Admin" }, { label: "Not Found" }]}
+      />
       <H1>Page Not Found</H1>
       <p>The admin page you requested could not be found.</p>
       <div>
