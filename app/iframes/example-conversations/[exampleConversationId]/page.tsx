@@ -33,7 +33,7 @@ export default async function ExampleConversationIframePage({
   return (
     <>
       <style>{`body { background: transparent !important; }`}</style>
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-start justify-start md:items-center md:justify-center">
         <WhatsAppSim
           messages={conversation.messages.map((m: any) => ({
             role: m.role,

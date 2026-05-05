@@ -13,6 +13,9 @@ import Message from "./message";
 import { addSeconds, format } from "date-fns";
 import { useRef, useState, useEffect } from "react";
 
+const DEVICE_WIDTH = 360;
+const DEVICE_HEIGHT = 736;
+
 export default function WhatsAppSim({
   messages,
   businessName,
@@ -41,7 +44,31 @@ export default function WhatsAppSim({
   organizationShowLogoOnColour?: string | null;
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [isAtTop, setIsAtTop] = useState(true);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+
+    if (!wrapper) {
+      return;
+    }
+
+    const updateScale = () => {
+      const nextScale = Math.min(1, wrapper.clientWidth / DEVICE_WIDTH);
+      setScale((currentScale) =>
+        Math.abs(currentScale - nextScale) < 0.001 ? currentScale : nextScale,
+      );
+    };
+
+    updateScale();
+
+    const resizeObserver = new ResizeObserver(updateScale);
+    resizeObserver.observe(wrapper);
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,15 +106,29 @@ export default function WhatsAppSim({
   );
 
   return (
-    <div className={cn(`h-[736px] w-[360px] text-[#222]`)}>
-      <div className={cn(`w-full h-full relative `)}>
+    <div
+      ref={wrapperRef}
+      className="w-full text-[#222]"
+      style={{
+        maxWidth: `${DEVICE_WIDTH}px`,
+        height: `${DEVICE_HEIGHT * scale}px`,
+      }}
+    >
+      <div
+        className={cn(`relative origin-top-left`)}
+        style={{
+          width: `${DEVICE_WIDTH}px`,
+          height: `${DEVICE_HEIGHT}px`,
+          transform: `scale(${scale})`,
+        }}
+      >
         <div className="absolute w-[330px] h-[706px] top-[15px] left-[15px] bg-wabg rounded-[40px]" />
 
         <Image
           src="/whatsAppSim/iphone.png"
           alt="WhatsApp"
-          width={360}
-          height={736}
+          width={DEVICE_WIDTH}
+          height={DEVICE_HEIGHT}
           className="w-full h-full absolute top-0 left-0"
         />
 
