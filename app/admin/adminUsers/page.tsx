@@ -4,10 +4,17 @@ import AdminUsersTable from "./adminUserTable";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import Container from "@/components/adminui/Container";
 import { Button } from "@/components/ui/button";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 
 export default async function Page() {
   const token = await verifyAccessToken();
+  const canWriteUsers =
+    token.superAdmin ||
+    (await hasAdminUserPermission({
+      adminUserId: token.adminUserId,
+      permissionKey: "write_users",
+    }));
 
   return (
     <Container>
@@ -17,7 +24,7 @@ export default async function Page() {
       <H1>Admin Users</H1>
       <p>These are users that can log in and manage your agents.</p>
 
-      {(token.superAdmin || token.partner) && (
+      {canWriteUsers && (
         <div className="flex justify-end">
           <Button asChild>
             <Link href="/admin/adminUsers/new">New User</Link>

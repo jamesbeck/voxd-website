@@ -25,6 +25,7 @@ import EditPartnerSalesAgentForm from "./partnerSettings/EditPartnerSalesAgentFo
 import EditPartnerPricingForm from "./partnerSettings/EditPartnerPricingForm";
 import EditPartnerGoCardlessForm from "./partnerSettings/EditPartnerGoCardlessForm";
 import EditPartnerContactLegalForm from "./partnerSettings/EditPartnerContactLegalForm";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import db from "@/database/db";
 
 export default async function Page({
@@ -35,6 +36,12 @@ export default async function Page({
   searchParams: { tab?: string };
 }) {
   const token = await verifyAccessToken();
+  const canWriteUsers =
+    token.superAdmin ||
+    (await hasAdminUserPermission({
+      adminUserId: token.adminUserId,
+      permissionKey: "write_users",
+    }));
 
   const organisationId = (await params).organisationId;
   const activeTab = (await searchParams).tab || "agents";
@@ -243,7 +250,10 @@ export default async function Page({
             </TabsContent>
             <TabsContent value="adminUsers">
               <Container>
-                <AdminUsersTable organisationId={organisation.id} />
+                <AdminUsersTable
+                  organisationId={organisation.id}
+                  canWriteUsers={canWriteUsers}
+                />
               </Container>
             </TabsContent>
             <TabsContent value="chatUsers">

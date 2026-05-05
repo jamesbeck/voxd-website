@@ -38,6 +38,7 @@ export default function EditAdminUserForm({
   organisationId,
   organisationName,
   canEditOrganisation,
+  canEditUser,
   superAdmin: _superAdmin,
 }: {
   adminUserId: string;
@@ -47,6 +48,7 @@ export default function EditAdminUserForm({
   organisationId?: string;
   organisationName?: string;
   canEditOrganisation: boolean;
+  canEditUser: boolean;
   superAdmin: boolean;
 }) {
   const [loading, setLoading] = useState(false);
@@ -110,6 +112,11 @@ export default function EditAdminUserForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <H2>Edit User</H2>
+        {!canEditUser ? (
+          <p className="text-sm text-muted-foreground">
+            You can view this user, but you do not have permission to edit user details.
+          </p>
+        ) : null}
         <FormField
           control={form.control}
           name="name"
@@ -118,7 +125,7 @@ export default function EditAdminUserForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" disabled={!canEditUser} {...field} />
               </FormControl>
               {/* <FormDescription>Give the user a name</FormDescription> */}
               <FormMessage />
@@ -134,7 +141,11 @@ export default function EditAdminUserForm({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="john.doe@example.com" {...field} />
+                <Input
+                  placeholder="john.doe@example.com"
+                  disabled={!canEditUser}
+                  {...field}
+                />
               </FormControl>
               {/* <FormDescription>Put your user email here</FormDescription> */}
               <FormMessage />
@@ -142,7 +153,7 @@ export default function EditAdminUserForm({
           )}
         />
 
-        {canEditOrganisation ? (
+        {canEditOrganisation && canEditUser ? (
           <FormField
             control={form.control}
             name="organisationId"
@@ -208,10 +219,12 @@ export default function EditAdminUserForm({
           </div>
         )}
 
-        <Button type="submit" disabled={loading}>
-          {loading && <Spinner />}
-          Submit
-        </Button>
+        {canEditUser ? (
+          <Button type="submit" disabled={loading}>
+            {loading && <Spinner />}
+            Submit
+          </Button>
+        ) : null}
       </form>
     </Form>
   );

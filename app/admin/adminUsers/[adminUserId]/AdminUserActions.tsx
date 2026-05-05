@@ -10,11 +10,10 @@ import RecordActions from "@/components/admin/RecordActions";
 
 export default function UserActions({
   user,
-  superAdmin,
+  canWriteUsers,
 }: {
   user: AdminUser;
-  superAdmin: boolean;
-  partner: boolean;
+  canWriteUsers: boolean;
 }) {
   const [isDeletingUser, setIsDeletingUser] = useState(false);
 
@@ -39,7 +38,7 @@ export default function UserActions({
     router.push("/admin/adminUsers");
   };
 
-  if (!superAdmin) return null;
+  if (!canWriteUsers) return null;
 
   return (
     <RecordActions

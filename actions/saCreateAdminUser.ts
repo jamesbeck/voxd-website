@@ -2,6 +2,7 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { getAccessibleOrganisationForAdminUsers } from "@/lib/adminUserAccess";
 
@@ -15,8 +16,14 @@ const saCreateAdminUser = async ({
   organisationId?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
+  const canWriteUsers =
+    accessToken.superAdmin ||
+    (await hasAdminUserPermission({
+      adminUserId: accessToken.adminUserId,
+      permissionKey: "write_users",
+    }));
 
-  if (!accessToken.superAdmin && !accessToken.partner) {
+  if (!canWriteUsers) {
     return {
       success: false,
       error: "You do not have permission to create users.",

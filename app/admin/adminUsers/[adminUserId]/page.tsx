@@ -9,6 +9,7 @@ import NewAdminUserForm from "./newAdminUserForm";
 import { notFound } from "next/navigation";
 import AdminUserActions from "./AdminUserActions";
 import EditAdminUserForm from "./editAdminUserForm";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import LogExplorer from "@/components/admin/LogExplorer";
 import AdminUserPermissionsTab from "./AdminUserPermissionsTab";
@@ -22,11 +23,17 @@ export default async function Page({
   searchParams: { tab?: string };
 }) {
   const token = await verifyAccessToken();
+  const canWriteUsers =
+    token.superAdmin ||
+    (await hasAdminUserPermission({
+      adminUserId: token.adminUserId,
+      permissionKey: "write_users",
+    }));
 
   const adminUserId = (await params).adminUserId;
   const activeTab = (await searchParams).tab || "edit";
 
-  if (adminUserId === "new" && !token.superAdmin && !token.partner) {
+  if (adminUserId === "new" && !canWriteUsers) {
     return notFound();
   }
 
@@ -77,8 +84,7 @@ export default async function Page({
             actions={
               <AdminUserActions
                 user={user}
-                superAdmin={token.superAdmin}
-                partner={token.partner}
+                canWriteUsers={canWriteUsers}
               />
             }
           >
@@ -90,6 +96,7 @@ export default async function Page({
                 organisationId={user.organisationId}
                 organisationName={user.organisationName}
                 canEditOrganisation={token.superAdmin || token.partner}
+                canEditUser={canWriteUsers}
                 superAdmin={token.superAdmin}
               />
             </TabsContent>
@@ -113,7 +120,7 @@ export default async function Page({
           </RecordTabs>
         </>
       )}
-      {!user && <NewAdminUserForm isSuperAdmin={token.superAdmin} />}
+      {!user && canWriteUsers && <NewAdminUserForm isSuperAdmin={token.superAdmin} />}
     </Container>
   );
 }

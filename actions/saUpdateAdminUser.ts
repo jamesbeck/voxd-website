@@ -3,6 +3,7 @@
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import {
   applyAdminUserScope,
   getAccessibleOrganisationForAdminUsers,
@@ -20,9 +21,14 @@ const saUpdateAdminUser = async ({
   organisationId?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
+  const canWriteUsers =
+    accessToken.superAdmin ||
+    (await hasAdminUserPermission({
+      adminUserId: accessToken.adminUserId,
+      permissionKey: "write_users",
+    }));
 
-  // Only super admins and partners can update admin users
-  if (!accessToken.superAdmin && !accessToken.partner) {
+  if (!canWriteUsers) {
     return {
       success: false,
       error: "You do not have permission to update users.",
