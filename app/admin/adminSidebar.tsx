@@ -22,6 +22,8 @@ import {
   Plug,
   Settings,
   KeyRound,
+  ShieldCheck,
+  ShieldEllipsis,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -68,7 +70,6 @@ const menuItems: MenuItem[] = [
     url: "/admin",
     icon: Home,
   },
-
   {
     roles: ["admin", "partner"],
     title: "Organisations",
@@ -102,7 +103,6 @@ const menuItems: MenuItem[] = [
     url: "/admin/chatUsers",
     icon: User,
   },
-
   {
     roles: ["admin", "partner", "organisation"],
     title: "Admin Users",
@@ -221,6 +221,32 @@ export default function AdminSidebar({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {superAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Permissions</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/permission-groups">
+                      <ShieldEllipsis />
+                      <span>Permission Groups</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/admin/permission-definitions">
+                      <ShieldCheck />
+                      <span>Permission Definitions</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {superAdmin && (
           <SidebarGroup>

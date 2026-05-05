@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 
 const saUpdateQuotePricing = async ({
   quoteId,
@@ -54,6 +55,14 @@ const saUpdateQuotePricing = async ({
   const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && accessToken.partnerId === existingQuote.partnerId;
+  const canWriteContractNotes =
+    !!isSuperAdmin ||
+    (!!isOwnerPartner &&
+      !!accessToken.adminUserId &&
+      (await hasAdminUserPermission({
+        adminUserId: accessToken.adminUserId,
+        permissionKey: "write_quote_contract_notes",
+      })));
 
   if (!isSuperAdmin && !isOwnerPartner) {
     return {
@@ -70,7 +79,19 @@ const saUpdateQuotePricing = async ({
     if (setupFee !== undefined) updateData.setupFee = setupFee;
     if (monthlyFee !== undefined) updateData.monthlyFee = monthlyFee;
     if (hourlyRate !== undefined) updateData.hourlyRate = hourlyRate;
-    if (contractNotes !== undefined) updateData.contractNotes = contractNotes;
+    if (contractNotes !== undefined) {
+      if (!canWriteContractNotes) {
+        return {
+          success: false,
+          error: "You don't have permission to update contract notes",
+          fieldErrors: {
+            contractNotes: "You have read-only access to contract notes.",
+          },
+        };
+      }
+
+      updateData.contractNotes = contractNotes;
+    }
     if (contractLength !== undefined) {
       const minimumPartnerContractLength =
         existingQuote.contractLength != null &&

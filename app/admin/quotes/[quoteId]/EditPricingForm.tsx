@@ -85,6 +85,8 @@ export default function EditPricingForm({
   hasGeneratedProposal,
   isSuperAdmin,
   isOwnerPartner,
+  canViewCostPrice,
+  canWriteContractNotes,
 }: {
   quoteId: string;
   setupFee: number | null;
@@ -102,6 +104,8 @@ export default function EditPricingForm({
   hasGeneratedProposal: boolean;
   isSuperAdmin: boolean;
   isOwnerPartner: boolean;
+  canViewCostPrice: boolean;
+  canWriteContractNotes: boolean;
 }) {
   const [calculatingCosting, setCalculatingCosting] = useState(false);
   const router = useRouter();
@@ -113,6 +117,7 @@ export default function EditPricingForm({
 
   const canEditPartnerFields = isOwnerPartner || isSuperAdmin;
   const canEditAdminFields = isSuperAdmin;
+  const showCostPricing = canEditAdminFields || canViewCostPrice;
   const minimumPartnerContractLength =
     !isSuperAdmin && contractLength != null && contractLength < 12
       ? contractLength
@@ -303,7 +308,7 @@ export default function EditPricingForm({
               contractLength: watchedValues.contractLength,
             }
           : {}),
-        ...(canEditPartnerFields
+        ...(canWriteContractNotes
           ? {
               contractNotes: watchedValues.contractNotes,
             }
@@ -312,7 +317,7 @@ export default function EditPricingForm({
       return;
     }
     if (calculatingCosting) return;
-    if (!canEditAdminFields && !canEditPartnerFields) return;
+    if (!canEditAdminFields && !canWriteContractNotes) return;
 
     const autoSaveFieldNames: PricingFieldName[] = [
       ...(canEditAdminFields
@@ -324,7 +329,7 @@ export default function EditPricingForm({
             "contractLength",
           ] as PricingFieldName[])
         : []),
-      ...(canEditPartnerFields
+      ...(canWriteContractNotes
         ? (["contractNotes"] as PricingFieldName[])
         : []),
     ];
@@ -355,7 +360,7 @@ export default function EditPricingForm({
     watchedValues,
     calculatingCosting,
     canEditAdminFields,
-    canEditPartnerFields,
+    canWriteContractNotes,
     submitPricingFields,
   ]);
 
@@ -405,7 +410,7 @@ export default function EditPricingForm({
                   />
                 </FormControl>
                 <span
-                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${setupMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
+                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium ${showCostPricing ? "text-white" : "opacity-0"} ${setupMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
                 >
                   Margin: &pound;
                   {setupMargin.toLocaleString(undefined, {
@@ -453,7 +458,7 @@ export default function EditPricingForm({
                   />
                 </FormControl>
                 <span
-                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${monthlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
+                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium ${showCostPricing ? "text-white" : "opacity-0"} ${monthlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
                 >
                   Margin: &pound;
                   {monthlyMargin.toLocaleString(undefined, {
@@ -500,7 +505,7 @@ export default function EditPricingForm({
                   />
                 </FormControl>
                 <span
-                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium text-white ${hourlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
+                  className={`inline-flex w-fit items-center rounded-md px-2 py-0.5 text-xs font-medium ${showCostPricing ? "text-white" : "opacity-0"} ${hourlyMargin > 0 ? "bg-green-600" : "bg-red-600"}`}
                 >
                   Margin: &pound;
                   {hourlyMargin.toLocaleString(undefined, {
@@ -577,12 +582,13 @@ export default function EditPricingForm({
                   placeholder="Add any quote-specific contract notes or agreed terms"
                   className="min-h-32"
                   {...field}
-                  disabled={!canEditPartnerFields}
+                  disabled={!canWriteContractNotes}
                 />
               </FormControl>
               <FormDescription>
-                Saved automatically as you type and shown in the proposal&apos;s
-                Investment section.
+                {canWriteContractNotes
+                  ? "Saved automatically as you type and shown in the proposal's Investment section."
+                  : "Shown in the proposal's Investment section. You have read-only access to this field."}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -676,7 +682,7 @@ export default function EditPricingForm({
               />
             </div>
           </div>
-        ) : (
+        ) : showCostPricing ? (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Voxd Service Pricing</CardTitle>
@@ -871,10 +877,10 @@ export default function EditPricingForm({
                 )}
             </CardContent>
           </Card>
-        )}
+        ) : null}
       </form>
 
-      {costingBreakdown && (
+      {showCostPricing && costingBreakdown && (
         <div className="border-t pt-6 mt-8">
           <div className="flex items-center gap-3 mb-4">
             <h3 className="text-lg font-medium">Cost Breakdown</h3>
@@ -887,7 +893,7 @@ export default function EditPricingForm({
             >
               Calculated from {costingBreakdown.costingCalculatedFrom}
             </Badge>
-            {costingSource && (
+            {canEditAdminFields && costingSource && (
               <Button
                 type="button"
                 variant="outline"
@@ -1011,22 +1017,24 @@ export default function EditPricingForm({
         </div>
       )}
 
-      {!costingBreakdown && costingSource && (
+      {showCostPricing && !costingBreakdown && costingSource && (
         <div className="border-t pt-6 mt-8">
           <h3 className="text-lg font-medium mb-2">Cost Breakdown</h3>
           <p className="text-sm text-muted-foreground mb-4">
             No costing breakdown yet. Calculate an estimate based on the
             existing {costingSource}.
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={calculatingCosting}
-            onClick={calculateCosting}
-          >
-            {calculatingCosting && <Spinner className="mr-2" />}
-            Calculate Costing
-          </Button>
+          {canEditAdminFields && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={calculatingCosting}
+              onClick={calculateCosting}
+            >
+              {calculatingCosting && <Spinner className="mr-2" />}
+              Calculate Costing
+            </Button>
+          )}
         </div>
       )}
     </Form>

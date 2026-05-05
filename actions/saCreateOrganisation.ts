@@ -51,6 +51,7 @@ const saCreateOrganisation = async ({
     .insert({
       name,
       partnerId: partnerId || null,
+      ownerId: accessToken.adminUserId,
       webAddress: cleanWebAddress,
       showLogoOnColour: "#333333",
     })

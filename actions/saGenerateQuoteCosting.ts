@@ -5,6 +5,9 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { CostingBreakdown } from "@/types/types";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
+import userCanViewQuote from "@/lib/quoteAccess";
 
 const DEFAULT_HOURLY_RATE = 100;
 const DEFAULT_MONTHLY_BASE = 150;
@@ -62,6 +65,34 @@ const saGenerateQuoteCosting = async ({
 }> => {
   if (!quoteId) {
     return { success: false, error: "Quote ID is required" };
+  }
+
+  const accessToken = await verifyAccessToken();
+
+  if (!(await userCanViewQuote({ quoteId, accessToken }))) {
+    return { success: false, error: "Quote not found" };
+  }
+
+  const canViewCostPrice =
+    !!accessToken.superAdmin ||
+    (!!accessToken.adminUserId &&
+      (await hasAdminUserPermission({
+        adminUserId: accessToken.adminUserId,
+        permissionKey: "view_cost_price",
+      })));
+
+  if (!canViewCostPrice) {
+    return {
+      success: false,
+      error: "You don't have permission to view quote cost pricing",
+    };
+  }
+
+  if (!accessToken.superAdmin) {
+    return {
+      success: false,
+      error: "You don't have permission to update quote cost pricing",
+    };
   }
 
   const quote = await db("quote")

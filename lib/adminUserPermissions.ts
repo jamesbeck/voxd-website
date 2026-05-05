@@ -43,6 +43,7 @@ export type AdminUserPermissionsAccess = {
     name: string;
     organisationId: string | null;
     partnerId: string | null;
+    isPartnerUser: boolean;
     superAdmin: boolean;
   };
   accessToken: AccessTokenPayload;
@@ -99,6 +100,7 @@ const getScopedAdminUserQuery = ({
       "adminUser.id",
       "adminUser.name",
       "adminUser.organisationId",
+      "organisation.partner as isPartnerUser",
       db.raw(
         'CASE WHEN "organisation"."partner" = true THEN "organisation"."id" ELSE "organisation"."partnerId" END as "partnerId"',
       ),
@@ -162,6 +164,7 @@ export const getScopedAgentForAdminUser = async ({
   agentId: string;
   targetAdminUser: {
     superAdmin?: boolean | null;
+    isPartnerUser?: boolean | null;
     partnerId?: string | null;
     organisationId?: string | null;
   };
@@ -176,7 +179,9 @@ export const getScopedAgentForAdminUser = async ({
     query,
     accessToken: {
       superAdmin: targetAdminUser.superAdmin,
-      partnerId: targetAdminUser.partnerId,
+      partnerId: targetAdminUser.isPartnerUser
+        ? targetAdminUser.partnerId
+        : null,
       organisationId: targetAdminUser.organisationId,
     },
   });
@@ -190,6 +195,7 @@ export const getAccessibleAgentsForAdminUser = async ({
 }: {
   targetAdminUser: {
     superAdmin?: boolean | null;
+    isPartnerUser?: boolean | null;
     partnerId?: string | null;
     organisationId?: string | null;
   };
@@ -212,7 +218,9 @@ export const getAccessibleAgentsForAdminUser = async ({
     query,
     accessToken: {
       superAdmin: targetAdminUser.superAdmin,
-      partnerId: targetAdminUser.partnerId,
+      partnerId: targetAdminUser.isPartnerUser
+        ? targetAdminUser.partnerId
+        : null,
       organisationId: targetAdminUser.organisationId,
     },
   });
@@ -331,6 +339,7 @@ export const getAdminUserPermissionsAccess = async ({
       name: targetUser.name,
       organisationId: targetUser.organisationId ?? null,
       partnerId: targetUser.partnerId ?? null,
+      isPartnerUser: Boolean(targetUser.isPartnerUser),
       superAdmin: Boolean(targetUser.superAdmin),
     },
     accessToken: resolvedAccessToken,
@@ -349,13 +358,14 @@ export const getGroupedAdminUserPermissions = async ({
     .leftJoin("organisation", "adminUser.organisationId", "organisation.id")
     .select(
       "adminUser.id",
+      "organisation.partner as isPartnerUser",
       db.raw(
         'CASE WHEN "organisation"."partner" = true THEN "organisation"."id" ELSE "organisation"."partnerId" END as "partnerId"',
       ),
       "adminUser.organisationId",
       "adminUser.superAdmin",
     )
-    .where("id", adminUserId)
+    .where("adminUser.id", adminUserId)
     .first();
 
   if (!targetUser) {

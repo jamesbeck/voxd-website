@@ -33,6 +33,7 @@ import QuoteViewsTable from "./QuoteViewsTable";
 import QuoteHeroImageTab from "./QuoteHeroImageTab";
 import QuoteActionsTab from "./QuoteActionsTab";
 import userCanViewQuote from "@/lib/quoteAccess";
+import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 
 export default async function Page({
   params,
@@ -64,6 +65,21 @@ export default async function Page({
   const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && quote?.partnerId === accessToken.partnerId;
+  const canViewCostPrice =
+    !!isSuperAdmin ||
+    (!!accessToken.adminUserId &&
+      (await hasAdminUserPermission({
+        adminUserId: accessToken.adminUserId,
+        permissionKey: "view_cost_price",
+      })));
+  const canWriteQuoteContractNotes =
+    !!isSuperAdmin ||
+    (!!isOwnerPartner &&
+      !!accessToken.adminUserId &&
+      (await hasAdminUserPermission({
+        adminUserId: accessToken.adminUserId,
+        permissionKey: "write_quote_contract_notes",
+      })));
 
   // Fetch prototypingAgentId from the partner organisation that owns this quote's organisation
   let prototypingAgentId: string | null = null;
@@ -307,17 +323,27 @@ export default async function Page({
                 monthlyFee={quote.monthlyFee}
                 hourlyRate={quote.hourlyRate}
                 contractNotes={quote.contractNotes}
-                setupFeeVoxdCost={quote.setupFeeVoxdCost}
-                monthlyFeeVoxdCost={quote.monthlyFeeVoxdCost}
-                buildDays={quote.buildDays}
-                freeMonthlyMinutes={quote.freeMonthlyMinutes}
+                setupFeeVoxdCost={
+                  canViewCostPrice ? quote.setupFeeVoxdCost : null
+                }
+                monthlyFeeVoxdCost={
+                  canViewCostPrice ? quote.monthlyFeeVoxdCost : null
+                }
+                buildDays={canViewCostPrice ? quote.buildDays : null}
+                freeMonthlyMinutes={
+                  canViewCostPrice ? quote.freeMonthlyMinutes : null
+                }
                 contractLength={quote.contractLength}
-                costingBreakdown={quote.costingBreakdown}
-                hourlyRateVoxdCost={quote.hourlyRateVoxdCost}
+                costingBreakdown={canViewCostPrice ? quote.costingBreakdown : null}
+                hourlyRateVoxdCost={
+                  canViewCostPrice ? quote.hourlyRateVoxdCost : null
+                }
                 hasGeneratedConcept={!!quote.generatedConcept}
                 hasGeneratedProposal={!!quote.generatedSpecification}
                 isSuperAdmin={isSuperAdmin}
                 isOwnerPartner={isOwnerPartner}
+                canViewCostPrice={canViewCostPrice}
+                canWriteContractNotes={canWriteQuoteContractNotes}
               />
             </TabsContent>
             <TabsContent value="exampleConversations">
