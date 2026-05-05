@@ -21,6 +21,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import saUpdatePartner from "@/actions/saUpdatePartner";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -53,6 +54,141 @@ const formSchema = z.object({
   coreDomain: z.string().optional(),
   sendEmailFromDomain: z.string().optional(),
 });
+
+type DnsInstructionRecord = {
+  type: string;
+  name: string;
+  value: string;
+  status?: string;
+  rank?: number;
+};
+
+function formatStatusLabel(status: string) {
+  if (status.includes(":")) {
+    return status;
+  }
+
+  return status
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function isPositiveStatus(status: string) {
+  return status === "verified";
+}
+
+function getStatusBadgeClass(isPositive: boolean) {
+  return isPositive
+    ? "border-green-200 bg-green-50 text-green-700"
+    : "border-red-200 bg-red-50 text-red-700";
+}
+
+function getResendRecordReason(record: DnsInstructionRecord) {
+  if (record.name.includes("_domainkey")) {
+    return "Lets Resend sign outgoing email with DKIM so recipient mail servers trust the messages.";
+  }
+
+  if (record.type === "MX") {
+    return "Routes bounces and delivery feedback for the sending domain through Resend's mail infrastructure.";
+  }
+
+  if (record.type === "TXT" && record.value.includes("spf1")) {
+    return "Publishes an SPF policy so Resend is allowed to send email on behalf of this domain.";
+  }
+
+  return "Required by Resend to verify the sending domain and deliver email reliably.";
+}
+
+function getVercelRecordReason() {
+  return "Points the website domain at Vercel so the deployment can resolve correctly and Vercel can provision SSL.";
+}
+
+function getCoreRecordReason() {
+  return "Points the core domain at Voxd so the shared core experience resolves to the correct target.";
+}
+
+function buildMarkdownSection(title: string, entries: string[]) {
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return [`## ${title}`, ...entries].join("\n\n");
+}
+
+function DnsInstructionsTable({
+  records,
+  onCopy,
+  showStatus = false,
+  showRank = false,
+}: {
+  records: DnsInstructionRecord[];
+  onCopy: (text: string) => void;
+  showStatus?: boolean;
+  showRank?: boolean;
+}) {
+  return (
+    <Table className="table-fixed">
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[90px]">Type</TableHead>
+          <TableHead className="w-[220px]">Name</TableHead>
+          <TableHead>Value</TableHead>
+          {showRank ? <TableHead className="w-[80px]">Rank</TableHead> : null}
+          {showStatus ? (
+            <TableHead className="w-[120px]">Status</TableHead>
+          ) : null}
+          <TableHead className="w-[80px]">Copy</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {records.map((record, index) => (
+          <TableRow
+            key={`${record.type}-${record.name}-${record.value}-${index}`}
+          >
+            <TableCell>{record.type}</TableCell>
+            <TableCell className="font-mono text-xs">{record.name}</TableCell>
+            <TableCell className="font-mono text-xs">
+              <div
+                className="max-w-full truncate whitespace-nowrap"
+                title={record.value}
+              >
+                {record.value}
+              </div>
+            </TableCell>
+            {showRank ? <TableCell>{record.rank ?? "-"}</TableCell> : null}
+            {showStatus ? (
+              <TableCell>
+                {record.status ? (
+                  <Badge
+                    variant="outline"
+                    className={getStatusBadgeClass(
+                      isPositiveStatus(record.status),
+                    )}
+                  >
+                    {formatStatusLabel(record.status)}
+                  </Badge>
+                ) : (
+                  "-"
+                )}
+              </TableCell>
+            ) : null}
+            <TableCell>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => onCopy(record.value)}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
 
 export default function EditPartnerDomainsForm({
   partnerId,
@@ -178,6 +314,78 @@ export default function EditPartnerDomainsForm({
       sendEmailFromDomain: sendEmailFromDomain || "",
     },
   });
+
+  const coreDnsRecords: DnsInstructionRecord[] =
+    coreStatus && coreStatus.status !== "not_configured"
+      ? [
+          {
+            type: "CNAME",
+            name: coreStatus.domain,
+            value: coreStatus.expectedTarget,
+            status:
+              coreStatus.status === "verified"
+                ? "verified"
+                : coreStatus.status === "wrong_cname"
+                  ? `Current: ${coreStatus.cname}`
+                  : "missing",
+          },
+        ]
+      : [];
+
+  const vercelDnsRecords: DnsInstructionRecord[] =
+    vercelStatus && vercelStatus.status !== "not_configured"
+      ? vercelStatus.dnsRecords.map((record) => ({
+          ...record,
+          status: vercelStatus.status === "verified" ? "verified" : "required",
+        }))
+      : [];
+
+  const incompleteResendRecords =
+    domainStatus && domainStatus.status !== "not_configured"
+      ? domainStatus.records.filter((record) => record.status !== "verified")
+      : [];
+
+  const incompleteVercelRecords =
+    vercelStatus && vercelStatus.status !== "not_configured"
+      ? vercelDnsRecords.filter((record) => record.status !== "verified")
+      : [];
+
+  const incompleteCoreRecords =
+    coreStatus &&
+    coreStatus.status !== "not_configured" &&
+    coreStatus.status !== "verified"
+      ? coreDnsRecords
+      : [];
+
+  const dnsChangesMarkdown = [
+    buildMarkdownSection(
+      "Resend",
+      incompleteResendRecords.map(
+        (record, index) =>
+          `### ${index + 1}. ${record.type} record for \`${record.name}\`\nType: \`${record.type}\`\nName: \`${record.name}\`\nValue: \`${record.value}\`\nWhy: ${getResendRecordReason(record)}`,
+      ),
+    ),
+    buildMarkdownSection(
+      "Vercel",
+      incompleteVercelRecords.map(
+        (record, index) =>
+          `### ${index + 1}. ${record.type} record for \`${record.name}\`\nType: \`${record.type}\`\nName: \`${record.name}\`\nValue: \`${record.value}\`\nWhy: ${getVercelRecordReason()}`,
+      ),
+    ),
+    buildMarkdownSection(
+      "Core Domain",
+      incompleteCoreRecords.map(
+        (record, index) =>
+          `### ${index + 1}. ${record.type} record for \`${record.name}\`\nType: \`${record.type}\`\nName: \`${record.name}\`\nValue: \`${record.value}\`\nWhy: ${getCoreRecordReason()}`,
+      ),
+    ),
+  ]
+    .filter(Boolean)
+    .join("\n\n---\n\n");
+
+  const resendStatusPositive = domainStatus?.status === "verified";
+  const vercelStatusPositive = vercelStatus?.status === "verified";
+  const coreStatusPositive = coreStatus?.status === "verified";
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
@@ -364,46 +572,86 @@ export default function EditPartnerDomainsForm({
                   Configure these DNS records to verify {domainStatus.domain}
                 </p>
               </div>
-              <Badge variant="outline">{domainStatus.status}</Badge>
+              <Badge
+                variant="outline"
+                className={getStatusBadgeClass(resendStatusPositive)}
+              >
+                {formatStatusLabel(domainStatus.status)}
+              </Badge>
             </div>
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-[80px]">Copy</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {domainStatus.records.map((record, index) => (
-                  <TableRow key={`${record.name}-${index}`}>
-                    <TableCell>{record.type}</TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {record.name}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs break-all">
-                      {record.value}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{record.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => copyToClipboard(record.value)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DnsInstructionsTable
+              records={domainStatus.records}
+              onCopy={copyToClipboard}
+              showStatus
+            />
+          </div>
+        )}
+
+        {vercelStatus && vercelStatus.status !== "not_configured" && (
+          <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-medium">Vercel DNS Records</p>
+                <p className="text-sm text-muted-foreground">
+                  Add this DNS record for {vercelStatus.domain} to point the
+                  domain at Vercel.
+                </p>
+                {vercelStatus.configuredBy ? (
+                  <p className="text-xs text-muted-foreground">
+                    Current detection: {vercelStatus.configuredBy}
+                  </p>
+                ) : null}
+              </div>
+              <Badge
+                variant="outline"
+                className={getStatusBadgeClass(vercelStatusPositive)}
+              >
+                {formatStatusLabel(vercelStatus.status)}
+              </Badge>
+            </div>
+
+            {vercelStatus.dnsRecords.length > 0 ? (
+              <DnsInstructionsTable
+                records={vercelDnsRecords}
+                onCopy={copyToClipboard}
+                showStatus
+              />
+            ) : (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>No DNS recommendation available yet</AlertTitle>
+                <AlertDescription>
+                  Add the domain to Vercel first, then reload this tab to fetch
+                  the recommended DNS values.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        )}
+
+        {coreStatus && coreStatus.status !== "not_configured" && (
+          <div className="space-y-2 rounded-lg border p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-medium">Core Domain CNAME</p>
+                <p className="text-sm text-muted-foreground">
+                  Point the core domain to Voxd with a simple CNAME record.
+                </p>
+              </div>
+              <Badge
+                variant="outline"
+                className={getStatusBadgeClass(coreStatusPositive)}
+              >
+                {formatStatusLabel(coreStatus.status)}
+              </Badge>
+            </div>
+
+            <DnsInstructionsTable
+              records={coreDnsRecords}
+              onCopy={copyToClipboard}
+              showStatus
+            />
           </div>
         )}
 
@@ -418,6 +666,36 @@ export default function EditPartnerDomainsForm({
             </Alert>
           </div>
         )}
+
+        <div className="space-y-2 rounded-lg border p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-medium">DNS Changes Summary</p>
+              <p className="text-sm text-muted-foreground">
+                Markdown summary of the remaining DNS work, ready to copy and
+                send.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                copyToClipboard(
+                  dnsChangesMarkdown || "All DNS changes are complete.",
+                )
+              }
+            >
+              <Copy className="h-4 w-4" />
+              Copy Markdown
+            </Button>
+          </div>
+          <Textarea
+            readOnly
+            value={dnsChangesMarkdown || "All DNS changes are complete."}
+            className="min-h-[260px] font-mono text-xs"
+          />
+        </div>
 
         <Button type="submit" disabled={loading}>
           {loading && <Spinner />}

@@ -8,9 +8,19 @@ const CORE_CNAME_TARGET = "core.voxd.ai";
 
 export type CoreDomainStatus =
   | { status: "not_configured" }
-  | { status: "verified"; domain: string; cname: string }
-  | { status: "wrong_cname"; domain: string; cname: string }
-  | { status: "no_cname"; domain: string };
+  | {
+      status: "verified";
+      domain: string;
+      cname: string;
+      expectedTarget: string;
+    }
+  | {
+      status: "wrong_cname";
+      domain: string;
+      cname: string;
+      expectedTarget: string;
+    }
+  | { status: "no_cname"; domain: string; expectedTarget: string };
 
 async function checkCoreDomainCname(
   domainName: string,
@@ -48,7 +58,12 @@ export async function saGetPartnerCoreDomainStatus(
     await db("organisation")
       .update({ coreDomainVerified: true })
       .where({ id: partnerId });
-    return { status: "verified", domain: domainName, cname: CORE_CNAME_TARGET };
+    return {
+      status: "verified",
+      domain: domainName,
+      cname: CORE_CNAME_TARGET,
+      expectedTarget: CORE_CNAME_TARGET,
+    };
   }
 
   const { verified, cname } = await checkCoreDomainCname(domainName);
@@ -58,14 +73,28 @@ export async function saGetPartnerCoreDomainStatus(
     .where({ id: partnerId });
 
   if (verified) {
-    return { status: "verified", domain: domainName, cname: cname! };
+    return {
+      status: "verified",
+      domain: domainName,
+      cname: cname!,
+      expectedTarget: CORE_CNAME_TARGET,
+    };
   }
 
   if (cname) {
-    return { status: "wrong_cname", domain: domainName, cname };
+    return {
+      status: "wrong_cname",
+      domain: domainName,
+      cname,
+      expectedTarget: CORE_CNAME_TARGET,
+    };
   }
 
-  return { status: "no_cname", domain: domainName };
+  return {
+    status: "no_cname",
+    domain: domainName,
+    expectedTarget: CORE_CNAME_TARGET,
+  };
 }
 
 export async function saCheckAllCoreDomains(): Promise<{

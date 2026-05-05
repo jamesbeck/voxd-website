@@ -12,7 +12,32 @@ export type VercelDomainStatus =
       verified: boolean;
       misconfigured: boolean;
       configuredBy?: string | null;
+      dnsRecords: Array<{
+        type: "A" | "CNAME";
+        name: string;
+        value: string;
+        rank: number;
+      }>;
     };
+
+function getRecommendedDnsRecords(
+  domainName: string,
+  config: {
+    recommendedIPv4?: Array<{ rank: number; value: string[] }>;
+    recommendedCNAME?: Array<{ rank: number; value: string }>;
+  },
+) {
+  return (config.recommendedCNAME ?? [])
+    .filter((record) => record.value !== "cname.vercel-dns.com.")
+    .sort((left, right) => left.rank - right.rank)
+    .slice(0, 1)
+    .map((record) => ({
+      type: "CNAME" as const,
+      name: domainName,
+      value: record.value,
+      rank: record.rank,
+    }));
+}
 
 function getVercelClient() {
   return new Vercel({ bearerToken: process.env.VERCEL_API_TOKEN! });
@@ -53,6 +78,7 @@ export async function saGetPartnerVercelDomainStatus(
 
     const verified = domainInfo.verified ?? false;
     const misconfigured = config.misconfigured ?? false;
+    const dnsRecords = getRecommendedDnsRecords(domainName, config);
 
     const isFullyVerified = verified && !misconfigured;
     await db("organisation")
@@ -66,6 +92,7 @@ export async function saGetPartnerVercelDomainStatus(
         verified: true,
         misconfigured: false,
         configuredBy: config.configuredBy ?? null,
+        dnsRecords,
       };
     }
 
@@ -75,6 +102,7 @@ export async function saGetPartnerVercelDomainStatus(
       verified,
       misconfigured,
       configuredBy: config.configuredBy ?? null,
+      dnsRecords,
     };
   } catch (e: any) {
     if (e?.statusCode === 404 || e?.message?.includes("not found")) {
@@ -86,6 +114,7 @@ export async function saGetPartnerVercelDomainStatus(
         domain: domainName,
         verified: false,
         misconfigured: false,
+        dnsRecords: [],
       };
     }
     throw e;

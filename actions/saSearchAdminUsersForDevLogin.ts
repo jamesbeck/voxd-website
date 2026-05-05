@@ -36,7 +36,6 @@ const saSearchAdminUsersForDevLogin = async ({
       .where("adminUser.name", "ilike", `%${trimmedSearch}%`)
       .orWhere("adminUser.email", "ilike", `%${trimmedSearch}%`)
       .orWhere("organisation.name", "ilike", `%${trimmedSearch}%`)
-      .orWhere("directPartner.name", "ilike", `%${trimmedSearch}%`)
       .orWhere("organisationPartner.name", "ilike", `%${trimmedSearch}%`);
   });
 
