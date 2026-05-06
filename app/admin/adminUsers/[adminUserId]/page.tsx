@@ -82,10 +82,7 @@ export default async function Page({
               ] satisfies RecordTab[]
             }
             actions={
-              <AdminUserActions
-                user={user}
-                canWriteUsers={canWriteUsers}
-              />
+              <AdminUserActions user={user} canWriteUsers={canWriteUsers} />
             }
           >
             <TabsContent value="edit">
@@ -120,7 +117,9 @@ export default async function Page({
           </RecordTabs>
         </>
       )}
-      {!user && canWriteUsers && <NewAdminUserForm isSuperAdmin={token.superAdmin} />}
+      {!user && canWriteUsers && (
+        <NewAdminUserForm isSuperAdmin={token.superAdmin} />
+      )}
     </Container>
   );
 }

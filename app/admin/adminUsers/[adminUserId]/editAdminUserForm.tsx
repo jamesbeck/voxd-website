@@ -114,7 +114,8 @@ export default function EditAdminUserForm({
         <H2>Edit User</H2>
         {!canEditUser ? (
           <p className="text-sm text-muted-foreground">
-            You can view this user, but you do not have permission to edit user details.
+            You can view this user, but you do not have permission to edit user
+            details.
           </p>
         ) : null}
         <FormField
@@ -125,7 +126,11 @@ export default function EditAdminUserForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" disabled={!canEditUser} {...field} />
+                <Input
+                  placeholder="John Doe"
+                  disabled={!canEditUser}
+                  {...field}
+                />
               </FormControl>
               {/* <FormDescription>Give the user a name</FormDescription> */}
               <FormMessage />

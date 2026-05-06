@@ -1,9 +1,7 @@
 "use server";
 
 import db from "@/database/db";
-import {
-  applyAdminUserScope,
-} from "@/lib/adminUserAccess";
+import { applyAdminUserScope } from "@/lib/adminUserAccess";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { ServerActionResponse } from "@/types/types";
