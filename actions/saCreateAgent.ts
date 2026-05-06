@@ -6,11 +6,25 @@ import { ServerActionResponse } from "@/types/types";
 const saCreateAgent = async ({
   name,
   niceName,
+  organisationId,
+  phoneNumberId,
   providerApiKeyId,
+  modelId,
+  codeDirectory,
+  targetMessageLengthCharacters,
+  maxMessageHistory,
+  autoCloseSessionAfterSeconds,
 }: {
   name: string;
   niceName: string;
+  organisationId?: string;
+  phoneNumberId?: string;
   providerApiKeyId?: string;
+  modelId?: string;
+  codeDirectory?: string;
+  targetMessageLengthCharacters?: number;
+  maxMessageHistory?: number;
+  autoCloseSessionAfterSeconds?: number;
 }): Promise<ServerActionResponse> => {
   //check agent name is unique
   const existingAgentByName = await db("agent")
@@ -32,10 +46,14 @@ const saCreateAgent = async ({
     .insert({
       name,
       niceName,
+      organisationId: organisationId || null,
+      phoneNumberId: phoneNumberId || null,
       providerApiKeyId: providerApiKeyId || null,
-      targetMessageLengthCharacters: 130,
-      maxMessageHistory: 50,
-      autoCloseSessionAfterSeconds: 86400,
+      modelId: modelId || null,
+      codeDirectory: codeDirectory || null,
+      targetMessageLengthCharacters: targetMessageLengthCharacters ?? 130,
+      maxMessageHistory: maxMessageHistory ?? 50,
+      autoCloseSessionAfterSeconds: autoCloseSessionAfterSeconds ?? 86400,
     })
     .returning("*");
 

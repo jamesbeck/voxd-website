@@ -37,6 +37,7 @@ import {
 import ModelTab from "./modelTab";
 import JsonConfigEditor from "./JsonConfigEditor";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
+import saGetAllModels from "@/actions/saGetAllModels";
 
 export default async function Page({
   params,
@@ -86,6 +87,8 @@ export default async function Page({
   // Fetch tickets for this agent
   const ticketsResponse = await saGetTicketsByAgentId({ agentId });
   const tickets = ticketsResponse.success ? ticketsResponse.data : [];
+  const modelsResponse = await saGetAllModels();
+  const models = modelsResponse.success ? modelsResponse.data : [];
 
   return (
     <Container>
@@ -400,7 +403,7 @@ export default async function Page({
           </RecordTabs>
         </>
       )}
-      {!agent && <NewAgentForm />}
+      {!agent && <NewAgentForm models={models} />}
     </Container>
   );
 }
