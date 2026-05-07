@@ -38,6 +38,7 @@ import ModelTab from "./modelTab";
 import JsonConfigEditor from "./JsonConfigEditor";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import saGetAllModels from "@/actions/saGetAllModels";
+import AgentDomainsTab from "./AgentDomainsTab";
 
 export default async function Page({
   params,
@@ -81,8 +82,14 @@ export default async function Page({
         agentId,
       })));
 
+  const isSuperAdmin = !!token.superAdmin;
+
   const resolvedActiveTab =
-    activeTab === "config" && !canReadAgentConfig ? "info" : activeTab;
+    activeTab === "config" && !canReadAgentConfig
+      ? "info"
+      : activeTab === "domains" && !isSuperAdmin
+        ? "info"
+        : activeTab;
 
   // Fetch tickets for this agent
   const ticketsResponse = await saGetTicketsByAgentId({ agentId });
@@ -130,6 +137,15 @@ export default async function Page({
                   label: "Model",
                   href: `/admin/agents/${agentId}?tab=model`,
                 },
+                ...(isSuperAdmin
+                  ? [
+                      {
+                        value: "domains",
+                        label: "Domains",
+                        href: `/admin/agents/${agentId}?tab=domains`,
+                      },
+                    ]
+                  : []),
                 {
                   value: "sessions",
                   label: "Sessions",
@@ -281,6 +297,22 @@ export default async function Page({
                 />
               </Container>
             </TabsContent>
+            {isSuperAdmin && (
+              <TabsContent value="domains">
+                <Container>
+                  <H2>Embed Domains</H2>
+                  <p className="text-muted-foreground mb-4">
+                    Manage the production and development domain allowlists for
+                    the webchat embed.
+                  </p>
+                  <AgentDomainsTab
+                    agentId={agentId}
+                    domains={agent?.domains}
+                    developmentDomains={agent?.developmentDomains}
+                  />
+                </Container>
+              </TabsContent>
+            )}
             <TabsContent value="sessions">
               <Container>
                 <H2>Sessions</H2>
