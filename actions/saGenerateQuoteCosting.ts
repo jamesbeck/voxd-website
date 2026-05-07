@@ -47,7 +47,7 @@ const costingSchema = z.object({
   ),
 });
 
-const saGenerateQuoteCosting = async ({
+export const generateQuoteCostingInternal = async ({
   quoteId,
   source,
 }: {
@@ -65,34 +65,6 @@ const saGenerateQuoteCosting = async ({
 }> => {
   if (!quoteId) {
     return { success: false, error: "Quote ID is required" };
-  }
-
-  const accessToken = await verifyAccessToken();
-
-  if (!(await userCanViewQuote({ quoteId, accessToken }))) {
-    return { success: false, error: "Quote not found" };
-  }
-
-  const canViewCostPrice =
-    !!accessToken.superAdmin ||
-    (!!accessToken.adminUserId &&
-      (await hasAdminUserPermission({
-        adminUserId: accessToken.adminUserId,
-        permissionKey: "view_cost_price",
-      })));
-
-  if (!canViewCostPrice) {
-    return {
-      success: false,
-      error: "You don't have permission to view quote cost pricing",
-    };
-  }
-
-  if (!accessToken.superAdmin) {
-    return {
-      success: false,
-      error: "You don't have permission to update quote cost pricing",
-    };
   }
 
   const quote = await db("quote")
@@ -332,6 +304,44 @@ The following ${source} text provides context for what functions each integratio
       error: "Failed to generate costing estimate",
     };
   }
+};
+
+const saGenerateQuoteCosting = async ({
+  quoteId,
+  source,
+}: {
+  quoteId: string;
+  source: "concept" | "proposal";
+}) => {
+  const accessToken = await verifyAccessToken();
+
+  if (!(await userCanViewQuote({ quoteId, accessToken }))) {
+    return { success: false, error: "Quote not found" };
+  }
+
+  const canViewCostPrice =
+    !!accessToken.superAdmin ||
+    (!!accessToken.adminUserId &&
+      (await hasAdminUserPermission({
+        adminUserId: accessToken.adminUserId,
+        permissionKey: "view_cost_price",
+      })));
+
+  if (!canViewCostPrice) {
+    return {
+      success: false,
+      error: "You don't have permission to view quote cost pricing",
+    };
+  }
+
+  if (!accessToken.superAdmin) {
+    return {
+      success: false,
+      error: "You don't have permission to update quote cost pricing",
+    };
+  }
+
+  return generateQuoteCostingInternal({ quoteId, source });
 };
 
 export default saGenerateQuoteCosting;

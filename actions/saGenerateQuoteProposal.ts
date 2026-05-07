@@ -4,7 +4,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import saGenerateQuoteCosting from "./saGenerateQuoteCosting";
+import { generateQuoteCostingInternal } from "./saGenerateQuoteCosting";
 
 const getPartnerContext = (partnerName: string) => `## About ${partnerName}
 
@@ -340,7 +340,7 @@ Write in Markdown format. Use ## for numbered section headings, ### for subsecti
     });
 
     // Auto-generate costing breakdown based on the proposal
-    await saGenerateQuoteCosting({ quoteId, source: "proposal" });
+    await generateQuoteCostingInternal({ quoteId, source: "proposal" });
 
     return {
       success: true,

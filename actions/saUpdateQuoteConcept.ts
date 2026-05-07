@@ -2,7 +2,7 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
-import saGenerateQuoteCosting from "./saGenerateQuoteCosting";
+import { generateQuoteCostingInternal } from "./saGenerateQuoteCosting";
 
 const saUpdateQuoteConcept = async ({
   quoteId,
@@ -58,7 +58,7 @@ const saUpdateQuoteConcept = async ({
     generatedConceptIntroduction !== undefined ||
     generatedConcept !== undefined
   ) {
-    await saGenerateQuoteCosting({ quoteId, source: "concept" });
+    await generateQuoteCostingInternal({ quoteId, source: "concept" });
   }
 
   return { success: true };
