@@ -66,6 +66,9 @@ export type Quote = {
   costingBreakdown: CostingBreakdown | null;
   hourlyRate: number | null;
   hourlyRateVoxdCost: number | null;
+  partnerHourlyRateVoxdCost: number | null;
+  partnerMonthlyBaseFee: number | null;
+  partnerMonthlyPerIntegration: number | null;
   quoteIntegrations: QuoteLinkedItem[];
   quoteKnowledgeSources: QuoteLinkedItem[];
 };
@@ -77,12 +80,20 @@ export const getQuoteById = async ({
 }): Promise<Quote | null> => {
   const quote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
     .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
     .where("quote.id", quoteId)
     .select(
       "quote.*",
       "organisation.name as organisationName",
       "organisation.partnerId",
+      "partnerOrganisation.hourlyRate as partnerHourlyRateVoxdCost",
+      "partnerOrganisation.monthlyBaseFee as partnerMonthlyBaseFee",
+      "partnerOrganisation.monthlyPerIntegration as partnerMonthlyPerIntegration",
       "adminUser.name as ownerName",
       "adminUser.email as ownerEmail",
     )

@@ -84,6 +84,7 @@ export const generateQuoteCostingInternal = async ({
       "organisation.name as organisationName",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "partnerOrganisation.name as partnerName",
+      "partnerOrganisation.hourlyRate as partnerHourlyRateVoxdCost",
       "partnerOrganisation.monthlyBaseFee",
       "partnerOrganisation.monthlyPerIntegration",
     )
@@ -102,9 +103,11 @@ export const generateQuoteCostingInternal = async ({
   }
 
   const hourlyRate =
-    quote.hourlyRateVoxdCost != null
-      ? Number(quote.hourlyRateVoxdCost)
-      : DEFAULT_HOURLY_RATE;
+    quote.partnerHourlyRateVoxdCost != null
+      ? Number(quote.partnerHourlyRateVoxdCost)
+      : quote.hourlyRateVoxdCost != null
+        ? Number(quote.hourlyRateVoxdCost)
+        : DEFAULT_HOURLY_RATE;
   const monthlyBase = quote.monthlyBaseFee ?? DEFAULT_MONTHLY_BASE;
   const monthlyPerIntegration =
     quote.monthlyPerIntegration ?? DEFAULT_MONTHLY_PER_INTEGRATION;
@@ -158,6 +161,7 @@ export const generateQuoteCostingInternal = async ({
         costingBreakdown: JSON.stringify(costingBreakdown),
         setupFeeVoxdCost,
         monthlyFeeVoxdCost: costingBreakdown.totalMonthly,
+        hourlyRateVoxdCost: hourlyRate,
         buildDays: MINIMUM_BUILD_DAYS,
       });
 
@@ -285,6 +289,7 @@ The following ${source} text provides context for what functions each integratio
         costingBreakdown: JSON.stringify(costingBreakdown),
         setupFeeVoxdCost: costingBreakdown.totalIntegrationCost,
         monthlyFeeVoxdCost: costingBreakdown.totalMonthly,
+        hourlyRateVoxdCost: hourlyRate,
         buildDays,
       });
 

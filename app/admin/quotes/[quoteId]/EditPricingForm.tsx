@@ -81,12 +81,15 @@ export default function EditPricingForm({
   contractLength,
   costingBreakdown,
   hourlyRateVoxdCost,
+  monthlyBaseFeeVoxdCost,
+  monthlyPerIntegrationVoxdCost,
   hasGeneratedConcept,
   hasGeneratedProposal,
   isSuperAdmin,
   isOwnerPartner,
   canViewCostPrice,
   canWriteContractNotes,
+  integrationCount,
 }: {
   quoteId: string;
   setupFee: number | null;
@@ -100,12 +103,15 @@ export default function EditPricingForm({
   contractLength: number | null;
   costingBreakdown: CostingBreakdown | null;
   hourlyRateVoxdCost: number | null;
+  monthlyBaseFeeVoxdCost: number | null;
+  monthlyPerIntegrationVoxdCost: number | null;
   hasGeneratedConcept: boolean;
   hasGeneratedProposal: boolean;
   isSuperAdmin: boolean;
   isOwnerPartner: boolean;
   canViewCostPrice: boolean;
   canWriteContractNotes: boolean;
+  integrationCount: number;
 }) {
   const [calculatingCosting, setCalculatingCosting] = useState(false);
   const router = useRouter();
@@ -599,6 +605,28 @@ export default function EditPricingForm({
         {canEditAdminFields ? (
           <div className="border-t pt-6">
             <h3 className="text-lg font-medium mb-4">Voxd Costs</h3>
+            {hourlyRateVoxdCost != null &&
+              monthlyBaseFeeVoxdCost != null &&
+              monthlyPerIntegrationVoxdCost != null && (
+                <p className="text-sm text-muted-foreground mb-4">
+                  Calculated using current partner defaults: &pound;
+                  {hourlyRateVoxdCost.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                  })}
+                  /hr, &pound;
+                  {monthlyBaseFeeVoxdCost.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  monthly base and &pound;
+                  {monthlyPerIntegrationVoxdCost.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  per integration.
+                </p>
+              )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
@@ -769,7 +797,26 @@ export default function EditPricingForm({
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    per month
+                    {monthlyBaseFeeVoxdCost != null &&
+                    monthlyPerIntegrationVoxdCost != null ? (
+                      <>
+                        &pound;
+                        {monthlyBaseFeeVoxdCost.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        base + {integrationCount} x &pound;
+                        {monthlyPerIntegrationVoxdCost.toLocaleString(
+                          undefined,
+                          {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 2,
+                          },
+                        )}
+                      </>
+                    ) : (
+                      "per month"
+                    )}
                   </p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/50">

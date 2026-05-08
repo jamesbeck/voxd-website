@@ -338,7 +338,16 @@ export default async function Page({
                   canViewCostPrice ? quote.costingBreakdown : null
                 }
                 hourlyRateVoxdCost={
-                  canViewCostPrice ? quote.hourlyRateVoxdCost : null
+                  canViewCostPrice
+                    ? (quote.partnerHourlyRateVoxdCost ??
+                      quote.hourlyRateVoxdCost)
+                    : null
+                }
+                monthlyBaseFeeVoxdCost={
+                  canViewCostPrice ? quote.partnerMonthlyBaseFee : null
+                }
+                monthlyPerIntegrationVoxdCost={
+                  canViewCostPrice ? quote.partnerMonthlyPerIntegration : null
                 }
                 hasGeneratedConcept={!!quote.generatedConcept}
                 hasGeneratedProposal={!!quote.generatedSpecification}
@@ -346,6 +355,7 @@ export default async function Page({
                 isOwnerPartner={isOwnerPartner}
                 canViewCostPrice={canViewCostPrice}
                 canWriteContractNotes={canWriteQuoteContractNotes}
+                integrationCount={quote.quoteIntegrations.length}
               />
             </TabsContent>
             <TabsContent value="exampleConversations">
