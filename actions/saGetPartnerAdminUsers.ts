@@ -37,12 +37,14 @@ const saGetPartnerAdminUsers = async (): Promise<{
       };
     }
 
-    adminUsersQuery.whereIn(
-      "adminUser.organisationId",
-      getPartnerTreeIdsSubquery({
-        rootPartnerId: accessToken.partnerId,
-        trx: db,
-      }),
+    adminUsersQuery.whereRaw(
+      '"adminUser"."organisationId" in (?)',
+      [
+        getPartnerTreeIdsSubquery({
+          rootPartnerId: accessToken.partnerId,
+          trx: db,
+        }),
+      ],
     );
   }
 

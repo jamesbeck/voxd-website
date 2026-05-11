@@ -44,10 +44,9 @@ export const applyPartnerBranchScope = ({
   rootPartnerId: string;
   trx?: Knex | Knex.Transaction;
 }) => {
-  return query.whereIn(
-    "organisation.partnerId",
+  return query.whereRaw('"organisation"."partnerId" in (?)', [
     getPartnerTreeIdsSubquery({ rootPartnerId, trx }),
-  );
+  ]);
 };
 
 export const getAccessiblePartnerFilterOptions = async ({
@@ -75,13 +74,12 @@ export const getAccessiblePartnerFilterOptions = async ({
 
   const partners = await trx("organisation")
     .select("organisation.id", "organisation.name")
-    .whereIn(
-      "organisation.id",
+    .whereRaw('"organisation"."id" in (?)', [
       getPartnerTreeIdsSubquery({
         rootPartnerId: accessToken.partnerId,
         trx,
       }),
-    )
+    ])
     .orderByRaw('CASE WHEN "organisation"."id" = ? THEN 0 ELSE 1 END', [
       accessToken.partnerId,
     ])
