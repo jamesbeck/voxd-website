@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { saCreateAdminUser } from "@/actions/saCreateAdminUser";
 import { useRouter } from "next/navigation";
@@ -43,6 +43,15 @@ export default function NewAdminUserForm({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const getOrganisationOptions = useCallback(
+    (params: Parameters<typeof saGetOrganisationTableData>[0]) =>
+      saGetOrganisationTableData({
+        ...params,
+        includeRootPartnerOrganisation: true,
+      }),
+    [],
+  );
+
   const formSchema = getFormSchema(isSuperAdmin);
 
   // 1. Define your form.
@@ -58,7 +67,7 @@ export default function NewAdminUserForm({
   // Check if user has access to only one organisation and preselect it
   useEffect(() => {
     const checkOrganisations = async () => {
-      const response = await saGetOrganisationTableData({
+      const response = await getOrganisationOptions({
         page: 1,
         pageSize: 100,
       });
@@ -69,7 +78,7 @@ export default function NewAdminUserForm({
     };
 
     checkOrganisations();
-  }, [form]);
+  }, [form, getOrganisationOptions]);
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -163,7 +172,7 @@ export default function NewAdminUserForm({
               <FormControl>
                 <RemoteSelect
                   {...field}
-                  serverAction={saGetOrganisationTableData}
+                  serverAction={getOrganisationOptions}
                   label={(record) => `${record.name}`}
                   valueField="id"
                   sortField="name"

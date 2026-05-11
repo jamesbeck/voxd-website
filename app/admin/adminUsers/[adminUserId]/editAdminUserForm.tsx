@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { saUpdateAdminUser } from "@/actions/saUpdateAdminUser";
 import { useRouter } from "next/navigation";
@@ -53,6 +53,15 @@ export default function EditAdminUserForm({
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const getOrganisationOptions = useCallback(
+    (params: Parameters<typeof saGetOrganisationTableData>[0]) =>
+      saGetOrganisationTableData({
+        ...params,
+        includeRootPartnerOrganisation: true,
+      }),
+    [],
+  );
 
   void _superAdmin;
 
@@ -169,7 +178,7 @@ export default function EditAdminUserForm({
                 <FormControl>
                   <RemoteSelect
                     {...field}
-                    serverAction={saGetOrganisationTableData}
+                    serverAction={getOrganisationOptions}
                     label={(record) => `${record.name}`}
                     valueField="id"
                     sortField="name"
@@ -194,7 +203,7 @@ export default function EditAdminUserForm({
                 <FormControl>
                   <RemoteSelect
                     {...field}
-                    serverAction={saGetOrganisationTableData}
+                    serverAction={getOrganisationOptions}
                     label={(record) => `${record.name}`}
                     valueField="id"
                     sortField="name"

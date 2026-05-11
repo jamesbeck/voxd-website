@@ -6,6 +6,7 @@ import H1 from "@/components/adminui/H1";
 import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
 import QuotesTable from "@/components/admin/QuotesTable";
 import NewQuoteButton from "@/components/admin/NewQuoteButton";
+import { getAccessiblePartnerFilterOptions } from "@/lib/organisationAccess";
 import { canAdminUserReadAllQuotes } from "@/lib/quoteAccess";
 
 export default async function Page() {
@@ -16,6 +17,9 @@ export default async function Page() {
   const isSuperAdmin = accessToken?.superAdmin ?? false;
   const partnerId = accessToken?.partnerId ?? null;
   const canReadAllQuotes = await canAdminUserReadAllQuotes({ accessToken });
+  const partnerFilterOptions = await getAccessiblePartnerFilterOptions({
+    accessToken,
+  });
 
   return (
     <Container>
@@ -32,6 +36,7 @@ export default async function Page() {
         isSuperAdmin={isSuperAdmin}
         userPartnerId={partnerId}
         showOwnerFilter={canReadAllQuotes}
+        partnerFilterOptions={partnerFilterOptions}
       />
     </Container>
   );

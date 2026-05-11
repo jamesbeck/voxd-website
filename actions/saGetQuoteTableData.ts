@@ -7,6 +7,7 @@ import {
   ServerActionReadParams,
 } from "@/types/types";
 import { applyQuoteReadScope } from "@/lib/quoteAccess";
+import { applyPartnerBranchScope } from "@/lib/organisationAccess";
 
 const saGetQuoteTableData = async ({
   search,
@@ -71,9 +72,11 @@ const saGetQuoteTableData = async ({
     accessToken,
   });
 
-  // Allow superAdmins to filter by a specific partnerId
-  if (accessToken?.superAdmin && partnerId) {
-    base.where("organisation.partnerId", partnerId);
+  if ((accessToken?.superAdmin || accessToken?.partner) && partnerId) {
+    applyPartnerBranchScope({
+      query: base,
+      rootPartnerId: partnerId,
+    });
   }
 
   // Filter by owner (createdByAdminUserId)

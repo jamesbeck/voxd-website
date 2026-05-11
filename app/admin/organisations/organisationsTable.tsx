@@ -4,41 +4,40 @@ import { useMemo } from "react";
 import DataTable from "@/components/adminui/Table";
 import TableFilters from "@/components/adminui/TableFilters";
 import Image from "next/image";
+import { ArrowRight, X } from "lucide-react";
 import saGetOrganisationTableData from "@/actions/saGetOrganisationTableData";
-import saGetAllPartners from "@/actions/saGetAllPartners";
 import saGetPartnerAdminUsers from "@/actions/saGetPartnerAdminUsers";
 import { useTableFilters } from "@/hooks/useTableFilters";
-import { TableFilterConfig } from "@/types/types";
+import { TableFilterConfig, TableFilterOption } from "@/types/types";
 import TableActions from "@/components/admin/TableActions";
 
 interface OrganisationsTableProps {
   isSuperAdmin?: boolean;
   userPartnerId?: string | null;
   showOwnerFilter?: boolean;
+  partnerFilterOptions?: TableFilterOption[];
 }
 
 const OrganisationsTable = ({
   isSuperAdmin,
   userPartnerId,
   showOwnerFilter = true,
+  partnerFilterOptions = [],
 }: OrganisationsTableProps) => {
+  const showPartnerFilter = isSuperAdmin || partnerFilterOptions.length > 1;
+
   // Define filter configuration
   const filterConfig: TableFilterConfig[] = useMemo(
     () => [
-      // Partner filter (only for super admins)
-      ...(isSuperAdmin
+      ...(showPartnerFilter
         ? [
             {
               name: "partnerId",
               label: "Partner",
               type: "select" as const,
-              // Default to logged-in user's partner
-              defaultValue: userPartnerId || "",
+              defaultValue: "",
               placeholder: "All Partners",
-              loadOptions: async () => {
-                const result = await saGetAllPartners();
-                return result.success && result.data ? result.data : [];
-              },
+              options: partnerFilterOptions,
             },
           ]
         : []),
@@ -57,8 +56,14 @@ const OrganisationsTable = ({
             },
           ]
         : []),
+      {
+        name: "partnersOnly",
+        label: "Partners only",
+        type: "switch" as const,
+        defaultValue: false,
+      },
     ],
-    [isSuperAdmin, showOwnerFilter, userPartnerId],
+    [partnerFilterOptions, showOwnerFilter, showPartnerFilter],
   );
 
   // Use the table filters hook with localStorage persistence
@@ -121,6 +126,48 @@ const OrganisationsTable = ({
       format: (row: any) => row.name || "",
     },
     {
+      label: "Partner",
+      name: "partner",
+      sort: true,
+      format: (row: any) => {
+        const partnerStructure = Array.isArray(row.partnerStructure)
+          ? row.partnerStructure.filter(Boolean)
+          : [];
+        const displayedPartnerStructure =
+          userPartnerId && row.partnerId === userPartnerId
+            ? partnerStructure.slice(1)
+            : partnerStructure;
+
+        if (!row.partner) {
+          return (
+            <X className="h-4 w-4 text-muted-foreground" aria-label="No" />
+          );
+        }
+
+        if (row.partnerId && userPartnerId && row.partnerId === userPartnerId) {
+          return <span>Direct</span>;
+        }
+
+        return (
+          <div className="flex flex-wrap items-center gap-1 text-sm">
+            {displayedPartnerStructure.map(
+              (partnerName: string, index: number) => (
+                <div
+                  key={`${row.id}-${partnerName}-${index}`}
+                  className="flex items-center gap-1"
+                >
+                  {index > 0 ? (
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  ) : null}
+                  <span>{partnerName}</span>
+                </div>
+              ),
+            )}
+          </div>
+        );
+      },
+    },
+    {
       label: "Owner",
       name: "ownerName",
       sort: true,
@@ -145,6 +192,7 @@ const OrganisationsTable = ({
   );
 
   const getDataParams = {
+    ...(filterValues.partnersOnly ? { partner: true } : {}),
     // Add partner filter if set (super admin only - server enforces this)
     ...(filterValues.partnerId
       ? { partnerId: filterValues.partnerId as string }

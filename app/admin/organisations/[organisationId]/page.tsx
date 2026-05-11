@@ -17,7 +17,6 @@ import AboutTab from "./aboutTab";
 import LogoTab from "./logoTab";
 import ProviderApiKeysTable from "@/app/admin/provider-api-keys/providerApiKeysTable";
 import userCanViewOrganisation from "@/lib/organisationAccess";
-import EditPartnerDetailsForm from "./partnerSettings/EditPartnerDetailsForm";
 import EditPartnerDomainsForm from "./partnerSettings/EditPartnerDomainsForm";
 import EditPartnerApiKeysForm from "./partnerSettings/EditPartnerApiKeysForm";
 import EditPartnerPrototypingForm from "./partnerSettings/EditPartnerPrototypingForm";
@@ -44,7 +43,7 @@ export default async function Page({
     }));
 
   const organisationId = (await params).organisationId;
-  const activeTab = (await searchParams).tab || "agents";
+  const requestedTab = (await searchParams).tab || "agents";
 
   let organisation;
 
@@ -63,6 +62,7 @@ export default async function Page({
 
   const showPartnerTabs =
     !!organisation?.partner && (token.superAdmin || token.partner);
+  const activeTab = requestedTab === "partnerDetails" ? "about" : requestedTab;
 
   let providerApiKeyLabel: string | undefined;
   let prototypingAgentLabel: string | undefined;
@@ -160,11 +160,6 @@ export default async function Page({
                 },
                 ...(showPartnerTabs
                   ? [
-                      {
-                        value: "partnerDetails",
-                        label: "Partner Details",
-                        href: `/admin/organisations/${organisation.id}?tab=partnerDetails`,
-                      },
                       {
                         value: "partnerDomains",
                         label: "Domains",
@@ -266,16 +261,6 @@ export default async function Page({
                 <AgentsTable organisationId={organisation.id} />
               </Container>
             </TabsContent>
-            {showPartnerTabs ? (
-              <TabsContent value="partnerDetails">
-                <Container>
-                  <EditPartnerDetailsForm
-                    partnerId={organisation.id}
-                    name={organisation.name}
-                  />
-                </Container>
-              </TabsContent>
-            ) : null}
             {showPartnerTabs ? (
               <TabsContent value="partnerDomains">
                 <Container>

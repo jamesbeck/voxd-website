@@ -13,9 +13,8 @@ import {
 } from "@/components/ui/tooltip";
 import saGetQuoteTableData from "@/actions/saGetQuoteTableData";
 import saGetPartnerAdminUsers from "@/actions/saGetPartnerAdminUsers";
-import saGetAllPartners from "@/actions/saGetAllPartners";
 import { useTableFilters } from "@/hooks/useTableFilters";
-import { TableFilterConfig } from "@/types/types";
+import { TableFilterConfig, TableFilterOption } from "@/types/types";
 import { format, isToday, isPast, startOfDay } from "date-fns";
 import TableActions from "@/components/admin/TableActions";
 
@@ -81,15 +80,19 @@ interface QuotesTableProps {
   isSuperAdmin?: boolean;
   userPartnerId?: string | null;
   showOwnerFilter?: boolean;
+  partnerFilterOptions?: TableFilterOption[];
 }
 
 const QuotesTable = ({
   organisationId,
   partnerId,
-  isSuperAdmin,
   userPartnerId,
   showOwnerFilter = true,
+  partnerFilterOptions = [],
 }: QuotesTableProps) => {
+  const showPartnerFilter =
+    !organisationId && !partnerId && partnerFilterOptions.length > 1;
+
   // Define filter configuration
   const filterConfig: TableFilterConfig[] = useMemo(
     () => [
@@ -102,20 +105,15 @@ const QuotesTable = ({
         placeholder: "All Statuses",
         options: STATUS_OPTIONS,
       },
-      // Partner filter (only for super admins, not on organisation page, not when partnerId prop is set)
-      ...(isSuperAdmin && !organisationId && !partnerId
+      ...(showPartnerFilter
         ? [
             {
               name: "partnerId",
               label: "Partner",
               type: "select" as const,
-              // Default to logged-in user's partner
-              defaultValue: userPartnerId || "",
+              defaultValue: "",
               placeholder: "All Partners",
-              loadOptions: async () => {
-                const result = await saGetAllPartners();
-                return result.success && result.data ? result.data : [];
-              },
+              options: partnerFilterOptions,
             },
           ]
         : []),
@@ -136,7 +134,7 @@ const QuotesTable = ({
           ]
         : []),
     ],
-    [organisationId, partnerId, isSuperAdmin, showOwnerFilter, userPartnerId],
+    [organisationId, partnerFilterOptions, showOwnerFilter, showPartnerFilter],
   );
 
   // Use the table filters hook with localStorage persistence
@@ -276,15 +274,30 @@ const QuotesTable = ({
           ? format(new Date(row.lastViewedAt), "dd/MM/yyyy HH:mm")
           : "-",
     },
-    // Only show Partner column for super admins on the main quotes page
-    ...(isSuperAdmin && !organisationId
+    ...(!organisationId
       ? [
           {
             label: "Partner",
             name: "partnerName",
             sort: true,
-            linkTo: (row: any) => `/admin/organisations/${row.partnerId}`,
-            format: (row: any) => row.partnerName || "-",
+            format: (row: any) => {
+              if (row.partnerId && row.partnerId === userPartnerId) {
+                return "Direct";
+              }
+
+              if (!row.partnerId) {
+                return row.partnerName || "-";
+              }
+
+              return (
+                <Link
+                  href={`/admin/organisations/${row.partnerId}`}
+                  className="hover:underline"
+                >
+                  {row.partnerName || "-"}
+                </Link>
+              );
+            },
           },
         ]
       : []),

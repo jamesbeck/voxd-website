@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { TableFilterOption } from "@/types/types";
+import { getPartnerTreeIdsSubquery } from "@/lib/organisationAccess";
 
 /**
  * Get admin users belonging to partner organisations.
@@ -36,7 +37,13 @@ const saGetPartnerAdminUsers = async (): Promise<{
       };
     }
 
-    adminUsersQuery.where("adminUser.organisationId", accessToken.partnerId);
+    adminUsersQuery.whereIn(
+      "adminUser.organisationId",
+      getPartnerTreeIdsSubquery({
+        rootPartnerId: accessToken.partnerId,
+        trx: db,
+      }),
+    );
   }
 
   const adminUsers = await adminUsersQuery;

@@ -1,6 +1,7 @@
 import db from "@/database/db";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { applyPartnerBranchScope } from "@/lib/organisationAccess";
 import { AccessTokenPayload } from "@/types/tokenTypes";
 import { Knex } from "knex";
 
@@ -43,7 +44,11 @@ export const applyQuoteReadScope = async ({
     return query.whereRaw("1 = 0");
   }
 
-  query.where("organisation.partnerId", accessToken.partnerId);
+  applyPartnerBranchScope({
+    query,
+    rootPartnerId: accessToken.partnerId!,
+    trx,
+  });
 
   const canReadAllQuotes = await canAdminUserReadAllQuotes({
     accessToken,

@@ -80,7 +80,10 @@ function SelectFilter({ filter, value, onChange }: SelectFilterProps) {
         onValueChange={handleChange}
         disabled={loading && !loaded}
       >
-        <SelectTrigger id={`filter-${filter.name}`} className="w-[200px]">
+        <SelectTrigger
+          id={`filter-${filter.name}`}
+          className="w-[148px] min-[720px]:w-[200px]"
+        >
           {loading && !loaded ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -114,13 +117,16 @@ interface SwitchFilterProps {
 
 function SwitchFilter({ filter, value, onChange }: SwitchFilterProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex h-9 items-center gap-2">
       <Switch
         id={`filter-${filter.name}`}
         checked={value}
         onCheckedChange={onChange}
       />
-      <Label htmlFor={`filter-${filter.name}`} className="text-sm font-medium">
+      <Label
+        htmlFor={`filter-${filter.name}`}
+        className="text-sm font-medium leading-none"
+      >
         {filter.label}
       </Label>
     </div>
@@ -136,9 +142,12 @@ export default function TableFilters({
 }: TableFiltersProps) {
   if (filters.length === 0) return null;
 
+  const selectFilters = filters.filter((filter) => filter.type === "select");
+  const switchFilters = filters.filter((filter) => filter.type === "switch");
+
   return (
-    <div className="flex flex-wrap items-end gap-4 mb-4">
-      {filters.map((filter) => {
+    <div className="mb-4 flex flex-wrap items-start gap-3 min-[720px]:gap-4">
+      {selectFilters.map((filter) => {
         if (filter.type === "select") {
           return (
             <SelectFilter
@@ -164,16 +173,35 @@ export default function TableFilters({
         return null;
       })}
 
-      {hasActiveFilters && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClear}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <X className="h-4 w-4 mr-1" />
-          Clear filters
-        </Button>
+      {(switchFilters.length > 0 || hasActiveFilters) && (
+        <div className="flex flex-wrap items-start gap-3 pt-[26px] min-[720px]:gap-4">
+          {switchFilters.map((filter) => {
+            if (filter.type === "switch") {
+              return (
+                <SwitchFilter
+                  key={filter.name}
+                  filter={filter}
+                  value={(values[filter.name] as boolean) || false}
+                  onChange={(value) => onChange(filter.name, value)}
+                />
+              );
+            }
+
+            return null;
+          })}
+
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClear}
+              className="h-9 whitespace-nowrap text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear filters
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

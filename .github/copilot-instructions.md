@@ -16,6 +16,147 @@ Use the open ai key of the relevant partner, either logged in OR the partner tha
 
 See [user-access-levels.md](.github/user-access-levels.md) for detailed documentation on the three user levels (Admin, Partner, Organisation) and what data each can access.
 
+## Multi-level Partners
+
+Partners now form a recursive tree, not a single parent-child level.
+
+### Data model
+
+- The source of truth is `organisation.partnerId`.
+- A partner organisation is any `organisation` row with `partner = true`.
+- A sub-partner is a partner whose `partnerId` points to another partner organisation.
+- This can recurse to arbitrary depth: partner -> sub-partner -> sub-sub-partner -> ...
+- Customer organisations still point at the partner that directly owns them via `organisation.partnerId`.
+- Do **not** assume `partnerId === top-level partner`. In many places it now means the immediate parent partner.
+
+### Architectural rule
+
+- Do **not** write new one-hop checks such as `where("organisation.partnerId", accessToken.partnerId)` for partner-scoped access unless you are intentionally limiting to direct children only.
+- Default to branch-scoped helpers for reads, filters, and option lists.
+- Keep `partnerId` as the normalized parent pointer. Do not introduce denormalized path fields in this project unless there is a measured performance reason and the model is intentionally being changed.
+
+### Shared helpers
+
+The main partner-tree helpers live in `lib/organisationAccess.ts`:
+
+- `getPartnerTreeIdsSubquery({ rootPartnerId, trx })`
+  Returns a recursive SQL subquery containing the root partner and all descendant partner ids.
+- `applyPartnerBranchScope({ query, rootPartnerId, trx })`
+  Applies branch scoping to queries that join `organisation` and should only see rows owned by any partner in the subtree.
+- `getAccessiblePartnerFilterOptions({ accessToken, trx })`
+  Builds partner filter options for the current user.
+  For super admins, this returns all partners.
+  For partner users, this returns themselves plus all descendant partners.
+- `applyOrganisationReadScope({ query, accessToken, trx })`
+  Applies the current organisation visibility rules, including multi-level partner scope.
+
+The quote-specific read helper lives in `lib/quoteAccess.ts`:
+
+- `applyQuoteReadScope({ query, accessToken, trx })`
+  Applies the same partner branch semantics to quote queries.
+
+### Current usage
+
+These are the current reference implementations for multi-level partner behavior:
+
+- `actions/saGetOrganisationTableData.ts`
+  Organisation table data uses branch-scoped partner filtering and a recursive partner lineage display field.
+- `actions/saGetQuoteTableData.ts`
+  Quote table data uses branch-scoped quote filtering and branch-scoped partner filters.
+- `actions/saGetPartnerAdminUsers.ts`
+  Owner filter options include admin users from the current partner and all descendant partner organisations.
+- `app/admin/organisations/page.tsx`
+  Preloads partner filter options server-side.
+- `app/admin/quotes/page.tsx`
+  Preloads partner filter options server-side for quotes.
+
+### Query patterns
+
+Use these patterns by default when working with partner-scoped data:
+
+1. For organisation-backed reads:
+   Use `applyOrganisationReadScope(...)`.
+2. For quote-backed reads:
+   Use `applyQuoteReadScope(...)`.
+3. For a filter that selects a partner and should include descendants:
+   Apply `applyPartnerBranchScope({ query, rootPartnerId })`.
+4. For partner dropdowns:
+   Use `getAccessiblePartnerFilterOptions(...)`.
+5. For owner/admin-user dropdowns scoped to a partner tree:
+   Use `getPartnerTreeIdsSubquery(...)` with `whereIn("adminUser.organisationId", ...)`.
+
+### SQL / Knex guidance
+
+- Prefer one recursive CTE/subquery over fetching ids in application code and then issuing multiple follow-up queries.
+- Use `whereIn(..., getPartnerTreeIdsSubquery(...))` when you need rows attached directly to partner organisations in the subtree.
+- Use `applyPartnerBranchScope(...)` when the query already joins `organisation` and the intended rule is “any organisation whose direct parent partner is anywhere in this branch”.
+- If you need to show partner ancestry for UI display, compute it in SQL with a recursive CTE rather than walking the tree client-side.
+
+### Cycle safety
+
+- Existing data may contain bad partner loops or self-links.
+- Any recursive display query that walks upward through partner ancestors must protect against cycles.
+- See `actions/saGetOrganisationTableData.ts` for the current safe lineage pattern, which tracks a visited path and avoids revisiting ids.
+- When adding new recursive CTEs, do not assume the data is perfectly acyclic.
+
+### UI and filter rules
+
+- Partner filters should not be super-admin-only by default anymore.
+- For partner users, partner filters should include the logged-in partner plus all descendant partners.
+- Hide a partner filter when the only available option is the logged-in partner.
+- Owner filters for partner users should include admin users from any partner organisation in the visible subtree where that filter is supposed to operate.
+- Keep server enforcement aligned with the UI filter behavior. UI-only widening is not sufficient.
+
+### Table display conventions
+
+- On the organisations index, the Partner column now represents branch position:
+  - non-partner rows show `X`
+  - rows directly owned by the logged-in partner show `Direct`
+  - deeper descendant partners show an arrow-separated partner path with the logged-in partner omitted from the front of the display
+- On the quotes table, the Partner column is visible on the main quotes page for partners as well as super admins.
+  - If the quote belongs to the logged-in partner, show `Direct` without a link.
+  - Otherwise show the partner name and link to the partner organisation.
+
+### When updating older code
+
+- Search for direct checks against `organisation.partnerId` and review whether they should become subtree-aware.
+- Search for any partner filter loaders that still assume “all partners” is super-admin-only.
+- Search for owner/admin-user dropdown loaders that only include the current partner organisation and decide whether they should include descendant partners.
+- Keep organisation and quote behavior aligned unless there is a deliberate product reason for them to differ.
+
+### Helpful files to inspect first
+
+- `lib/organisationAccess.ts`
+- `lib/quoteAccess.ts`
+- `actions/saGetOrganisationTableData.ts`
+- `actions/saGetQuoteTableData.ts`
+- `actions/saGetPartnerAdminUsers.ts`
+- `app/admin/organisations/page.tsx`
+- `app/admin/quotes/page.tsx`
+- `app/admin/organisations/organisationsTable.tsx`
+- `components/admin/QuotesTable.tsx`
+
+### Helpful searches
+
+When auditing old code, these searches are high signal:
+
+- `organisation.partnerId`
+- `accessToken.partnerId`
+- `where("organisation.partnerId", accessToken.partnerId)`
+- `where("adminUser.organisationId", accessToken.partnerId)`
+- `saGetAllPartners`
+- `saGetPartnerAdminUsers`
+- `applyOrganisationReadScope`
+- `applyQuoteReadScope`
+- `applyPartnerBranchScope`
+
+### Important caveat
+
+- `applyPartnerBranchScope(...)` currently scopes by `organisation.partnerId IN <partner subtree ids>`.
+- That is correct for “organisations or quotes owned by any partner in this branch”.
+- It does **not** by itself return the root partner organisation row unless that row is matched by some other condition.
+- If a feature needs to include the root partner organisation itself, handle that intentionally instead of assuming branch scoping includes it automatically.
+
 ## Permissions
 
 This project now has two permission layers for admin-facing features:
