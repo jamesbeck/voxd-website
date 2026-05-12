@@ -62,7 +62,13 @@ export default async function Page({
 
   const showPartnerTabs =
     !!organisation?.partner && (token.superAdmin || token.partner);
-  const activeTab = requestedTab === "partnerDetails" ? "about" : requestedTab;
+  const canViewPartnerPricing = !!organisation?.partner && token.superAdmin;
+  const normalizedRequestedTab =
+    requestedTab === "partnerDetails" ? "about" : requestedTab;
+  const activeTab =
+    normalizedRequestedTab === "partnerPricing" && !canViewPartnerPricing
+      ? "about"
+      : normalizedRequestedTab;
 
   let providerApiKeyLabel: string | undefined;
   let prototypingAgentLabel: string | undefined;
@@ -195,7 +201,10 @@ export default async function Page({
                         label: "Contact & Legal",
                         href: `/admin/organisations/${organisation.id}?tab=partnerContactLegal`,
                       },
-                    ]
+                    ].filter(
+                      (tab) =>
+                        tab.value !== "partnerPricing" || canViewPartnerPricing,
+                    )
                   : []),
                 ...(token.superAdmin || token.partner
                   ? [
@@ -311,7 +320,7 @@ export default async function Page({
                 </Container>
               </TabsContent>
             ) : null}
-            {showPartnerTabs ? (
+            {canViewPartnerPricing ? (
               <TabsContent value="partnerPricing">
                 <Container>
                   <EditPartnerPricingForm

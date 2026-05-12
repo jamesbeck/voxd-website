@@ -40,7 +40,19 @@ const saUpdateQuotePricing = async ({
   // Find the existing quote with organisation data
   const existingQuote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
-    .select("quote.*", "organisation.partnerId")
+    .leftJoin(
+      "organisation as partnerOrganisation",
+      "organisation.partnerId",
+      "partnerOrganisation.id",
+    )
+    .leftJoin(
+      "organisation as parentPartnerOrganisation",
+      "partnerOrganisation.partnerId",
+      "parentPartnerOrganisation.id",
+    )
+    .select("quote.*", "organisation.partnerId as partnerId")
+    .select("partnerOrganisation.partnerId as parentPartnerId")
+    .select("parentPartnerOrganisation.name as parentPartnerName")
     .where({ "quote.id": quoteId })
     .first();
 
@@ -55,6 +67,7 @@ const saUpdateQuotePricing = async ({
   const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && accessToken.partnerId === existingQuote.partnerId;
+  const partnerBrandName = existingQuote.parentPartnerName?.trim() || "Voxd";
   const canWriteContractNotes =
     !!isSuperAdmin ||
     (!!isOwnerPartner &&
@@ -109,12 +122,12 @@ const saUpdateQuotePricing = async ({
           error:
             minimumPartnerContractLength < 12
               ? `Contract length must be at least ${minimumPartnerContractLength} months because this quote has already been approved below 12 months.`
-              : "Contract length must be at least 12 months. Contact Voxd if you need a shorter contract.",
+              : `Contract length must be at least 12 months. Contact ${partnerBrandName} if you need a shorter contract.`,
           fieldErrors: {
             contractLength:
               minimumPartnerContractLength < 12
-                ? `Enter ${minimumPartnerContractLength} months or more, or ask Voxd to approve a shorter term.`
-                : "Enter 12 months or more, or ask Voxd to approve a shorter term.",
+                ? `Enter ${minimumPartnerContractLength} months or more, or ask ${partnerBrandName} to approve a shorter term.`
+                : `Enter 12 months or more, or ask ${partnerBrandName} to approve a shorter term.`,
           },
         };
       }
@@ -122,7 +135,7 @@ const saUpdateQuotePricing = async ({
     }
   }
 
-  // Only super admins can update the Voxd cost fields, buildDays, and freeMonthlyMinutes
+  // Only super admins can update the partner cost fields, buildDays, and freeMonthlyMinutes
   if (isSuperAdmin) {
     if (setupFeeVoxdCost !== undefined)
       updateData.setupFeeVoxdCost = setupFeeVoxdCost;

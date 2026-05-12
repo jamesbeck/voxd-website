@@ -70,6 +70,7 @@ type PricingFieldName = keyof FormValues;
 
 export default function EditPricingForm({
   quoteId,
+  parentPartnerName,
   setupFee,
   monthlyFee,
   hourlyRate,
@@ -92,6 +93,7 @@ export default function EditPricingForm({
   integrationCount,
 }: {
   quoteId: string;
+  parentPartnerName: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
   hourlyRate: number | null;
@@ -124,6 +126,10 @@ export default function EditPricingForm({
   const canEditPartnerFields = isOwnerPartner || isSuperAdmin;
   const canEditAdminFields = isSuperAdmin;
   const showCostPricing = canEditAdminFields || canViewCostPrice;
+  const partnerBrandName = parentPartnerName?.trim() || "Voxd";
+  const partnerBrandPossessive = partnerBrandName.endsWith("s")
+    ? `${partnerBrandName}'`
+    : `${partnerBrandName}'s`;
   const minimumPartnerContractLength =
     !isSuperAdmin && contractLength != null && contractLength < 12
       ? contractLength
@@ -543,8 +549,8 @@ export default function EditPricingForm({
                           Contract length in months. Minimum{" "}
                           {minimumPartnerContractLength} months.
                           {minimumPartnerContractLength < 12
-                            ? " Voxd has already approved a shorter term for this quote."
-                            : " Contact Voxd if you need a shorter contract length."}
+                            ? ` ${partnerBrandName} has already approved a shorter term for this quote.`
+                            : ` Contact ${partnerBrandName} if you need a shorter contract length.`}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -601,10 +607,12 @@ export default function EditPricingForm({
           )}
         />
 
-        {/* Voxd Costs - editable form for super admin, professional read-only card for others */}
+        {/* Partner costs - editable form for super admin, professional read-only card for others */}
         {canEditAdminFields ? (
           <div className="border-t pt-6">
-            <h3 className="text-lg font-medium mb-4">Voxd Costs</h3>
+            <h3 className="text-lg font-medium mb-4">
+              {partnerBrandName} Costs
+            </h3>
             {hourlyRateVoxdCost != null &&
               monthlyBaseFeeVoxdCost != null &&
               monthlyPerIntegrationVoxdCost != null && (
@@ -633,12 +641,12 @@ export default function EditPricingForm({
                 name="setupFeeVoxdCost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Setup Fee (Voxd Cost)</FormLabel>
+                    <FormLabel>Setup Fee ({partnerBrandName} Cost)</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="0" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Voxd&apos;s cost for setup
+                      {partnerBrandPossessive} cost for setup
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -650,11 +658,13 @@ export default function EditPricingForm({
                 name="monthlyFeeVoxdCost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Monthly Fee (Voxd Cost)</FormLabel>
+                    <FormLabel>Monthly Fee ({partnerBrandName} Cost)</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="0" {...field} />
                     </FormControl>
-                    <FormDescription>Voxd&apos;s monthly cost</FormDescription>
+                    <FormDescription>
+                      {partnerBrandPossessive} monthly cost
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -713,10 +723,12 @@ export default function EditPricingForm({
         ) : showCostPricing ? (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Voxd Service Pricing</CardTitle>
+              <CardTitle className="text-base">
+                {partnerBrandName} Service Pricing
+              </CardTitle>
               <CardDescription>
-                What your partner account will be charged by Voxd for this
-                chatbot
+                What your partner account will be charged by {partnerBrandName}{" "}
+                for this chatbot
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -797,26 +809,7 @@ export default function EditPricingForm({
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {monthlyBaseFeeVoxdCost != null &&
-                    monthlyPerIntegrationVoxdCost != null ? (
-                      <>
-                        &pound;
-                        {monthlyBaseFeeVoxdCost.toLocaleString(undefined, {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        base + {integrationCount} x &pound;
-                        {monthlyPerIntegrationVoxdCost.toLocaleString(
-                          undefined,
-                          {
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 2,
-                          },
-                        )}
-                      </>
-                    ) : (
-                      "per month"
-                    )}
+                    per month
                   </p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/50">

@@ -2,6 +2,16 @@
 
 import { useEffect } from "react";
 
+const waitForVoxdChat = async (timeoutMs = 3000) => {
+  const deadline = Date.now() + timeoutMs;
+
+  while (!window.VoxdChat && Date.now() < deadline) {
+    await new Promise((resolve) => window.setTimeout(resolve, 50));
+  }
+
+  return window.VoxdChat;
+};
+
 type ChatIdentifyParams = {
   externalId: string;
   email?: string;
@@ -15,6 +25,7 @@ declare global {
   interface Window {
     VoxdChat?: {
       identify: (params: ChatIdentifyParams) => Promise<void>;
+      open: () => void;
       setUserData: (data: ChatData) => Promise<void>;
       setSessionData: (data: ChatData) => Promise<void>;
     };
@@ -45,7 +56,6 @@ export default function ChatEmbed({
     script.setAttribute("data-agent-id", agentId);
     script.setAttribute("data-mode", "fullscreen");
     script.setAttribute("data-color", primaryColour);
-    script.setAttribute("data-auto-open", "true");
     if (brandAsOrganisationId) {
       script.setAttribute(
         "data-brand-as-organisation-id",
@@ -54,21 +64,25 @@ export default function ChatEmbed({
     }
 
     script.addEventListener("load", () => {
-      if (cancelled || !window.VoxdChat) return;
-
       void (async () => {
         try {
+          const chat = await waitForVoxdChat();
+
+          if (cancelled || !chat) return;
+
           if (identify) {
-            await window.VoxdChat?.identify(identify);
+            await chat.identify(identify);
           }
 
           if (userData) {
-            await window.VoxdChat?.setUserData(userData);
+            await chat.setUserData(userData);
           }
 
           if (sessionData) {
-            await window.VoxdChat?.setSessionData(sessionData);
+            await chat.setSessionData(sessionData);
           }
+
+          chat.open();
         } catch (error) {
           console.error("Failed to configure VoxdChat widget", error);
         }

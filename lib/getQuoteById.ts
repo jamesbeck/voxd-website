@@ -33,7 +33,9 @@ export type Quote = {
   createdAt: string;
   organisationId: string;
   organisationName: string;
-  partnerId: string;
+  partnerId: string | null;
+  parentPartnerId: string | null;
+  parentPartnerName: string | null;
   status: string;
   background: string | null;
   objectives: string | null;
@@ -85,15 +87,22 @@ export const getQuoteById = async ({
       "organisation.partnerId",
       "partnerOrganisation.id",
     )
+    .leftJoin(
+      "organisation as parentPartnerOrganisation",
+      "partnerOrganisation.partnerId",
+      "parentPartnerOrganisation.id",
+    )
     .leftJoin("adminUser", "quote.createdByAdminUserId", "adminUser.id")
     .where("quote.id", quoteId)
     .select(
       "quote.*",
       "organisation.name as organisationName",
-      "organisation.partnerId",
-      "partnerOrganisation.hourlyRate as partnerHourlyRateVoxdCost",
-      "partnerOrganisation.monthlyBaseFee as partnerMonthlyBaseFee",
-      "partnerOrganisation.monthlyPerIntegration as partnerMonthlyPerIntegration",
+      "organisation.partnerId as partnerId",
+      "partnerOrganisation.partnerId as parentPartnerId",
+      "parentPartnerOrganisation.name as parentPartnerName",
+      "parentPartnerOrganisation.hourlyRate as partnerHourlyRateVoxdCost",
+      "parentPartnerOrganisation.monthlyBaseFee as partnerMonthlyBaseFee",
+      "parentPartnerOrganisation.monthlyPerIntegration as partnerMonthlyPerIntegration",
       "adminUser.name as ownerName",
       "adminUser.email as ownerEmail",
     )

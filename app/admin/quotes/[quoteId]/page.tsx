@@ -319,6 +319,7 @@ export default async function Page({
             <TabsContent value="pricing">
               <EditPricingForm
                 quoteId={quote.id}
+                parentPartnerName={quote.parentPartnerName}
                 setupFee={quote.setupFee}
                 monthlyFee={quote.monthlyFee}
                 hourlyRate={quote.hourlyRate}
