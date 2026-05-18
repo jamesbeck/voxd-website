@@ -32,6 +32,9 @@ const getOrganisationById = async ({
   hourlyRate?: number | null;
   monthlyBaseFee?: number | null;
   monthlyPerIntegration?: number | null;
+  defaultSubPartnerMarkupSetupFee?: number | null;
+  defaultSubPartnerMarkupMonthlyFee?: number | null;
+  defaultSubPartnerMarkupHourlyRate?: number | null;
 }> => {
   const organisation = await db("organisation")
     .leftJoin("adminUser", "organisation.id", "adminUser.organisationId")

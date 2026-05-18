@@ -28,6 +28,9 @@ const saUpdatePartner = async ({
   hourlyRate,
   monthlyBaseFee,
   monthlyPerIntegration,
+  defaultSubPartnerMarkupSetupFee,
+  defaultSubPartnerMarkupMonthlyFee,
+  defaultSubPartnerMarkupHourlyRate,
 }: {
   partnerId: string;
   name?: string;
@@ -48,13 +51,20 @@ const saUpdatePartner = async ({
   hourlyRate?: number | null;
   monthlyBaseFee?: number | null;
   monthlyPerIntegration?: number | null;
+  defaultSubPartnerMarkupSetupFee?: number | null;
+  defaultSubPartnerMarkupMonthlyFee?: number | null;
+  defaultSubPartnerMarkupHourlyRate?: number | null;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.superAdmin)
+  const canUpdatePartner =
+    accessToken.superAdmin ||
+    (accessToken.partner && accessToken.partnerId === partnerId);
+
+  if (!canUpdatePartner)
     return {
       success: false,
-      error: "You do not have permission to update users.",
+      error: "You do not have permission to update this partner.",
     };
 
   if (!partnerId) {
@@ -99,6 +109,9 @@ const saUpdatePartner = async ({
       hourlyRate,
       monthlyBaseFee,
       monthlyPerIntegration,
+      defaultSubPartnerMarkupSetupFee,
+      defaultSubPartnerMarkupMonthlyFee,
+      defaultSubPartnerMarkupHourlyRate,
     });
 
   // If sendEmailFromDomain changed, ensure it exists in Resend
