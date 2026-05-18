@@ -67,12 +67,14 @@ export default function EditSubPartnerMarkupForm({
       defaultSubPartnerMarkupSetupFee: values.defaultSubPartnerMarkupSetupFee
         ? Number(values.defaultSubPartnerMarkupSetupFee)
         : null,
-      defaultSubPartnerMarkupMonthlyFee: values.defaultSubPartnerMarkupMonthlyFee
-        ? Number(values.defaultSubPartnerMarkupMonthlyFee)
-        : null,
-      defaultSubPartnerMarkupHourlyRate: values.defaultSubPartnerMarkupHourlyRate
-        ? Number(values.defaultSubPartnerMarkupHourlyRate)
-        : null,
+      defaultSubPartnerMarkupMonthlyFee:
+        values.defaultSubPartnerMarkupMonthlyFee
+          ? Number(values.defaultSubPartnerMarkupMonthlyFee)
+          : null,
+      defaultSubPartnerMarkupHourlyRate:
+        values.defaultSubPartnerMarkupHourlyRate
+          ? Number(values.defaultSubPartnerMarkupHourlyRate)
+          : null,
     });
 
     if (!response.success) {
@@ -109,7 +111,12 @@ export default function EditSubPartnerMarkupForm({
             <FormItem>
               <FormLabel>Setup Fee Markup Multiplier</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" placeholder="1.20" {...field} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="1.20"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -123,7 +130,12 @@ export default function EditSubPartnerMarkupForm({
             <FormItem>
               <FormLabel>Monthly Fee Markup Multiplier</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" placeholder="1.20" {...field} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="1.20"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -137,7 +149,12 @@ export default function EditSubPartnerMarkupForm({
             <FormItem>
               <FormLabel>Hourly Rate Markup Multiplier</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" placeholder="1.20" {...field} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="1.20"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
