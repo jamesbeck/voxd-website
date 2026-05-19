@@ -81,6 +81,16 @@ export default async function Page({
         permissionKey: "write_quote_contract_notes",
       })));
 
+  const displayedSetupFeeVoxdCost = isSuperAdmin
+    ? (quote?.setupFeeVoxdCost ?? null)
+    : (quote?.effectiveSetupFeeVoxdCost ?? null);
+  const displayedMonthlyFeeVoxdCost = isSuperAdmin
+    ? (quote?.monthlyFeeVoxdCost ?? null)
+    : (quote?.effectiveMonthlyFeeVoxdCost ?? null);
+  const displayedHourlyRateVoxdCost = isSuperAdmin
+    ? (quote?.hourlyRateVoxdCost ?? null)
+    : (quote?.effectiveHourlyRateVoxdCost ?? null);
+
   // Fetch prototypingAgentId from the partner organisation that owns this quote's organisation
   let prototypingAgentId: string | null = null;
   if (quote?.partnerId) {
@@ -319,16 +329,16 @@ export default async function Page({
             <TabsContent value="pricing">
               <EditPricingForm
                 quoteId={quote.id}
-                parentPartnerName={quote.parentPartnerName}
+                effectivePartnerName={quote.effectivePartnerName}
                 setupFee={quote.setupFee}
                 monthlyFee={quote.monthlyFee}
                 hourlyRate={quote.hourlyRate}
                 contractNotes={quote.contractNotes}
                 setupFeeVoxdCost={
-                  canViewCostPrice ? quote.setupFeeVoxdCost : null
+                  canViewCostPrice ? displayedSetupFeeVoxdCost : null
                 }
                 monthlyFeeVoxdCost={
-                  canViewCostPrice ? quote.monthlyFeeVoxdCost : null
+                  canViewCostPrice ? displayedMonthlyFeeVoxdCost : null
                 }
                 buildDays={canViewCostPrice ? quote.buildDays : null}
                 freeMonthlyMinutes={
@@ -339,16 +349,17 @@ export default async function Page({
                   canViewCostPrice ? quote.costingBreakdown : null
                 }
                 hourlyRateVoxdCost={
-                  canViewCostPrice
-                    ? (quote.partnerHourlyRateVoxdCost ??
-                      quote.hourlyRateVoxdCost)
-                    : null
+                  canViewCostPrice ? displayedHourlyRateVoxdCost : null
                 }
                 monthlyBaseFeeVoxdCost={
-                  canViewCostPrice ? quote.partnerMonthlyBaseFee : null
+                  isSuperAdmin && canViewCostPrice
+                    ? quote.partnerMonthlyBaseFee
+                    : null
                 }
                 monthlyPerIntegrationVoxdCost={
-                  canViewCostPrice ? quote.partnerMonthlyPerIntegration : null
+                  isSuperAdmin && canViewCostPrice
+                    ? quote.partnerMonthlyPerIntegration
+                    : null
                 }
                 hasGeneratedConcept={!!quote.generatedConcept}
                 hasGeneratedProposal={!!quote.generatedSpecification}
@@ -356,7 +367,6 @@ export default async function Page({
                 isOwnerPartner={isOwnerPartner}
                 canViewCostPrice={canViewCostPrice}
                 canWriteContractNotes={canWriteQuoteContractNotes}
-                integrationCount={quote.quoteIntegrations.length}
               />
             </TabsContent>
             <TabsContent value="exampleConversations">

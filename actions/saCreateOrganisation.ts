@@ -13,9 +13,11 @@ const stripProtocol = (url: string): string => {
 const saCreateOrganisation = async ({
   name,
   webAddress,
+  partner = false,
 }: {
   name: string;
   webAddress?: string;
+  partner?: boolean;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -51,6 +53,7 @@ const saCreateOrganisation = async ({
     .insert({
       name,
       partnerId: partnerId || null,
+      partner,
       ownerId: accessToken.adminUserId,
       webAddress: cleanWebAddress,
       showLogoOnColour: "#333333",
@@ -66,6 +69,7 @@ const saCreateOrganisation = async ({
     partnerId: partnerId,
     data: {
       name,
+      partner,
       webAddress: cleanWebAddress,
     },
   });
@@ -74,6 +78,7 @@ const saCreateOrganisation = async ({
     success: true,
     data: {
       ...newOrganisation,
+      partner,
       webAddress: cleanWebAddress,
     },
   };

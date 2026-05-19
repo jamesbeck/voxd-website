@@ -14,12 +14,14 @@ const saUpdateOrganisation = async ({
   organisationId,
   name,
   webAddress,
+  partner,
   showLogoOnColour,
   primaryColour,
 }: {
   organisationId: string;
   name?: string;
   webAddress?: string;
+  partner?: boolean;
   showLogoOnColour?: string | null;
   primaryColour?: string | null;
 }): Promise<ServerActionResponse> => {
@@ -60,6 +62,10 @@ const saUpdateOrganisation = async ({
     updateData.name = name;
     updateData.partnerId = accessToken.partnerId || null;
     updateData.webAddress = webAddress ? stripProtocol(webAddress) : null;
+  }
+
+  if (partner !== undefined) {
+    updateData.partner = partner;
   }
 
   if (showLogoOnColour !== undefined) {

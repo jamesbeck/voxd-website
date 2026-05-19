@@ -1,4 +1,5 @@
 import db from "@/database/db";
+import { getEffectivePartnerBrandingMap } from "@/lib/getEffectivePartnerBranding";
 
 export type AdminUserDevContext = {
   id: string;
@@ -31,10 +32,6 @@ type AdminUserDevContextRow = {
   organisationLogoFileExtension: string | null;
   organisationShowLogoOnColour: string | null;
   organisationPartnerId: string | null;
-  organisationPartnerName: string | null;
-  organisationPartnerDomain: string | null;
-  organisationPartnerLogoFileExtension: string | null;
-  organisationPartnerShowLogoOnColour: string | null;
 };
 
 export function getAdminUserDevContextBaseQuery() {
@@ -61,37 +58,31 @@ export function getAdminUserDevContextBaseQuery() {
         'organisation."showLogoOnColour" as "organisationShowLogoOnColour"',
       ),
       "organisationPartner.id as organisationPartnerId",
-      "organisationPartner.name as organisationPartnerName",
-      "organisationPartner.domain as organisationPartnerDomain",
-      db.raw(
-        '"organisationPartner"."logoFileExtension" as "organisationPartnerLogoFileExtension"',
-      ),
-      db.raw(
-        '"organisationPartner"."showLogoOnColour" as "organisationPartnerShowLogoOnColour"',
-      ),
     );
 }
 
-export function mapAdminUserDevContext(
-  row: AdminUserDevContextRow,
-): AdminUserDevContext {
-  const effectivePartnerId = row.organisationIsPartner
+function getEffectivePartnerId(row: AdminUserDevContextRow) {
+  return row.organisationIsPartner
     ? row.organisationId
     : row.organisationPartnerId;
-  const effectivePartnerName = row.organisationIsPartner
-    ? row.organisationName
-    : row.organisationPartnerName;
-  const effectivePartnerDomain = row.organisationIsPartner
-    ? row.organisationDomain
-    : row.organisationPartnerDomain;
-  const effectivePartnerOrganisationId = effectivePartnerId;
-  const effectivePartnerOrganisationLogoFileExtension =
-    row.organisationIsPartner
-      ? row.organisationLogoFileExtension
-      : row.organisationPartnerLogoFileExtension;
-  const effectivePartnerOrganisationShowLogoOnColour = row.organisationIsPartner
-    ? row.organisationShowLogoOnColour
-    : row.organisationPartnerShowLogoOnColour;
+}
+
+function mapAdminUserDevContextRow({
+  row,
+  effectivePartnerName,
+  effectivePartnerDomain,
+  effectivePartnerOrganisationId,
+  effectivePartnerOrganisationLogoFileExtension,
+  effectivePartnerOrganisationShowLogoOnColour,
+}: {
+  row: AdminUserDevContextRow;
+  effectivePartnerName: string | null;
+  effectivePartnerDomain: string | null;
+  effectivePartnerOrganisationId: string | null;
+  effectivePartnerOrganisationLogoFileExtension: string | null;
+  effectivePartnerOrganisationShowLogoOnColour: string | null;
+}): AdminUserDevContext {
+  const effectivePartnerId = getEffectivePartnerId(row);
 
   return {
     id: row.id,
@@ -113,6 +104,40 @@ export function mapAdminUserDevContext(
   };
 }
 
+export async function mapAdminUserDevContexts(
+  rows: AdminUserDevContextRow[],
+): Promise<AdminUserDevContext[]> {
+  const effectivePartnerIds = Array.from(
+    new Set(
+      rows
+        .map((row) => getEffectivePartnerId(row))
+        .filter((partnerId): partnerId is string => !!partnerId),
+    ),
+  );
+  const effectiveBrandingMap = await getEffectivePartnerBrandingMap({
+    partnerIds: effectivePartnerIds,
+  });
+
+  return rows.map((row) => {
+    const effectivePartnerId = getEffectivePartnerId(row);
+    const effectiveBranding = effectivePartnerId
+      ? effectiveBrandingMap[effectivePartnerId]
+      : null;
+
+    return mapAdminUserDevContextRow({
+      row,
+      effectivePartnerName: effectiveBranding?.name ?? null,
+      effectivePartnerDomain: effectiveBranding?.domain ?? null,
+      effectivePartnerOrganisationId:
+        effectiveBranding?.sourceOrganisationId ?? null,
+      effectivePartnerOrganisationLogoFileExtension:
+        effectiveBranding?.logoFileExtension ?? null,
+      effectivePartnerOrganisationShowLogoOnColour:
+        effectiveBranding?.showLogoOnColour ?? null,
+    });
+  });
+}
+
 export async function getAdminUserDevContextById(adminUserId: string) {
   const row = (await getAdminUserDevContextBaseQuery()
     .where("adminUser.id", adminUserId)
@@ -122,5 +147,7 @@ export async function getAdminUserDevContextById(adminUserId: string) {
     return null;
   }
 
-  return mapAdminUserDevContext(row);
+  const [context] = await mapAdminUserDevContexts([row]);
+
+  return context ?? null;
 }

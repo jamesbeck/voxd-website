@@ -4,6 +4,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
+import { getEffectivePartnerBranding } from "@/lib/getEffectivePartnerBranding";
 
 const saUpdateQuotePricing = async ({
   quoteId,
@@ -52,7 +53,6 @@ const saUpdateQuotePricing = async ({
     )
     .select("quote.*", "organisation.partnerId as partnerId")
     .select("partnerOrganisation.partnerId as parentPartnerId")
-    .select("parentPartnerOrganisation.name as parentPartnerName")
     .where({ "quote.id": quoteId })
     .first();
 
@@ -67,7 +67,10 @@ const saUpdateQuotePricing = async ({
   const isSuperAdmin = accessToken.superAdmin;
   const isOwnerPartner =
     accessToken.partner && accessToken.partnerId === existingQuote.partnerId;
-  const partnerBrandName = existingQuote.parentPartnerName?.trim() || "Voxd";
+  const effectivePartnerBranding = await getEffectivePartnerBranding({
+    partnerId: existingQuote.partnerId,
+  });
+  const partnerBrandName = effectivePartnerBranding?.name?.trim() || "Voxd";
   const canWriteContractNotes =
     !!isSuperAdmin ||
     (!!isOwnerPartner &&

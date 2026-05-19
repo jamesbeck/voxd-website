@@ -1,4 +1,5 @@
 import db from "../database/db";
+import { getEffectivePartnerBranding } from "@/lib/getEffectivePartnerBranding";
 
 export type PublicConceptConversation = {
   id: string;
@@ -123,6 +124,10 @@ export const getConceptForPublic = async ({
     return null;
   }
 
+  const effectivePartnerBranding = await getEffectivePartnerBranding({
+    partnerId: quote.partnerId,
+  });
+
   // Get example conversations for this quote
   // Order by "order" field first (nulls last), then by id for consistent ordering
   const conversations = await db("exampleConversation")
@@ -168,13 +173,14 @@ export const getConceptForPublic = async ({
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
     organisationShowLogoOnColour: quote.organisationShowLogoOnColour ?? null,
-    partnerOrganisationId: quote.partnerOrganisationId ?? null,
+    partnerOrganisationId:
+      effectivePartnerBranding?.sourceOrganisationId ?? null,
     partnerOrganisationPrimaryColour:
-      quote.partnerOrganisationPrimaryColour ?? null,
+      effectivePartnerBranding?.primaryColour ?? null,
     partnerOrganisationLogoFileExtension:
-      quote.partnerOrganisationLogoFileExtension ?? null,
+      effectivePartnerBranding?.logoFileExtension ?? null,
     partnerOrganisationShowLogoOnColour:
-      quote.partnerOrganisationShowLogoOnColour ?? null,
+      effectivePartnerBranding?.showLogoOnColour ?? null,
     status: quote.status,
     conceptPersonalMessage: quote.conceptPersonalMessage,
     generatedConceptIntroduction: quote.generatedConceptIntroduction,
@@ -186,8 +192,8 @@ export const getConceptForPublic = async ({
     freeMonthlyMinutes: quote.freeMonthlyMinutes ?? null,
     partnerId: quote.partnerId,
     partner: {
-      name: quote.partnerName,
-      domain: quote.partnerDomain,
+      name: effectivePartnerBranding?.name || "Voxd",
+      domain: effectivePartnerBranding?.domain ?? null,
     },
     salesBot:
       quote.salesBotName && quote.salesBotPhoneNumber

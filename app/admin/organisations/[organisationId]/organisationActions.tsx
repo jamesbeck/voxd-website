@@ -19,6 +19,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,22 +36,28 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import RecordActions from "@/components/admin/RecordActions";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   webAddress: z.string().optional(),
+  partner: z.boolean(),
 });
 
 export default function OrganisationActions({
   organisationId,
   name,
   webAddress,
+  partner,
+  hasChildOrganisations = false,
   isSuperAdmin = false,
   currentPartnerId = null,
 }: {
   organisationId: string;
   name: string;
   webAddress?: string;
+  partner: boolean;
+  hasChildOrganisations?: boolean;
   isSuperAdmin?: boolean;
   currentPartnerId?: string | null;
 }) {
@@ -68,8 +75,11 @@ export default function OrganisationActions({
     defaultValues: {
       name: name || "",
       webAddress: webAddress || "",
+      partner,
     },
   });
+
+  const partnerToggleDisabled = hasChildOrganisations;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsUpdating(true);
@@ -78,6 +88,7 @@ export default function OrganisationActions({
       organisationId: organisationId,
       name: values.name,
       webAddress: values.webAddress,
+      partner: values.partner,
     });
 
     if (!response.success) {
@@ -240,6 +251,31 @@ export default function OrganisationActions({
                       <Input placeholder="www.example.com" {...field} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="partner"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        disabled={partnerToggleDisabled}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked === true)
+                        }
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Sub partner</FormLabel>
+                      <FormDescription>
+                        {partnerToggleDisabled
+                          ? "Partner functionality cannot be turned off after this organisation owns other organisations."
+                          : "Enable partner functionality for this organisation."}
+                      </FormDescription>
+                    </div>
                   </FormItem>
                 )}
               />

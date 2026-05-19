@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,10 +20,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   name: z.string().nonempty("Name is required"),
   webAddress: z.string().optional(),
+  partner: z.boolean(),
 });
 
 export default function NewOrganisationForm() {
@@ -35,6 +38,7 @@ export default function NewOrganisationForm() {
     defaultValues: {
       name: "",
       webAddress: "",
+      partner: false,
     },
   });
 
@@ -45,6 +49,7 @@ export default function NewOrganisationForm() {
     const response = await saCreateOrganisation({
       name: values.name,
       webAddress: values.webAddress,
+      partner: values.partner,
     });
 
     if (!response.success) {
@@ -108,6 +113,29 @@ export default function NewOrganisationForm() {
                 <Input placeholder="www.example.com" {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="partner"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked === true)
+                  }
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Sub partner</FormLabel>
+                <FormDescription>
+                  Enable partner functionality for this organisation.
+                </FormDescription>
+              </div>
             </FormItem>
           )}
         />

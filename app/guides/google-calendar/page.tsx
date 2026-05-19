@@ -28,7 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
-  const title = `How to Create a Google Calendar Integration App | ${partner.name}`;
+  const brandName = partner.effectivePartnerName || "Voxd";
+  const title = `How to Create a Google Calendar Integration App | ${brandName}`;
   const description =
     "Step-by-step guide for Google Workspace admins to create an internal OAuth app for calendar integration.";
 
@@ -53,6 +54,7 @@ export default async function GoogleCalendarGuidePage() {
   }
 
   const { brandColor } = getPartnerGuideAssets(partner);
+  const brandName = partner.effectivePartnerName || "Voxd";
 
   const callbackUrl = `https://${partner.domain}/api/auth/google/callback`;
 
@@ -80,7 +82,7 @@ export default async function GoogleCalendarGuidePage() {
         <p className="text-gray-700">
           This guide walks you through creating a private
           (&ldquo;internal&rdquo;) Google OAuth app inside your own Google
-          Workspace tenant so {partner.name} can connect securely to your
+          Workspace tenant so {brandName} can connect securely to your
           calendars.
         </p>
 

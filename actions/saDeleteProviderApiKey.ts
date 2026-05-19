@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import userCanViewOrganisation from "@/lib/organisationAccess";
 
 const saDeleteProviderApiKey = async ({
   providerApiKeyId,
@@ -11,7 +12,21 @@ const saDeleteProviderApiKey = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.superAdmin) {
+  const providerApiKey = await db("providerApiKey")
+    .select("id", "organisationId")
+    .where({ id: providerApiKeyId })
+    .first();
+
+  if (!providerApiKey?.organisationId) {
+    return { success: false, error: "Provider API key not found" };
+  }
+
+  const canViewOrganisation = await userCanViewOrganisation({
+    organisationId: providerApiKey.organisationId,
+    accessToken,
+  });
+
+  if (!canViewOrganisation) {
     return { success: false, error: "Unauthorized" };
   }
 

@@ -8,10 +8,11 @@ interface PartnerGuideShellProps {
 }
 
 export function getPartnerGuideAssets(partner: Partner) {
-  const brandColor = partner.organisationPrimaryColour || "#6366f1";
+  const brandColor = partner.effectivePartnerPrimaryColour || "#6366f1";
   const organisationLogoUrl =
-    partner.organisationLogoFileExtension && partner.organisationId
-      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
+    partner.effectivePartnerLogoFileExtension &&
+    partner.effectivePartnerOrganisationId
+      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.effectivePartnerOrganisationId}.${partner.effectivePartnerLogoFileExtension}`
       : "/logo.svg";
 
   return {
@@ -29,6 +30,7 @@ export default function PartnerGuideShell({
   children,
 }: PartnerGuideShellProps) {
   const { organisationLogoUrl } = getPartnerGuideAssets(partner);
+  const brandName = partner.effectivePartnerName || "Partner";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -37,14 +39,14 @@ export default function PartnerGuideShell({
           <div
             className="py-1 px-2"
             style={
-              partner.organisationShowLogoOnColour
-                ? { backgroundColor: partner.organisationShowLogoOnColour }
+              partner.effectivePartnerShowLogoOnColour
+                ? { backgroundColor: partner.effectivePartnerShowLogoOnColour }
                 : undefined
             }
           >
             <Image
               src={organisationLogoUrl}
-              alt={partner.name || "Partner"}
+              alt={brandName}
               width={180}
               height={60}
               unoptimized
@@ -62,14 +64,14 @@ export default function PartnerGuideShell({
         <div
           className="py-1 px-2"
           style={
-            partner.organisationShowLogoOnColour
-              ? { backgroundColor: partner.organisationShowLogoOnColour }
+            partner.effectivePartnerShowLogoOnColour
+              ? { backgroundColor: partner.effectivePartnerShowLogoOnColour }
               : undefined
           }
         >
           <Image
             src={organisationLogoUrl}
-            alt={partner.name || "Partner"}
+            alt={brandName}
             width={120}
             height={40}
             unoptimized

@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import db from "@/database/db";
 import { Partner } from "@/types/types";
+import { getEffectivePartnerBrandingMap } from "@/lib/getEffectivePartnerBranding";
 
 const getPartners = unstable_cache(
   async (): Promise<Partner[]> => {
@@ -38,7 +39,31 @@ const getPartners = unstable_cache(
       )
       .orderBy("organisation.name", "asc");
 
-    return partners;
+    const effectiveBrandingMap = await getEffectivePartnerBrandingMap({
+      partnerIds: partners.map((partner) => partner.id),
+    });
+
+    return partners.map((partner) => {
+      const effectiveBranding = effectiveBrandingMap[partner.id];
+
+      return {
+        ...partner,
+        effectivePartnerName: effectiveBranding?.name ?? null,
+        effectivePartnerDomain: effectiveBranding?.domain ?? null,
+        effectivePartnerOrganisationId:
+          effectiveBranding?.sourceOrganisationId ?? null,
+        effectivePartnerPrimaryColour: effectiveBranding?.primaryColour ?? null,
+        effectivePartnerLogoFileExtension:
+          effectiveBranding?.logoFileExtension ?? null,
+        effectivePartnerShowLogoOnColour:
+          effectiveBranding?.showLogoOnColour ?? null,
+        effectivePartnerLegalName: effectiveBranding?.legalName ?? null,
+        effectivePartnerCompanyNumber: effectiveBranding?.companyNumber ?? null,
+        effectivePartnerRegisteredAddress:
+          effectiveBranding?.registeredAddress ?? null,
+        effectivePartnerLegalEmail: effectiveBranding?.legalEmail ?? null,
+      };
+    });
   },
   ["partners"],
   { revalidate: 60, tags: ["partners"] },

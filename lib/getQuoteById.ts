@@ -1,5 +1,7 @@
 import db from "../database/db";
 import { CostingBreakdown } from "@/types/types";
+import getPartnerAncestorMarkupMultipliers from "@/lib/getPartnerAncestorMarkupMultipliers";
+import { getEffectivePartnerBranding } from "@/lib/getEffectivePartnerBranding";
 
 export type QuoteConversation = {
   id: string;
@@ -35,7 +37,7 @@ export type Quote = {
   organisationName: string;
   partnerId: string | null;
   parentPartnerId: string | null;
-  parentPartnerName: string | null;
+  effectivePartnerName: string | null;
   status: string;
   background: string | null;
   objectives: string | null;
@@ -46,6 +48,8 @@ export type Quote = {
   monthlyFee: number | null;
   setupFeeVoxdCost: number | null;
   monthlyFeeVoxdCost: number | null;
+  effectiveSetupFeeVoxdCost: number | null;
+  effectiveMonthlyFeeVoxdCost: number | null;
   exampleConversations: QuoteConversation[];
   createdByAdminUserId: string | null;
   ownerName: string | null;
@@ -68,6 +72,7 @@ export type Quote = {
   costingBreakdown: CostingBreakdown | null;
   hourlyRate: number | null;
   hourlyRateVoxdCost: number | null;
+  effectiveHourlyRateVoxdCost: number | null;
   partnerHourlyRateVoxdCost: number | null;
   partnerMonthlyBaseFee: number | null;
   partnerMonthlyPerIntegration: number | null;
@@ -80,6 +85,17 @@ export const getQuoteById = async ({
 }: {
   quoteId: string;
 }): Promise<Quote | null> => {
+  const applyMarkup = (
+    value: number | string | null | undefined,
+    multiplier: number,
+  ): number | null => {
+    if (value == null) {
+      return null;
+    }
+
+    return Number((Number(value) * multiplier).toFixed(2));
+  };
+
   const quote = await db("quote")
     .leftJoin("organisation", "quote.organisationId", "organisation.id")
     .leftJoin(
@@ -99,7 +115,6 @@ export const getQuoteById = async ({
       "organisation.name as organisationName",
       "organisation.partnerId as partnerId",
       "partnerOrganisation.partnerId as parentPartnerId",
-      "parentPartnerOrganisation.name as parentPartnerName",
       "parentPartnerOrganisation.hourlyRate as partnerHourlyRateVoxdCost",
       "parentPartnerOrganisation.monthlyBaseFee as partnerMonthlyBaseFee",
       "parentPartnerOrganisation.monthlyPerIntegration as partnerMonthlyPerIntegration",
@@ -111,6 +126,13 @@ export const getQuoteById = async ({
   if (!quote) {
     return null;
   }
+
+  const markupMultipliers = await getPartnerAncestorMarkupMultipliers({
+    partnerId: quote.partnerId,
+  });
+  const effectivePartnerBranding = await getEffectivePartnerBranding({
+    partnerId: quote.partnerId,
+  });
 
   // Get example conversations for this quote
   // Order by "order" field first (nulls last), then by id for consistent ordering
@@ -174,6 +196,29 @@ export const getQuoteById = async ({
 
   return {
     ...quote,
+    effectivePartnerName: effectivePartnerBranding?.name ?? null,
+    setupFeeVoxdCost:
+      quote.setupFeeVoxdCost != null ? Number(quote.setupFeeVoxdCost) : null,
+    monthlyFeeVoxdCost:
+      quote.monthlyFeeVoxdCost != null
+        ? Number(quote.monthlyFeeVoxdCost)
+        : null,
+    hourlyRateVoxdCost:
+      quote.hourlyRateVoxdCost != null
+        ? Number(quote.hourlyRateVoxdCost)
+        : null,
+    effectiveSetupFeeVoxdCost: applyMarkup(
+      quote.setupFeeVoxdCost,
+      markupMultipliers.setupFeeMultiplier,
+    ),
+    effectiveMonthlyFeeVoxdCost: applyMarkup(
+      quote.monthlyFeeVoxdCost,
+      markupMultipliers.monthlyFeeMultiplier,
+    ),
+    effectiveHourlyRateVoxdCost: applyMarkup(
+      quote.hourlyRateVoxdCost,
+      markupMultipliers.hourlyRateMultiplier,
+    ),
     exampleConversations: parsedConversations,
     quoteIntegrations,
     quoteKnowledgeSources,

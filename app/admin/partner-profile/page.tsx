@@ -8,6 +8,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import EmailDomainStatus from "./EmailDomainStatus";
 import getOrganisationById from "@/lib/getOrganisationById";
 import EditSubPartnerMarkupForm from "./EditSubPartnerMarkupForm";
+import OrganisationBrandingTab from "@/components/admin/OrganisationBrandingTab";
 
 export default async function Page() {
   const accessToken = await verifyAccessToken();
@@ -26,12 +27,23 @@ export default async function Page() {
       <H1>Partner Profile</H1>
 
       <RecordTabs
-        defaultValue="email"
+        defaultValue="branding"
         tabs={[
+          { value: "branding", label: "Logo & Branding" },
           { value: "email", label: "Email Sending" },
           { value: "subPartners", label: "Sub-Partners" },
         ]}
       >
+        <TabsContent value="branding">
+          <OrganisationBrandingTab
+            organisationId={organisation.id}
+            logoFileExtension={organisation.logoFileExtension ?? null}
+            showLogoOnColour={organisation.showLogoOnColour ?? null}
+            primaryColour={organisation.primaryColour ?? null}
+            partner={organisation.partner}
+            showParentBrandingWarning={false}
+          />
+        </TabsContent>
         <TabsContent value="email">
           <EmailDomainStatus />
         </TabsContent>

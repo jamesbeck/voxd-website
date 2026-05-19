@@ -33,6 +33,7 @@ const saSendLoginCode = async ({
   }
 
   const partner = await getPartnerFromHeaders();
+  const partnerBrandName = partner?.effectivePartnerName || "Voxd";
 
   //if the email ended in .admin
   //this flage will suppress the email from sending
@@ -79,10 +80,9 @@ const saSendLoginCode = async ({
 
     if (process.env.NODE_ENV !== "development") {
       try {
-        const partnerName = partner?.name || "Voxd";
         const emailFromDomain = partner?.sendEmailFromDomain || "voxd.ai";
         const emailR = await sendgrid.send({
-          from: `${partnerName} Login <login@${emailFromDomain}>`,
+          from: `${partnerBrandName} Login <login@${emailFromDomain}>`,
           replyTo: `support@${emailFromDomain}`,
           to:
             // always send to me if staging
@@ -105,17 +105,13 @@ const saSendLoginCode = async ({
                   <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <tr>
                       <td style="padding: 40px 40px 20px 40px; text-align: center;">
-                        <h1 style="margin: 0; color: #333333; font-size: 24px; font-weight: 600;">${
-                          partner?.name || "Voxd"
-                        }</h1>
+                        <h1 style="margin: 0; color: #333333; font-size: 24px; font-weight: 600;">${partnerBrandName}</h1>
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0 40px 20px 40px;">
                         <p style="margin: 0 0 20px 0; color: #555555; font-size: 16px; line-height: 1.5;">Hello,</p>
-                        <p style="margin: 0 0 20px 0; color: #555555; font-size: 16px; line-height: 1.5;">You recently requested a login code for your ${
-                          partner?.name || "Voxd"
-                        } account. Please use the code below to complete your sign-in:</p>
+                        <p style="margin: 0 0 20px 0; color: #555555; font-size: 16px; line-height: 1.5;">You recently requested a login code for your ${partnerBrandName} account. Please use the code below to complete your sign-in:</p>
                       </td>
                     </tr>
                     <tr>
@@ -135,9 +131,7 @@ const saSendLoginCode = async ({
                     </tr>
                     <tr>
                       <td style="padding: 20px 40px 40px 40px; border-top: 1px solid #eeeeee;">
-                        <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">This is an automated message from ${
-                          partner?.name || "Voxd"
-                        }. Please do not reply to this email.</p>
+                        <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">This is an automated message from ${partnerBrandName}. Please do not reply to this email.</p>
                       </td>
                     </tr>
                   </table>
@@ -147,9 +141,7 @@ const saSendLoginCode = async ({
           </body>
           </html>
         `,
-          text: `Your ${
-            partner?.name || "Voxd"
-          } login code is: ${paddedCode}\n\nThis code will expire in ${parseInt(
+          text: `Your ${partnerBrandName} login code is: ${paddedCode}\n\nThis code will expire in ${parseInt(
             process.env.OTP_CODE_LIFE_SEC,
           )} minutes.\n\nIf you didn't request this code, please ignore this email.`,
         });

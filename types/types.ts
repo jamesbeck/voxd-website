@@ -116,6 +116,16 @@ export interface Partner {
   organisationPrimaryColour?: string | null;
   organisationLogoFileExtension?: string | null;
   organisationShowLogoOnColour?: string | null;
+  effectivePartnerName?: string | null;
+  effectivePartnerDomain?: string | null;
+  effectivePartnerOrganisationId?: string | null;
+  effectivePartnerPrimaryColour?: string | null;
+  effectivePartnerLogoFileExtension?: string | null;
+  effectivePartnerShowLogoOnColour?: string | null;
+  effectivePartnerLegalName?: string | null;
+  effectivePartnerCompanyNumber?: string | null;
+  effectivePartnerRegisteredAddress?: string | null;
+  effectivePartnerLegalEmail?: string | null;
   hourlyRate?: number | null;
   monthlyBaseFee?: number | null;
   monthlyPerIntegration?: number | null;

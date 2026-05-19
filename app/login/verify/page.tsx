@@ -5,12 +5,11 @@ import getPartnerFromHeaders from "@/lib/getPartnerFromHeaders";
 
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
+  const brandName = partner?.effectivePartnerName || "VOXD";
 
   return {
-    title: partner?.name
-      ? `${partner.name} | WhatsApp AI Chatbots`
-      : "VOXD | WhatsApp AI Chatbots",
-    description: partner?.name || "WhatsApp AI Chatbots",
+    title: `${brandName} | WhatsApp AI Chatbots`,
+    description: brandName,
   };
 }
 
@@ -33,20 +32,23 @@ export default async function VerifyCodePage({
   return (
     <div
       style={
-        partner?.organisationPrimaryColour
+        partner?.effectivePartnerPrimaryColour
           ? ({
-              "--color-primary": partner?.organisationPrimaryColour,
+              "--color-primary": partner?.effectivePartnerPrimaryColour,
             } as React.CSSProperties)
           : undefined
       }
     >
       <VerifyLoginForm
         logoUrl={
-          partner?.organisationLogoFileExtension && partner?.organisationId
-            ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
+          partner?.effectivePartnerLogoFileExtension &&
+          partner?.effectivePartnerOrganisationId
+            ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.effectivePartnerOrganisationId}.${partner.effectivePartnerLogoFileExtension}`
             : undefined
         }
-        showLogoOnColour={partner?.organisationShowLogoOnColour ?? undefined}
+        showLogoOnColour={
+          partner?.effectivePartnerShowLogoOnColour ?? undefined
+        }
         redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
         devOtp={devOtp}
       />

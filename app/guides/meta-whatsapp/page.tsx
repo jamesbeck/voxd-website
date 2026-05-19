@@ -35,12 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
+  const brandName = partner.effectivePartnerName || "Voxd";
   const title = `How to Set Up Meta Business and WhatsApp Business | ${partner.name}`;
   const description =
     "Step-by-step guide to create a Meta business portfolio, verify the business, create a WhatsApp Business Account, and give Voxd full control as a partner.";
 
   return {
-    title,
+    title: `How to Set Up Meta Business and WhatsApp Business | ${brandName}`,
     description,
     icons: {
       icon: getPartnerGuideFavicon(partner),
@@ -60,6 +61,7 @@ export default async function MetaWhatsAppGuidePage() {
   }
 
   const { brandColor } = getPartnerGuideAssets(partner);
+  const brandName = partner.effectivePartnerName || "Voxd";
 
   return (
     <PartnerGuideShell partner={partner}>
@@ -85,8 +87,8 @@ export default async function MetaWhatsAppGuidePage() {
         <p className="text-gray-700">
           This guide walks you through creating or locating your Meta business
           portfolio, completing Meta business verification, creating your
-          WhatsApp Business Account, and assigning {partner.name} as a partner
-          with full control of that WABA.
+          WhatsApp Business Account, and assigning {brandName} as a partner with
+          full control of that WABA.
         </p>
 
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -108,8 +110,7 @@ export default async function MetaWhatsAppGuidePage() {
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              {partner.name} connected as a partner with full control of the
-              WABA
+              {brandName} connected as a partner with full control of the WABA
             </li>
           </ul>
         </div>
@@ -207,7 +208,7 @@ export default async function MetaWhatsAppGuidePage() {
               <li className="flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 You must keep ownership of the WABA in your own business
-                portfolio. Adding {partner.name} as a partner does not transfer
+                portfolio. Adding {brandName} as a partner does not transfer
                 ownership.
               </li>
             </ul>

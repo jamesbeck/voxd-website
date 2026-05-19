@@ -16,9 +16,9 @@ import NewQuoteButton from "@/components/admin/NewQuoteButton";
 import AboutTab from "./aboutTab";
 import LogoTab from "./logoTab";
 import ProviderApiKeysTable from "@/app/admin/provider-api-keys/providerApiKeysTable";
+import NewProviderApiKeyDialog from "@/app/admin/provider-api-keys/NewProviderApiKeyDialog";
 import userCanViewOrganisation from "@/lib/organisationAccess";
 import EditPartnerDomainsForm from "./partnerSettings/EditPartnerDomainsForm";
-import EditPartnerApiKeysForm from "./partnerSettings/EditPartnerApiKeysForm";
 import EditPartnerPrototypingForm from "./partnerSettings/EditPartnerPrototypingForm";
 import EditPartnerSalesAgentForm from "./partnerSettings/EditPartnerSalesAgentForm";
 import EditPartnerPricingForm from "./partnerSettings/EditPartnerPricingForm";
@@ -64,34 +64,18 @@ export default async function Page({
     !!organisation?.partner && (token.superAdmin || token.partner);
   const canViewPartnerPricing = !!organisation?.partner && token.superAdmin;
   const normalizedRequestedTab =
-    requestedTab === "partnerDetails" ? "about" : requestedTab;
+    requestedTab === "partnerDetails"
+      ? "about"
+      : requestedTab === "partnerApiKey"
+        ? "providerApiKeys"
+        : requestedTab;
   const activeTab =
     normalizedRequestedTab === "partnerPricing" && !canViewPartnerPricing
       ? "about"
       : normalizedRequestedTab;
 
-  let providerApiKeyLabel: string | undefined;
   let prototypingAgentLabel: string | undefined;
   let salesBotAgentLabel: string | undefined;
-
-  if (organisation?.providerApiKeyId) {
-    const providerApiKey = await db("providerApiKey")
-      .leftJoin("provider", "providerApiKey.providerId", "provider.id")
-      .leftJoin(
-        "organisation as keyOrganisation",
-        "providerApiKey.organisationId",
-        "keyOrganisation.id",
-      )
-      .select(
-        db.raw(
-          `CASE WHEN "providerApiKey"."id" IS NOT NULL THEN "provider"."name" || ' — ' || LEFT("providerApiKey"."key", 6) || '...' || RIGHT("providerApiKey"."key", 4) || COALESCE(' (' || "keyOrganisation"."name" || ')', '') ELSE NULL END as "providerApiKeyLabel"`,
-        ),
-      )
-      .where("providerApiKey.id", organisation.providerApiKeyId)
-      .first();
-
-    providerApiKeyLabel = providerApiKey?.providerApiKeyLabel;
-  }
 
   if (organisation?.prototypingAgentId) {
     const agent = await db("agent")
@@ -123,6 +107,13 @@ export default async function Page({
     }
   }
 
+  const hasChildOrganisations = organisation
+    ? !!(await db("organisation")
+        .select("id")
+        .where("partnerId", organisation.id)
+        .first())
+    : false;
+
   return (
     <Container>
       <BreadcrumbSetter
@@ -149,6 +140,15 @@ export default async function Page({
                   label: "Logo & Branding",
                   href: `/admin/organisations/${organisation.id}?tab=logo`,
                 },
+                ...(token.superAdmin || token.partner
+                  ? [
+                      {
+                        value: "quotes",
+                        label: "Quotes",
+                        href: `/admin/organisations/${organisation.id}?tab=quotes`,
+                      },
+                    ]
+                  : []),
                 {
                   value: "adminUsers",
                   label: "Admin Users",
@@ -170,11 +170,6 @@ export default async function Page({
                         value: "partnerDomains",
                         label: "Domains",
                         href: `/admin/organisations/${organisation.id}?tab=partnerDomains`,
-                      },
-                      {
-                        value: "partnerApiKey",
-                        label: "Partner API Key",
-                        href: `/admin/organisations/${organisation.id}?tab=partnerApiKey`,
                       },
                       {
                         value: "partnerPrototyping",
@@ -206,17 +201,12 @@ export default async function Page({
                         tab.value !== "partnerPricing" || canViewPartnerPricing,
                     )
                   : []),
-                ...(token.superAdmin || token.partner
+                ...(organisation
                   ? [
                       {
                         value: "providerApiKeys",
                         label: "API Keys",
                         href: `/admin/organisations/${organisation.id}?tab=providerApiKeys`,
-                      },
-                      {
-                        value: "quotes",
-                        label: "Quotes",
-                        href: `/admin/organisations/${organisation.id}?tab=quotes`,
                       },
                     ]
                   : []),
@@ -228,6 +218,8 @@ export default async function Page({
                   organisationId={organisation.id}
                   name={organisation.name}
                   webAddress={organisation.webAddress}
+                  partner={organisation.partner}
+                  hasChildOrganisations={hasChildOrganisations}
                   isSuperAdmin={token.superAdmin}
                   currentPartnerId={organisation.partnerId ?? null}
                 />
@@ -249,6 +241,8 @@ export default async function Page({
                   logoFileExtension={organisation.logoFileExtension ?? null}
                   showLogoOnColour={organisation.showLogoOnColour ?? null}
                   primaryColour={organisation.primaryColour ?? null}
+                  partner={organisation.partner}
+                  showParentBrandingWarning={organisation.partner}
                 />
               </Container>
             </TabsContent>
@@ -280,19 +274,6 @@ export default async function Page({
                     sendEmailFromDomain={
                       organisation.sendEmailFromDomain ?? undefined
                     }
-                  />
-                </Container>
-              </TabsContent>
-            ) : null}
-            {showPartnerTabs ? (
-              <TabsContent value="partnerApiKey">
-                <Container>
-                  <EditPartnerApiKeysForm
-                    partnerId={organisation.id}
-                    providerApiKeyId={
-                      organisation.providerApiKeyId ?? undefined
-                    }
-                    providerApiKeyLabel={providerApiKeyLabel}
                   />
                 </Container>
               </TabsContent>
@@ -361,10 +342,25 @@ export default async function Page({
                 </Container>
               </TabsContent>
             ) : null}
-            {token.superAdmin || token.partner ? (
+            {organisation ? (
               <TabsContent value="providerApiKeys">
                 <Container>
-                  <ProviderApiKeysTable organisationId={organisation.id} />
+                  <div className="flex justify-end mb-4">
+                    <NewProviderApiKeyDialog
+                      preselectedOrganisationId={organisation.id}
+                      preselectedOrganisationName={organisation.name}
+                    />
+                  </div>
+                  <ProviderApiKeysTable
+                    organisationId={organisation.id}
+                    allowDelete
+                    partnerId={organisation.partner ? organisation.id : undefined}
+                    currentPartnerProviderApiKeyId={
+                      organisation.partner
+                        ? organisation.providerApiKeyId ?? null
+                        : undefined
+                    }
+                  />
                 </Container>
               </TabsContent>
             ) : null}

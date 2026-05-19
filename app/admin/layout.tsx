@@ -10,17 +10,17 @@ import saGetUserAgents from "@/actions/saGetUserAgents";
 
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
+  const brandName = partner?.effectivePartnerName || "VOXD";
 
   const favicon =
-    partner?.organisationLogoFileExtension && partner?.organisationId
-      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
+    partner?.effectivePartnerLogoFileExtension &&
+    partner?.effectivePartnerOrganisationId
+      ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.effectivePartnerOrganisationId}.${partner.effectivePartnerLogoFileExtension}`
       : "/logo.svg";
 
   return {
-    title: partner?.name
-      ? `${partner.name} | WhatsApp AI Chatbots`
-      : "VOXD | WhatsApp AI Chatbots",
-    description: partner?.name || "WhatsApp AI Chatbots",
+    title: `${brandName} | WhatsApp AI Chatbots`,
+    description: brandName,
     icons: {
       icon: favicon,
     },
@@ -39,8 +39,8 @@ export default async function RootLayout({
   return (
     <SidebarProvider>
       <BreadcrumbProvider>
-        {partner?.organisationPrimaryColour && (
-          <style>{`:root { --color-primary: ${partner.organisationPrimaryColour}; }`}</style>
+        {partner?.effectivePartnerPrimaryColour && (
+          <style>{`:root { --color-primary: ${partner.effectivePartnerPrimaryColour}; }`}</style>
         )}
         <div className="w-full flex overflow-hidden min-h-screen">
           <AdminSidebar
@@ -49,12 +49,13 @@ export default async function RootLayout({
             partner={accessToken?.partner}
             agents={userAgents}
             logoUrl={
-              partner?.organisationLogoFileExtension && partner?.organisationId
-                ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
+              partner?.effectivePartnerLogoFileExtension &&
+              partner?.effectivePartnerOrganisationId
+                ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.effectivePartnerOrganisationId}.${partner.effectivePartnerLogoFileExtension}`
                 : undefined
             }
             showLogoOnColour={
-              partner?.organisationShowLogoOnColour ?? undefined
+              partner?.effectivePartnerShowLogoOnColour ?? undefined
             }
           />
           <main className="flex-1 min-w-0 flex flex-col overflow-hidden">

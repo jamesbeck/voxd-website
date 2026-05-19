@@ -6,10 +6,11 @@ import { redirect } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   const partner = await getPartnerFromHeaders();
+  const brandName = partner?.effectivePartnerName || "VOXD";
 
   return {
-    title: `${partner?.name} | WhatsApp AI Chatbots`,
-    description: `${partner?.name} | WhatsApp AI Chatbots`,
+    title: `${brandName} | WhatsApp AI Chatbots`,
+    description: `${brandName} | WhatsApp AI Chatbots`,
   };
 }
 
@@ -43,9 +44,9 @@ export default async function LoginPage({
   return (
     <div
       style={
-        partner?.organisationPrimaryColour
+        partner?.effectivePartnerPrimaryColour
           ? ({
-              "--color-primary": partner?.organisationPrimaryColour,
+              "--color-primary": partner?.effectivePartnerPrimaryColour,
             } as React.CSSProperties)
           : undefined
       }
@@ -53,11 +54,14 @@ export default async function LoginPage({
       <LoginForm
         email={devEmail || idToken?.email}
         logoUrl={
-          partner?.organisationLogoFileExtension && partner?.organisationId
-            ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.organisationId}.${partner.organisationLogoFileExtension}`
+          partner?.effectivePartnerLogoFileExtension &&
+          partner?.effectivePartnerOrganisationId
+            ? `https://s3.${process.env.NEXT_PUBLIC_WASABI_REGION || "eu-west-1"}.wasabisys.com/${process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME || "voxd"}/organisationLogos/${partner.effectivePartnerOrganisationId}.${partner.effectivePartnerLogoFileExtension}`
             : undefined
         }
-        showLogoOnColour={partner?.organisationShowLogoOnColour ?? undefined}
+        showLogoOnColour={
+          partner?.effectivePartnerShowLogoOnColour ?? undefined
+        }
         redirectTo={typeof redirectTo === "string" ? redirectTo : undefined}
       />
     </div>

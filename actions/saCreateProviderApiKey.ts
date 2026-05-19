@@ -3,6 +3,7 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import userCanViewOrganisation from "@/lib/organisationAccess";
 
 const saCreateProviderApiKey = async ({
   key,
@@ -15,12 +16,17 @@ const saCreateProviderApiKey = async ({
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
-  if (!accessToken.superAdmin) {
-    return { success: false, error: "Unauthorized" };
-  }
-
   if (!key || !providerId || !organisationId) {
     return { success: false, error: "All fields are required" };
+  }
+
+  const canViewOrganisation = await userCanViewOrganisation({
+    organisationId,
+    accessToken,
+  });
+
+  if (!canViewOrganisation) {
+    return { success: false, error: "Unauthorized" };
   }
 
   const [newKey] = await db("providerApiKey")

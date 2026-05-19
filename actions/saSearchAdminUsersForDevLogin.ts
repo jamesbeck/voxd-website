@@ -10,7 +10,7 @@ import {
 } from "@/lib/development/devPartnerOverride";
 import {
   getAdminUserDevContextBaseQuery,
-  mapAdminUserDevContext,
+  mapAdminUserDevContexts,
 } from "@/lib/adminUsers/getAdminUserDevContext";
 
 const saSearchAdminUsersForDevLogin = async ({
@@ -48,7 +48,7 @@ const saSearchAdminUsersForDevLogin = async ({
 
   return {
     success: true,
-    data: rows.map((row) => mapAdminUserDevContext(row as never)),
+    data: await mapAdminUserDevContexts(rows as never[]),
     totalAvailable: countResult,
     page,
     pageSize: cappedPageSize,

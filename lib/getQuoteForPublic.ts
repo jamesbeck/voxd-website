@@ -1,4 +1,5 @@
 import db from "../database/db";
+import { getEffectivePartnerBranding } from "@/lib/getEffectivePartnerBranding";
 
 export type PublicQuoteConversation = {
   id: string;
@@ -155,6 +156,10 @@ export const getQuoteForPublic = async ({
     return null;
   }
 
+  const effectivePartnerBranding = await getEffectivePartnerBranding({
+    partnerId: quote.partnerOrganisationId,
+  });
+
   // Get example conversations for this quote
   // Order by "order" field first (nulls last), then by id for consistent ordering
   const conversations = await db("exampleConversation")
@@ -200,13 +205,14 @@ export const getQuoteForPublic = async ({
     organisationId: quote.organisationId,
     organisationLogoFileExtension: quote.organisationLogoFileExtension,
     organisationShowLogoOnColour: quote.organisationShowLogoOnColour ?? null,
-    partnerOrganisationId: quote.partnerOrganisationId ?? null,
+    partnerOrganisationId:
+      effectivePartnerBranding?.sourceOrganisationId ?? null,
     partnerOrganisationPrimaryColour:
-      quote.partnerOrganisationPrimaryColour ?? null,
+      effectivePartnerBranding?.primaryColour ?? null,
     partnerOrganisationLogoFileExtension:
-      quote.partnerOrganisationLogoFileExtension ?? null,
+      effectivePartnerBranding?.logoFileExtension ?? null,
     partnerOrganisationShowLogoOnColour:
-      quote.partnerOrganisationShowLogoOnColour ?? null,
+      effectivePartnerBranding?.showLogoOnColour ?? null,
     status: quote.status,
     background: quote.background,
     objectives: quote.objectives,
@@ -224,12 +230,12 @@ export const getQuoteForPublic = async ({
     contractLength: quote.contractLength,
     heroImageFileExtension: quote.heroImageFileExtension,
     partner: {
-      name: quote.partnerName,
-      domain: quote.partnerDomain,
-      legalName: quote.partnerLegalName,
-      companyNumber: quote.partnerCompanyNumber,
-      registeredAddress: quote.partnerRegisteredAddress,
-      legalEmail: quote.partnerLegalEmail,
+      name: effectivePartnerBranding?.name || "Voxd",
+      domain: effectivePartnerBranding?.domain ?? null,
+      legalName: effectivePartnerBranding?.legalName ?? null,
+      companyNumber: effectivePartnerBranding?.companyNumber ?? null,
+      registeredAddress: effectivePartnerBranding?.registeredAddress ?? null,
+      legalEmail: effectivePartnerBranding?.legalEmail ?? null,
     },
     salesBot:
       quote.salesBotName && quote.salesBotPhoneNumber

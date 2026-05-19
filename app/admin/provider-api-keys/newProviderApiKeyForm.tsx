@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -33,12 +34,15 @@ const formSchema = z.object({
 export default function NewProviderApiKeyForm({
   preselectedOrganisationId,
   preselectedOrganisationName,
+  onSuccess,
 }: {
   preselectedOrganisationId?: string;
   preselectedOrganisationName?: string;
+  onSuccess?: () => void;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const isOrganisationLocked = !!preselectedOrganisationId;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,7 +72,14 @@ export default function NewProviderApiKeyForm({
     }
 
     toast.success("Provider API key created");
-    router.push(`/admin/provider-api-keys/${response.data.id}`);
+    form.reset({
+      key: "",
+      providerId: "",
+      organisationId: preselectedOrganisationId || "",
+    });
+    onSuccess?.();
+    router.refresh();
+    setLoading(false);
   }
 
   return (
@@ -80,18 +91,29 @@ export default function NewProviderApiKeyForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Organisation</FormLabel>
-              <FormControl>
-                <RemoteSelect
-                  {...field}
-                  serverAction={saGetOrganisationTableData}
-                  label={(record) => record.name}
-                  valueField="id"
-                  sortField="name"
-                  placeholder="Select an organisation..."
-                  emptyMessage="No organisations found"
-                  initialLabel={preselectedOrganisationName}
-                />
-              </FormControl>
+              {isOrganisationLocked ? (
+                <>
+                  <FormControl>
+                    <Input value={preselectedOrganisationName || ""} disabled />
+                  </FormControl>
+                  <FormDescription>
+                    This key will be created for the current organisation.
+                  </FormDescription>
+                </>
+              ) : (
+                <FormControl>
+                  <RemoteSelect
+                    {...field}
+                    serverAction={saGetOrganisationTableData}
+                    label={(record) => record.name}
+                    valueField="id"
+                    sortField="name"
+                    placeholder="Select an organisation..."
+                    emptyMessage="No organisations found"
+                    initialLabel={preselectedOrganisationName}
+                  />
+                </FormControl>
+              )}
               <FormMessage />
             </FormItem>
           )}

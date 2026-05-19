@@ -70,7 +70,7 @@ type PricingFieldName = keyof FormValues;
 
 export default function EditPricingForm({
   quoteId,
-  parentPartnerName,
+  effectivePartnerName,
   setupFee,
   monthlyFee,
   hourlyRate,
@@ -90,10 +90,9 @@ export default function EditPricingForm({
   isOwnerPartner,
   canViewCostPrice,
   canWriteContractNotes,
-  integrationCount,
 }: {
   quoteId: string;
-  parentPartnerName: string | null;
+  effectivePartnerName: string | null;
   setupFee: number | null;
   monthlyFee: number | null;
   hourlyRate: number | null;
@@ -113,7 +112,6 @@ export default function EditPricingForm({
   isOwnerPartner: boolean;
   canViewCostPrice: boolean;
   canWriteContractNotes: boolean;
-  integrationCount: number;
 }) {
   const [calculatingCosting, setCalculatingCosting] = useState(false);
   const router = useRouter();
@@ -126,7 +124,7 @@ export default function EditPricingForm({
   const canEditPartnerFields = isOwnerPartner || isSuperAdmin;
   const canEditAdminFields = isSuperAdmin;
   const showCostPricing = canEditAdminFields || canViewCostPrice;
-  const partnerBrandName = parentPartnerName?.trim() || "Voxd";
+  const partnerBrandName = effectivePartnerName?.trim() || "Voxd";
   const partnerBrandPossessive = partnerBrandName.endsWith("s")
     ? `${partnerBrandName}'`
     : `${partnerBrandName}'s`;
@@ -617,12 +615,12 @@ export default function EditPricingForm({
               monthlyBaseFeeVoxdCost != null &&
               monthlyPerIntegrationVoxdCost != null && (
                 <p className="text-sm text-muted-foreground mb-4">
-                  Calculated using current partner defaults: &pound;
+                  Current raw quote cost basis: &pound;
                   {hourlyRateVoxdCost.toLocaleString(undefined, {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 2,
                   })}
-                  /hr, &pound;
+                  /hr. Recalculate uses current partner defaults of &pound;
                   {monthlyBaseFeeVoxdCost.toLocaleString(undefined, {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 2,

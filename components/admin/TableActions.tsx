@@ -1,10 +1,15 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import Alert from "@/components/admin/Alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -14,6 +19,7 @@ export type TableActionButton = {
   label?: string;
   icon?: ReactNode;
   variant?: "default" | "outline" | "destructive" | "ghost";
+  tooltip?: string;
   href?: string;
   target?: string;
   onClick?: () => void;
@@ -54,11 +60,35 @@ export type TableActionsProps = ShorthandProps | MultiProps;
 // Helpers
 // ---------------------------------------------------------------------------
 
+function withTooltip({
+  element,
+  tooltip,
+  disabled,
+}: {
+  element: ReactElement;
+  tooltip?: string;
+  disabled?: boolean;
+}) {
+  if (!tooltip) return element;
+
+  const trigger = disabled ? (
+    <span className="inline-flex">{element}</span>
+  ) : (
+    element
+  );
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+      <TooltipContent side="top" sideOffset={4}>{tooltip}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 function renderButton(btn: TableActionButton, key: number) {
   if (btn.hidden) return null;
 
   const hasLabel = !!btn.label;
-  const hasIcon = !!btn.icon;
   const size = hasLabel ? "xs" : "icon-xs";
   const variant = btn.variant ?? "outline";
 
@@ -70,9 +100,10 @@ function renderButton(btn: TableActionButton, key: number) {
   );
 
   let el: ReactNode;
+  const isDisabled = !!(btn.disabled || btn.loading);
 
   if (btn.href) {
-    el = (
+    const button = (
       <Button
         key={key}
         variant={variant}
@@ -85,18 +116,32 @@ function renderButton(btn: TableActionButton, key: number) {
         </Link>
       </Button>
     );
+
+    el = withTooltip({
+      element: button,
+      tooltip: btn.tooltip,
+      disabled: !!btn.disabled,
+    });
   } else {
-    el = (
+    const button = (
       <Button
         key={key}
         variant={variant}
         size={size}
-        disabled={btn.disabled || btn.loading}
+        disabled={isDisabled}
         onClick={btn.confirm ? undefined : btn.onClick}
       >
         {content}
       </Button>
     );
+
+    el = btn.confirm
+      ? button
+      : withTooltip({
+          element: button,
+          tooltip: btn.tooltip,
+          disabled: isDisabled,
+        });
   }
 
   if (btn.confirm) {
@@ -109,7 +154,7 @@ function renderButton(btn: TableActionButton, key: number) {
         destructive={btn.confirm.destructive}
         onAction={btn.confirm.onAction}
       >
-        {el as React.ReactElement}
+        {el as ReactElement}
       </Alert>
     );
   }

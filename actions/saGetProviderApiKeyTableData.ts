@@ -6,6 +6,10 @@ import {
 } from "@/types/types";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import {
+  applyOrganisationReadScope,
+  canAdminUserReadAllOrganisations,
+} from "@/lib/organisationAccess";
 
 const saGetProviderApiKeyTableData = async ({
   search,
@@ -18,10 +22,6 @@ const saGetProviderApiKeyTableData = async ({
   organisationId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
-
-  if (!accessToken.superAdmin && !accessToken.partner) {
-    return { success: false, error: "Unauthorized" };
-  }
 
   const base = db("providerApiKey")
     .leftJoin("provider", "providerApiKey.providerId", "provider.id")
@@ -38,22 +38,29 @@ const saGetProviderApiKeyTableData = async ({
       }
     });
 
+  await applyOrganisationReadScope({
+    query: base,
+    accessToken,
+    includeRootPartnerOrganisation: true,
+  });
+
   if (organisationId) {
     base.where("providerApiKey.organisationId", organisationId);
   }
 
-  // Partner-level users can only see keys in their organisations
   if (accessToken.partner && !accessToken.superAdmin) {
-    base.whereIn("providerApiKey.organisationId", function () {
-      this.select("id")
-        .from("organisation")
-        .where((qb) => {
-          qb.where("partnerId", accessToken.partnerId).orWhere(
-            "id",
-            accessToken.partnerId,
-          );
-        });
+    const canReadAllOrganisations = await canAdminUserReadAllOrganisations({
+      accessToken,
     });
+
+    if (!canReadAllOrganisations && accessToken.partnerId) {
+      base.where((qb) => {
+        qb.where("providerApiKey.organisationId", accessToken.partnerId).orWhere(
+          "organisation.ownerId",
+          accessToken.adminUserId,
+        );
+      });
+    }
   }
 
   const countQuery = base.clone().select("providerApiKey.id");
