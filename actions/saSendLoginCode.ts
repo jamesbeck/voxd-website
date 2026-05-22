@@ -4,7 +4,7 @@ import { ServerActionResponse } from "@/types/types";
 import z from "zod";
 import { randomInt } from "crypto";
 import { hash } from "bcryptjs";
-import sendgrid from "@sendgrid/mail";
+import { Resend } from "resend";
 import db from "../database/db";
 import { addMinutes } from "date-fns";
 import { cookies } from "next/headers";
@@ -73,15 +73,14 @@ const saSendLoginCode = async ({
       })
       .where({ id: adminUser.id });
 
-    sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
-
-    // Send code via SendGrid
+    // Send code via Resend
     //only send if not development
 
     if (process.env.NODE_ENV !== "development") {
       try {
         const emailFromDomain = partner?.sendEmailFromDomain || "voxd.ai";
-        const emailR = await sendgrid.send({
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const emailR = await resend.emails.send({
           from: `${partnerBrandName} Login <login@${emailFromDomain}>`,
           replyTo: `support@${emailFromDomain}`,
           to:
@@ -156,9 +155,8 @@ const saSendLoginCode = async ({
           organisationId: adminUser.organisationId || undefined,
           data: {
             email: adminUser.email,
-            statusCode: emailR[0].statusCode,
-            headers: emailR[0].headers,
-            body: emailR[0].body,
+            resendEmailId: emailR.data?.id,
+            resendError: emailR.error || undefined,
           },
         });
       } catch (error) {

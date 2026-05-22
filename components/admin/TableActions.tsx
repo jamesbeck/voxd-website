@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactElement, ReactNode } from "react";
+import { Fragment, ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -80,7 +80,9 @@ function withTooltip({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <TooltipContent side="top" sideOffset={4}>{tooltip}</TooltipContent>
+      <TooltipContent side="top" sideOffset={4}>
+        {tooltip}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -159,7 +161,7 @@ function renderButton(btn: TableActionButton, key: number) {
     );
   }
 
-  return el;
+  return <Fragment key={key}>{el}</Fragment>;
 }
 
 // ---------------------------------------------------------------------------
