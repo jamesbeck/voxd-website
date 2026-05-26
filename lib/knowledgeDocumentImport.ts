@@ -149,7 +149,8 @@ export function buildKnowledgeBlocksFromSections(sections: ImportedSection[]) {
       }
 
       currentParagraphs.push(paragraph);
-      currentLength += (currentParagraphs.length > 1 ? 2 : 0) + paragraph.length;
+      currentLength +=
+        (currentParagraphs.length > 1 ? 2 : 0) + paragraph.length;
 
       if (currentLength >= targetBlockLength) {
         flushSectionBlock();
