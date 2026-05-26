@@ -5,6 +5,7 @@ import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import { addLog } from "@/lib/addLog";
+import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
 
 const saDeleteKnowledgeBlock = async ({
   blockId,
@@ -19,7 +20,7 @@ const saDeleteKnowledgeBlock = async ({
       .join(
         "knowledgeDocument",
         "knowledgeBlock.documentId",
-        "knowledgeDocument.id"
+        "knowledgeDocument.id",
       )
       .where("knowledgeBlock.id", blockId)
       .select(
@@ -29,7 +30,8 @@ const saDeleteKnowledgeBlock = async ({
         "knowledgeBlock.blockIndex",
         "knowledgeBlock.tokenCount",
         "knowledgeBlock.documentId",
-        "knowledgeDocument.agentId"
+        "knowledgeDocument.agentId",
+        "knowledgeDocument.sourceType",
       )
       .first();
 
@@ -40,6 +42,14 @@ const saDeleteKnowledgeBlock = async ({
     // Verify the user can access this agent
     if (!(await userCanViewAgent({ agentId: block.agentId }))) {
       return { success: false, error: "Unauthorized" };
+    }
+
+    if (!knowledgeDocumentBlocksAreEditable(block.sourceType)) {
+      return {
+        success: false,
+        error:
+          "URL-backed documents can only be updated by refreshing the source URL",
+      };
     }
 
     // Log knowledge block deletion before deleting

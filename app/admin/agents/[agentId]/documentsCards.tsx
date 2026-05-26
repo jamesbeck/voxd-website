@@ -30,6 +30,7 @@ import {
   ChevronUp,
   Sparkles,
 } from "lucide-react";
+import { getKnowledgeDocumentSourceLabel } from "@/lib/knowledgeDocumentSource";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -95,8 +96,6 @@ const DocumentsCards = ({ agentId }: { agentId: string }) => {
   // Semantic search effect
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setIsSearching(false);
-      setSearchResults([]);
       return;
     }
 
@@ -382,7 +381,9 @@ const DocumentsCards = ({ agentId }: { agentId: string }) => {
                   {doc.sourceType && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <FileText className="h-4 w-4 flex-shrink-0" />
-                      <span className="capitalize">{doc.sourceType}</span>
+                      <span>
+                        {getKnowledgeDocumentSourceLabel(doc.sourceType)}
+                      </span>
                     </div>
                   )}
 

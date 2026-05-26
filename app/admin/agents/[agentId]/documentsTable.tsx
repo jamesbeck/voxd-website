@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import saGetDocumentTableData from "@/actions/saGetDocumentTableData";
 import { Badge } from "@/components/ui/badge";
 import TableActions from "@/components/admin/TableActions";
+import { getKnowledgeDocumentSourceLabel } from "@/lib/knowledgeDocumentSource";
 
 const DocumentsTable = ({ agentId }: { agentId: string }) => {
   const columns = [
@@ -28,7 +29,7 @@ const DocumentsTable = ({ agentId }: { agentId: string }) => {
       label: "Source Type",
       name: "sourceType",
       sort: true,
-      format: (row: any) => row.sourceType || "-",
+      format: (row: any) => getKnowledgeDocumentSourceLabel(row.sourceType),
     },
     {
       label: "Blocks",

@@ -6,6 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { createOpenAI } from "@ai-sdk/openai";
 import { embed } from "ai";
 import { addLog } from "@/lib/addLog";
+import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
 
 const saCreateKnowledgeBlock = async ({
   documentId,
@@ -33,6 +34,14 @@ const saCreateKnowledgeBlock = async ({
     return {
       success: false,
       error: "Document not found",
+    };
+  }
+
+  if (!knowledgeDocumentBlocksAreEditable(document.sourceType)) {
+    return {
+      success: false,
+      error:
+        "URL-backed documents can only be updated by refreshing the source URL",
     };
   }
 

@@ -22,6 +22,8 @@ const getKnowledgeBlockById = async ({ blockId }: { blockId: string }) => {
         'CASE WHEN "knowledgeBlock"."embedding" IS NOT NULL THEN true ELSE false END as "hasEmbedding"',
       ),
       "knowledgeDocument.title as documentTitle",
+      "knowledgeDocument.sourceType as documentSourceType",
+      "knowledgeDocument.sourceUrl as documentSourceUrl",
       "knowledgeDocument.agentId",
       "agent.name as agentName",
       "agent.niceName as agentNiceName",

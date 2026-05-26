@@ -25,6 +25,11 @@ import KnowledgeBlocksTable from "./knowledgeBlocksTable";
 import NewKnowledgeBlockForm from "./newKnowledgeBlockForm";
 import SmartImportForm from "./smartImportKnowledgeBlocksForm";
 import RegenerateEmbeddingsButton from "./regenerateEmbeddingsButton";
+import RefreshDocumentFromUrlButton from "./refreshDocumentFromUrlButton";
+import {
+  getKnowledgeDocumentSourceLabel,
+  knowledgeDocumentBlocksAreEditable,
+} from "@/lib/knowledgeDocumentSource";
 
 export default async function Page({
   params,
@@ -34,7 +39,7 @@ export default async function Page({
   searchParams: { tab?: string };
 }) {
   const { agentId, documentId } = await params;
-  const activeTab = (await searchParams).tab || "info";
+  const requestedTab = (await searchParams).tab || "info";
 
   const document = await getDocumentById({ documentId });
 
@@ -44,6 +49,14 @@ export default async function Page({
   if (!(await userCanViewAgent({ agentId }))) {
     return notFound();
   }
+
+  const blocksAreEditable = knowledgeDocumentBlocksAreEditable(
+    document.sourceType,
+  );
+  const activeTab =
+    !blocksAreEditable && ["new-block", "smart-import"].includes(requestedTab)
+      ? "knowledge-blocks"
+      : requestedTab;
 
   return (
     <Container>
@@ -112,7 +125,9 @@ export default async function Page({
                   document.sourceType
                     ? {
                         label: "Source Type",
-                        value: document.sourceType,
+                        value: getKnowledgeDocumentSourceLabel(
+                          document.sourceType,
+                        ),
                         icon: <Layers className="h-4 w-4" />,
                       }
                     : null,
@@ -159,7 +174,6 @@ export default async function Page({
             <H2>Edit Document</H2>
             <EditDocumentForm
               documentId={documentId}
-              agentId={agentId}
               title={document.title}
               description={document.description}
               sourceUrl={document.sourceUrl}
@@ -175,58 +189,77 @@ export default async function Page({
               <div>
                 <H2>Knowledge Blocks</H2>
                 <p className="text-muted-foreground">
-                  Knowledge blocks are segments of the document used for
-                  semantic search.
+                  {blocksAreEditable
+                    ? "Knowledge blocks are segments of the document used for semantic search."
+                    : "Knowledge blocks in URL-backed documents are generated from the source URL and refreshed as a set."}
                 </p>
               </div>
               <div className="flex gap-2">
-                <RegenerateEmbeddingsButton
-                  documentId={documentId}
-                  documentTitle={document.title}
-                />
-                <Button asChild>
-                  <Link
-                    href={`/admin/agents/${agentId}/documents/${documentId}?tab=smart-import`}
-                  >
-                    <Layers className="h-4 w-4 mr-2" />
-                    Smart Import (AI)
-                  </Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link
-                    href={`/admin/agents/${agentId}/documents/${documentId}?tab=new-block`}
-                  >
-                    <Layers className="h-4 w-4 mr-2" />
-                    New Block
-                  </Link>
-                </Button>
+                {blocksAreEditable ? (
+                  <>
+                    <RegenerateEmbeddingsButton
+                      documentId={documentId}
+                      documentTitle={document.title}
+                    />
+                    <Button asChild>
+                      <Link
+                        href={`/admin/agents/${agentId}/documents/${documentId}?tab=smart-import`}
+                      >
+                        <Layers className="h-4 w-4 mr-2" />
+                        Smart Import (AI)
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                      <Link
+                        href={`/admin/agents/${agentId}/documents/${documentId}?tab=new-block`}
+                      >
+                        <Layers className="h-4 w-4 mr-2" />
+                        New Block
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <RefreshDocumentFromUrlButton
+                    documentId={documentId}
+                    documentTitle={document.title}
+                    sourceUrl={document.sourceUrl}
+                  />
+                )}
               </div>
             </div>
             <KnowledgeBlocksTable documentId={documentId} agentId={agentId} />
           </Container>
         </TabsContent>
 
-        <TabsContent value="new-block">
-          <Container>
-            <H2>New Knowledge Block</H2>
-            <p className="text-muted-foreground mb-4">
-              Create a new knowledge block. The embedding will be generated
-              automatically.
-            </p>
-            <NewKnowledgeBlockForm documentId={documentId} agentId={agentId} />
-          </Container>
-        </TabsContent>
+        {blocksAreEditable && (
+          <TabsContent value="new-block">
+            <Container>
+              <H2>New Knowledge Block</H2>
+              <p className="text-muted-foreground mb-4">
+                Create a new knowledge block. The embedding will be generated
+                automatically.
+              </p>
+              <NewKnowledgeBlockForm
+                documentId={documentId}
+                agentId={agentId}
+              />
+            </Container>
+          </TabsContent>
+        )}
 
-        <TabsContent value="smart-import">
-          <Container>
-            <H2>Smart Import (AI)</H2>
-            <p className="text-muted-foreground mb-4">
-              Paste text and the agent&apos;s AI model will intelligently split
-              it into semantic knowledge blocks with auto-generated titles.
-            </p>
-            <SmartImportForm documentId={documentId} agentId={agentId} />
-          </Container>
-        </TabsContent>
+        {blocksAreEditable && (
+          <TabsContent value="smart-import">
+            <Container>
+              <H2>Smart Import (AI)</H2>
+              <p className="text-muted-foreground mb-4">
+                Paste text and the agent&apos;s AI model will intelligently
+                split it into semantic knowledge blocks with auto-generated
+                titles.
+              </p>
+              <SmartImportForm documentId={documentId} agentId={agentId} />
+            </Container>
+          </TabsContent>
+        )}
       </RecordTabs>
     </Container>
   );

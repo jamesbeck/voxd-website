@@ -5,6 +5,7 @@ import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import { addLog } from "@/lib/addLog";
+import { normalizeKnowledgeDocumentSourceInput } from "@/lib/knowledgeDocumentSource";
 
 const saUpdateDocument = async ({
   documentId,
@@ -22,6 +23,14 @@ const saUpdateDocument = async ({
   enabled?: boolean;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
+  const normalizedSource = normalizeKnowledgeDocumentSourceInput({
+    sourceType,
+    sourceUrl,
+  });
+
+  if (!normalizedSource.success) {
+    return normalizedSource;
+  }
 
   if (!documentId) {
     return {
@@ -50,8 +59,8 @@ const saUpdateDocument = async ({
   await db("knowledgeDocument").where({ id: documentId }).update({
     title,
     description,
-    sourceUrl,
-    sourceType,
+    sourceUrl: normalizedSource.data.sourceUrl,
+    sourceType: normalizedSource.data.sourceType,
     enabled,
     updatedAt: db.fn.now(),
   });
@@ -76,8 +85,8 @@ const saUpdateDocument = async ({
       after: {
         title,
         description,
-        sourceUrl,
-        sourceType,
+        sourceUrl: normalizedSource.data.sourceUrl,
+        sourceType: normalizedSource.data.sourceType,
         enabled,
       },
     },

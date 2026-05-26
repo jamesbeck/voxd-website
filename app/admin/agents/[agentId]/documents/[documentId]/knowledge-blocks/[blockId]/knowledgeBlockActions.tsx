@@ -12,14 +12,20 @@ export default function KnowledgeBlockActions({
   blockIndex,
   agentId,
   documentId,
+  canDelete = true,
 }: {
   blockId: string;
   blockIndex: number;
   agentId: string;
   documentId: string;
+  canDelete?: boolean;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+
+  if (!canDelete) {
+    return null;
+  }
 
   const deleteBlock = async () => {
     setIsDeleting(true);

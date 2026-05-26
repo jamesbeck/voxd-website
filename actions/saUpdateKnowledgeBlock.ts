@@ -7,6 +7,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { embed } from "ai";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import { addLog } from "@/lib/addLog";
+import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
 
 const saUpdateKnowledgeBlock = async ({
   blockId,
@@ -33,6 +34,7 @@ const saUpdateKnowledgeBlock = async ({
       "knowledgeBlock.*",
       "knowledgeDocument.agentId",
       "knowledgeDocument.title as documentTitle",
+      "knowledgeDocument.sourceType",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
     )
     .first();
@@ -47,6 +49,14 @@ const saUpdateKnowledgeBlock = async ({
   // Verify the user can access this agent
   if (!(await userCanViewAgent({ agentId: block.agentId }))) {
     return { success: false, error: "Unauthorized" };
+  }
+
+  if (!knowledgeDocumentBlocksAreEditable(block.sourceType)) {
+    return {
+      success: false,
+      error:
+        "URL-backed documents can only be updated by refreshing the source URL",
+    };
   }
 
   if (!block.providerApiKey) {

@@ -1,29 +1,13 @@
 "use server";
 
-import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import { createOpenAI } from "@ai-sdk/openai";
-import { generateObject, embedMany } from "ai";
-import { z } from "zod";
 import { addLog } from "@/lib/addLog";
-
-const blockSchema = z.object({
-  blocks: z.array(
-    z.object({
-      title: z
-        .string()
-        .describe(
-          "A short descriptive title for this knowledge block (max 100 chars)",
-        ),
-      content: z
-        .string()
-        .describe(
-          "The knowledge block content. Should be 300-1500 characters, self-contained and coherent",
-        ),
-    }),
-  ),
-});
+import {
+  getKnowledgeDocumentImportContext,
+  importKnowledgeBlocksFromText,
+} from "@/lib/knowledgeDocumentImport";
+import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
 
 const saSmartImportKnowledgeBlocks = async ({
   documentId,
@@ -33,129 +17,37 @@ const saSmartImportKnowledgeBlocks = async ({
   text: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
+  let documentContext: Awaited<
+    ReturnType<typeof getKnowledgeDocumentImportContext>
+  > | null = null;
+  let importResult: Awaited<
+    ReturnType<typeof importKnowledgeBlocksFromText>
+  > | null = null;
 
-  // Get the document and its associated agent's API key and model
-  const document = await db("knowledgeDocument")
-    .join("agent", "knowledgeDocument.agentId", "agent.id")
-    .leftJoin("model", "agent.modelId", "model.id")
-    .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
-    .where("knowledgeDocument.id", documentId)
-    .select(
-      "knowledgeDocument.*",
-      db.raw('"providerApiKey"."key" as "providerApiKey"'),
-      "model.model as modelName",
-    )
-    .first();
-
-  if (!document) {
-    return {
-      success: false,
-      error: "Document not found",
-    };
-  }
-
-  if (!document.providerApiKey) {
-    return {
-      success: false,
-      error: "Agent does not have a provider API key configured",
-    };
-  }
-
-  // Use agent's configured model or fallback to gpt-5.4
-  const modelName = document.modelName || "gpt-5.4";
-
-  const openai = createOpenAI({ apiKey: document.providerApiKey });
-
-  // Get the next block index
-  const lastBlock = await db("knowledgeBlock")
-    .where("documentId", documentId)
-    .orderBy("blockIndex", "desc")
-    .first();
-
-  const startIndex = lastBlock ? lastBlock.blockIndex + 1 : 0;
-
-  // Use LLM to intelligently split the text into knowledge blocks
-  let blocks: { title: string; content: string }[];
   try {
-    const { object } = await generateObject({
-      model: openai(modelName),
-      schema: blockSchema,
-      prompt: `You are a knowledge base assistant. Split the following text into semantic knowledge blocks for a RAG (Retrieval Augmented Generation) system.
+    documentContext = await getKnowledgeDocumentImportContext({ documentId });
 
-Each knowledge block should:
-- Be a self-contained piece of information (ideally 300-1500 characters)
-- Have a short, descriptive title that summarizes its content
-- Preserve complete thoughts and context
-- Not split mid-sentence or mid-idea
-- Be useful as a standalone piece of knowledge that can answer questions
+    if (!knowledgeDocumentBlocksAreEditable(documentContext.sourceType)) {
+      return {
+        success: false,
+        error:
+          "URL-backed documents can only be updated by refreshing the source URL",
+      };
+    }
 
-Create knowledge blocks that would be helpful when retrieved to answer user questions about this content.
-
-Text to process:
-${text}`,
+    importResult = await importKnowledgeBlocksFromText({
+      documentId,
+      text,
+      providerApiKey: documentContext.providerApiKey,
+      modelName: documentContext.modelName,
     });
-
-    blocks = object.blocks;
   } catch (error) {
-    console.error("Error generating knowledge blocks with LLM:", error);
+    console.error("Error importing knowledge blocks:", error);
     return {
       success: false,
-      error: `Failed to generate knowledge blocks: ${
+      error: `Failed to import knowledge blocks: ${
         error instanceof Error ? error.message : "Unknown error"
       }`,
-    };
-  }
-
-  if (!blocks.length) {
-    return {
-      success: false,
-      error: "No knowledge blocks were generated from the text",
-    };
-  }
-
-  // Generate embeddings for all blocks (include title in embedding text)
-  let embeddings: number[][] = [];
-  let tokenCounts: number[] = [];
-  try {
-    const result = await embedMany({
-      model: openai.embedding("text-embedding-3-small"),
-      values: blocks.map((b) =>
-        b.title ? `${b.title}\n\n${b.content}` : b.content,
-      ),
-    });
-    embeddings = result.embeddings;
-    // Estimate token counts per block (including title)
-    tokenCounts = blocks.map((b) => {
-      const embeddingText = b.title ? `${b.title}\n\n${b.content}` : b.content;
-      return Math.ceil(embeddingText.length / 4);
-    });
-  } catch (error) {
-    console.error("Error generating embeddings:", error);
-    return {
-      success: false,
-      error: `Failed to generate embeddings: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`,
-    };
-  }
-
-  // Insert all knowledge blocks
-  const blockRecords = blocks.map((block, index) => ({
-    documentId,
-    content: block.content,
-    title: block.title,
-    blockIndex: startIndex + index,
-    tokenCount: tokenCounts[index],
-    embedding: embeddings[index] ? `[${embeddings[index].join(",")}]` : null,
-  }));
-
-  try {
-    await db("knowledgeBlock").insert(blockRecords);
-  } catch (error) {
-    console.error("Error inserting knowledge blocks:", error);
-    return {
-      success: false,
-      error: "Failed to save knowledge blocks to database",
     };
   }
 
@@ -163,22 +55,19 @@ ${text}`,
   await addLog({
     adminUserId: accessToken.adminUserId,
     event: "Smart AI Import",
-    description: `Smart AI Import created ${blocks.length} knowledge blocks`,
-    agentId: document.agentId,
+    description: `Smart AI Import created ${importResult.blocksCreated} knowledge blocks`,
+    agentId: documentContext.agentId,
     data: {
       documentId,
       inputText: text,
-      blocksCreated: blocks.length,
-      generatedBlocks: blocks.map((b) => ({
-        title: b.title,
-        content: b.content,
-      })),
+      blocksCreated: importResult.blocksCreated,
+      generatedBlocks: importResult.generatedBlocks,
     },
   });
 
   return {
     success: true,
-    data: { blocksCreated: blocks.length },
+    data: { blocksCreated: importResult.blocksCreated },
   };
 };
 

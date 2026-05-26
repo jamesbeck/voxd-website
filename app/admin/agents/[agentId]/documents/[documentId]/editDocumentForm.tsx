@@ -30,18 +30,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useWatch } from "react-hook-form";
+import { KNOWLEDGE_DOCUMENT_SOURCE_TYPES } from "@/lib/knowledgeDocumentSource";
 
-const formSchema = z.object({
-  title: z.string().nonempty("Title is required"),
-  description: z.string().optional(),
-  sourceUrl: z.string().optional(),
-  sourceType: z.string().optional(),
-  enabled: z.boolean(),
-});
+const formSchema = z
+  .object({
+    title: z.string().nonempty("Title is required"),
+    description: z.string().optional(),
+    sourceUrl: z.string().optional(),
+    sourceType: z.enum(KNOWLEDGE_DOCUMENT_SOURCE_TYPES),
+    enabled: z.boolean(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.sourceType === "url" && !values.sourceUrl?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Source URL is required",
+        path: ["sourceUrl"],
+      });
+    }
+  });
 
 export default function EditDocumentForm({
   documentId,
-  agentId,
   title,
   description,
   sourceUrl,
@@ -49,7 +60,6 @@ export default function EditDocumentForm({
   enabled,
 }: {
   documentId: string;
-  agentId: string;
   title?: string;
   description?: string;
   sourceUrl?: string;
@@ -65,9 +75,13 @@ export default function EditDocumentForm({
       title: title || "",
       description: description || "",
       sourceUrl: sourceUrl || "",
-      sourceType: sourceType || "",
+      sourceType: sourceType === "url" ? "url" : "manual",
       enabled: enabled ?? true,
     },
+  });
+  const sourceTypeValue = useWatch({
+    control: form.control,
+    name: "sourceType",
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -171,8 +185,6 @@ export default function EditDocumentForm({
                 <SelectContent>
                   <SelectItem value="manual">Manual Entry</SelectItem>
                   <SelectItem value="url">URL/Website</SelectItem>
-                  <SelectItem value="file">File Upload</SelectItem>
-                  <SelectItem value="api">API</SelectItem>
                 </SelectContent>
               </Select>
               <FormDescription>
@@ -183,22 +195,24 @@ export default function EditDocumentForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="sourceUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Source URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/docs" {...field} />
-              </FormControl>
-              <FormDescription>
-                Optional URL where the source content can be found
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {sourceTypeValue === "url" && (
+          <FormField
+            control={form.control}
+            name="sourceUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Source URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://example.com/docs" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Enter the page URL to import into this knowledge document
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}

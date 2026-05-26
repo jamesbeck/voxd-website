@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import { TabsContent } from "@/components/ui/tabs";
 import RecordTabs from "@/components/admin/RecordTabs";
 import H2 from "@/components/adminui/H2";
+import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
 
 export default async function Page({
   params,
@@ -28,7 +29,7 @@ export default async function Page({
   searchParams: { tab?: string };
 }) {
   const { agentId, documentId, blockId } = await params;
-  const activeTab = (await searchParams).tab || "info";
+  const requestedTab = (await searchParams).tab || "info";
 
   const block = await getKnowledgeBlockById({ blockId });
 
@@ -38,6 +39,19 @@ export default async function Page({
   if (!(await userCanViewAgent({ agentId }))) {
     return notFound();
   }
+
+  const blocksAreEditable = knowledgeDocumentBlocksAreEditable(
+    block.documentSourceType,
+  );
+  const activeTab =
+    !blocksAreEditable && requestedTab === "edit" ? "info" : requestedTab;
+
+  const pageTitle = [
+    block.documentTitle,
+    block.title || `Block ${block.blockIndex}`,
+  ]
+    .filter(Boolean)
+    .join(": ");
 
   return (
     <Container>
@@ -64,7 +78,7 @@ export default async function Page({
           { label: `Block ${block.blockIndex}` },
         ]}
       />
-      <H1>Knowledge Block {block.blockIndex}</H1>
+      <H1>{pageTitle}</H1>
 
       <RecordTabs
         value={activeTab}
@@ -74,11 +88,15 @@ export default async function Page({
             label: "Info",
             href: `/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=info`,
           },
-          {
-            value: "edit",
-            label: "Edit",
-            href: `/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=edit`,
-          },
+          ...(blocksAreEditable
+            ? [
+                {
+                  value: "edit",
+                  label: "Edit",
+                  href: `/admin/agents/${agentId}/documents/${documentId}/knowledge-blocks/${blockId}?tab=edit`,
+                },
+              ]
+            : []),
         ]}
         actions={
           <KnowledgeBlockActions
@@ -86,6 +104,7 @@ export default async function Page({
             blockIndex={block.blockIndex}
             agentId={agentId}
             documentId={documentId}
+            canDelete={blocksAreEditable}
           />
         }
       >
@@ -133,6 +152,13 @@ export default async function Page({
             />
             <div className="mt-6">
               <H2>Content</H2>
+              {!blocksAreEditable && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  This block belongs to a URL-backed document. Update the
+                  document by refreshing its source URL instead of editing
+                  individual blocks.
+                </p>
+              )}
               <div className="mt-2 p-4 bg-muted rounded-lg whitespace-pre-wrap font-mono text-sm">
                 {block.content}
               </div>
@@ -140,21 +166,23 @@ export default async function Page({
           </Container>
         </TabsContent>
 
-        <TabsContent value="edit">
-          <Container>
-            <H2>Edit Knowledge Block</H2>
-            <p className="text-muted-foreground mb-4">
-              Editing the content will regenerate the embedding.
-            </p>
-            <EditKnowledgeBlockForm
-              blockId={blockId}
-              documentId={documentId}
-              agentId={agentId}
-              content={block.content}
-              title={block.title}
-            />
-          </Container>
-        </TabsContent>
+        {blocksAreEditable && (
+          <TabsContent value="edit">
+            <Container>
+              <H2>Edit Knowledge Block</H2>
+              <p className="text-muted-foreground mb-4">
+                Editing the content will regenerate the embedding.
+              </p>
+              <EditKnowledgeBlockForm
+                blockId={blockId}
+                documentId={documentId}
+                agentId={agentId}
+                content={block.content}
+                title={block.title}
+              />
+            </Container>
+          </TabsContent>
+        )}
       </RecordTabs>
     </Container>
   );

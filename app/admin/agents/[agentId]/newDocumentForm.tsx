@@ -29,13 +29,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useWatch } from "react-hook-form";
+import { KNOWLEDGE_DOCUMENT_SOURCE_TYPES } from "@/lib/knowledgeDocumentSource";
 
-const formSchema = z.object({
-  title: z.string().nonempty("Title is required"),
-  description: z.string().optional(),
-  sourceUrl: z.string().optional(),
-  sourceType: z.string().optional(),
-});
+const formSchema = z
+  .object({
+    title: z.string().nonempty("Title is required"),
+    description: z.string().optional(),
+    sourceUrl: z.string().optional(),
+    sourceType: z.enum(KNOWLEDGE_DOCUMENT_SOURCE_TYPES),
+  })
+  .superRefine((values, ctx) => {
+    if (values.sourceType === "url" && !values.sourceUrl?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Source URL is required",
+        path: ["sourceUrl"],
+      });
+    }
+  });
 
 export default function NewDocumentForm({ agentId }: { agentId: string }) {
   const [loading, setLoading] = useState(false);
@@ -47,9 +59,10 @@ export default function NewDocumentForm({ agentId }: { agentId: string }) {
       title: "",
       description: "",
       sourceUrl: "",
-      sourceType: "",
+      sourceType: "manual",
     },
   });
+  const sourceType = useWatch({ control: form.control, name: "sourceType" });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
@@ -152,8 +165,6 @@ export default function NewDocumentForm({ agentId }: { agentId: string }) {
                 <SelectContent>
                   <SelectItem value="manual">Manual Entry</SelectItem>
                   <SelectItem value="url">URL/Website</SelectItem>
-                  <SelectItem value="file">File Upload</SelectItem>
-                  <SelectItem value="api">API</SelectItem>
                 </SelectContent>
               </Select>
               <FormDescription>
@@ -164,22 +175,24 @@ export default function NewDocumentForm({ agentId }: { agentId: string }) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="sourceUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Source URL</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com/docs" {...field} />
-              </FormControl>
-              <FormDescription>
-                Optional URL where the source content can be found
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {sourceType === "url" && (
+          <FormField
+            control={form.control}
+            name="sourceUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Source URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://example.com/docs" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Enter the page URL to import into this knowledge document
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         {form.formState.errors.root && (
           <div className="max-w-xl">
