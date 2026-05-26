@@ -71,6 +71,10 @@ type ExtractWebsiteTextResult = {
   }>;
 };
 
+type CheerioNode = {
+  tagName?: string;
+};
+
 function normalizeWhitespace(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
@@ -173,7 +177,7 @@ function getBestContentNode($: cheerio.CheerioAPI) {
   return $("body");
 }
 
-function isHeadingElement(element?: cheerio.AnyNode | null) {
+function isHeadingElement(element?: CheerioNode | null) {
   return Boolean(element && /^(h[1-6])$/i.test(element.tagName || ""));
 }
 
@@ -181,8 +185,8 @@ function isContainerCandidate({
   node,
   contentRoot,
 }: {
-  node: cheerio.Cheerio<cheerio.AnyNode>;
-  contentRoot: cheerio.Cheerio<cheerio.AnyNode>;
+  node: cheerio.Cheerio<any>;
+  contentRoot: cheerio.Cheerio<any>;
 }) {
   if (!node.length) {
     return false;
@@ -220,8 +224,8 @@ function findNearestSectionContainer({
   heading,
   contentRoot,
 }: {
-  heading: cheerio.Cheerio<cheerio.AnyNode>;
-  contentRoot: cheerio.Cheerio<cheerio.AnyNode>;
+  heading: cheerio.Cheerio<any>;
+  contentRoot: cheerio.Cheerio<any>;
 }) {
   let current = heading.parent();
 
@@ -242,7 +246,7 @@ function findNearestSectionContainer({
 
 function extractStructuredText(
   $: cheerio.CheerioAPI,
-  contentRoot: cheerio.Cheerio<cheerio.AnyNode>,
+  contentRoot: cheerio.Cheerio<any>,
 ) {
   const lines = contentRoot
     .find(CONTENT_TEXT_SELECTORS)
@@ -270,10 +274,10 @@ function extractStructuredText(
 
 function extractStructuredSections(
   $: cheerio.CheerioAPI,
-  contentRoot: cheerio.Cheerio<cheerio.AnyNode>,
+  contentRoot: cheerio.Cheerio<any>,
 ) {
   const sections: Array<{ title: string; content: string }> = [];
-  const seenContainers = new Set<cheerio.AnyNode>();
+  const seenContainers = new Set<unknown>();
 
   contentRoot.find("h1, h2, h3, h4, h5, h6").each((_, element) => {
     const heading = $(element);

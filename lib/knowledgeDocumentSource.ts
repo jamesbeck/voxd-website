@@ -3,6 +3,20 @@ export const KNOWLEDGE_DOCUMENT_SOURCE_TYPES = ["manual", "url"] as const;
 export type KnowledgeDocumentSourceType =
   (typeof KNOWLEDGE_DOCUMENT_SOURCE_TYPES)[number];
 
+type NormalizedKnowledgeDocumentSourceResult =
+  | {
+      success: true;
+      data: {
+        sourceType: KnowledgeDocumentSourceType;
+        sourceUrl: string | null;
+      };
+    }
+  | {
+      success: false;
+      error: string;
+      fieldErrors: Record<string, string>;
+    };
+
 export const KNOWLEDGE_DOCUMENT_SOURCE_LABELS: Record<
   KnowledgeDocumentSourceType,
   string
@@ -25,7 +39,7 @@ export function normalizeKnowledgeDocumentSourceInput({
 }: {
   sourceType?: string | null;
   sourceUrl?: string | null;
-}) {
+}): NormalizedKnowledgeDocumentSourceResult {
   const trimmedSourceType = sourceType?.trim() || "manual";
 
   if (!isKnowledgeDocumentSourceType(trimmedSourceType)) {
