@@ -30,7 +30,9 @@ const TemplateHistoryTable = ({ agentId }: { agentId: string }) => {
       label: "Successes",
       name: "successCount",
       sort: true,
-      format: (row: any) => <Badge className="bg-green-500">{row.successCount || 0}</Badge>,
+      format: (row: any) => (
+        <Badge className="bg-green-500">{row.successCount || 0}</Badge>
+      ),
     },
     {
       label: "Failures",

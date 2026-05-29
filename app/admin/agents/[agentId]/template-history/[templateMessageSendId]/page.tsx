@@ -78,7 +78,8 @@ export default async function Page({
       />
       <H1>{send.templateName || "Template Send"}</H1>
       <p className="mb-4 text-muted-foreground">
-        This page shows every individual message attempt for the selected grouped template send.
+        This page shows every individual message attempt for the selected
+        grouped template send.
       </p>
       <DataCard
         items={

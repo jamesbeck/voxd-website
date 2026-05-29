@@ -554,7 +554,6 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
           </CardContent>
         </Card>
       </div>
-
     </div>
   );
 };
