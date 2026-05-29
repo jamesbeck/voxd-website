@@ -21,6 +21,7 @@ import NewDocumentForm from "./newDocumentForm";
 import PartialPromptsTable from "./partialPromptsTable";
 import NewPartialPromptForm from "./newPartialPromptForm";
 import TemplatesSentTable from "./templatesSentTable";
+import TemplateHistoryTable from "./templateHistoryTable";
 import { Button } from "@/components/ui/button";
 import saGetTicketsByAgentId from "@/actions/saGetTicketsByAgentId";
 import {
@@ -84,12 +85,15 @@ export default async function Page({
 
   const isSuperAdmin = !!token.superAdmin;
 
+  const normalizedActiveTab =
+    activeTab === "templates-sent" ? "send-template" : activeTab;
+
   const resolvedActiveTab =
-    activeTab === "config" && !canReadAgentConfig
+    normalizedActiveTab === "config" && !canReadAgentConfig
       ? "info"
-      : activeTab === "domains" && !isSuperAdmin
+      : normalizedActiveTab === "domains" && !isSuperAdmin
         ? "info"
-        : activeTab;
+        : normalizedActiveTab;
 
   // Fetch tickets for this agent
   const ticketsResponse = await saGetTicketsByAgentId({ agentId });
@@ -157,9 +161,14 @@ export default async function Page({
                   href: `/admin/agents/${agentId}?tab=users`,
                 },
                 {
-                  value: "templates-sent",
-                  label: "Templates Sent",
-                  href: `/admin/agents/${agentId}?tab=templates-sent`,
+                  value: "send-template",
+                  label: "Send Template",
+                  href: `/admin/agents/${agentId}?tab=send-template`,
+                },
+                {
+                  value: "template-history",
+                  label: "Template History",
+                  href: `/admin/agents/${agentId}?tab=template-history`,
                 },
                 {
                   value: "knowledge",
@@ -329,16 +338,29 @@ export default async function Page({
                   Chat users that have ever interacted with this agent are
                   listed below.
                 </p>
-                <UsersTable agentId={agentId} />
+                <UsersTable
+                  agentId={agentId}
+                  userDataSchema={agent?.userDataSchema}
+                />
               </Container>
             </TabsContent>
-            <TabsContent value="templates-sent">
+            <TabsContent value="send-template">
               <Container>
-                <H2>Templates Sent</H2>
+                <H2>Send Template</H2>
                 <p className="text-muted-foreground mb-4">
-                  Template messages sent to chat users of this agent.
+                  Send WhatsApp templates to saved groups for this agent.
                 </p>
                 <TemplatesSentTable agentId={agentId} />
+              </Container>
+            </TabsContent>
+            <TabsContent value="template-history">
+              <Container>
+                <H2>Template History</H2>
+                <p className="text-muted-foreground mb-4">
+                  Review grouped template sends and drill into the individual
+                  messages that were sent.
+                </p>
+                <TemplateHistoryTable agentId={agentId} />
               </Container>
             </TabsContent>
             <TabsContent value="knowledge">

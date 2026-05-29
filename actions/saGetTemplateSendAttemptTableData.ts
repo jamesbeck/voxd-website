@@ -6,6 +6,7 @@ import {
 } from "@/types/types";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import userCanViewAgent from "@/lib/userCanViewAgent";
 
 const saGetTemplateSendAttemptTableData = async ({
   search,
@@ -14,17 +15,21 @@ const saGetTemplateSendAttemptTableData = async ({
   sortField = "createdAt",
   sortDirection = "desc",
   agentId,
+  templateMessageSendId,
 }: ServerActionReadParams & {
   agentId: string;
+  templateMessageSendId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
+
+  if (!(await userCanViewAgent({ agentId, accessToken }))) {
+    return { success: false, error: "Unauthorized" };
+  }
 
   // Base query: templateMessageSendAttempt joined to chatUser, scoped to agent
   const buildBaseQuery = () => {
     const subquery = db("templateMessageSendAttempt")
       .join("chatUser", "templateMessageSendAttempt.chatUserId", "chatUser.id")
-      .join("agent", "chatUser.agentId", "agent.id")
-      .join("organisation", "agent.organisationId", "organisation.id")
       .leftJoin(
         "waTemplate",
         "templateMessageSendAttempt.templateId",
@@ -32,12 +37,11 @@ const saGetTemplateSendAttemptTableData = async ({
       )
       .where("chatUser.agentId", agentId);
 
-    // Access restrictions
-    if (!accessToken.partner && !accessToken.superAdmin) {
-      subquery.where("organisation.id", accessToken.organisationId);
-    }
-    if (accessToken?.partner && !accessToken.superAdmin) {
-      subquery.where("organisation.partnerId", accessToken!.partnerId);
+    if (templateMessageSendId) {
+      subquery.where(
+        "templateMessageSendAttempt.templateMessageSendId",
+        templateMessageSendId,
+      );
     }
 
     return subquery;
@@ -45,6 +49,7 @@ const saGetTemplateSendAttemptTableData = async ({
 
   const base = buildBaseQuery().select(
     "templateMessageSendAttempt.id",
+    "templateMessageSendAttempt.templateMessageSendId",
     "templateMessageSendAttempt.success",
     "templateMessageSendAttempt.error",
     "templateMessageSendAttempt.createdAt",

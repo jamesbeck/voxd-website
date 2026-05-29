@@ -1,23 +1,40 @@
 "use client";
 
 import { format, formatDistance } from "date-fns";
-import saGetUserTableData from "@/actions/saGetChatUserTableData";
+import saGetUserTableData, {
+  ChatUserTableFilters,
+} from "@/actions/saGetChatUserTableData";
 import DataTable from "@/components/adminui/Table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 import TableActions from "@/components/admin/TableActions";
+import ChatUserQueryManager from "./ChatUserQueryManager";
+import { ChatUserQueryDefinition } from "@/lib/chatUserQueryDefinition";
 
-const usersTable = ({ agentId }: { agentId: string }) => {
+const usersTable = ({
+  agentId,
+  userDataSchema,
+}: {
+  agentId: string;
+  userDataSchema: unknown;
+}) => {
   const [exporting, setExporting] = useState(false);
-  const getDataParams = useMemo(() => ({ agentId }), [agentId]);
+  const [queryDefinition, setQueryDefinition] = useState<
+    ChatUserQueryDefinition | undefined
+  >();
+  const getDataParams = useMemo<ChatUserTableFilters>(
+    () => ({ agentId, queryDefinition }),
+    [agentId, queryDefinition],
+  );
 
   const handleExportCsv = async () => {
     setExporting(true);
     try {
       const result = await saGetUserTableData({
         agentId,
+        queryDefinition,
         page: 1,
         pageSize: 10000,
         sortField: "name",
@@ -124,25 +141,32 @@ const usersTable = ({ agentId }: { agentId: string }) => {
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      getData={saGetUserTableData}
-      getDataParams={getDataParams}
-      headerActions={
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleExportCsv}
-          disabled={exporting}
-        >
-          <Download className="mr-2 h-4 w-4" />
-          {exporting ? "Exporting..." : "Export CSV"}
-        </Button>
-      }
-      actions={(row: any) => (
-        <TableActions href={`/admin/chatUsers/${row.id}`} />
-      )}
-    />
+    <div>
+      <ChatUserQueryManager
+        agentId={agentId}
+        userDataSchema={userDataSchema}
+        onDefinitionChange={setQueryDefinition}
+      />
+      <DataTable
+        columns={columns}
+        getData={saGetUserTableData}
+        getDataParams={getDataParams}
+        headerActions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportCsv}
+            disabled={exporting}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {exporting ? "Exporting..." : "Export CSV"}
+          </Button>
+        }
+        actions={(row: any) => (
+          <TableActions href={`/admin/chatUsers/${row.id}`} />
+        )}
+      />
+    </div>
   );
 };
 

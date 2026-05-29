@@ -6,6 +6,16 @@ import {
 } from "@/types/types";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import {
+  applyChatUserQueryDefinition,
+  ChatUserQueryDefinition,
+} from "@/lib/chatUserQueryDefinition";
+
+export interface ChatUserTableFilters {
+  organisationId?: string;
+  agentId?: string;
+  queryDefinition?: ChatUserQueryDefinition;
+}
 
 const saGetChatUserTableData = async ({
   search,
@@ -15,10 +25,8 @@ const saGetChatUserTableData = async ({
   sortDirection = "asc",
   organisationId,
   agentId,
-}: ServerActionReadParams & {
-  organisationId?: string;
-  agentId?: string;
-}): Promise<ServerActionReadResponse> => {
+  queryDefinition,
+}: ServerActionReadParams<ChatUserTableFilters>): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
   // Helper to build access-restricted chatUser query
@@ -133,6 +141,20 @@ const saGetChatUserTableData = async ({
         .orWhere("chatUser.number", "ilike", `%${search}%`)
         .orWhere("chatUser.email", "ilike", `%${search}%`);
     });
+  }
+
+  if (queryDefinition) {
+    const queryResult = applyChatUserQueryDefinition({
+      query: base,
+      definition: queryDefinition,
+    });
+
+    if (!queryResult.success) {
+      return {
+        success: false,
+        error: queryResult.error,
+      };
+    }
   }
 
   //count query
