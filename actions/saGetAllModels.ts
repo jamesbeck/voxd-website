@@ -5,6 +5,7 @@ import { ServerActionResponse } from "@/types/types";
 
 interface Model {
   id: string;
+  providerId: string;
   provider: string;
   model: string;
   inputTokenCost: string;
@@ -17,6 +18,7 @@ const saGetAllModels = async (): Promise<ServerActionResponse> => {
       .leftJoin("provider", "model.providerId", "provider.id")
       .select(
         "model.id",
+        "model.providerId",
         "model.model",
         "model.inputTokenCost",
         "model.outputTokenCost",
