@@ -272,8 +272,6 @@ export default async function Page({
                     agentId={agentId}
                     name={agent?.name}
                     niceName={agent?.niceName}
-                    providerApiKeyId={agent?.providerApiKeyId}
-                    providerApiKeyLabel={agent?.providerApiKeyLabel}
                     organisationId={agent?.organisationId}
                     organisationName={agent?.organisationName}
                     phoneNumberId={agent?.phoneNumberId}
