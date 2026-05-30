@@ -298,11 +298,9 @@ export default async function Page({
               <Container>
                 <ModelTab
                   agentId={agentId}
+                  organisationId={agent?.organisationId}
                   currentModelId={agent?.modelId}
-                  currentModelName={agent?.model}
-                  currentModelProvider={agent?.provider}
-                  currentInputTokenCost={agent?.inputTokenCost}
-                  currentOutputTokenCost={agent?.outputTokenCost}
+                  currentProviderApiKeyId={agent?.providerApiKeyId}
                 />
               </Container>
             </TabsContent>
