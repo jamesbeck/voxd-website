@@ -1,6 +1,5 @@
 "use server";
 
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 import slugify from "slugify";
@@ -8,6 +7,7 @@ import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { addLog } from "@/lib/addLog";
+import { getAdminAiLanguageModel, getAdminAiModelId } from "@/lib/adminAi";
 
 const generateExample = async ({
   prompt,
@@ -54,27 +54,22 @@ const generateExample = async ({
       "organisation.providerApiKeyId",
       "providerApiKey.id",
     )
+    .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where({ id: partnerIdForApiKey, partner: true })
     .select(
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "organisation.name",
+      "provider.name as providerName",
     )
     .first();
 
-  if (!partner?.providerApiKey) {
+  if (!partner?.providerApiKey || !partner.providerName) {
     return {
       success: false,
       error:
         "The selected partner does not have a provider API key configured. Please contact an administrator.",
     };
   }
-
-  const providerApiKey = partner.providerApiKey;
-
-  // Create OpenAI client with partner's API key
-  const openai = createOpenAI({
-    apiKey: providerApiKey,
-  });
 
   const industries = (await db("industry").select("name")).map(
     (industry: { name: string }) => industry.name,
@@ -84,7 +79,10 @@ const generateExample = async ({
   );
 
   const { object } = await generateObject({
-    model: openai("gpt-5.4"),
+    model: getAdminAiLanguageModel({
+      providerName: partner.providerName,
+      apiKey: partner.providerApiKey,
+    }),
     schema: z.object({
       example: z.object({
         title: z
@@ -194,8 +192,8 @@ const generateExample = async ({
 
   // Create a partial API key for logging (show first 4 and last 4 characters)
   const partialApiKey =
-    providerApiKey.length > 12
-      ? `${providerApiKey.slice(0, 4)}...${providerApiKey.slice(-4)}`
+    partner.providerApiKey.length > 12
+      ? `${partner.providerApiKey.slice(0, 4)}...${partner.providerApiKey.slice(-4)}`
       : "****";
 
   // Log the example creation
@@ -219,7 +217,10 @@ const generateExample = async ({
         functions: object.example.functions,
       },
       partialApiKey: partialApiKey,
-      model: "gpt-5.4",
+      model: getAdminAiModelId({
+        providerName: partner.providerName,
+        taskType: "text",
+      }),
     },
   });
 

@@ -1,13 +1,13 @@
 "use server";
 
 import db from "../database/db";
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { CostingBreakdown } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import userCanViewQuote from "@/lib/quoteAccess";
+import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 const DEFAULT_HOURLY_RATE = 100;
 const DEFAULT_MONTHLY_BASE = 150;
@@ -79,10 +79,12 @@ export const generateQuoteCostingInternal = async ({
       "partnerOrganisation.providerApiKeyId",
       "providerApiKey.id",
     )
+    .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .select(
       "quote.*",
       "organisation.name as organisationName",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
+      "provider.name as providerName",
       "partnerOrganisation.name as partnerName",
       "partnerOrganisation.hourlyRate as partnerHourlyRateVoxdCost",
       "partnerOrganisation.monthlyBaseFee",
@@ -95,7 +97,7 @@ export const generateQuoteCostingInternal = async ({
     return { success: false, error: "Quote not found" };
   }
 
-  if (!quote.providerApiKey) {
+  if (!quote.providerApiKey || !quote.providerName) {
     return {
       success: false,
       error: "Partner does not have a provider API key configured",
@@ -176,10 +178,6 @@ export const generateQuoteCostingInternal = async ({
     };
   }
 
-  const openai = createOpenAI({
-    apiKey: quote.providerApiKey,
-  });
-
   // Build the integration list for the prompt
   const integrationListText = quoteIntegrations
     .map((i: any, idx: number) => {
@@ -250,7 +248,10 @@ The following ${source} text provides context for what functions each integratio
 
   try {
     const { object } = await generateObject({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName: quote.providerName,
+        apiKey: quote.providerApiKey,
+      }),
       schema: costingSchema,
       system: systemPrompt,
       prompt: userPrompt,

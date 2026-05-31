@@ -20,6 +20,27 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Admin AI Models
+
+Admin-triggered AI requests are provider-aware and use the partner or organisation's configured provider API key together with env-configured model ids.
+
+Set the model ids for the providers you want to support:
+
+```bash
+ADMIN_AI_OPENAI_TEXT_MODEL=
+ADMIN_AI_OPENAI_EMBEDDING_MODEL=
+ADMIN_AI_OPENAI_IMAGE_MODEL=
+
+ADMIN_AI_GOOGLE_TEXT_MODEL=
+ADMIN_AI_GOOGLE_EMBEDDING_MODEL=
+ADMIN_AI_GOOGLE_IMAGE_MODEL=
+
+ADMIN_AI_ANTHROPIC_TEXT_MODEL=
+ADMIN_AI_GROQ_TEXT_MODEL=
+```
+
+Anthropic and Groq are currently wired for text generation in the admin area. OpenAI and Google are wired for text, embeddings, and image-capable model resolution.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

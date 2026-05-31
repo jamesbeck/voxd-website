@@ -1,11 +1,11 @@
 "use server";
 
 import { embed } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
 import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import getAgentById from "@/lib/getAgentById";
+import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
 
 export type KnowledgeBlockSearchResult = {
   blockId: string;
@@ -42,18 +42,20 @@ const saSearchKnowledgeByEmbedding = async ({
 
     // Get agent to retrieve API key
     const agent = await getAgentById({ agentId });
-    if (!agent || !agent.providerApiKey) {
+    if (
+      !agent ||
+      !agent.providerApiKey ||
+      !agent.providerApiKeyProviderName
+    ) {
       return { success: false, error: "Agent not found or missing API key" };
     }
 
-    // Create OpenAI client for embeddings
-    const openai = createOpenAI({
-      apiKey: agent.providerApiKey,
-    });
-
     // Generate embedding for the query
     const { embedding } = await embed({
-      model: openai.embedding("text-embedding-3-small"),
+      model: getAdminAiEmbeddingModel({
+        providerName: agent.providerApiKeyProviderName,
+        apiKey: agent.providerApiKey,
+      }),
       value: query,
     });
 

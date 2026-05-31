@@ -3,10 +3,10 @@
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import { createOpenAI } from "@ai-sdk/openai";
 import { embed } from "ai";
 import { addLog } from "@/lib/addLog";
 import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
+import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
 
 const saCreateKnowledgeBlock = async ({
   documentId,
@@ -23,10 +23,12 @@ const saCreateKnowledgeBlock = async ({
   const document = await db("knowledgeDocument")
     .join("agent", "knowledgeDocument.agentId", "agent.id")
     .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
+    .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where("knowledgeDocument.id", documentId)
     .select(
       "knowledgeDocument.*",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
+      "provider.name as providerName",
     )
     .first();
 
@@ -45,7 +47,7 @@ const saCreateKnowledgeBlock = async ({
     };
   }
 
-  if (!document.providerApiKey) {
+  if (!document.providerApiKey || !document.providerName) {
     return {
       success: false,
       error: "Agent does not have a provider API key configured",
@@ -74,9 +76,11 @@ const saCreateKnowledgeBlock = async ({
   let embeddingVector: number[] | null = null;
   let tokenCount: number | null = null;
   try {
-    const openai = createOpenAI({ apiKey: document.providerApiKey });
     const { embedding, usage } = await embed({
-      model: openai.embedding("text-embedding-3-small"),
+      model: getAdminAiEmbeddingModel({
+        providerName: document.providerName,
+        apiKey: document.providerApiKey,
+      }),
       value: embeddingText,
     });
     embeddingVector = embedding;

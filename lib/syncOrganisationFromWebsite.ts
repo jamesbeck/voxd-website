@@ -1,11 +1,13 @@
 "use server";
 
-import OpenAI from "openai";
+import { generateText } from "ai";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import * as cheerio from "cheerio";
 import db from "../database/db";
 import sharp from "sharp";
 import { extractProminentColour } from "@/lib/extractProminentColour";
+import { extractWebsiteText } from "@/lib/extractWebsiteText";
+import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 /** Headers that mimic a real browser to avoid WAF/CDN 403 blocks */
 const BROWSER_HEADERS: Record<string, string> = {
@@ -80,14 +82,19 @@ const syncOrganisationFromWebsite = async ({
           "organisation.providerApiKeyId",
           "providerApiKey.id",
         )
+        .leftJoin("provider", "providerApiKey.providerId", "provider.id")
         .where("organisation.id", partnerOrganisationId)
-        .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
+        .select(
+          db.raw('"providerApiKey"."key" as "providerApiKey"'),
+          "provider.name as providerName",
+        )
         .first()
     : null;
 
   const providerApiKey = providerApiKeyRow?.providerApiKey;
+  const providerName = providerApiKeyRow?.providerName;
 
-  if (!providerApiKey) {
+  if (!providerApiKey || !providerName) {
     return {
       success: false,
       error: "Partner does not have a provider API key configured",
@@ -100,8 +107,14 @@ const syncOrganisationFromWebsite = async ({
     : `https://${webAddress}`;
 
   try {
-    // Step 1: Use AI with web search to get the about summary
-    const about = await getAboutSummary(providerApiKey, url);
+    const extracted = await extractWebsiteText({ url });
+    const about = await getAboutSummary({
+      apiKey: providerApiKey,
+      providerName,
+      url,
+      websiteText: extracted.text,
+      pageTitle: extracted.pageTitle,
+    });
 
     if (!about) {
       return {
@@ -115,7 +128,11 @@ const syncOrganisationFromWebsite = async ({
     let showLogoOnColour: string | null | undefined;
     let prominentColour: string | null | undefined;
     try {
-      const logoUrl = await findLogoUrl(providerApiKey, url);
+      const logoUrl = await findLogoUrl({
+        apiKey: providerApiKey,
+        providerName,
+        url,
+      });
 
       if (logoUrl) {
         // Step 3: Download and upload the logo
@@ -169,23 +186,32 @@ const syncOrganisationFromWebsite = async ({
 };
 
 /**
- * Uses OpenAI with web search to generate an about summary
+ * Summarises website content using the provider-aware admin AI model.
  */
-async function getAboutSummary(
-  apiKey: string,
-  url: string,
-): Promise<string | null> {
-  const openai = new OpenAI({ apiKey });
+function truncateWebsiteText(text: string, maxLength = 12000) {
+  if (text.length <= maxLength) {
+    return text;
+  }
 
-  const response = await openai.responses.create({
-    model: "gpt-5.4",
-    tools: [
-      {
-        type: "web_search",
-        search_context_size: "high",
-      },
-    ],
-    input: `Visit the website at ${url} and provide a summary of the organisation in markdown format.
+  return `${text.slice(0, maxLength).trimEnd()}\n\n[truncated]`;
+}
+
+async function getAboutSummary({
+  apiKey,
+  providerName,
+  url,
+  websiteText,
+  pageTitle,
+}: {
+  apiKey: string;
+  providerName: string;
+  url: string;
+  websiteText: string;
+  pageTitle: string | null;
+}): Promise<string | null> {
+  const { text } = await generateText({
+    model: getAdminAiLanguageModel({ providerName, apiKey }),
+    prompt: `Summarise the organisation behind the website at ${url} in markdown format.
 
 Your summary should include (where available):
 - What the organisation does (their main products/services)
@@ -202,31 +228,30 @@ Important: Do NOT include any URLs, website addresses, or source references in y
 
 Keep the summary concise and factual - no longer than 300 words.
 
-If you cannot access the website or find relevant information, explain what the issue was.`,
+If the provided website content is too sparse to identify the business, explain what is missing.
+
+Page title: ${pageTitle || "Unknown"}
+
+Website content:
+${truncateWebsiteText(websiteText)}`,
   });
 
-  // Extract the text from the response output
-  for (const item of response.output) {
-    if (item.type === "message" && item.content) {
-      for (const content of item.content) {
-        if (content.type === "output_text") {
-          return content.text;
-        }
-      }
-    }
-  }
-
-  return null;
+  return text.trim() || null;
 }
 
 /**
  * Fetches the homepage HTML and uses multiple strategies to find the logo URL.
  * Priority: 1) JSON-LD structured data, 2) Deterministic HTML heuristics, 3) GPT fallback
  */
-async function findLogoUrl(
-  apiKey: string,
-  url: string,
-): Promise<string | null> {
+async function findLogoUrl({
+  apiKey,
+  providerName,
+  url,
+}: {
+  apiKey: string;
+  providerName: string;
+  url: string;
+}): Promise<string | null> {
   // Fetch the homepage HTML
   const response = await fetch(url, {
     headers: BROWSER_HEADERS,
@@ -252,7 +277,7 @@ async function findLogoUrl(
   }
 
   // Strategy 3: Fall back to GPT analysis
-  return findLogoWithGpt(apiKey, url, html);
+  return findLogoWithGpt({ apiKey, providerName, url, html });
 }
 
 /**
@@ -294,7 +319,6 @@ function findLogoFromStructuredData(
  * as well as @graph arrays.
  */
 function extractLogoUrlsFromJsonLd(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any,
   results: string[],
 ): void {
@@ -391,7 +415,6 @@ function findLogoFromHtml(html: string, baseUrl: string): string | null {
  */
 function isFaviconOrIcon(
   url: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   el: any,
   $: cheerio.CheerioAPI,
 ): boolean {
@@ -413,23 +436,23 @@ function isFaviconOrIcon(
 /**
  * Falls back to GPT to analyze HTML and find the logo URL.
  */
-async function findLogoWithGpt(
-  apiKey: string,
-  url: string,
-  html: string,
-): Promise<string | null> {
+async function findLogoWithGpt({
+  apiKey,
+  providerName,
+  url,
+  html,
+}: {
+  apiKey: string;
+  providerName: string;
+  url: string;
+  html: string;
+}): Promise<string | null> {
   // Extract only the relevant parts of the HTML for logo finding
   const relevantHtml = extractLogoRelevantHtml(html);
 
-  // Use OpenAI to analyze the HTML and find the logo
-  const openai = new OpenAI({ apiKey });
-
-  const completion = await openai.chat.completions.create({
-    model: "gpt-5.4",
-    messages: [
-      {
-        role: "system",
-        content: `You are an expert at analyzing HTML to find logo images. Your task is to find the organisation's main logo URL from the provided HTML snippets.
+  const { text } = await generateText({
+    model: getAdminAiLanguageModel({ providerName, apiKey }),
+    system: `You are an expert at analyzing HTML to find logo images. Your task is to find the organisation's main logo URL from the provided HTML snippets.
 
 The HTML has been pre-processed to include only relevant sections:
 - JSON-LD structured data (schema.org)
@@ -449,22 +472,16 @@ Do NOT select favicons or tiny icons unless nothing else is available.
 
 Return ONLY the absolute URL of the logo image, nothing else. If the URL is relative, convert it to absolute using the base URL.
 If you cannot find a suitable logo, return exactly: null`,
-      },
-      {
-        role: "user",
-        content: `Base URL: ${url}
+    prompt: `Base URL: ${url}
 
 Relevant HTML snippets:
 ${relevantHtml}
 
 Find the logo URL:`,
-      },
-    ],
-    max_tokens: 500,
     temperature: 0,
   });
 
-  const result = completion.choices[0]?.message?.content?.trim();
+  const result = text.trim();
 
   if (!result || result === "null" || result.toLowerCase() === "null") {
     return null;

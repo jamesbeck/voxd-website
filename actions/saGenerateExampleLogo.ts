@@ -1,13 +1,14 @@
 "use server";
 
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateText } from "ai";
+import { experimental_generateImage as generateImage, generateText } from "ai";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { addLog } from "@/lib/addLog";
 import sharp from "sharp";
+import { getAdminAiImageModel, getAdminAiModelId } from "@/lib/adminAi";
 
 const saGenerateExampleLogo = async ({
   exampleId,
@@ -55,6 +56,7 @@ const saGenerateExampleLogo = async ({
 
   // Get the partner's provider API key
   let providerApiKey: string | null = null;
+  let providerName: string | null = null;
 
   if (accessToken.partnerId) {
     const partner = await db("organisation")
@@ -63,13 +65,18 @@ const saGenerateExampleLogo = async ({
         "organisation.providerApiKeyId",
         "providerApiKey.id",
       )
+      .leftJoin("provider", "providerApiKey.providerId", "provider.id")
       .where("organisation.id", accessToken.partnerId)
-      .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
+      .select(
+        db.raw('"providerApiKey"."key" as "providerApiKey"'),
+        "provider.name as providerName",
+      )
       .first();
     providerApiKey = partner?.providerApiKey || null;
+    providerName = partner?.providerName || null;
   }
 
-  if (!providerApiKey) {
+  if (!providerApiKey || !providerName) {
     return {
       success: false,
       error:
@@ -104,35 +111,17 @@ Write a brief logo prompt (max 1 sentence). Include company name and key visual 
 
     console.log("Generated logo prompt:", finalPrompt);
 
-    // Step 2: Generate the logo image using image generation tool
-    const result = await generateText({
-      model: openai("gpt-5.4"),
+    // Step 2: Generate the logo image using the provider-aware image model
+    const result = await generateImage({
+      model: getAdminAiImageModel({
+        providerName,
+        apiKey: providerApiKey,
+      }),
       prompt: finalPrompt,
-      tools: {
-        image_generation: openai.tools.imageGeneration({
-          outputFormat: "webp",
-        }),
-      },
     });
 
-    // Extract the base64 image from tool results
-    let imageBase64: string | null = null;
-    for (const toolResult of result.staticToolResults) {
-      if (toolResult.toolName === "image_generation") {
-        imageBase64 = toolResult.output.result;
-        break;
-      }
-    }
-
-    if (!imageBase64) {
-      return {
-        success: false,
-        error: "No image data received from image generation tool",
-      };
-    }
-
     // Step 3: Crop the logo using Sharp to remove padding, then add sensible padding back
-    let buffer: Buffer = Buffer.from(imageBase64, "base64");
+    let buffer: Buffer = Buffer.from(result.image.uint8Array);
 
     try {
       // Use Sharp to trim nearly-white backgrounds, then add consistent padding
@@ -207,7 +196,10 @@ Write a brief logo prompt (max 1 sentence). Include company name and key visual 
         businessName: example.businessName,
         generatedPrompt: finalPrompt,
         userPrompt: userPrompt || null,
-        model: "gpt-5-image-generation",
+        model: getAdminAiModelId({
+          providerName,
+          taskType: "image",
+        }),
       },
     });
 

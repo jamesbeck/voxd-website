@@ -2,9 +2,9 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { generateQuoteCostingInternal } from "./saGenerateQuoteCosting";
+import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 const getPartnerContext = (partnerName: string) => `## What is ${partnerName}?
 
@@ -94,11 +94,13 @@ const saGenerateQuoteConcept = async ({
       "partnerOrganisation.providerApiKeyId",
       "providerApiKey.id",
     )
+    .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .select(
       "quote.*",
       "organisation.name as organisationName",
       "partnerOrganisation.name as partnerName",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
+      "provider.name as providerName",
     )
     .where({ "quote.id": quoteId })
     .first();
@@ -108,7 +110,7 @@ const saGenerateQuoteConcept = async ({
   }
 
   // Check if partner has a provider API key
-  if (!quote.providerApiKey) {
+  if (!quote.providerApiKey || !quote.providerName) {
     return {
       success: false,
       error: "Partner does not have a provider API key configured",
@@ -158,10 +160,6 @@ const saGenerateQuoteConcept = async ({
         "Please add some specification details before generating the concept",
     };
   }
-
-  const openai = createOpenAI({
-    apiKey: quote.providerApiKey,
-  });
 
   // Build the specification context
   const specificationContext = `
@@ -264,7 +262,10 @@ Write in Markdown format. Use **bold** for emphasis where appropriate. Do not us
       : `Please write a concept introduction for the following client:\n\n${specificationContext}`;
 
     const { text: conceptIntro } = await generateText({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName: quote.providerName,
+        apiKey: quote.providerApiKey,
+      }),
       system: introSystemPrompt,
       prompt: introPrompt,
     });
@@ -408,7 +409,10 @@ Make sure to tailor every section to their specific industry and needs based on 
 
     // Generate the main concept
     const { text: concept } = await generateText({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName: quote.providerName,
+        apiKey: quote.providerApiKey,
+      }),
       system: mainConceptSystemPrompt,
       prompt: mainConceptPrompt,
     });

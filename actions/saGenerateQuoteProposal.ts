@@ -2,9 +2,9 @@
 
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import { generateQuoteCostingInternal } from "./saGenerateQuoteCosting";
+import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 const getPartnerContext = (partnerName: string) => `## About ${partnerName}
 
@@ -78,11 +78,13 @@ const saGenerateQuoteProposal = async ({
       "partnerOrganisation.providerApiKeyId",
       "providerApiKey.id",
     )
+    .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .select(
       "quote.*",
       "organisation.name as organisationName",
       "partnerOrganisation.name as partnerName",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
+      "provider.name as providerName",
     )
     .where({ "quote.id": quoteId })
     .first();
@@ -92,7 +94,7 @@ const saGenerateQuoteProposal = async ({
   }
 
   // Check if partner has a provider API key
-  if (!quote.providerApiKey) {
+  if (!quote.providerApiKey || !quote.providerName) {
     return {
       success: false,
       error: "Partner does not have a provider API key configured",
@@ -144,10 +146,6 @@ const saGenerateQuoteProposal = async ({
         "Please add some specification details before generating the proposal",
     };
   }
-
-  const openai = createOpenAI({
-    apiKey: quote.providerApiKey,
-  });
 
   // Build the specification context
   const specificationContext = `
@@ -246,7 +244,10 @@ Write in Markdown format. Use **bold** for emphasis. Do not use headings in this
 
     // Generate the introduction
     const { text: introduction } = await generateText({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName: quote.providerName,
+        apiKey: quote.providerApiKey,
+      }),
       system: introSystemPrompt,
       prompt: introPrompt,
       temperature: 0.7,
@@ -323,7 +324,10 @@ Write in Markdown format. Use ## for numbered section headings, ### for subsecti
 
     // Generate the detailed specification
     const { text: specification } = await generateText({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName: quote.providerName,
+        apiKey: quote.providerApiKey,
+      }),
       system: specSystemPrompt,
       prompt: specPrompt,
       temperature: 0.7,

@@ -1,8 +1,12 @@
 import db from "../database/db";
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateObject, generateText } from "ai";
+import {
+  experimental_generateImage as generateImage,
+  generateObject,
+} from "ai";
 import { z } from "zod";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getAdminAiImageModel } from "@/lib/adminAi";
 
 /**
  * Core logic for generating an example conversation.
@@ -25,6 +29,7 @@ export async function generateExampleConversation({
   }
 
   let providerApiKey: string | null = null;
+  let providerName: string | null = null;
   let context: string = "";
   let businessName: string = "";
 
@@ -48,10 +53,15 @@ export async function generateExampleConversation({
           "organisation.providerApiKeyId",
           "providerApiKey.id",
         )
+        .leftJoin("provider", "providerApiKey.providerId", "provider.id")
         .where("organisation.id", example.organisationId)
-        .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
+        .select(
+          db.raw('"providerApiKey"."key" as "providerApiKey"'),
+          "provider.name as providerName",
+        )
         .first();
       providerApiKey = partner?.providerApiKey || null;
+      providerName = partner?.providerName || null;
     }
 
     context = example.body || "No specification provided";
@@ -69,12 +79,14 @@ export async function generateExampleConversation({
         "partnerOrganisation.providerApiKeyId",
         "providerApiKey.id",
       )
+      .leftJoin("provider", "providerApiKey.providerId", "provider.id")
       .where("quote.id", conversation.quoteId)
       .select(
         "quote.*",
         "organisation.name as organisationName",
         "organisation.partnerId",
         db.raw('"providerApiKey"."key" as "providerApiKey"'),
+        "provider.name as providerName",
       )
       .first();
     if (!quote) {
@@ -85,6 +97,7 @@ export async function generateExampleConversation({
       throw new Error("Quote not found");
     }
     providerApiKey = quote.providerApiKey;
+    providerName = quote.providerName;
 
     // Get knowledge sources linked to this quote
     const quoteKnowledgeSources = await db("quoteKnowledgeSource")
@@ -155,7 +168,7 @@ ${quote.otherNotes || "Not specified"}
     businessName = quote.organisationName || "the organisation";
   }
 
-  if (!providerApiKey) {
+  if (!providerApiKey || !providerName) {
     await markError({
       conversationId,
       summary: "No API key configured",
@@ -319,6 +332,7 @@ ${quote.otherNotes || "Not specified"}
       await generateConversationImages({
         conversationId,
         providerApiKey: providerApiKey!,
+        providerName: providerName!,
       });
     }
 
@@ -342,9 +356,11 @@ ${quote.otherNotes || "Not specified"}
 async function generateConversationImages({
   conversationId,
   providerApiKey,
+  providerName,
 }: {
   conversationId: string;
   providerApiKey: string;
+  providerName: string;
 }) {
   const conversation = await db("exampleConversation")
     .where("id", conversationId)
@@ -369,8 +385,6 @@ async function generateConversationImages({
     return;
   }
 
-  const openai = createOpenAI({ apiKey: providerApiKey });
-
   const s3Client = new S3Client({
     region: process.env.WASABI_REGION || "eu-west-1",
     endpoint: `https://s3.${
@@ -387,33 +401,16 @@ async function generateConversationImages({
 
   for (const { index, imagePrompt } of imageMessages) {
     try {
-      const result = await generateText({
-        model: openai("gpt-5.4"),
+      const result = await generateImage({
+        model: getAdminAiImageModel({
+          providerName,
+          apiKey: providerApiKey,
+        }),
         prompt: imagePrompt,
-        tools: {
-          image_generation: openai.tools.imageGeneration({
-            outputFormat: "webp",
-            size: "1024x1024",
-          }),
-        },
+        size: "1024x1024",
       });
 
-      let imageBase64: string | null = null;
-      for (const toolResult of result.staticToolResults) {
-        if (toolResult.toolName === "image_generation") {
-          imageBase64 = toolResult.output.result;
-          break;
-        }
-      }
-
-      if (!imageBase64) {
-        console.error(
-          `No image data received for message ${index} in conversation ${conversationId}`,
-        );
-        continue;
-      }
-
-      const buffer = Buffer.from(imageBase64, "base64");
+      const buffer = Buffer.from(result.image.uint8Array);
       const key = `exampleConversationImages/${conversationId}_${index}.webp`;
 
       await s3Client.send(

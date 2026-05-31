@@ -22,6 +22,7 @@ const getAgentById = async ({ agentId }: { agentId: string }) => {
       "agent.*",
       "model.model",
       "provider.name as provider",
+      "keyProvider.name as providerApiKeyProviderName",
       "model.inputTokenCost",
       "model.outputTokenCost",
       "phoneNumber.displayPhoneNumber",

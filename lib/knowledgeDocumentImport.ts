@@ -1,9 +1,12 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { embedMany, generateObject } from "ai";
 import { z } from "zod";
 import type { Knex } from "knex";
 import db from "@/database/db";
 import { extractWebsiteText } from "@/lib/extractWebsiteText";
+import {
+  getAdminAiEmbeddingModel,
+  getAdminAiLanguageModel,
+} from "@/lib/adminAi";
 
 const blockSchema = z.object({
   blocks: z.array(
@@ -29,6 +32,7 @@ type KnowledgeDocumentImportContext = {
   sourceType: string | null;
   sourceUrl: string | null;
   providerApiKey: string;
+  providerName: string;
   modelName: string | null;
 };
 
@@ -164,16 +168,19 @@ export function buildKnowledgeBlocksFromSections(sections: ImportedSection[]) {
 }
 
 async function generateKnowledgeBlocksWithAi({
-  openai,
-  modelName,
+  providerApiKey,
+  providerName,
   text,
 }: {
-  openai: ReturnType<typeof createOpenAI>;
-  modelName: string;
+  providerApiKey: string;
+  providerName: string;
   text: string;
 }) {
   const { object } = await generateObject({
-    model: openai(modelName),
+    model: getAdminAiLanguageModel({
+      providerName,
+      apiKey: providerApiKey,
+    }),
     schema: blockSchema,
     prompt: `You are a knowledge base assistant. Split the following text into semantic knowledge blocks for a RAG (Retrieval Augmented Generation) system.
 
@@ -212,6 +219,7 @@ export async function getKnowledgeDocumentImportContext({
     .join("agent", "knowledgeDocument.agentId", "agent.id")
     .leftJoin("model", "agent.modelId", "model.id")
     .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
+    .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where("knowledgeDocument.id", documentId)
     .select(
       "knowledgeDocument.id",
@@ -220,6 +228,7 @@ export async function getKnowledgeDocumentImportContext({
       "knowledgeDocument.sourceType",
       "knowledgeDocument.sourceUrl",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
+      "provider.name as providerName",
       "model.model as modelName",
     )
     .first();
@@ -232,6 +241,10 @@ export async function getKnowledgeDocumentImportContext({
     throw new Error("Agent does not have a provider API key configured");
   }
 
+  if (!document.providerName) {
+    throw new Error("Agent provider API key is missing its provider");
+  }
+
   return document;
 }
 
@@ -239,7 +252,7 @@ export async function importKnowledgeBlocksFromText({
   documentId,
   text,
   providerApiKey,
-  modelName,
+  providerName,
   trx,
   strategy = "ai",
   blocks,
@@ -247,14 +260,16 @@ export async function importKnowledgeBlocksFromText({
   documentId: string;
   text: string;
   providerApiKey: string;
+  providerName?: string;
   modelName?: string | null;
   trx?: Knex | Knex.Transaction;
   strategy?: ImportStrategy;
   blocks?: { title: string; content: string }[];
 }) {
   const executor = getExecutor(trx);
-  const openai = createOpenAI({ apiKey: providerApiKey });
-  const resolvedModelName = modelName || "gpt-5.4";
+  const resolvedProviderName =
+    providerName ??
+    (await getKnowledgeDocumentImportContext({ documentId, trx })).providerName;
 
   const lastBlock = await executor("knowledgeBlock")
     .where("documentId", documentId)
@@ -268,8 +283,8 @@ export async function importKnowledgeBlocksFromText({
     (strategy === "preserve-all"
       ? buildKnowledgeBlocksPreservingAllText(text)
       : await generateKnowledgeBlocksWithAi({
-          openai,
-          modelName: resolvedModelName,
+          providerApiKey,
+          providerName: resolvedProviderName,
           text,
         }));
 
@@ -282,7 +297,10 @@ export async function importKnowledgeBlocksFromText({
   );
 
   const embeddingResult = await embedMany({
-    model: openai.embedding("text-embedding-3-small"),
+    model: getAdminAiEmbeddingModel({
+      providerName: resolvedProviderName,
+      apiKey: providerApiKey,
+    }),
     values: embeddingInput,
   });
 
@@ -331,6 +349,7 @@ export async function refreshKnowledgeDocumentFromUrl({
     documentId,
     text: extracted.text,
     providerApiKey: document.providerApiKey,
+    providerName: document.providerName,
     modelName: document.modelName,
     trx,
     strategy: "preserve-all",

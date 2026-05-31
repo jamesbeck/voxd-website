@@ -2,9 +2,9 @@
 
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import db from "../database/db";
+import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 const saGenerateFaqAnswer = async ({
   question,
@@ -43,21 +43,21 @@ const saGenerateFaqAnswer = async ({
       "organisation.providerApiKeyId",
       "providerApiKey.id",
     )
+    .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where("organisation.id", accessToken.partnerId)
-    .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
+    .select(
+      db.raw('"providerApiKey"."key" as "providerApiKey"'),
+      "provider.name as providerName",
+    )
     .first();
 
-  if (!partner?.providerApiKey) {
+  if (!partner?.providerApiKey || !partner.providerName) {
     return {
       success: false,
       error:
         "Your partner account does not have a provider API key configured. Please contact an administrator.",
     };
   }
-
-  const openai = createOpenAI({
-    apiKey: partner.providerApiKey,
-  });
 
   const systemPrompt = `You are an expert FAQ writer for Voxd, a company that provides WhatsApp-based AI chatbot services for businesses.
 
@@ -131,7 +131,10 @@ If the question is not specifically about Voxd or its services, provide a helpfu
 
   try {
     const { text } = await generateText({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName: partner.providerName,
+        apiKey: partner.providerApiKey,
+      }),
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.7,

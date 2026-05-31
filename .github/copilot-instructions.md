@@ -10,7 +10,7 @@ When contributing to this project, please adhere to the following principles:
 ##AI Architecture Overview
 
 Always use the ai sdk from Vercel.
-Use the open ai key of the relevant partner, either logged in OR the partner that owns the relevant organisation.
+Use the provider API key of the relevant partner, either logged in OR the partner that owns the relevant organisation, and resolve the provider-specific model through the shared admin AI helpers.
 
 ## User Access Levels
 
