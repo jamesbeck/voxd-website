@@ -318,10 +318,7 @@ function findLogoFromStructuredData(
  * Handles both "logo": "url" and "logo": { "url": "..." } formats,
  * as well as @graph arrays.
  */
-function extractLogoUrlsFromJsonLd(
-  data: any,
-  results: string[],
-): void {
+function extractLogoUrlsFromJsonLd(data: any, results: string[]): void {
   if (!data || typeof data !== "object") return;
 
   // Handle @graph arrays
@@ -413,11 +410,7 @@ function findLogoFromHtml(html: string, baseUrl: string): string | null {
 /**
  * Checks if a URL/element looks like a favicon or tiny icon rather than a logo.
  */
-function isFaviconOrIcon(
-  url: string,
-  el: any,
-  $: cheerio.CheerioAPI,
-): boolean {
+function isFaviconOrIcon(url: string, el: any, $: cheerio.CheerioAPI): boolean {
   const lowerUrl = url.toLowerCase();
   if (/favicon|\bicon\b/i.test(lowerUrl)) return true;
 

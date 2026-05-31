@@ -42,11 +42,7 @@ const saSearchKnowledgeByEmbedding = async ({
 
     // Get agent to retrieve API key
     const agent = await getAgentById({ agentId });
-    if (
-      !agent ||
-      !agent.providerApiKey ||
-      !agent.providerApiKeyProviderName
-    ) {
+    if (!agent || !agent.providerApiKey || !agent.providerApiKeyProviderName) {
       return { success: false, error: "Agent not found or missing API key" };
     }
 

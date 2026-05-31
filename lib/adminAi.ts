@@ -5,11 +5,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 
 export type AdminAiTaskType = "text" | "embedding" | "image";
 
-export type AdminAiProviderSlug =
-  | "openai"
-  | "google"
-  | "anthropic"
-  | "groq";
+export type AdminAiProviderSlug = "openai" | "google" | "anthropic" | "groq";
 
 type AdminAiProviderClient = {
   languageModel: (modelId: string) => any;
@@ -47,7 +43,9 @@ function normalizeProviderKey(providerName: string) {
   return providerName.toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
-export function resolveAdminAiProvider(providerName: string): AdminAiProviderSlug {
+export function resolveAdminAiProvider(
+  providerName: string,
+): AdminAiProviderSlug {
   const normalized = normalizeProviderKey(providerName);
 
   if (normalized.includes("openai")) {
