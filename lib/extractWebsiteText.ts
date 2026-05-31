@@ -359,6 +359,26 @@ function getPageTitle($: cheerio.CheerioAPI) {
   return null;
 }
 
+function looksLikeClientRenderedShell($: cheerio.CheerioAPI) {
+  const bodyText = normalizeWhitespace($("body").text());
+  const appRootCount = $(
+    "#app, #root, #__next, #rw_customer_portal, [data-reactroot]",
+  ).length;
+  const moduleScriptCount = $('script[type="module"]').length;
+  const refinedConfigCount = $(
+    'script[type="application/vnd.refined.config+json"]',
+  ).length;
+  const headingCount = $("h1, h2, h3, h4, h5, h6").length;
+  const paragraphCount = $("p").length;
+
+  return Boolean(
+    (appRootCount > 0 || refinedConfigCount > 0 || moduleScriptCount > 0) &&
+    bodyText.length < 300 &&
+    headingCount === 0 &&
+    paragraphCount === 0,
+  );
+}
+
 export async function extractWebsiteText({
   url,
 }: {
@@ -387,6 +407,12 @@ export async function extractWebsiteText({
   }
 
   if (text.length < 300) {
+    if (looksLikeClientRenderedShell($)) {
+      throw new Error(
+        "This URL appears to load its article content client-side after JavaScript runs, so the importer cannot read it from the raw HTML response.",
+      );
+    }
+
     throw new Error(
       "Could not extract enough meaningful page content from the URL",
     );

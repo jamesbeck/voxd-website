@@ -62,6 +62,10 @@ export default function AgentModelSettingsEditor({
   totalSessions = 0,
 }: AgentModelSettingsEditorProps) {
   const router = useRouter();
+  const [savedModelId, setSavedModelId] = useState(currentModelId || "");
+  const [savedProviderApiKeyId, setSavedProviderApiKeyId] = useState(
+    currentProviderApiKeyId || "",
+  );
   const [selectedModelId, setSelectedModelId] = useState(currentModelId || "");
   const [selectedProviderApiKeyId, setSelectedProviderApiKeyId] = useState(
     currentProviderApiKeyId || "",
@@ -93,21 +97,10 @@ export default function AgentModelSettingsEditor({
     }, {});
   }, [models]);
 
-  const hasChanges =
-    selectedModelId !== (currentModelId || "") ||
-    selectedProviderApiKeyId !== (currentProviderApiKeyId || "");
-
   const currentModelIsIncompatible =
     !!selectedProviderApiKey &&
     !!selectedModel &&
     selectedModel.providerId !== selectedProviderApiKey.providerId;
-
-  const canSave =
-    hasProviderApiKeys &&
-    !!selectedProviderApiKey &&
-    !!selectedModel &&
-    !currentModelIsIncompatible &&
-    hasChanges;
 
   const formatCost = (cost: string | undefined | number) => {
     if (!cost) return "N/A";
@@ -122,8 +115,16 @@ export default function AgentModelSettingsEditor({
     return tokens.toFixed(0);
   };
 
-  const handleSave = async () => {
-    if (!canSave || !selectedModelId || !selectedProviderApiKeyId) {
+  const persistSelection = async ({
+    modelId,
+    providerApiKeyId,
+    successMessage,
+  }: {
+    modelId: string;
+    providerApiKeyId: string;
+    successMessage: string;
+  }) => {
+    if (!modelId || !providerApiKeyId) {
       return;
     }
 
@@ -131,8 +132,8 @@ export default function AgentModelSettingsEditor({
     try {
       const result = await saUpdateAgentModel({
         agentId,
-        modelId: selectedModelId,
-        providerApiKeyId: selectedProviderApiKeyId,
+        modelId,
+        providerApiKeyId,
       });
 
       if (!result.success) {
@@ -140,13 +141,75 @@ export default function AgentModelSettingsEditor({
         return;
       }
 
-      toast.success("Model settings updated successfully");
+      setSavedModelId(modelId);
+      setSavedProviderApiKeyId(providerApiKeyId);
+      setSelectedModelId(modelId);
+      setSelectedProviderApiKeyId(providerApiKeyId);
+
+      toast.success(successMessage);
       router.refresh();
     } catch {
       toast.error("An error occurred while updating model settings");
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleProviderApiKeyChange = async (providerApiKeyId: string) => {
+    setSelectedProviderApiKeyId(providerApiKeyId);
+
+    const nextProviderApiKey = providerApiKeys.find(
+      (providerApiKey) => providerApiKey.id === providerApiKeyId,
+    );
+    const activeModel = models.find((model) => model.id === selectedModelId);
+
+    if (
+      !nextProviderApiKey ||
+      !activeModel ||
+      activeModel.providerId !== nextProviderApiKey.providerId
+    ) {
+      return;
+    }
+
+    if (providerApiKeyId === savedProviderApiKeyId) {
+      return;
+    }
+
+    await persistSelection({
+      modelId: activeModel.id,
+      providerApiKeyId,
+      successMessage: "API key updated successfully",
+    });
+  };
+
+  const handleModelSelection = async (modelId: string) => {
+    setSelectedModelId(modelId);
+
+    if (!selectedProviderApiKeyId) {
+      return;
+    }
+
+    const nextModel = models.find((model) => model.id === modelId);
+
+    if (
+      !nextModel ||
+      nextModel.providerId !== selectedProviderApiKey?.providerId
+    ) {
+      return;
+    }
+
+    if (
+      modelId === savedModelId &&
+      selectedProviderApiKeyId === savedProviderApiKeyId
+    ) {
+      return;
+    }
+
+    await persistSelection({
+      modelId,
+      providerApiKeyId: selectedProviderApiKeyId,
+      successMessage: "Model settings updated successfully",
+    });
   };
 
   return (
@@ -164,7 +227,7 @@ export default function AgentModelSettingsEditor({
               <Label htmlFor="provider-api-key">Provider API Key</Label>
               <Select
                 value={selectedProviderApiKeyId || undefined}
-                onValueChange={setSelectedProviderApiKeyId}
+                onValueChange={handleProviderApiKeyChange}
                 disabled={!hasProviderApiKeys || isSaving}
               >
                 <SelectTrigger id="provider-api-key">
@@ -201,22 +264,25 @@ export default function AgentModelSettingsEditor({
                 <AlertDescription>
                   The selected API key only supports{" "}
                   {selectedProviderApiKey?.providerName} models. Choose a
-                  compatible model before saving.
+                  compatible model and it will save automatically.
                 </AlertDescription>
               </Alert>
             )}
 
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span>Changes save automatically.</span>
               <span>
                 Selected key provider:{" "}
                 <span className="font-medium text-foreground">
                   {selectedProviderApiKey?.providerName || "None"}
                 </span>
               </span>
-              <Button onClick={handleSave} disabled={!canSave || isSaving}>
-                {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isSaving ? "Saving..." : "Save Model Settings"}
-              </Button>
+              {isSaving && (
+                <span className="inline-flex items-center gap-2 font-medium text-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -242,7 +308,7 @@ export default function AgentModelSettingsEditor({
                 <CardContent>
                   <div className="space-y-2">
                     {sortedModels.map((model) => {
-                      const isCurrentModel = model.id === currentModelId;
+                      const isCurrentModel = model.id === savedModelId;
                       const isSelectedModel = model.id === selectedModelId;
                       const isCompatible =
                         !selectedProviderApiKey ||
@@ -331,9 +397,12 @@ export default function AgentModelSettingsEditor({
                             variant={isSelectedModel ? "default" : "outline"}
                             size="sm"
                             className="shrink-0"
-                            onClick={() => setSelectedModelId(model.id)}
+                            onClick={() => handleModelSelection(model.id)}
                             disabled={
-                              !hasProviderApiKeys || !isCompatible || isSaving
+                              !hasProviderApiKeys ||
+                              !selectedProviderApiKey ||
+                              !isCompatible ||
+                              isSaving
                             }
                           >
                             {isSelectedModel ? "Selected" : "Choose Model"}
