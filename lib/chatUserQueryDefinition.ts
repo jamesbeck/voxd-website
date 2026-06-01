@@ -23,6 +23,11 @@ export type ChatUserQueryOperator =
 
 export type ChatUserQueryValue = string | number | boolean;
 
+export interface ChatUserQueryFieldOption {
+  label: string;
+  value: string | number;
+}
+
 export interface ChatUserQueryRule {
   id: string;
   kind: "rule";
@@ -61,11 +66,14 @@ export interface ChatUserQueryFieldDefinition {
   label: string;
   type: ChatUserQueryFieldType;
   required: boolean;
+  options?: ChatUserQueryFieldOption[];
 }
 
 type JsonSchema = {
   type?: string | string[];
   title?: string;
+  const?: string | number | boolean | null;
+  enum?: Array<string | number | boolean | null>;
   properties?: Record<string, JsonSchema>;
   required?: string[];
   anyOf?: JsonSchema[];
@@ -201,6 +209,7 @@ function collectFields({
       label,
       type: fieldType,
       required: required.has(key),
+      options: resolveFieldOptions(childSchema, fieldType),
     });
   });
 }
@@ -469,6 +478,89 @@ function getFieldType(type: JsonSchema["type"]): ChatUserQueryFieldType | null {
   return null;
 }
 
+function resolveFieldOptions(
+  schema: JsonSchema,
+  fieldType: ChatUserQueryFieldType,
+): ChatUserQueryFieldOption[] | undefined {
+  const rawOptions = collectFieldOptions(schema, fieldType);
+
+  if (rawOptions.length === 0) {
+    return undefined;
+  }
+
+  const seenValues = new Set<string>();
+  const normalizedOptions = rawOptions.filter((option) => {
+    const key = `${typeof option.value}:${String(option.value)}`;
+    if (seenValues.has(key)) {
+      return false;
+    }
+
+    seenValues.add(key);
+    return true;
+  });
+
+  return normalizedOptions.length > 0 ? normalizedOptions : undefined;
+}
+
+function collectFieldOptions(
+  schema: JsonSchema,
+  fieldType: ChatUserQueryFieldType,
+): ChatUserQueryFieldOption[] {
+  const optionsFromEnum = (schema.enum || [])
+    .flatMap((value) => toFieldOption(value, undefined, fieldType))
+    .filter(Boolean) as ChatUserQueryFieldOption[];
+
+  if (optionsFromEnum.length > 0) {
+    return optionsFromEnum;
+  }
+
+  const variantOptions = [
+    ...(schema.anyOf || []),
+    ...(schema.oneOf || []),
+    ...(schema.allOf || []),
+  ]
+    .flatMap((variant) => {
+      if (variant.const !== undefined) {
+        return toFieldOption(variant.const, variant.title, fieldType);
+      }
+
+      return collectFieldOptions(variant, fieldType);
+    })
+    .filter(Boolean) as ChatUserQueryFieldOption[];
+
+  return variantOptions;
+}
+
+function toFieldOption(
+  value: string | number | boolean | null,
+  label: string | undefined,
+  fieldType: ChatUserQueryFieldType,
+): ChatUserQueryFieldOption[] {
+  if (value === null) {
+    return [];
+  }
+
+  if (fieldType === "string" && typeof value === "string") {
+    return [
+      {
+        label: label || value,
+        value,
+      },
+    ];
+  }
+
+  if (fieldType === "number" && typeof value === "number") {
+    return [
+      {
+        label: label || String(value),
+        value,
+      },
+    ];
+  }
+
+  return [];
+}
+
 function resolveFieldType(schema: JsonSchema): ChatUserQueryFieldType | null {
   const directFieldType = getFieldType(schema.type);
   if (directFieldType) {
@@ -497,10 +589,6 @@ function resolveFieldType(schema: JsonSchema): ChatUserQueryFieldType | null {
   }
 
   return null;
-}
-
-function isObjectSchema(schema: JsonSchema): boolean {
-  return Boolean(resolveObjectSchema(schema));
 }
 
 function resolveObjectSchema(schema: JsonSchema): JsonSchema | null {

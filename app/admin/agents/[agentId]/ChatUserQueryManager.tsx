@@ -635,6 +635,9 @@ function QueryRuleEditor({
     fields.find((field) => field.path === rule.fieldPath) || fields[0];
   const operatorOptions = getOperatorOptions(selectedField.type);
   const operatorNeedsInput = doesOperatorRequireValue(rule.operator);
+  const selectedFieldOptions = selectedField.options || [];
+  const shouldRenderSelect =
+    operatorNeedsInput && selectedFieldOptions.length > 0;
 
   const handleFieldChange = (fieldPath: string) => {
     const nextField = fields.find((field) => field.path === fieldPath);
@@ -642,13 +645,13 @@ function QueryRuleEditor({
       return;
     }
 
-    const nextOperator = getDefaultOperator(nextField.type);
+    const nextOperator = getDefaultOperator(nextField);
     onChange({
       ...rule,
       fieldPath: nextField.path,
       fieldType: nextField.type,
       operator: nextOperator,
-      value: getDefaultValue(nextField.type, nextOperator),
+      value: getDefaultValue(nextField, nextOperator),
     });
   };
 
@@ -657,7 +660,7 @@ function QueryRuleEditor({
       ...rule,
       operator,
       value: doesOperatorRequireValue(operator)
-        ? getDefaultValue(selectedField.type, operator, rule.value)
+        ? getDefaultValue(selectedField, operator, rule.value)
         : undefined,
     });
   };
@@ -699,7 +702,32 @@ function QueryRuleEditor({
       <div className="grid gap-1.5">
         <Label>Value</Label>
         {operatorNeedsInput ? (
-          selectedField.type === "number" ? (
+          shouldRenderSelect ? (
+            <Select
+              value={String(rule.value ?? EMPTY_SELECT_VALUE)}
+              onValueChange={(value) =>
+                onChange({
+                  ...rule,
+                  value:
+                    selectedField.type === "number" ? Number(value) : value,
+                })
+              }
+            >
+              <SelectTrigger className="w-full min-w-0">
+                <SelectValue placeholder="Select value" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedFieldOptions.map((option) => (
+                  <SelectItem
+                    key={`${selectedField.path}-${String(option.value)}`}
+                    value={String(option.value)}
+                  >
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : selectedField.type === "number" ? (
             <Input
               type="number"
               className="w-full min-w-0"
@@ -767,7 +795,7 @@ function createEmptyGroup(): ChatUserQueryGroup {
 function createEmptyRule(
   field: ChatUserQueryFieldDefinition,
 ): ChatUserQueryRule {
-  const operator = getDefaultOperator(field.type);
+  const operator = getDefaultOperator(field);
 
   return {
     id: crypto.randomUUID(),
@@ -775,13 +803,19 @@ function createEmptyRule(
     fieldPath: field.path,
     fieldType: field.type,
     operator,
-    value: getDefaultValue(field.type, operator),
+    value: getDefaultValue(field, operator),
   };
 }
 
 function getDefaultOperator(
-  fieldType: ChatUserQueryFieldType,
+  field: ChatUserQueryFieldDefinition,
 ): ChatUserQueryOperator {
+  if (field.options?.length) {
+    return "equals";
+  }
+
+  const fieldType = field.type;
+
   if (fieldType === "number") {
     return "equals";
   }
@@ -794,12 +828,26 @@ function getDefaultOperator(
 }
 
 function getDefaultValue(
-  fieldType: ChatUserQueryFieldType,
+  field: ChatUserQueryFieldDefinition,
   operator: ChatUserQueryOperator,
   currentValue?: string | number | boolean,
 ) {
   if (!doesOperatorRequireValue(operator)) {
     return undefined;
+  }
+
+  const fieldType = field.type;
+
+  if (field.options?.length) {
+    const matchingOption = field.options.find(
+      (option) => option.value === currentValue,
+    );
+
+    if (matchingOption) {
+      return matchingOption.value;
+    }
+
+    return field.options[0].value;
   }
 
   if (fieldType === "number") {

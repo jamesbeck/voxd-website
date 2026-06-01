@@ -33,18 +33,21 @@ test("extracts nested scalar fields from user data schema", () => {
       label: "First name",
       type: "string",
       required: true,
+      options: undefined,
     },
     {
       path: "marketing.score",
       label: "Marketing / Score",
       type: "number",
       required: false,
+      options: undefined,
     },
     {
       path: "marketing.subscribed",
       label: "Marketing / Subscribed",
       type: "boolean",
       required: false,
+      options: undefined,
     },
   ]);
 });
@@ -82,18 +85,147 @@ test("extracts nullable scalar fields defined with anyOf", () => {
       label: "Authenticated At",
       type: "string",
       required: false,
+      options: undefined,
     },
     {
       path: "lastAuthenticatedEmail",
       label: "Last Authenticated Email",
       type: "string",
       required: false,
+      options: undefined,
     },
     {
       path: "pendingEmailVerification.email",
       label: "Pending Verification / Email",
       type: "string",
       required: false,
+      options: undefined,
+    },
+  ]);
+});
+
+test("extracts scalar enum options for queryable fields", () => {
+  const fields = extractChatUserQueryFields({
+    type: "object",
+    properties: {
+      attendeeType: {
+        type: "string",
+        title: "Attendee Type",
+        enum: ["VIP", "Speaker", "Guest"],
+      },
+      scoreBand: {
+        type: "number",
+        title: "Score Band",
+        enum: [10, 20, 30],
+      },
+    },
+  });
+
+  assert.deepEqual(fields, [
+    {
+      path: "attendeeType",
+      label: "Attendee Type",
+      type: "string",
+      required: false,
+      options: [
+        { label: "VIP", value: "VIP" },
+        { label: "Speaker", value: "Speaker" },
+        { label: "Guest", value: "Guest" },
+      ],
+    },
+    {
+      path: "scoreBand",
+      label: "Score Band",
+      type: "number",
+      required: false,
+      options: [
+        { label: "10", value: 10 },
+        { label: "20", value: 20 },
+        { label: "30", value: 30 },
+      ],
+    },
+  ]);
+});
+
+test("extracts scalar const variants from oneOf and anyOf", () => {
+  const fields = extractChatUserQueryFields({
+    type: "object",
+    properties: {
+      audience: {
+        oneOf: [
+          { type: "string", const: "vip", title: "VIP" },
+          { type: "string", const: "speaker", title: "Speaker" },
+          { type: "null" },
+        ],
+        title: "Audience",
+      },
+      tier: {
+        anyOf: [
+          { type: "number", const: 1, title: "Tier 1" },
+          { type: "number", const: 2, title: "Tier 2" },
+          { type: "null" },
+        ],
+        title: "Tier",
+      },
+    },
+  });
+
+  assert.deepEqual(fields, [
+    {
+      path: "audience",
+      label: "Audience",
+      type: "string",
+      required: false,
+      options: [
+        { label: "VIP", value: "vip" },
+        { label: "Speaker", value: "speaker" },
+      ],
+    },
+    {
+      path: "tier",
+      label: "Tier",
+      type: "number",
+      required: false,
+      options: [
+        { label: "Tier 1", value: 1 },
+        { label: "Tier 2", value: 2 },
+      ],
+    },
+  ]);
+});
+
+test("continues to exclude array-backed fields", () => {
+  const fields = extractChatUserQueryFields({
+    type: "object",
+    properties: {
+      roles: {
+        type: "array",
+        title: "Roles",
+        items: {
+          anyOf: [
+            { type: "string", const: "Admin", title: "Admin" },
+            {
+              type: "string",
+              const: "Sponsorship Manager",
+              title: "Sponsorship Manager",
+            },
+          ],
+        },
+      },
+      company: {
+        type: "string",
+        title: "Company",
+      },
+    },
+  });
+
+  assert.deepEqual(fields, [
+    {
+      path: "company",
+      label: "Company",
+      type: "string",
+      required: false,
+      options: undefined,
     },
   ]);
 });
