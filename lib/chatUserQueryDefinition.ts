@@ -162,6 +162,7 @@ export function applyChatUserQueryDefinition({
 
   return applyGroupToQuery({
     query,
+    combinator: "and",
     group: definition.root,
     isFirstSibling: true,
   });
@@ -216,10 +217,12 @@ function collectFields({
 
 function applyGroupToQuery({
   query,
+  combinator,
   group,
   isFirstSibling,
 }: {
   query: Knex.QueryBuilder;
+  combinator: ChatUserQueryLogicalOperator;
   group: ChatUserQueryGroup;
   isFirstSibling: boolean;
 }): CompileResult {
@@ -235,14 +238,14 @@ function applyGroupToQuery({
     return { success: true };
   }
 
-  const method =
-    group.operator === "or" && !isFirstSibling ? "orWhere" : "where";
+  const method = combinator === "or" && !isFirstSibling ? "orWhere" : "where";
 
   query[method]((nestedQuery: Knex.QueryBuilder) => {
     children.forEach((child, index) => {
       if (child.kind === "group") {
         const result = applyGroupToQuery({
           query: nestedQuery,
+          combinator: group.operator,
           group: child,
           isFirstSibling: index === 0,
         });
@@ -296,15 +299,15 @@ function applyRuleToQuery({
   const queryMethod =
     combinator === "or" && !isFirstSibling ? "orWhereRaw" : "whereRaw";
   const jsonPath = toJsonPath(rule.fieldPath);
-  const existsSql = `jsonb_path_exists("chatUser"."data", ?)`;
   const textSql = `(jsonb_path_query_first("chatUser"."data", ?) #>> '{}')`;
+  const existsSql = `(${textSql} IS NOT NULL AND ${textSql} != '')`;
 
   switch (rule.operator) {
     case "exists":
-      query[queryMethod](existsSql, [jsonPath]);
+      query[queryMethod](existsSql, [jsonPath, jsonPath]);
       return { success: true };
     case "not_exists":
-      query[queryMethod](`NOT ${existsSql}`, [jsonPath]);
+      query[queryMethod](`NOT ${existsSql}`, [jsonPath, jsonPath]);
       return { success: true };
     case "equals":
       if (rule.fieldType === "number") {

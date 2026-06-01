@@ -281,6 +281,8 @@ test("applies nested and/or rules to a chat user query", () => {
   assert.match(sql.sql, /jsonb_path_query_first/);
   assert.match(sql.sql, / ilike /i);
   assert.match(sql.sql, /::numeric >= \?/i);
+  assert.match(sql.sql, / and \(\(/i);
+  assert.doesNotMatch(sql.sql, /= \? or \(\(/i);
   assert.match(sql.sql, / or /i);
   assert.deepEqual(sql.bindings, [
     "$.firstName",
@@ -318,4 +320,48 @@ test("rejects invalid operators for field types", () => {
   if (!result.success) {
     assert.match(result.error, /not valid for boolean/i);
   }
+});
+
+test("uses non-empty scalar semantics for exists operators", () => {
+  const definition: ChatUserQueryDefinition = {
+    version: 1,
+    root: {
+      id: "root",
+      kind: "group",
+      operator: "and",
+      children: [
+        {
+          id: "rule-1",
+          kind: "rule",
+          fieldPath: "whatsAppNumber",
+          fieldType: "string",
+          operator: "exists",
+        },
+        {
+          id: "rule-2",
+          kind: "rule",
+          fieldPath: "mobileNumber",
+          fieldType: "string",
+          operator: "not_exists",
+        },
+      ],
+    },
+  };
+
+  const query = db("chatUser").select("chatUser.id");
+  const result = applyChatUserQueryDefinition({ query, definition });
+
+  assert.equal(result.success, true);
+  const sql = query.toSQL();
+
+  assert.match(
+    sql.sql,
+    /jsonb_path_query_first\("chatUser"\."data", \?\) #>> '\{\}'\) IS NOT NULL AND \(jsonb_path_query_first\("chatUser"\."data", \?\) #>> '\{\}'\) != ''/i,
+  );
+  assert.deepEqual(sql.bindings, [
+    "$.whatsAppNumber",
+    "$.whatsAppNumber",
+    "$.mobileNumber",
+    "$.mobileNumber",
+  ]);
 });
