@@ -122,7 +122,8 @@ export default function ChatUserQueryManager({
   const [savingQuery, startSavingQuery] = useTransition();
 
   const hasDraftRules = draftDefinition.root.children.length > 0;
-  const selectedQueryValue = selectedQueryId ||
+  const selectedQueryValue =
+    selectedQueryId ||
     (hasDraftRules ? EMPTY_SELECT_VALUE : NO_QUERY_SELECT_VALUE);
   const summary = useMemo(
     () => summariseDefinition(draftDefinition, fields),
