@@ -13,6 +13,7 @@ import {
   PauseIcon,
   PlayIcon,
   Trash2Icon,
+  Wrench,
   XCircleIcon,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -21,6 +22,10 @@ import SessionTicketBadge from "./SessionTicketBadge";
 import RecordActions from "@/components/admin/RecordActions";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import RunCustomFunctionDialog from "@/components/admin/RunCustomFunctionDialog";
+import useAvailableCustomFunctions, {
+  getAvailableCustomFunctionLabel,
+} from "@/hooks/useAvailableCustomFunctions";
 import {
   Tooltip,
   TooltipContent,
@@ -59,7 +64,15 @@ export default function SessionActions({
   const [isResumingSession, setIsResumingSession] = useState(false);
   const [isEndingSession, setIsEndingSession] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [runDialogOpen, setRunDialogOpen] = useState(false);
+  const [selectedFunctionId, setSelectedFunctionId] = useState<string>();
   const router = useRouter();
+
+  const { functions: customFunctions, isLoading: isLoadingCustomFunctions } =
+    useAvailableCustomFunctions({
+      agentId,
+      allowedTargetScopes: ["agent", "session"],
+    });
 
   const deleteSession = async () => {
     setIsDeleteingSession(true);
@@ -100,7 +113,7 @@ export default function SessionActions({
   };
 
   const resumeSession = async () => {
-    setIsPausingSession(true);
+    setIsResumingSession(true);
     const saResponse = await saResumeSession({ sessionId });
 
     if (!saResponse.success) {
@@ -109,12 +122,12 @@ export default function SessionActions({
           saResponse.error || "There was an error resuming the session"
         }`,
       );
-      setIsPausingSession(false);
+      setIsResumingSession(false);
       return;
     }
     // If successful
     toast.success(`Successfully resumed ${name}`);
-    setIsPausingSession(false);
+    setIsResumingSession(false);
     router.refresh();
   };
 
@@ -235,6 +248,34 @@ export default function SessionActions({
           groups: [
             {
               items: [
+                ...(isLoadingCustomFunctions
+                  ? [
+                      {
+                        label: "Loading custom functions...",
+                        icon: <Wrench />,
+                        loading: true,
+                        disabled: true,
+                      },
+                    ]
+                  : customFunctions.length > 0
+                    ? customFunctions.map((customFunction) => ({
+                        label:
+                          customFunction.targetScopes.length > 1
+                            ? `${getAvailableCustomFunctionLabel(customFunction)} (${customFunction.targetScopes.join(", ")})`
+                            : getAvailableCustomFunctionLabel(customFunction),
+                        icon: <Wrench />,
+                        onSelect: () => {
+                          setSelectedFunctionId(customFunction.id);
+                          setRunDialogOpen(true);
+                        },
+                      }))
+                    : [
+                        {
+                          label: "No custom functions available",
+                          icon: <Wrench />,
+                          disabled: true,
+                        },
+                      ]),
                 {
                   label: "Copy Conversation",
                   icon: <CopyIcon />,
@@ -283,6 +324,19 @@ export default function SessionActions({
             },
           ],
         }}
+      />
+
+      <RunCustomFunctionDialog
+        key={selectedFunctionId || "session-custom-function"}
+        open={runDialogOpen}
+        onOpenChange={setRunDialogOpen}
+        agentId={agentId}
+        functions={customFunctions}
+        initialFunctionId={selectedFunctionId}
+        lockFunctionSelection
+        sessionId={sessionId}
+        allowedTargetScopes={["agent", "session"]}
+        description="Select a custom function to run for this session or for the owning agent."
       />
     </>
   );

@@ -22,6 +22,7 @@ import {
   Plug,
   Settings,
   KeyRound,
+  ListTree,
   ShieldCheck,
   ShieldEllipsis,
 } from "lucide-react";
@@ -137,6 +138,18 @@ const menuItems: MenuItem[] = [
     title: "Files",
     url: "/admin/files",
     icon: Paperclip,
+  },
+  {
+    roles: ["admin"],
+    title: "Custom Functions",
+    url: "/admin/custom-functions",
+    icon: ListTree,
+  },
+  {
+    roles: ["admin"],
+    title: "Custom Function Logs",
+    url: "/admin/custom-function-runs",
+    icon: Wrench,
   },
 ];
 

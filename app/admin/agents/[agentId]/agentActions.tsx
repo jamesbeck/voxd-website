@@ -11,8 +11,8 @@ import {
   FlagIcon,
   MessageCircleIcon,
   Trash2Icon,
+  Wrench,
 } from "lucide-react";
-import Link from "next/link";
 import CloneAgentDialog from "./CloneAgentDialog";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -31,6 +31,10 @@ import {
 import ReportAgentDialog from "./ReportAgentDialog";
 import AgentTicketBadge from "./AgentTicketBadge";
 import RecordActions from "@/components/admin/RecordActions";
+import RunCustomFunctionDialog from "@/components/admin/RunCustomFunctionDialog";
+import useAvailableCustomFunctions, {
+  getAvailableCustomFunctionLabel,
+} from "@/hooks/useAvailableCustomFunctions";
 
 type AgentTicket = {
   id: string;
@@ -71,7 +75,15 @@ export default function AgentActions({
   });
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [cloneDialogOpen, setCloneDialogOpen] = useState(false);
+  const [runDialogOpen, setRunDialogOpen] = useState(false);
+  const [selectedFunctionId, setSelectedFunctionId] = useState<string>();
   const qrRef = useRef<SVGSVGElement>(null);
+
+  const { functions: customFunctions, isLoading: isLoadingCustomFunctions } =
+    useAvailableCustomFunctions({
+      agentId,
+      allowedTargetScopes: ["agent"],
+    });
 
   const router = useRouter();
 
@@ -203,11 +215,43 @@ export default function AgentActions({
             ],
           },
         ]}
-        dropdown={
-          isSuperAdmin
-            ? {
-                loading: isDeletingAgent,
-                groups: [
+        dropdown={{
+          loading: isDeletingAgent,
+          groups: [
+            {
+              items: [
+                ...(isLoadingCustomFunctions
+                  ? [
+                      {
+                        label: "Loading custom functions...",
+                        icon: <Wrench />,
+                        loading: true,
+                        disabled: true,
+                      },
+                    ]
+                  : customFunctions.length > 0
+                    ? customFunctions.map((customFunction) => ({
+                        label:
+                          customFunction.targetScopes.length > 1
+                            ? `${getAvailableCustomFunctionLabel(customFunction)} (${customFunction.targetScopes.join(", ")})`
+                            : getAvailableCustomFunctionLabel(customFunction),
+                        icon: <Wrench />,
+                        onSelect: () => {
+                          setSelectedFunctionId(customFunction.id);
+                          setRunDialogOpen(true);
+                        },
+                      }))
+                    : [
+                        {
+                          label: "No custom functions available",
+                          icon: <Wrench />,
+                          disabled: true,
+                        },
+                      ]),
+              ],
+            },
+            ...(isSuperAdmin
+              ? [
                   {
                     items: [
                       {
@@ -229,10 +273,10 @@ export default function AgentActions({
                       },
                     ],
                   },
-                ],
-              }
-            : undefined
-        }
+                ]
+              : []),
+          ],
+        }}
       />
 
       <ReportAgentDialog
@@ -248,6 +292,18 @@ export default function AgentActions({
         organisationId={organisationId}
         open={cloneDialogOpen}
         onOpenChange={setCloneDialogOpen}
+      />
+
+      <RunCustomFunctionDialog
+        key={selectedFunctionId || "agent-custom-function"}
+        open={runDialogOpen}
+        onOpenChange={setRunDialogOpen}
+        agentId={agentId}
+        functions={customFunctions}
+        initialFunctionId={selectedFunctionId}
+        lockFunctionSelection
+        allowedTargetScopes={["agent"]}
+        description="Select an agent-level custom function to run for this agent."
       />
 
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
