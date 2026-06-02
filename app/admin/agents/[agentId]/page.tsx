@@ -162,7 +162,7 @@ export default async function Page({
                 },
                 {
                   value: "send-template",
-                  label: "Send Template",
+                  label: "Queue Template",
                   href: `/admin/agents/${agentId}?tab=send-template`,
                 },
                 {
@@ -342,9 +342,9 @@ export default async function Page({
             </TabsContent>
             <TabsContent value="send-template">
               <Container>
-                <H2>Send Template</H2>
+                <H2>Queue Template</H2>
                 <p className="text-muted-foreground mb-4">
-                  Send WhatsApp templates to saved groups for this agent.
+                  Queue WhatsApp templates to saved groups for this agent.
                 </p>
                 <TemplatesSentTable agentId={agentId} />
               </Container>

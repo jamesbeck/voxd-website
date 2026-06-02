@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, RefreshCw, SendHorizonal } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import saGetChatUserQueries from "@/actions/saGetChatUserQueries";
 import saGetTemplateSendGroupPreview from "@/actions/saGetTemplateSendGroupPreview";
@@ -33,6 +34,7 @@ import {
 const EMPTY_SOURCE = "__none__";
 
 const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
+  const router = useRouter();
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   const [loadingQueries, setLoadingQueries] = useState(true);
   const [loadingPreviewUsers, setLoadingPreviewUsers] = useState(false);
@@ -224,8 +226,14 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
         return;
       }
 
+      router.refresh();
+
       toast.success(
-        `Template sent to ${result.data?.successCount || 0} of ${result.data?.recipientCount || recipientCount} users.`,
+        `Template queued for ${result.data?.recipientCount || recipientCount} ${
+          (result.data?.recipientCount || recipientCount) === 1
+            ? "eligible recipient"
+            : "eligible recipients"
+        }.`,
       );
       if (result.data?.excludedUsersWithoutWhatsApp) {
         const excludedLabel =
@@ -240,12 +248,6 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
         toast.warning(
           `${result.data.excludedUsersWithoutWhatsApp} ${excludedLabel} excluded because ${excludedReason}.`,
         );
-      }
-      if (result.data?.partialFailure) {
-        toast.warning(result.data.partialFailure);
-      }
-      if (result.data?.storageWarning) {
-        toast.warning(result.data.storageWarning);
       }
     } finally {
       setSending(false);
@@ -320,7 +322,7 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
                   <div className="text-muted-foreground">
                     {loadingPreviewUsers
                       ? "Resolving group members..."
-                      : `${recipientCount} ${recipientCount === 1 ? "recipient" : "recipients"} ready to send${excludedUsersWithoutWhatsApp > 0 ? `, ${excludedUsersWithoutWhatsApp} excluded` : ""}`}
+                      : `${recipientCount} ${recipientCount === 1 ? "eligible recipient" : "eligible recipients"} for this queued send${excludedUsersWithoutWhatsApp > 0 ? `, ${excludedUsersWithoutWhatsApp} excluded` : ""}`}
                   </div>
                 </div>
                 <Button
@@ -458,12 +460,12 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
               )}
 
             <Alert
-              title="Send template to this group?"
-              description={`This will immediately send this WhatsApp template to ${recipientCount} ${recipientCount === 1 ? "recipient" : "recipients"}.${excludedUsersWithoutWhatsApp > 0 ? ` ${excludedUsersWithoutWhatsApp} ${excludedUsersWithoutWhatsApp === 1 ? "matched user will be" : "matched users will be"} excluded because ${excludedUsersWithoutWhatsApp === 1 ? "that user does not have a WhatsApp number" : "those users do not have WhatsApp numbers"}.` : ""} This action cannot be undone.`}
+              title="Queue template for this group?"
+              description={`This will queue this WhatsApp template for ${recipientCount} ${recipientCount === 1 ? "eligible recipient" : "eligible recipients"}.${excludedUsersWithoutWhatsApp > 0 ? ` ${excludedUsersWithoutWhatsApp} ${excludedUsersWithoutWhatsApp === 1 ? "matched user will be" : "matched users will be"} excluded because ${excludedUsersWithoutWhatsApp === 1 ? "that user does not have a WhatsApp number" : "those users do not have WhatsApp numbers"}.` : ""} Delivery will happen asynchronously after the queued job starts. This action cannot be undone.`}
               actionText={
                 recipientCount === 1
-                  ? "Send to 1 recipient"
-                  : `Send to ${recipientCount} recipients`
+                  ? "Queue for 1 recipient"
+                  : `Queue for ${recipientCount} recipients`
               }
               destructive
               onAction={handleSendTemplate}
@@ -480,12 +482,12 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
                 {sending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
+                    Queuing...
                   </>
                 ) : (
                   <>
                     <SendHorizonal className="mr-2 h-4 w-4" />
-                    Send Template
+                    Queue Template
                   </>
                 )}
               </Button>

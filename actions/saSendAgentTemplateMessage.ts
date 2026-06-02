@@ -17,13 +17,11 @@ type GroupTemplateSuccess = {
   success: true;
   data: {
     templateMessageSendId: string;
-    successCount: number;
-    failureCount: number;
     recipientCount: number;
     excludedUsersWithoutWhatsApp: number;
     queryName: string;
-    partialFailure?: string;
-    storageWarning?: string;
+    queued: true;
+    runStatus: "queued";
   };
 };
 
