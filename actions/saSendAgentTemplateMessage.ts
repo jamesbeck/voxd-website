@@ -52,6 +52,7 @@ const saSendAgentTemplateMessage = async ({
         queryId,
         templateId,
         mappings,
+        requestedByAdminUserId: accessToken.id,
       },
     });
 
