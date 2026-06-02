@@ -2,6 +2,7 @@
 
 import saCreateChatUserQuery from "@/actions/saCreateChatUserQuery";
 import saDeleteChatUserQuery from "@/actions/saDeleteChatUserQuery";
+import saGetChatUserQueryCount from "@/actions/saGetChatUserQueryCount";
 import saGetChatUserQueries from "@/actions/saGetChatUserQueries";
 import saUpdateChatUserQuery from "@/actions/saUpdateChatUserQuery";
 import {
@@ -49,6 +50,7 @@ import { Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 
 const EMPTY_SELECT_VALUE = "__draft__";
+const NO_QUERY_SELECT_VALUE = "__none__";
 
 const STRING_OPERATOR_OPTIONS: Array<{
   value: ChatUserQueryOperator;
@@ -113,10 +115,15 @@ export default function ChatUserQueryManager({
   const [editorName, setEditorName] = useState("");
   const [editorDefinition, setEditorDefinition] =
     useState<ChatUserQueryDefinition>(createEmptyDefinition());
+  const [editorMatchCount, setEditorMatchCount] = useState<number | null>(null);
+  const [editorCountError, setEditorCountError] = useState<string | null>(null);
   const [loadingQueries, startLoadingQueries] = useTransition();
+  const [loadingEditorCount, startLoadingEditorCount] = useTransition();
   const [savingQuery, startSavingQuery] = useTransition();
 
   const hasDraftRules = draftDefinition.root.children.length > 0;
+  const selectedQueryValue = selectedQueryId ||
+    (hasDraftRules ? EMPTY_SELECT_VALUE : NO_QUERY_SELECT_VALUE);
   const summary = useMemo(
     () => summariseDefinition(draftDefinition, fields),
     [draftDefinition, fields],
@@ -139,6 +146,42 @@ export default function ChatUserQueryManager({
     });
   }, [agentId]);
 
+  useEffect(() => {
+    if (!editorOpen || fields.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const timeoutId = window.setTimeout(async () => {
+      startLoadingEditorCount(async () => {
+        setEditorCountError(null);
+
+        const result = await saGetChatUserQueryCount({
+          agentId,
+          queryDefinition: editorDefinition,
+        });
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!result.success) {
+          setEditorMatchCount(null);
+          setEditorCountError(result.error || "Failed to load match count");
+          return;
+        }
+
+        setEditorMatchCount(Number(result.data?.count ?? 0));
+      });
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [agentId, editorDefinition, editorOpen, fields.length]);
+
   const openNewEditor = () => {
     if (fields.length === 0) {
       toast.error("Add a user data schema before building saved queries");
@@ -148,6 +191,8 @@ export default function ChatUserQueryManager({
     setSelectedQueryId(null);
     setEditorName("");
     setEditorDefinition(createEmptyDefinition());
+    setEditorMatchCount(null);
+    setEditorCountError(null);
     setEditorOpen(true);
   };
 
@@ -159,10 +204,17 @@ export default function ChatUserQueryManager({
 
     setEditorName(draftName);
     setEditorDefinition(cloneDefinition(draftDefinition));
+    setEditorMatchCount(null);
+    setEditorCountError(null);
     setEditorOpen(true);
   };
 
   const handleSavedQuerySelection = (value: string) => {
+    if (value === NO_QUERY_SELECT_VALUE) {
+      clearActiveQuery();
+      return;
+    }
+
     if (value === EMPTY_SELECT_VALUE) {
       setSelectedQueryId(null);
       return;
@@ -176,6 +228,12 @@ export default function ChatUserQueryManager({
     setSelectedQueryId(selectedQuery.id);
     setDraftName(selectedQuery.name);
     setDraftDefinition(cloneDefinition(selectedQuery.query));
+  };
+
+  const clearActiveQuery = () => {
+    setSelectedQueryId(null);
+    setDraftName("");
+    setDraftDefinition(createEmptyDefinition());
   };
 
   const handleApplyDraft = () => {
@@ -285,7 +343,7 @@ export default function ChatUserQueryManager({
           <div className="grid gap-1.5">
             <Label htmlFor="chat-user-query-select">Saved Groups</Label>
             <Select
-              value={selectedQueryId || EMPTY_SELECT_VALUE}
+              value={selectedQueryValue}
               onValueChange={handleSavedQuerySelection}
             >
               <SelectTrigger
@@ -295,6 +353,7 @@ export default function ChatUserQueryManager({
                 <SelectValue placeholder="Select a saved query" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value={NO_QUERY_SELECT_VALUE}>No query</SelectItem>
                 <SelectItem value={EMPTY_SELECT_VALUE}>
                   Unsaved draft
                 </SelectItem>
@@ -319,6 +378,14 @@ export default function ChatUserQueryManager({
               disabled={fields.length === 0}
             >
               Edit Query
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={clearActiveQuery}
+              disabled={!selectedQueryId && !hasDraftRules}
+            >
+              Clear Query
             </Button>
             <Button
               type="button"
@@ -404,40 +471,60 @@ export default function ChatUserQueryManager({
             </div>
           )}
 
-          <DialogFooter className="border-t px-6 py-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setEditorOpen(false)}
-              disabled={savingQuery}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleApplyDraft}
-              disabled={savingQuery || fields.length === 0}
-            >
-              Apply Draft
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleSaveAsNew}
-              disabled={savingQuery || fields.length === 0}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              Save as New
-            </Button>
-            <Button
-              type="button"
-              onClick={handleSaveExisting}
-              disabled={savingQuery || !selectedQueryId || fields.length === 0}
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
+          <div className="border-t px-6 py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-h-5 text-sm text-muted-foreground">
+                {fields.length === 0 ? null : loadingEditorCount ? (
+                  <span>Updating matching user count...</span>
+                ) : editorCountError ? (
+                  <span className="text-destructive">{editorCountError}</span>
+                ) : editorMatchCount !== null ? (
+                  <span>
+                    {editorDefinition.root.children.length === 0
+                      ? `All ${editorMatchCount.toLocaleString()} chat users would be returned`
+                      : `${editorMatchCount.toLocaleString()} chat users match this query`}
+                  </span>
+                ) : null}
+              </div>
+
+              <DialogFooter className="border-0 p-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditorOpen(false)}
+                  disabled={savingQuery}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleApplyDraft}
+                  disabled={savingQuery || fields.length === 0}
+                >
+                  Apply Draft
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSaveAsNew}
+                  disabled={savingQuery || fields.length === 0}
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  Save as New
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleSaveExisting}
+                  disabled={
+                    savingQuery || !selectedQueryId || fields.length === 0
+                  }
+                >
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
