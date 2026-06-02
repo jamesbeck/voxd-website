@@ -46,9 +46,11 @@ const SessionsTable = ({
         "Name",
         "Number",
         "Email",
-        "First Seen",
+        "Session Opened",
         "Last Seen",
-        "Messages",
+        "User Messages",
+        "Assistant Messages",
+        "Other Messages",
       ];
       const escapeCsv = (val: any) => {
         const str = String(val);
@@ -62,13 +64,15 @@ const SessionsTable = ({
           row.name ?? "",
           row.number ?? "",
           row.email ?? "",
-          row.firstMessageAt
-            ? format(row.firstMessageAt, "yyyy-MM-dd HH:mm:ss")
+          row.sessionOpenedAt
+            ? format(row.sessionOpenedAt, "yyyy-MM-dd HH:mm:ss")
             : "",
           row.lastMessageAt
             ? format(row.lastMessageAt, "yyyy-MM-dd HH:mm:ss")
             : "",
-          row.messageCount ?? 0,
+          row.userMessageCount ?? 0,
+          row.assistantMessageCount ?? 0,
+          row.otherMessageCount ?? 0,
         ]
           .map(escapeCsv)
           .join(","),
@@ -158,15 +162,15 @@ const SessionsTable = ({
       sort: true,
     },
     {
-      label: "First Seen",
-      name: "firstMessageAt",
+      label: "Session Opened",
+      name: "sessionOpenedAt",
       sort: true,
       format: (row: any) =>
-        row.firstMessageAt
+        row.sessionOpenedAt
           ? `${format(
-              row.firstMessageAt,
+              row.sessionOpenedAt,
               "dd/MM/yyyy HH:mm",
-            )} (${formatDistance(row.firstMessageAt, new Date())})`
+            )} (${formatDistance(row.sessionOpenedAt, new Date())})`
           : "",
     },
     {
@@ -182,8 +186,18 @@ const SessionsTable = ({
           : "",
     },
     {
-      label: "Messages",
-      name: "messageCount",
+      label: "User",
+      name: "userMessageCount",
+      sort: true,
+    },
+    {
+      label: "Assistant",
+      name: "assistantMessageCount",
+      sort: true,
+    },
+    {
+      label: "Other",
+      name: "otherMessageCount",
       sort: true,
     },
     {

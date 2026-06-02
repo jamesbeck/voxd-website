@@ -16,6 +16,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import SendTemplateTab from "./sendTemplateTab";
 import JsonDataEditor from "./JsonDataEditor";
 import getAgentById from "@/lib/getAgentById";
+import TemplateSendHistoryTable from "./templateSendHistoryTable";
 
 export default async function Page({
   params,
@@ -90,6 +91,11 @@ export default async function Page({
                 href: `/admin/chatUsers/${userId}?tab=send-template`,
               },
               {
+                value: "template-history",
+                label: "Template History",
+                href: `/admin/chatUsers/${userId}?tab=template-history`,
+              },
+              {
                 value: "data",
                 label: "Data",
                 href: `/admin/chatUsers/${userId}?tab=data`,
@@ -119,6 +125,20 @@ export default async function Page({
                 Send a WhatsApp template message to this user.
               </p>
               <SendTemplateTab userId={userId} />
+            </TabsContent>
+            <TabsContent value="template-history">
+              <H2>Template History</H2>
+              <p className="text-muted-foreground mb-4">
+                View all WhatsApp template sends recorded for this user.
+              </p>
+              {agent ? (
+                <TemplateSendHistoryTable agentId={agent.id} userId={userId} />
+              ) : (
+                <p className="text-muted-foreground">
+                  Template history is unavailable because this user is not
+                  linked to an agent.
+                </p>
+              )}
             </TabsContent>
             <TabsContent value="data">
               <H2>User Data</H2>

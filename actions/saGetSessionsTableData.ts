@@ -76,6 +76,7 @@ const saGetSessionsTableData = async ({
     .select(
       "session.id",
       "session.sessionType",
+      "session.createdAt as sessionOpenedAt",
       "session.closedAt",
       "session.closedReason",
       "session.paused",
@@ -89,9 +90,14 @@ const saGetSessionsTableData = async ({
       "agent.niceName as agentName",
     )
     .select(
-      db.raw('COUNT("userMessage"."id")::int as "messageCount"'),
+      db.raw('COUNT("userMessage"."id")::int as "userMessageCount"'),
       db.raw('MAX("userMessage"."createdAt") as "lastMessageAt"'),
-      db.raw('MIN("userMessage"."createdAt") as "firstMessageAt"'),
+      db.raw(
+        'CAST(COALESCE((SELECT COUNT(*) FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "assistantMessageCount"',
+      ),
+      db.raw(
+        'CAST(COALESCE((SELECT COUNT(*) FROM "manualMessage" WHERE "manualMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "otherMessageCount"',
+      ),
       db.raw(
         'CAST(COALESCE((SELECT SUM("assistantMessage"."inputTokens") FROM "assistantMessage" WHERE "assistantMessage"."sessionId" = "session"."id"), 0) AS INTEGER) as "totalinputTokens"',
       ),

@@ -29,15 +29,15 @@ const SessionsTable = ({ userId }: { userId: string }) => {
       ),
     },
     {
-      label: "First Seen",
-      name: "firstMessageAt",
+      label: "Session Opened",
+      name: "sessionOpenedAt",
       sort: true,
       format: (row: any) =>
-        row.firstMessageAt
+        row.sessionOpenedAt
           ? `${format(
-              row.firstMessageAt,
+              row.sessionOpenedAt,
               "dd/MM/yyyy HH:mm",
-            )} (${formatDistance(row.firstMessageAt, new Date())})`
+            )} (${formatDistance(row.sessionOpenedAt, new Date())})`
           : "",
     },
     {
@@ -53,8 +53,18 @@ const SessionsTable = ({ userId }: { userId: string }) => {
           : "",
     },
     {
-      label: "Messages",
-      name: "messageCount",
+      label: "User",
+      name: "userMessageCount",
+      sort: true,
+    },
+    {
+      label: "Assistant",
+      name: "assistantMessageCount",
+      sort: true,
+    },
+    {
+      label: "Other",
+      name: "otherMessageCount",
       sort: true,
     },
   ];

@@ -16,9 +16,11 @@ const saGetTemplateSendAttemptTableData = async ({
   sortDirection = "desc",
   agentId,
   templateMessageSendId,
+  chatUserId,
 }: ServerActionReadParams & {
   agentId: string;
   templateMessageSendId?: string;
+  chatUserId?: string;
 }): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -36,6 +38,10 @@ const saGetTemplateSendAttemptTableData = async ({
         "waTemplate.id",
       )
       .where("chatUser.agentId", agentId);
+
+    if (chatUserId) {
+      subquery.where("chatUser.id", chatUserId);
+    }
 
     if (templateMessageSendId) {
       subquery.where(
