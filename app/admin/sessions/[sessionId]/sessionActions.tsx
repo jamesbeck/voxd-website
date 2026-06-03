@@ -67,6 +67,7 @@ export default function SessionActions({
   const [runDialogOpen, setRunDialogOpen] = useState(false);
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>();
   const router = useRouter();
+  const isClosedLike = closed;
 
   const { functions: customFunctions, isLoading: isLoadingCustomFunctions } =
     useAvailableCustomFunctions({
@@ -206,7 +207,7 @@ export default function SessionActions({
           </ButtonGroup>
         }
         buttons={[
-          ...(!paused && !closed
+          ...(!paused && !isClosedLike
             ? [
                 {
                   label: "Pause",
@@ -224,7 +225,7 @@ export default function SessionActions({
                 },
               ]
             : []),
-          ...(paused && !closed
+          ...(paused && !isClosedLike
             ? [
                 {
                   label: "Resume",
@@ -283,7 +284,7 @@ export default function SessionActions({
                 },
               ],
             },
-            ...(!closed
+            ...(!isClosedLike
               ? [
                   {
                     items: [

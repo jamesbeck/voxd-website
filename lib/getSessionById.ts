@@ -10,6 +10,7 @@ interface Session {
   createdAt: Date;
   closedAt: Date | null;
   closedReason: string | null;
+  deletedByUser: boolean;
   data: any;
   lastUserMessageDate: Date | null;
   totalinputTokens: number;

@@ -19,6 +19,7 @@ import WorkerRunsTable from "./workerRunsTable";
 import DataCard, { DataItem } from "@/components/adminui/DataCard";
 import { Button } from "@/components/ui/button";
 import SessionJsonDataEditor from "./SessionJsonDataEditor";
+import { getSessionStatus } from "@/lib/sessionStatus";
 import {
   Calendar,
   Clock,
@@ -54,9 +55,7 @@ export default async function Page({
   const user = await getUserById({ userId: session.userId });
   const agent = await getAgentById({ agentId: session.agentId });
 
-  let sessionStatus = "Active";
-  if (!!session.closedAt) sessionStatus = "Closed";
-  else if (session.paused) sessionStatus = "Paused";
+  const sessionStatus = getSessionStatus(session);
 
   const messages = await getMessages({ sessionId: sessionId });
 
@@ -143,7 +142,7 @@ export default async function Page({
               name={session.id}
               agentId={agent.id}
               paused={session.paused}
-              closed={!!session.closedAt}
+              closed={sessionStatus.isClosedLike}
               tickets={sessionTickets}
               messages={messages}
             />
@@ -158,6 +157,7 @@ export default async function Page({
               agentId={agent.id}
               ticketsByMessage={ticketsByMessage || {}}
               paused={session.paused}
+              deletedByUser={session.deletedByUser}
               coreBaseUrl={coreBaseUrl}
             />
           </Container>
@@ -196,13 +196,9 @@ export default async function Page({
                   },
                   {
                     label: "Session Status",
-                    value: sessionStatus,
+                    value: sessionStatus.label,
                     icon: <Activity className="h-4 w-4" />,
-                    variant: session.closedAt
-                      ? "danger"
-                      : session.paused
-                        ? "warning"
-                        : "success",
+                    variant: sessionStatus.dataCardVariant,
                   },
                   {
                     label: "Platform",

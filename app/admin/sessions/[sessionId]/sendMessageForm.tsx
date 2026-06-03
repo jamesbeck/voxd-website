@@ -32,10 +32,12 @@ export default function NewQuoteForm({
   sessionId,
   lastMessageFromUserSecondsAgo,
   paused,
+  deletedByUser,
 }: {
   sessionId: string;
   lastMessageFromUserSecondsAgo: number | null;
   paused: boolean;
+  deletedByUser: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [pauseAfterSend, setPauseAfterSend] = useState(true);
@@ -52,6 +54,7 @@ export default function NewQuoteForm({
     lastMessageFromUserSecondsAgo !== null
       ? 24 * 60 * 60 - lastMessageFromUserSecondsAgo
       : 0;
+  const cannotSend = deletedByUser || hasBeenLongerThan24Hours;
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -125,7 +128,21 @@ export default function NewQuoteForm({
         <CardTitle>Send Message</CardTitle>
       </CardHeader>
       <CardContent>
-        {hasBeenLongerThan24Hours ? (
+        {deletedByUser ? (
+          <div className="mb-4 rounded-md bg-red-50 p-4">
+            <div className="flex flex-col">
+              <h3 className="text-sm font-medium text-destructive">
+                Cannot send message
+              </h3>
+              <div className="text-sm text-destructive">
+                <p>
+                  This session was deleted by the user and is treated as closed.
+                  Manual replies are disabled.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : hasBeenLongerThan24Hours ? (
           <div className="mb-4 rounded-md bg-red-50 p-4">
             <div className="flex flex-col">
               <h3 className="text-sm font-medium text-destructive">
@@ -167,7 +184,7 @@ export default function NewQuoteForm({
                       placeholder=""
                       {...field}
                       className="h-[300px]"
-                      disabled={hasBeenLongerThan24Hours}
+                      disabled={cannotSend}
                     />
                   </FormControl>
                   <FormMessage />
@@ -183,10 +200,7 @@ export default function NewQuoteForm({
               )}
             </div>
             <div className="flex items-center gap-4">
-              <Button
-                type="submit"
-                disabled={loading || hasBeenLongerThan24Hours}
-              >
+              <Button type="submit" disabled={loading || cannotSend}>
                 {loading && <Spinner />}
                 Submit
               </Button>
@@ -198,7 +212,7 @@ export default function NewQuoteForm({
                     onCheckedChange={(checked) =>
                       setPauseAfterSend(checked === true)
                     }
-                    disabled={loading || hasBeenLongerThan24Hours}
+                    disabled={loading || cannotSend}
                   />
                   <Label
                     htmlFor="pauseAfterSend"

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import TableActions from "@/components/admin/TableActions";
+import { getSessionStatus } from "@/lib/sessionStatus";
 import {
   Tooltip,
   TooltipContent,
@@ -111,17 +112,12 @@ const SessionsTable = ({
       name: "closedAt",
       sort: true,
       format: (row: any) => {
-        let status = "Active";
-        let color = "bg-green-500";
-        if (row.closedAt) {
-          status = "Closed";
-          color = "bg-gray-500";
-        } else if (row.paused) {
-          status = "Paused";
-          color = "bg-yellow-500";
-        }
-        const badge = <Badge className={color}>{status}</Badge>;
-        if (row.closedAt && row.closedReason) {
+        const status = getSessionStatus(row);
+        const badge = (
+          <Badge className={status.badgeClassName}>{status.label}</Badge>
+        );
+
+        if (status.key === "closed" && row.closedReason) {
           return (
             <Tooltip>
               <TooltipTrigger asChild>{badge}</TooltipTrigger>

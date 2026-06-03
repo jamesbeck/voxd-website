@@ -39,6 +39,7 @@ export default function Conversation({
   agentId,
   ticketsByMessage,
   paused,
+  deletedByUser,
   coreBaseUrl,
 }: {
   initialMessages: any[];
@@ -46,6 +47,7 @@ export default function Conversation({
   agentId: string;
   ticketsByMessage: TicketsByMessage;
   paused: boolean;
+  deletedByUser: boolean;
   coreBaseUrl: string;
 }) {
   const router = useRouter();
@@ -90,7 +92,14 @@ export default function Conversation({
 
   return (
     <>
-      {paused && (
+      {deletedByUser ? (
+        <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-4">
+          <p className="text-sm font-medium text-red-800">
+            This session was deleted by the user. It is treated as closed and
+            can no longer be manually replied to.
+          </p>
+        </div>
+      ) : paused ? (
         <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-4">
           <p className="text-sm font-medium text-red-800">
             This session is paused, the agent will not respond to messages. You
@@ -98,15 +107,12 @@ export default function Conversation({
             using the form below.
           </p>
         </div>
-      )}
+      ) : null}
       <div
         ref={scrollRef}
         className="h-[600px] rounded-xl border bg-muted/30 shadow-sm overflow-y-auto p-4 space-y-3"
       >
         {messages.map((message: any, index: number) => {
-          //split text on line breaks
-          const textSplitOnLineBreaks = message.text?.split("\n") ?? [];
-
           // Calculate time since previous message
           const previousMessage = index > 0 ? messages[index - 1] : null;
           const timeSincePreviousMessage = previousMessage
@@ -469,6 +475,7 @@ export default function Conversation({
         sessionId={sessionId}
         lastMessageFromUserSecondsAgo={lastMessageFromUserSecondsAgo}
         paused={paused}
+        deletedByUser={deletedByUser}
       />
     </>
   );

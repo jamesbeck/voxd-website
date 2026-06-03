@@ -2,6 +2,7 @@
 
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import getSessionById from "@/lib/getSessionById";
 
 const saSendMessage = async ({
   message,
@@ -11,6 +12,18 @@ const saSendMessage = async ({
   sessionId: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
+  const session = await getSessionById({ sessionId });
+
+  if (!session) {
+    return { success: false, error: "Session not found" };
+  }
+
+  if (session.deletedByUser) {
+    return {
+      success: false,
+      error: "Cannot send a manual reply to a session deleted by the user",
+    };
+  }
 
   const coreBaseUrl =
     process.env.NODE_ENV === "development"
