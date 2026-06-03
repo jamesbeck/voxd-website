@@ -92,6 +92,7 @@ export default function AgentActions({
     : "";
 
   const webClientUrl = `/web-chat/${agentId}`;
+  const webWidgetUrl = `/web-chat/${agentId}?variant=widget`;
 
   const openQrDialog = (url: string, label: string, filename: string) => {
     setQrTarget({ url, label, filename });
@@ -182,10 +183,13 @@ export default function AgentActions({
                       variant: "default" as const,
                       href: whatsappUrl,
                       target: "_blank",
+                      tooltip: "Open this agent in WhatsApp.",
                     },
                     {
                       label: "WA QR",
                       variant: "outline" as const,
+                      tooltip:
+                        "Open a QR code that launches this agent in WhatsApp.",
                       onClick: () =>
                         openQrDialog(whatsappUrl, "WhatsApp", "whatsapp"),
                     },
@@ -196,15 +200,27 @@ export default function AgentActions({
           {
             buttons: [
               {
-                label: "Web",
+                label: "Webchat",
                 icon: <MessageCircleIcon />,
                 variant: "default" as const,
                 href: webClientUrl,
                 target: "_blank",
+                tooltip:
+                  "Open the fullscreen webchat test page for this agent.",
               },
               {
-                label: "Web QR",
+                label: "Widget",
+                icon: <MessageCircleIcon />,
                 variant: "outline" as const,
+                href: webWidgetUrl,
+                target: "_blank",
+                tooltip:
+                  "Open the smaller webchat widget test page for this agent.",
+              },
+              {
+                label: "Webchat QR",
+                variant: "outline" as const,
+                tooltip: "Open a QR code for the fullscreen webchat test page.",
                 onClick: () =>
                   openQrDialog(
                     `${window.location.origin}/web-chat/${agentId}`,

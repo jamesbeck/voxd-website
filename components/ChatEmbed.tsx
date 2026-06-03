@@ -36,6 +36,7 @@ export default function ChatEmbed({
   agentId,
   coreBaseUrl,
   primaryColour,
+  mode = "fullscreen",
   identify,
   userData,
   sessionData,
@@ -44,6 +45,7 @@ export default function ChatEmbed({
   agentId: string;
   coreBaseUrl: string;
   primaryColour: string;
+  mode?: "fullscreen" | "widget";
   identify?: ChatIdentifyParams;
   userData?: ChatData;
   sessionData?: ChatData;
@@ -54,7 +56,7 @@ export default function ChatEmbed({
     const script = document.createElement("script");
     script.src = `${coreBaseUrl}/web-client/embed.js`;
     script.setAttribute("data-agent-id", agentId);
-    script.setAttribute("data-mode", "fullscreen");
+    script.setAttribute("data-mode", mode);
     script.setAttribute("data-color", primaryColour);
     if (brandAsOrganisationId) {
       script.setAttribute(
@@ -99,6 +101,7 @@ export default function ChatEmbed({
     agentId,
     coreBaseUrl,
     primaryColour,
+    mode,
     identify,
     userData,
     sessionData,

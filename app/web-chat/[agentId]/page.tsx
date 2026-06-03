@@ -6,26 +6,34 @@ import ChatEmbed from "@/components/ChatEmbed";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: { agentId: string };
+  searchParams: Promise<{ variant?: string }>;
 }): Promise<Metadata> {
   const agentId = (await params).agentId;
+  const variant =
+    (await searchParams).variant === "widget" ? "widget" : "fullscreen";
   const data = await saGetAgentDemoData({ agentId });
 
   if (!data) return { title: "Agent Not Found" };
 
   return {
-    title: `${data.agentNiceName} – Web Chat Testing`,
-    description: `Web chat testing for ${data.agentNiceName}.`,
+    title: `${data.agentNiceName} – ${variant === "widget" ? "Chat Widget" : "Web Chat Testing"}`,
+    description: `${variant === "widget" ? "Chat widget" : "Web chat"} testing for ${data.agentNiceName}.`,
   };
 }
 
 export default async function WebChatPage({
   params,
+  searchParams,
 }: {
   params: { agentId: string };
+  searchParams: Promise<{ variant?: string }>;
 }) {
   const agentId = (await params).agentId;
+  const variant =
+    (await searchParams).variant === "widget" ? "widget" : "fullscreen";
   const data = await saGetAgentDemoData({ agentId });
 
   if (!data) return notFound();
@@ -55,6 +63,7 @@ export default async function WebChatPage({
         agentId={data.agentId}
         coreBaseUrl={coreBaseUrl}
         primaryColour={primaryColour}
+        mode={variant}
       />
     </DemoWebsite>
   );
