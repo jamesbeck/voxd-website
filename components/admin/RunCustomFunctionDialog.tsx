@@ -50,7 +50,6 @@ type CustomFunctionRecord = {
   agentId: string;
   key: string;
   name: string;
-  displayName: string | null;
   niceName: string;
   description: string;
   humanReadableDescription: string;
@@ -80,10 +79,7 @@ type RunCustomFunctionDialogProps = {
 };
 
 const getFunctionLabel = (customFunction: CustomFunctionRecord) =>
-  customFunction.displayName ||
-  customFunction.niceName ||
-  customFunction.name ||
-  customFunction.key;
+  customFunction.niceName || customFunction.name || customFunction.key;
 
 const getFunctionDescription = (customFunction: CustomFunctionRecord) =>
   customFunction.humanReadableDescription || customFunction.description;

@@ -10,7 +10,6 @@ type CustomFunctionRecord = {
   agentId: string;
   key: string;
   name: string;
-  displayName: string | null;
   niceName: string;
   description: string;
   humanReadableDescription: string;
@@ -20,7 +19,7 @@ type CustomFunctionRecord = {
   enabled: boolean;
   allowManualRun: boolean;
   allowApiRun: boolean;
-  supportsScheduling: boolean;
+  scheduleCron: string | null;
   nextScheduledRunAt: Date | null;
   uiOrder: number | null;
   notes: string | null;
@@ -54,14 +53,14 @@ const saGetAvailableCustomFunctions = async ({
   const functions = await db("customFunction")
     .select<
       CustomFunctionRecord[]
-    >("customFunction.id", "customFunction.agentId", "customFunction.key", "customFunction.name", "customFunction.displayName", "customFunction.niceName", "customFunction.description", "customFunction.humanReadableDescription", "customFunction.targetScopes", "customFunction.inputSchema", "customFunction.outputSchema", "customFunction.enabled", "customFunction.allowManualRun", "customFunction.allowApiRun", "customFunction.supportsScheduling", "customFunction.nextScheduledRunAt", "customFunction.uiOrder", "customFunction.notes", "customFunction.updatedAt")
+    >("customFunction.id", "customFunction.agentId", "customFunction.key", "customFunction.name", "customFunction.niceName", "customFunction.description", "customFunction.humanReadableDescription", "customFunction.targetScopes", "customFunction.inputSchema", "customFunction.outputSchema", "customFunction.enabled", "customFunction.allowManualRun", "customFunction.allowApiRun", "customFunction.scheduleCron", "customFunction.nextScheduledRunAt", "customFunction.uiOrder", "customFunction.notes", "customFunction.updatedAt")
     .where("customFunction.agentId", agentId)
     .whereNull("customFunction.archivedAt")
     .where("customFunction.enabled", true)
     .where("customFunction.allowManualRun", true)
     .where("customFunction.allowApiRun", true)
     .orderByRaw(
-      'COALESCE("customFunction"."uiOrder", 999999) asc, COALESCE("customFunction"."displayName", "customFunction"."niceName", "customFunction"."name") asc, "customFunction"."key" asc',
+      'COALESCE("customFunction"."uiOrder", 999999) asc, COALESCE("customFunction"."niceName", "customFunction"."name") asc, "customFunction"."key" asc',
     );
 
   return {

@@ -9,7 +9,6 @@ export type AvailableCustomFunction = {
   agentId: string;
   key: string;
   name: string;
-  displayName: string | null;
   niceName: string;
   description: string;
   humanReadableDescription: string;
@@ -19,11 +18,7 @@ export type AvailableCustomFunction = {
 
 export const getAvailableCustomFunctionLabel = (
   customFunction: AvailableCustomFunction,
-) =>
-  customFunction.displayName ||
-  customFunction.niceName ||
-  customFunction.name ||
-  customFunction.key;
+) => customFunction.niceName || customFunction.name || customFunction.key;
 
 export default function useAvailableCustomFunctions({
   agentId,

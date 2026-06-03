@@ -14,8 +14,11 @@ const sortColumns: Record<string, string> = {
   enabled: '"customFunction"."enabled"',
   allowManualRun: '"customFunction"."allowManualRun"',
   allowApiRun: '"customFunction"."allowApiRun"',
-  supportsScheduling: '"customFunction"."supportsScheduling"',
+  scheduleCron: '"customFunction"."scheduleCron"',
   nextScheduledRunAt: '"customFunction"."nextScheduledRunAt"',
+  totalRuns: '"runStats"."totalRuns"',
+  avgRunDurationMs: '"recentRunStats"."avgRunDurationMs"',
+  successRate: '"recentRunStats"."successRate"',
 };
 
 const saGetCustomFunctionTableData = async ({
@@ -41,7 +44,6 @@ const saGetCustomFunctionTableData = async ({
       if (search) {
         qb.where("customFunction.key", "ilike", `%${search}%`)
           .orWhere("customFunction.name", "ilike", `%${search}%`)
-          .orWhere("customFunction.displayName", "ilike", `%${search}%`)
           .orWhere("customFunction.niceName", "ilike", `%${search}%`)
           .orWhere("agent.niceName", "ilike", `%${search}%`);
       }
@@ -57,22 +59,68 @@ const saGetCustomFunctionTableData = async ({
     ? Number.parseInt(countResult.count, 10)
     : 0;
 
+  const runStats = db("customFunctionRun")
+    .select("customFunctionId")
+    .count<{ totalRuns: string }>("id as totalRuns")
+    .whereNotNull("customFunctionId")
+    .groupBy("customFunctionId")
+    .as("runStats");
+
+  const recentRunStats = db
+    .with(
+      "rankedCustomFunctionRuns",
+      db("customFunctionRun")
+        .select(
+          "customFunctionId",
+          "runResult",
+          "durationMs",
+          db.raw(
+            'row_number() over (partition by "customFunctionId" order by "createdAt" desc) as "rowNumber"',
+          ),
+        )
+        .whereNotNull("customFunctionId"),
+    )
+    .from("rankedCustomFunctionRuns")
+    .select("customFunctionId")
+    .select(
+      db.raw(
+        'avg("durationMs") filter (where "durationMs" is not null) as "avgRunDurationMs"',
+      ),
+    )
+    .select(
+      db.raw(
+        '100.0 * count(*) filter (where "runResult" = ?) / nullif(count(*), 0) as "successRate"',
+        ["success"],
+      ),
+    )
+    .where("rowNumber", "<=", 100)
+    .groupBy("customFunctionId")
+    .as("recentRunStats");
+
   const customFunctions = base
     .clone()
+    .leftJoin(runStats, "runStats.customFunctionId", "customFunction.id")
+    .leftJoin(
+      recentRunStats,
+      "recentRunStats.customFunctionId",
+      "customFunction.id",
+    )
     .select(
       "customFunction.id",
       "customFunction.agentId",
       "customFunction.key",
       "customFunction.name",
-      "customFunction.displayName",
       "customFunction.niceName",
       "customFunction.targetScopes",
       "customFunction.enabled",
       "customFunction.allowManualRun",
       "customFunction.allowApiRun",
-      "customFunction.supportsScheduling",
+      "customFunction.scheduleCron",
       "customFunction.nextScheduledRunAt",
       "customFunction.updatedAt",
+      db.raw('coalesce("runStats"."totalRuns", 0) as "totalRuns"'),
+      db.raw('"recentRunStats"."avgRunDurationMs" as "avgRunDurationMs"'),
+      db.raw('"recentRunStats"."successRate" as "successRate"'),
       "agent.niceName as agentName",
     )
     .limit(pageSize)
@@ -80,7 +128,7 @@ const saGetCustomFunctionTableData = async ({
 
   if (sortField === "label") {
     customFunctions.orderByRaw(
-      `COALESCE("customFunction"."displayName", "customFunction"."niceName", "customFunction"."name") ${sortDirection} NULLS LAST`,
+      `COALESCE("customFunction"."niceName", "customFunction"."name") ${sortDirection} NULLS LAST`,
     );
   } else if (sortField === "targetScopes") {
     customFunctions.orderByRaw(
@@ -94,7 +142,19 @@ const saGetCustomFunctionTableData = async ({
 
   return {
     success: true,
-    data: await customFunctions,
+    data: (await customFunctions).map((customFunction) => ({
+      ...customFunction,
+      totalRuns:
+        customFunction.totalRuns == null ? 0 : Number(customFunction.totalRuns),
+      avgRunDurationMs:
+        customFunction.avgRunDurationMs == null
+          ? null
+          : Number(customFunction.avgRunDurationMs),
+      successRate:
+        customFunction.successRate == null
+          ? null
+          : Number(customFunction.successRate),
+    })),
     totalAvailable,
     page,
     pageSize,

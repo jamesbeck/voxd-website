@@ -43,7 +43,7 @@ const saSendTemplateMessage = async ({
         userId,
         templateId,
         parameterValues,
-        requestedByAdminUserId: accessToken.id,
+        requestedByAdminUserId: accessToken.adminUserId,
       },
     });
 

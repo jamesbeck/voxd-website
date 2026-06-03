@@ -2,8 +2,29 @@
 
 import { format, formatDistance } from "date-fns";
 import saGetCustomFunctionTableData from "@/actions/saGetCustomFunctionTableData";
+import TableActions from "@/components/admin/TableActions";
 import DataTable from "@/components/adminui/Table";
 import { Badge } from "@/components/ui/badge";
+
+const formatDurationMs = (value?: number | null) => {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "-";
+  }
+
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(2)} s`;
+  }
+
+  return `${Math.round(value)} ms`;
+};
+
+const formatSuccessRate = (value?: number | null) => {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return "-";
+  }
+
+  return `${value.toFixed(1)}%`;
+};
 
 const CustomFunctionsTable = () => {
   return (
@@ -19,7 +40,7 @@ const CustomFunctionsTable = () => {
           format: (row: any) => (
             <div className="space-y-1">
               <p className="font-medium">
-                {row.displayName || row.niceName || row.name || row.key}
+                {row.niceName || row.name || row.key}
               </p>
               <p className="text-xs text-muted-foreground">{row.key}</p>
             </div>
@@ -71,18 +92,49 @@ const CustomFunctionsTable = () => {
           ),
         },
         {
-          label: "Scheduling",
-          name: "supportsScheduling",
+          label: "Schedule Cron",
+          name: "scheduleCron",
           sort: true,
-          format: (row: any) => (
-            <Badge
-              className={
-                row.supportsScheduling ? "bg-blue-600" : "bg-slate-500"
-              }
-            >
-              {row.supportsScheduling ? "Supported" : "No"}
-            </Badge>
-          ),
+          format: (row: any) => row.scheduleCron || "-",
+        },
+        {
+          label: "Total Runs",
+          name: "totalRuns",
+          sort: true,
+          tooltip: "All-time count of run records for this custom function.",
+          format: (row: any) => row.totalRuns ?? 0,
+        },
+        {
+          label: "Avg Run Time",
+          name: "avgRunDurationMs",
+          sort: true,
+          tooltip:
+            "Average duration across the most recent 100 runs for this custom function.",
+          format: (row: any) => formatDurationMs(row.avgRunDurationMs),
+        },
+        {
+          label: "Success Rate",
+          name: "successRate",
+          sort: true,
+          tooltip:
+            "Percentage of successful runs across the most recent 100 runs for this custom function.",
+          format: (row: any) => {
+            const successRate = row.successRate;
+
+            if (typeof successRate !== "number" || Number.isNaN(successRate)) {
+              return "-";
+            }
+
+            return (
+              <span
+                className={
+                  successRate < 100 ? "text-red-600 font-medium" : undefined
+                }
+              >
+                {formatSuccessRate(successRate)}
+              </span>
+            );
+          },
         },
         {
           label: "Next Scheduled Run",
@@ -109,6 +161,9 @@ const CustomFunctionsTable = () => {
             )})`,
         },
       ]}
+      actions={(row: any) => (
+        <TableActions href={`/admin/custom-functions/${row.id}`} />
+      )}
     />
   );
 };

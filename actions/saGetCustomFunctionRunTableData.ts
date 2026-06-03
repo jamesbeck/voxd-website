@@ -23,7 +23,10 @@ const saGetCustomFunctionRunTableData = async ({
   pageSize = 100,
   sortField = "createdAt",
   sortDirection = "desc",
-}: ServerActionReadParams): Promise<ServerActionReadResponse> => {
+  customFunctionId,
+}: ServerActionReadParams<{
+  customFunctionId?: string;
+}>): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
 
   if (!accessToken.superAdmin) {
@@ -40,6 +43,11 @@ const saGetCustomFunctionRunTableData = async ({
       "customFunctionRun.targetChatUserId",
       "targetChatUser.id",
     )
+    .where((qb) => {
+      if (customFunctionId) {
+        qb.where("customFunctionRun.customFunctionId", customFunctionId);
+      }
+    })
     .where((qb) => {
       if (search) {
         qb.where("customFunctionRun.id", "ilike", `%${search}%`)
@@ -73,6 +81,7 @@ const saGetCustomFunctionRunTableData = async ({
     .clone()
     .select(
       "customFunctionRun.id",
+      "customFunctionRun.customFunctionId",
       "customFunctionRun.createdAt",
       "customFunctionRun.customFunctionKey",
       "customFunctionRun.customFunctionName",
