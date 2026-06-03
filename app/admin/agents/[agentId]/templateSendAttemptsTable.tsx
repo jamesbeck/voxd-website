@@ -3,6 +3,7 @@
 import { format, formatDistance } from "date-fns";
 import saGetTemplateSendAttemptTableData from "@/actions/saGetTemplateSendAttemptTableData";
 import Table from "@/components/adminui/Table";
+import TableLink from "@/components/adminui/TableLink";
 import { Badge } from "@/components/ui/badge";
 
 const TemplateSendAttemptsTable = ({
@@ -17,6 +18,14 @@ const TemplateSendAttemptsTable = ({
       label: "User Name",
       name: "chatUserName",
       sort: true,
+      format: (row: any) =>
+        row.chatUserId && row.chatUserName ? (
+          <TableLink href={`/admin/chatUsers/${row.chatUserId}`}>
+            {row.chatUserName}
+          </TableLink>
+        ) : (
+          row.chatUserName || "-"
+        ),
     },
     {
       label: "Number",
