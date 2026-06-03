@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CopyIcon,
+  Code2,
   FlagIcon,
   MessageCircleIcon,
   Trash2Icon,
@@ -236,6 +237,11 @@ export default function AgentActions({
           groups: [
             {
               items: [
+                {
+                  label: "Embed Agent",
+                  icon: <Code2 />,
+                  href: `/admin/agents/${agentId}/embed`,
+                },
                 ...(isLoadingCustomFunctions
                   ? [
                       {

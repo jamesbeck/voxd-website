@@ -2,16 +2,6 @@
 
 import { useEffect } from "react";
 
-const waitForVoxdChat = async (timeoutMs = 3000) => {
-  const deadline = Date.now() + timeoutMs;
-
-  while (!window.VoxdChat && Date.now() < deadline) {
-    await new Promise((resolve) => window.setTimeout(resolve, 50));
-  }
-
-  return window.VoxdChat;
-};
-
 type ChatIdentifyParams = {
   externalId: string;
   email?: string;
@@ -22,6 +12,12 @@ type ChatIdentifyParams = {
 type ChatData = Record<string, string>;
 
 declare global {
+  interface WindowEventMap {
+    "voxdchat:ready": CustomEvent<{
+      chat: NonNullable<Window["VoxdChat"]>;
+    }>;
+  }
+
   interface Window {
     VoxdChat?: {
       identify: (params: ChatIdentifyParams) => Promise<void>;
@@ -53,7 +49,42 @@ export default function ChatEmbed({
 }) {
   useEffect(() => {
     let cancelled = false;
+    let configured = false;
     const script = document.createElement("script");
+
+    const configureChat = async (
+      chat: NonNullable<Window["VoxdChat"]> | undefined,
+    ) => {
+      if (cancelled || configured || !chat) return;
+
+      configured = true;
+
+      try {
+        if (identify) {
+          await chat.identify(identify);
+        }
+
+        if (userData) {
+          await chat.setUserData(userData);
+        }
+
+        if (sessionData) {
+          await chat.setSessionData(sessionData);
+        }
+
+        if (!cancelled) {
+          chat.open();
+        }
+      } catch (error) {
+        configured = false;
+        console.error("Failed to configure VoxdChat widget", error);
+      }
+    };
+
+    const handleReady = (event: WindowEventMap["voxdchat:ready"]) => {
+      void configureChat(event.detail.chat);
+    };
+
     script.src = `${coreBaseUrl}/web-client/embed.js`;
     script.setAttribute("data-agent-id", agentId);
     script.setAttribute("data-mode", mode);
@@ -65,36 +96,19 @@ export default function ChatEmbed({
       );
     }
 
+    window.addEventListener("voxdchat:ready", handleReady);
+
     script.addEventListener("load", () => {
-      void (async () => {
-        try {
-          const chat = await waitForVoxdChat();
-
-          if (cancelled || !chat) return;
-
-          if (identify) {
-            await chat.identify(identify);
-          }
-
-          if (userData) {
-            await chat.setUserData(userData);
-          }
-
-          if (sessionData) {
-            await chat.setSessionData(sessionData);
-          }
-
-          chat.open();
-        } catch (error) {
-          console.error("Failed to configure VoxdChat widget", error);
-        }
-      })();
+      if (window.VoxdChat) {
+        void configureChat(window.VoxdChat);
+      }
     });
 
     document.body.appendChild(script);
 
     return () => {
       cancelled = true;
+      window.removeEventListener("voxdchat:ready", handleReady);
       script.remove();
     };
   }, [
