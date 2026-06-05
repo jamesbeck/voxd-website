@@ -21,15 +21,15 @@ import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
-  goCardlessMandateLink: z.string().optional(),
+  gcAccessToken: z.string().optional(),
 });
 
 export default function EditPartnerGoCardlessForm({
   partnerId,
-  goCardlessMandateLink,
+  gcAccessToken,
 }: {
   partnerId: string;
-  goCardlessMandateLink?: string;
+  gcAccessToken?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function EditPartnerGoCardlessForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      goCardlessMandateLink: goCardlessMandateLink || "",
+      gcAccessToken: gcAccessToken || "",
     },
   });
 
@@ -46,7 +46,7 @@ export default function EditPartnerGoCardlessForm({
 
     const response = await saUpdatePartner({
       partnerId,
-      goCardlessMandateLink: values.goCardlessMandateLink,
+      gcAccessToken: values.gcAccessToken,
     });
 
     if (!response.success) {
@@ -70,15 +70,12 @@ export default function EditPartnerGoCardlessForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="goCardlessMandateLink"
+          name="gcAccessToken"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>GoCardless Mandate Link</FormLabel>
+              <FormLabel>GoCardless Access Token</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="https://pay.gocardless.com/..."
-                  {...field}
-                />
+                <Input placeholder="Enter GoCardless access token" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

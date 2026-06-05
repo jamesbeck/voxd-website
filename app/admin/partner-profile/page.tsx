@@ -9,6 +9,7 @@ import EmailDomainStatus from "./EmailDomainStatus";
 import getOrganisationById from "@/lib/getOrganisationById";
 import EditSubPartnerMarkupForm from "./EditSubPartnerMarkupForm";
 import OrganisationBrandingTab from "@/components/admin/OrganisationBrandingTab";
+import EditPartnerGoCardlessForm from "@/app/admin/organisations/[organisationId]/partnerSettings/EditPartnerGoCardlessForm";
 
 export default async function Page() {
   const accessToken = await verifyAccessToken();
@@ -31,6 +32,7 @@ export default async function Page() {
         tabs={[
           { value: "branding", label: "Logo & Branding" },
           { value: "email", label: "Email Sending" },
+          { value: "goCardless", label: "GoCardless" },
           { value: "subPartners", label: "Sub-Partners" },
         ]}
       >
@@ -46,6 +48,12 @@ export default async function Page() {
         </TabsContent>
         <TabsContent value="email">
           <EmailDomainStatus />
+        </TabsContent>
+        <TabsContent value="goCardless">
+          <EditPartnerGoCardlessForm
+            partnerId={organisation.id}
+            gcAccessToken={organisation.gcAccessToken ?? undefined}
+          />
         </TabsContent>
         <TabsContent value="subPartners">
           <EditSubPartnerMarkupForm

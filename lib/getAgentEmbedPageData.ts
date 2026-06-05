@@ -7,7 +7,7 @@ export type AgentEmbedPageData = {
   organisationName: string | null;
   partnerOrganisationId: string | null;
   partnerName: string | null;
-  partnerDomain: string | null;
+  partnerCoreDomain: string | null;
 };
 
 type AgentEmbedPageRow = {
@@ -17,10 +17,12 @@ type AgentEmbedPageRow = {
   organisationId: string | null;
   organisationName: string | null;
   organisationDomain: string | null;
+  organisationCoreDomain: string | null;
   organisationIsPartner: boolean;
   partnerOrganisationId: string | null;
   partnerOrganisationName: string | null;
   partnerOrganisationDomain: string | null;
+  partnerOrganisationCoreDomain: string | null;
 };
 
 function normalizeNullableText(value: string | null | undefined) {
@@ -48,12 +50,14 @@ export default async function getAgentEmbedPageData({
       "organisation.id as organisationId",
       "organisation.name as organisationName",
       "organisation.domain as organisationDomain",
+      "organisation.coreDomain as organisationCoreDomain",
       db.raw(
         'COALESCE("organisation"."partner", false) as "organisationIsPartner"',
       ),
       "partnerOrganisation.id as partnerOrganisationId",
       "partnerOrganisation.name as partnerOrganisationName",
       "partnerOrganisation.domain as partnerOrganisationDomain",
+      "partnerOrganisation.coreDomain as partnerOrganisationCoreDomain",
     )
     .first<AgentEmbedPageRow>();
 
@@ -67,9 +71,9 @@ export default async function getAgentEmbedPageData({
   const partnerName = row.organisationIsPartner
     ? row.organisationName
     : row.partnerOrganisationName;
-  const partnerDomain = row.organisationIsPartner
-    ? row.organisationDomain
-    : row.partnerOrganisationDomain;
+  const partnerCoreDomain = row.organisationIsPartner
+    ? row.organisationCoreDomain
+    : row.partnerOrganisationCoreDomain;
 
   return {
     agentId: row.id,
@@ -78,6 +82,6 @@ export default async function getAgentEmbedPageData({
     organisationName: row.organisationName,
     partnerOrganisationId,
     partnerName: normalizeNullableText(partnerName),
-    partnerDomain: normalizeNullableText(partnerDomain),
+    partnerCoreDomain: normalizeNullableText(partnerCoreDomain),
   };
 }

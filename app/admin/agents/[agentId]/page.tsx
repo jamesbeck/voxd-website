@@ -40,6 +40,31 @@ import JsonConfigEditor from "./JsonConfigEditor";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import saGetAllModels from "@/actions/saGetAllModels";
 import AgentDomainsTab from "./AgentDomainsTab";
+import BillingTab from "./billingTab";
+import getPartnerAncestorMarkupMultipliers from "@/lib/getPartnerAncestorMarkupMultipliers";
+
+const applyMarkup = (
+  value: number | string | null | undefined,
+  multiplier: number,
+): number | null => {
+  if (value == null) {
+    return null;
+  }
+
+  return Number((Number(value) * multiplier).toFixed(2));
+};
+
+const normalizeDateString = (value: Date | string | null | undefined) => {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString().slice(0, 10);
+  }
+
+  return value.slice(0, 10);
+};
 
 export default async function Page({
   params,
@@ -100,6 +125,30 @@ export default async function Page({
   const tickets = ticketsResponse.success ? ticketsResponse.data : [];
   const modelsResponse = await saGetAllModels();
   const models = modelsResponse.success ? modelsResponse.data : [];
+  const billingMarkupMultipliers =
+    agent && token.partner
+      ? await getPartnerAncestorMarkupMultipliers({
+          partnerId: agent.directPartnerId,
+        })
+      : null;
+  const showVoxdMonthlyFee = isSuperAdmin || !!token.partner;
+  const displayedVoxdMonthlyFee = isSuperAdmin
+    ? (agent?.voxdMonthlyFee ?? null)
+    : token.partner
+      ? applyMarkup(
+          agent?.voxdMonthlyFee,
+          billingMarkupMultipliers?.monthlyFeeMultiplier ?? 1,
+        )
+      : null;
+  const displayedRetailMonthlyFee = agent?.retailMonthlyFee ?? null;
+  const billingPartnerName =
+    (token.partner ? token.organisationName : null) ||
+    agent?.directPartnerName ||
+    "Partner";
+  const voxdMonthlyFeeDescription = `What ${agent?.parentPartnerName || "Voxd"} charges ${billingPartnerName} every month for this agent.`;
+  const retailMonthlyFeeDescription = `What ${billingPartnerName} charges ${agent?.organisationName || "this organisation"} for this agent.`;
+  const billingStartDateDescription =
+    "The date billing started, and the date each month it will be charged.";
 
   return (
     <Container>
@@ -140,6 +189,11 @@ export default async function Page({
                   value: "model",
                   label: "Model",
                   href: `/admin/agents/${agentId}?tab=model`,
+                },
+                {
+                  value: "billing",
+                  label: "Billing",
+                  href: `/admin/agents/${agentId}?tab=billing`,
                 },
                 ...(isSuperAdmin
                   ? [
@@ -299,6 +353,27 @@ export default async function Page({
                   organisationId={agent?.organisationId}
                   currentModelId={agent?.modelId}
                   currentProviderApiKeyId={agent?.providerApiKeyId}
+                />
+              </Container>
+            </TabsContent>
+            <TabsContent value="billing">
+              <Container>
+                <H2>Billing</H2>
+                <p className="text-muted-foreground mb-4">
+                  Review the recurring billing details for this agent.
+                </p>
+                <BillingTab
+                  agentId={agentId}
+                  canEdit={isSuperAdmin}
+                  showVoxdMonthlyFee={showVoxdMonthlyFee}
+                  voxdMonthlyFee={displayedVoxdMonthlyFee}
+                  retailMonthlyFee={displayedRetailMonthlyFee}
+                  billingStartDate={normalizeDateString(
+                    agent?.billingStartDate,
+                  )}
+                  voxdMonthlyFeeDescription={voxdMonthlyFeeDescription}
+                  retailMonthlyFeeDescription={retailMonthlyFeeDescription}
+                  billingStartDateDescription={billingStartDateDescription}
                 />
               </Container>
             </TabsContent>

@@ -14,6 +14,7 @@ import QuotesTable from "@/components/admin/QuotesTable";
 import OrganisationActions from "./organisationActions";
 import NewQuoteButton from "@/components/admin/NewQuoteButton";
 import AboutTab from "./aboutTab";
+import BillingTab from "./billingTab";
 import LogoTab from "./logoTab";
 import ProviderApiKeysTable from "@/app/admin/provider-api-keys/providerApiKeysTable";
 import NewProviderApiKeyDialog from "@/app/admin/provider-api-keys/NewProviderApiKeyDialog";
@@ -140,6 +141,11 @@ export default async function Page({
                   label: "Logo & Branding",
                   href: `/admin/organisations/${organisation.id}?tab=logo`,
                 },
+                {
+                  value: "billing",
+                  label: "Billing",
+                  href: `/admin/organisations/${organisation.id}?tab=billing`,
+                },
                 ...(token.superAdmin || token.partner
                   ? [
                       {
@@ -243,6 +249,17 @@ export default async function Page({
                   primaryColour={organisation.primaryColour ?? null}
                   partner={organisation.partner}
                   showParentBrandingWarning={organisation.partner}
+                />
+              </Container>
+            </TabsContent>
+            <TabsContent value="billing">
+              <Container>
+                <BillingTab
+                  organisationId={organisation.id}
+                  billingAddress={organisation.billingAddress ?? null}
+                  billingPostcode={organisation.billingPostcode ?? null}
+                  billingEmails={organisation.billingEmails ?? null}
+                  gcMandateId={organisation.gcMandateId ?? null}
                 />
               </Container>
             </TabsContent>
@@ -354,10 +371,12 @@ export default async function Page({
                   <ProviderApiKeysTable
                     organisationId={organisation.id}
                     allowDelete
-                    partnerId={organisation.partner ? organisation.id : undefined}
+                    partnerId={
+                      organisation.partner ? organisation.id : undefined
+                    }
                     currentPartnerProviderApiKeyId={
                       organisation.partner
-                        ? organisation.providerApiKeyId ?? null
+                        ? (organisation.providerApiKeyId ?? null)
                         : undefined
                     }
                   />

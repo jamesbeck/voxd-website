@@ -29,6 +29,10 @@ const getOrganisationById = async ({
   goCardlessMandateLink?: string | null;
   salesEmail?: string | null;
   accountsEmail?: string | null;
+  billingAddress?: string | null;
+  billingPostcode?: string | null;
+  billingEmails?: string | null;
+  gcMandateId?: string | null;
   hourlyRate?: number | null;
   monthlyBaseFee?: number | null;
   monthlyPerIntegration?: number | null;

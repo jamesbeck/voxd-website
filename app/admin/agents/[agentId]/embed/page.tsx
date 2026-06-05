@@ -20,12 +20,12 @@ import userCanViewAgent from "@/lib/userCanViewAgent";
 
 import CopyableSnippetCard from "./CopyableSnippetCard";
 
-function buildPortalScriptUrl(partnerDomain: string | null) {
-  if (partnerDomain) {
-    return `https://${partnerDomain}/web-client/embed.js`;
+function buildEmbedScriptUrl(partnerCoreDomain: string | null) {
+  if (partnerCoreDomain) {
+    return `https://${partnerCoreDomain}/web-client/embed.js`;
   }
 
-  return "https://the-portal-domain/web-client/embed.js";
+  return "https://the-core-domain/web-client/embed.js";
 }
 
 function getSetupAttributeCards({ agentId }: { agentId: string }) {
@@ -114,10 +114,10 @@ export default async function Page({
   }
 
   const partnerName = embedData.partnerName || "your partner";
-  const partnerDomain = embedData.partnerDomain;
-  const portalDomainLabel = partnerDomain || "the portal domain";
-  const scriptUrl = buildPortalScriptUrl(partnerDomain);
-  const missingPortalDomain = !partnerDomain;
+  const partnerCoreDomain = embedData.partnerCoreDomain;
+  const coreDomainLabel = partnerCoreDomain || "the core domain";
+  const scriptUrl = buildEmbedScriptUrl(partnerCoreDomain);
+  const missingCoreDomain = !partnerCoreDomain;
 
   const quickStartSnippet = `<script
   src="${scriptUrl}"
@@ -247,8 +247,8 @@ async function switchCustomer(nextCustomer) {
               icon: <Building2 className="h-4 w-4" />,
             },
             {
-              label: "Portal domain",
-              value: portalDomainLabel,
+              label: "Core domain",
+              value: coreDomainLabel,
               icon: <Globe className="h-4 w-4" />,
             },
             {
@@ -260,16 +260,16 @@ async function switchCustomer(nextCustomer) {
         }
       />
 
-      {missingPortalDomain ? (
+      {missingCoreDomain ? (
         <Alert>
           <TriangleAlert className="h-4 w-4" />
-          <AlertTitle>Portal domain still needs to be set</AlertTitle>
+          <AlertTitle>Core domain still needs to be set</AlertTitle>
           <AlertDescription>
             <p>
               The page never falls back to a platform domain. Until{" "}
               {partnerName}
-              &apos;s portal domain is configured, the examples below use the
-              phrase the portal domain as a placeholder.
+              &apos;s core domain is configured, the examples below use the
+              phrase the core domain as a placeholder.
             </p>
           </AlertDescription>
         </Alert>

@@ -23,6 +23,7 @@ import {
   Settings,
   KeyRound,
   ListTree,
+  ReceiptText,
   ShieldCheck,
   ShieldEllipsis,
 } from "lucide-react";
@@ -370,6 +371,30 @@ export default function AdminSidebar({
                   <Link href="/admin/support-tickets">
                     <Ticket />
                     <span>Support Tickets</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Billing</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/admin/billing/invoices">
+                    <ReceiptText />
+                    <span>Invoices</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/admin/billing/line-items">
+                    <ListTree />
+                    <span>Line Items</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

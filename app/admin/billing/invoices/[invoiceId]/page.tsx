@@ -1,0 +1,352 @@
+import BreadcrumbSetter from "@/components/admin/BreadcrumbSetter";
+import RecordTabs from "@/components/admin/RecordTabs";
+import Container from "@/components/adminui/Container";
+import DataCard from "@/components/adminui/DataCard";
+import H1 from "@/components/adminui/H1";
+import { TabsContent } from "@/components/ui/tabs";
+import db from "@/database/db";
+import {
+  applyInvoiceLineItemReadScope,
+  canMutateBillingRecords,
+  userCanViewInvoice,
+} from "@/lib/billingAccess";
+import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import {
+  getPendingInvoiceSearchParams,
+  isPartnerToPartnerPendingInvoice,
+} from "@/lib/pendingInvoiceGrouping";
+import getInvoicePdfUrl from "@/lib/getInvoicePdfUrl";
+import { notFound } from "next/navigation";
+import InvoiceDetailsTab from "./invoiceDetailsTab";
+import InvoiceActions from "./invoiceActions";
+import InvoicePdfTab from "./invoicePdfTab";
+import LineItemsTable from "../../line-items/lineItemsTable";
+
+const PENDING_INVOICE_ORGANISATION_ID_SQL =
+  'CASE WHEN "invoiceLineItem"."toPartnerId" IS NULL THEN "invoiceLineItem"."toOrganisationId" ELSE NULL END';
+
+const PENDING_INVOICE_ORGANISATION_NAME_SQL =
+  'CASE WHEN "invoiceLineItem"."toPartnerId" IS NULL THEN "toOrganisation"."name" ELSE NULL END';
+
+const formatMoney = (value: number | null | undefined) => {
+  if (value == null) return "-";
+
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP",
+  }).format(value / 100);
+};
+
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: { invoiceId: string };
+  searchParams: {
+    tab?: string;
+    fromPartnerId?: string;
+    toOrganisationId?: string;
+    toPartnerId?: string;
+  };
+}) {
+  const accessToken = await verifyAccessToken();
+  const invoiceId = (await params).invoiceId;
+  const resolvedSearchParams = await searchParams;
+  const requestedTab = resolvedSearchParams.tab || "details";
+  const activeTab = ["details", "lineItems", "pdf"].includes(requestedTab)
+    ? requestedTab
+    : "details";
+
+  const isPendingInvoice = invoiceId === "pending";
+
+  if (isPendingInvoice) {
+    const fromPartnerId = resolvedSearchParams.fromPartnerId;
+    const toOrganisationId = resolvedSearchParams.toOrganisationId;
+    const toPartnerId = resolvedSearchParams.toPartnerId;
+
+    if (!fromPartnerId || (!toOrganisationId && !toPartnerId)) {
+      return notFound();
+    }
+
+    const pendingInvoiceQuery = db("invoiceLineItem")
+      .leftJoin(
+        "organisation as toOrganisation",
+        "toOrganisation.id",
+        "invoiceLineItem.toOrganisationId",
+      )
+      .leftJoin(
+        "organisation as fromPartnerOrganisation",
+        "fromPartnerOrganisation.id",
+        "invoiceLineItem.fromPartnerId",
+      )
+      .leftJoin(
+        "organisation as toPartnerOrganisation",
+        "toPartnerOrganisation.id",
+        "invoiceLineItem.toPartnerId",
+      )
+      .whereNull("invoiceLineItem.invoiceId")
+      .where("invoiceLineItem.fromPartnerId", fromPartnerId);
+
+    if (toPartnerId) {
+      pendingInvoiceQuery.where("invoiceLineItem.toPartnerId", toPartnerId);
+    } else {
+      pendingInvoiceQuery.where(
+        "invoiceLineItem.toOrganisationId",
+        toOrganisationId,
+      );
+      pendingInvoiceQuery.whereNull("invoiceLineItem.toPartnerId");
+    }
+
+    await applyInvoiceLineItemReadScope({
+      query: pendingInvoiceQuery,
+      accessToken,
+    });
+
+    const pendingInvoice = await pendingInvoiceQuery
+      .clone()
+      .groupBy(
+        "invoiceLineItem.fromPartnerId",
+        "invoiceLineItem.toPartnerId",
+        "fromPartnerOrganisation.name",
+        "toPartnerOrganisation.name",
+      )
+      .groupByRaw(PENDING_INVOICE_ORGANISATION_ID_SQL)
+      .groupByRaw(PENDING_INVOICE_ORGANISATION_NAME_SQL)
+      .select(
+        "invoiceLineItem.fromPartnerId",
+        db.raw(`${PENDING_INVOICE_ORGANISATION_ID_SQL} as "toOrganisationId"`),
+        "invoiceLineItem.toPartnerId",
+        db.raw(
+          `${PENDING_INVOICE_ORGANISATION_NAME_SQL} as "toOrganisationName"`,
+        ),
+        "fromPartnerOrganisation.name as fromPartnerName",
+        "toPartnerOrganisation.name as toPartnerName",
+        db.raw('COUNT(*)::int as "lineItemCount"'),
+        db.raw(
+          'COALESCE(SUM("invoiceLineItem"."amount"), 0)::int as "totalExVat"',
+        ),
+      )
+      .first<{
+        fromPartnerId: string;
+        toOrganisationId: string | null;
+        toPartnerId: string | null;
+        toOrganisationName: string | null;
+        fromPartnerName: string | null;
+        toPartnerName: string | null;
+        lineItemCount: number;
+        totalExVat: number;
+      }>();
+
+    if (!pendingInvoice) {
+      return notFound();
+    }
+
+    const pendingQueryString = getPendingInvoiceSearchParams({
+      fromPartnerId,
+      toOrganisationId,
+      toPartnerId,
+    }).toString();
+
+    const isPartnerToPartnerInvoice = isPartnerToPartnerPendingInvoice({
+      toPartnerId,
+    });
+    const pdfUrl = toPartnerId
+      ? getInvoicePdfUrl({ fromPartnerId, toPartnerId })
+      : getInvoicePdfUrl({
+          fromPartnerId,
+          toOrganisationId: toOrganisationId!,
+        });
+
+    return (
+      <Container>
+        <BreadcrumbSetter
+          breadcrumbs={[
+            { label: "Admin", href: "/admin" },
+            { label: "Billing" },
+            { label: "Invoices", href: "/admin/billing/invoices" },
+            { label: "Pending Invoice" },
+          ]}
+        />
+        <H1>Pending Invoice</H1>
+
+        <RecordTabs
+          value={activeTab}
+          tabs={[
+            {
+              value: "details",
+              label: "Details",
+              href: `/admin/billing/invoices/pending?${pendingQueryString}&tab=details`,
+            },
+            {
+              value: "lineItems",
+              label: "Line Items",
+              href: `/admin/billing/invoices/pending?${pendingQueryString}&tab=lineItems`,
+            },
+            {
+              value: "pdf",
+              label: "PDF",
+              href: `/admin/billing/invoices/pending?${pendingQueryString}&tab=pdf`,
+            },
+          ]}
+        >
+          <TabsContent value="details">
+            <Container>
+              <DataCard
+                items={[
+                  {
+                    label: "Status",
+                    value: "Waiting to send",
+                  },
+                  {
+                    label: "From Partner",
+                    value:
+                      pendingInvoice.fromPartnerName ||
+                      pendingInvoice.fromPartnerId,
+                  },
+                  {
+                    label: "To Organisation",
+                    value:
+                      pendingInvoice.toOrganisationName ||
+                      pendingInvoice.toOrganisationId ||
+                      "-",
+                  },
+                  {
+                    label: "To Partner",
+                    value:
+                      pendingInvoice.toPartnerName ||
+                      pendingInvoice.toPartnerId ||
+                      "-",
+                  },
+                  {
+                    label: "Line Items",
+                    value: pendingInvoice.lineItemCount,
+                  },
+                  {
+                    label: "Total Value (ex VAT)",
+                    value: formatMoney(pendingInvoice.totalExVat),
+                  },
+                ]}
+              />
+            </Container>
+          </TabsContent>
+          <TabsContent value="lineItems">
+            <Container>
+              <LineItemsTable
+                fromPartnerId={fromPartnerId}
+                toOrganisationId={
+                  isPartnerToPartnerInvoice ? undefined : toOrganisationId
+                }
+                toPartnerId={toPartnerId ?? null}
+                unsentOnly
+                tableId={`admin-billing-pending-invoice-${fromPartnerId}-${toPartnerId ? `partner-${toPartnerId}` : `organisation-${toOrganisationId}`}-line-items`}
+              />
+            </Container>
+          </TabsContent>
+          <TabsContent value="pdf">
+            <Container>
+              <InvoicePdfTab pdfUrl={pdfUrl} />
+            </Container>
+          </TabsContent>
+        </RecordTabs>
+      </Container>
+    );
+  }
+
+  if (!(await userCanViewInvoice({ invoiceId, accessToken }))) {
+    return notFound();
+  }
+
+  const invoice = await db("invoice")
+    .leftJoin(
+      "organisation as toOrganisation",
+      "toOrganisation.id",
+      "invoice.toOrganisationId",
+    )
+    .leftJoin(
+      "organisation as fromPartnerOrganisation",
+      "fromPartnerOrganisation.id",
+      "invoice.fromPartnerId",
+    )
+    .leftJoin(
+      "organisation as toPartnerOrganisation",
+      "toPartnerOrganisation.id",
+      "invoice.toPartnerId",
+    )
+    .select(
+      "invoice.*",
+      "toOrganisation.name as toOrganisationName",
+      "fromPartnerOrganisation.name as fromPartnerName",
+      "toPartnerOrganisation.name as toPartnerName",
+    )
+    .where("invoice.id", invoiceId)
+    .first();
+
+  if (!invoice) {
+    return notFound();
+  }
+
+  const canEdit = await canMutateBillingRecords({ accessToken });
+  const pdfUrl = getInvoicePdfUrl({ invoiceId });
+
+  return (
+    <Container>
+      <BreadcrumbSetter
+        breadcrumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Billing" },
+          { label: "Invoices", href: "/admin/billing/invoices" },
+          { label: `#${invoice.number}` },
+        ]}
+      />
+      <H1>Invoice #{invoice.number}</H1>
+
+      <RecordTabs
+        value={activeTab}
+        tabs={[
+          {
+            value: "details",
+            label: "Details",
+            href: `/admin/billing/invoices/${invoiceId}?tab=details`,
+          },
+          {
+            value: "lineItems",
+            label: "Line Items",
+            href: `/admin/billing/invoices/${invoiceId}?tab=lineItems`,
+          },
+          {
+            value: "pdf",
+            label: "PDF",
+            href: `/admin/billing/invoices/${invoiceId}?tab=pdf`,
+          },
+        ]}
+        actions={
+          canEdit ? (
+            <InvoiceActions
+              invoiceId={invoiceId}
+              invoiceNumber={invoice.number}
+            />
+          ) : undefined
+        }
+      >
+        <TabsContent value="details">
+          <Container>
+            <InvoiceDetailsTab invoice={invoice} canEdit={canEdit} />
+          </Container>
+        </TabsContent>
+        <TabsContent value="lineItems">
+          <Container>
+            <LineItemsTable
+              invoiceId={invoiceId}
+              tableId={`admin-billing-invoice-${invoiceId}-line-items`}
+            />
+          </Container>
+        </TabsContent>
+        <TabsContent value="pdf">
+          <Container>
+            <InvoicePdfTab pdfUrl={pdfUrl} />
+          </Container>
+        </TabsContent>
+      </RecordTabs>
+    </Container>
+  );
+}
