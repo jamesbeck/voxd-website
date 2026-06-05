@@ -21,7 +21,7 @@ type InvoicePdfUrlParams =
 const getInvoicePdfUrl = (params: InvoicePdfUrlParams) => {
   const searchParams = new URLSearchParams();
 
-  if ("invoiceId" in params) {
+  if (typeof params.invoiceId === "string") {
     searchParams.set("invoiceId", params.invoiceId);
     return `/api/invoice/pdf?${searchParams.toString()}`;
   }
@@ -31,11 +31,11 @@ const getInvoicePdfUrl = (params: InvoicePdfUrlParams) => {
 
   searchParams.set("fromPartnerId", params.fromPartnerId);
 
-  if ("toOrganisationId" in params) {
+  if (typeof params.toOrganisationId === "string") {
     searchParams.set("toOrganisationId", params.toOrganisationId);
   }
 
-  if ("toPartnerId" in params) {
+  if (typeof params.toPartnerId === "string") {
     searchParams.set("toPartnerId", params.toPartnerId);
   }
 

@@ -1,10 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-export default function InvoicePdfTab({
-  pdfUrl,
-}: {
-  pdfUrl: string;
-}) {
+export default function InvoicePdfTab({ pdfUrl }: { pdfUrl: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-end">

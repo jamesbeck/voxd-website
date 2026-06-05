@@ -335,9 +335,7 @@ export default async function Page({
                 <Container>
                   <EditPartnerGoCardlessForm
                     partnerId={organisation.id}
-                    goCardlessMandateLink={
-                      organisation.goCardlessMandateLink ?? undefined
-                    }
+                    gcAccessToken={organisation.gcAccessToken ?? undefined}
                   />
                 </Container>
               </TabsContent>
