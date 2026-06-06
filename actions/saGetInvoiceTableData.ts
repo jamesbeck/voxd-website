@@ -3,6 +3,7 @@
 import db from "@/database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import {
+  canAccessBillingPages,
   applyInvoiceLineItemReadScope,
   applyInvoiceReadScope,
 } from "@/lib/billingAccess";
@@ -103,6 +104,10 @@ const saGetInvoiceTableData = async ({
   sortDirection = "desc",
 }: ServerActionReadParams): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
+
+  if (!(await canAccessBillingPages({ accessToken }))) {
+    return { success: false, error: "Unauthorized" };
+  }
 
   const invoiceBase = db("invoice")
     .leftJoin(

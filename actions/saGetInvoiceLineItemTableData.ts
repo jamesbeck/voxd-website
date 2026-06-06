@@ -2,7 +2,10 @@
 
 import db from "@/database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
-import { applyInvoiceLineItemReadScope } from "@/lib/billingAccess";
+import {
+  applyInvoiceLineItemReadScope,
+  canAccessBillingPages,
+} from "@/lib/billingAccess";
 import {
   ServerActionReadParams,
   ServerActionReadResponse,
@@ -41,6 +44,10 @@ const saGetInvoiceLineItemTableData = async ({
   unsentOnly?: boolean;
 }>): Promise<ServerActionReadResponse> => {
   const accessToken = await verifyAccessToken();
+
+  if (!(await canAccessBillingPages({ accessToken }))) {
+    return { success: false, error: "Unauthorized" };
+  }
 
   const base = db("invoiceLineItem")
     .leftJoin("invoice", "invoice.id", "invoiceLineItem.invoiceId")

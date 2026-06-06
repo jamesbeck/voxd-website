@@ -155,7 +155,7 @@ export const userCanViewInvoiceLineItem = async ({
   return !!lineItem;
 };
 
-export const canMutateBillingRecords = async ({
+export const canAccessBillingPages = async ({
   accessToken,
 }: {
   accessToken?: AccessTokenPayload;
@@ -163,4 +163,12 @@ export const canMutateBillingRecords = async ({
   const resolvedAccessToken = accessToken ?? (await verifyAccessToken());
 
   return resolvedAccessToken.superAdmin || resolvedAccessToken.partner;
+};
+
+export const canMutateBillingRecords = async ({
+  accessToken,
+}: {
+  accessToken?: AccessTokenPayload;
+}) => {
+  return canAccessBillingPages({ accessToken });
 };

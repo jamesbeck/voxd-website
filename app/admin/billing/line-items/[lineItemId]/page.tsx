@@ -5,6 +5,7 @@ import H1 from "@/components/adminui/H1";
 import { TabsContent } from "@/components/ui/tabs";
 import db from "@/database/db";
 import {
+  canAccessBillingPages,
   canMutateBillingRecords,
   userCanViewInvoiceLineItem,
 } from "@/lib/billingAccess";
@@ -21,6 +22,11 @@ export default async function Page({
   searchParams: { tab?: string };
 }) {
   const accessToken = await verifyAccessToken();
+
+  if (!(await canAccessBillingPages({ accessToken }))) {
+    return notFound();
+  }
+
   const lineItemId = (await params).lineItemId;
   const requestedTab = (await searchParams).tab || "details";
   const activeTab = requestedTab === "details" ? requestedTab : "details";

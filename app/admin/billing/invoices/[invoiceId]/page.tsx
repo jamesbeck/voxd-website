@@ -7,6 +7,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import db from "@/database/db";
 import {
   applyInvoiceLineItemReadScope,
+  canAccessBillingPages,
   canMutateBillingRecords,
   userCanViewInvoice,
 } from "@/lib/billingAccess";
@@ -50,6 +51,11 @@ export default async function Page({
   };
 }) {
   const accessToken = await verifyAccessToken();
+
+  if (!(await canAccessBillingPages({ accessToken }))) {
+    return notFound();
+  }
+
   const invoiceId = (await params).invoiceId;
   const resolvedSearchParams = await searchParams;
   const requestedTab = resolvedSearchParams.tab || "details";
