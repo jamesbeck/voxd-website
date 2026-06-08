@@ -19,10 +19,14 @@ function sampleChatUsers(
 const saGetTemplateSendGroupPreview = async ({
   agentId,
   queryId,
+  templateId,
+  excludeAlreadySent = false,
   sampleSize = 3,
 }: {
   agentId: string;
   queryId: string;
+  templateId?: string;
+  excludeAlreadySent?: boolean;
   sampleSize?: number;
 }): Promise<{
   success: boolean;
@@ -31,11 +35,14 @@ const saGetTemplateSendGroupPreview = async ({
   recipientCount?: number;
   totalMatches?: number;
   excludedUsersWithoutWhatsApp?: number;
+  excludedUsersAlreadySent?: number;
   queryName?: string;
 }> => {
   const groupResult = await getChatUsersForSavedTemplateSendGroup({
     agentId,
     queryId,
+    templateId,
+    excludeAlreadySent,
   });
 
   if (!groupResult.success) {
@@ -47,8 +54,11 @@ const saGetTemplateSendGroupPreview = async ({
     previewUsers: sampleChatUsers(groupResult.chatUsers, sampleSize),
     recipientCount: groupResult.chatUsers.length,
     totalMatches:
-      groupResult.chatUsers.length + groupResult.excludedUsersWithoutWhatsApp,
+      groupResult.chatUsers.length +
+      groupResult.excludedUsersWithoutWhatsApp +
+      groupResult.excludedUsersAlreadySent,
     excludedUsersWithoutWhatsApp: groupResult.excludedUsersWithoutWhatsApp,
+    excludedUsersAlreadySent: groupResult.excludedUsersAlreadySent,
     queryName: groupResult.query.name,
   };
 };

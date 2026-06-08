@@ -11,6 +11,7 @@ import saSendAgentTemplateMessage from "@/actions/saSendAgentTemplateMessage";
 import Alert from "@/components/admin/Alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -50,6 +51,8 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
   const [totalMatches, setTotalMatches] = useState(0);
   const [excludedUsersWithoutWhatsApp, setExcludedUsersWithoutWhatsApp] =
     useState(0);
+  const [excludedUsersAlreadySent, setExcludedUsersAlreadySent] = useState(0);
+  const [excludeAlreadySent, setExcludeAlreadySent] = useState(true);
   const [selectedQueryName, setSelectedQueryName] = useState("");
   const [mappings, setMappings] = useState<TemplateParameterMappings>({});
   useEffect(() => {
@@ -91,6 +94,7 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
       setRecipientCount(0);
       setTotalMatches(0);
       setExcludedUsersWithoutWhatsApp(0);
+      setExcludedUsersAlreadySent(0);
       setSelectedQueryName("");
       return;
     }
@@ -99,6 +103,8 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
     const result = await saGetTemplateSendGroupPreview({
       agentId,
       queryId,
+      templateId: selectedTemplateId || undefined,
+      excludeAlreadySent,
       sampleSize: 3,
     });
 
@@ -107,6 +113,7 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
       setRecipientCount(0);
       setTotalMatches(0);
       setExcludedUsersWithoutWhatsApp(0);
+      setExcludedUsersAlreadySent(0);
       setSelectedQueryName("");
       toast.error(result.error || "Failed to load preview users");
     } else {
@@ -114,6 +121,7 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
       setRecipientCount(result.recipientCount || 0);
       setTotalMatches(result.totalMatches || 0);
       setExcludedUsersWithoutWhatsApp(result.excludedUsersWithoutWhatsApp || 0);
+      setExcludedUsersAlreadySent(result.excludedUsersAlreadySent || 0);
       setSelectedQueryName(result.queryName || "");
     }
 
@@ -122,7 +130,7 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
 
   useEffect(() => {
     void loadPreviewUsers(selectedQueryId);
-  }, [agentId, selectedQueryId]);
+  }, [agentId, selectedQueryId, selectedTemplateId, excludeAlreadySent]);
 
   const selectedTemplate = templates.find(
     (template) => template.id === selectedTemplateId,
@@ -219,6 +227,7 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
         queryId: selectedQueryId,
         templateId: selectedTemplate.id,
         mappings,
+        excludeAlreadySent,
       });
 
       if (!result.success) {
@@ -247,6 +256,19 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
 
         toast.warning(
           `${result.data.excludedUsersWithoutWhatsApp} ${excludedLabel} excluded because ${excludedReason}.`,
+        );
+      }
+
+      if (result.data?.excludedUsersAlreadySent) {
+        const excludedLabel =
+          result.data.excludedUsersAlreadySent === 1 ? "user was" : "users were";
+        const excludedReason =
+          result.data.excludedUsersAlreadySent === 1
+            ? "that user has already received this template"
+            : "those users have already received this template";
+
+        toast.warning(
+          `${result.data.excludedUsersAlreadySent} ${excludedLabel} excluded because ${excludedReason}.`,
         );
       }
     } finally {
@@ -288,29 +310,58 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
             </div>
 
             <div className="space-y-2">
-              <Label>Saved Group</Label>
-              {loadingQueries ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading saved groups...
+              <div className="flex flex-col gap-3 md:flex-row md:items-end">
+                <div className="flex-1 space-y-2">
+                  <Label>Saved Group</Label>
+                  {loadingQueries ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading saved groups...
+                    </div>
+                  ) : (
+                    <Select
+                      value={selectedQueryId}
+                      onValueChange={setSelectedQueryId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a saved group..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {savedQueries.map((query) => (
+                          <SelectItem key={query.id} value={query.id}>
+                            {query.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
-              ) : (
-                <Select
-                  value={selectedQueryId}
-                  onValueChange={setSelectedQueryId}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a saved group..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {savedQueries.map((query) => (
-                      <SelectItem key={query.id} value={query.id}>
-                        {query.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+
+                <div className="rounded-md border px-3 py-2 md:max-w-sm">
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="exclude-already-sent"
+                      checked={excludeAlreadySent}
+                      onCheckedChange={(checked) =>
+                        setExcludeAlreadySent(checked === true)
+                      }
+                    />
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="exclude-already-sent"
+                        className="cursor-pointer"
+                      >
+                        Exclude clients who already received this template
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        {selectedTemplate
+                          ? "Uses successful template history to remove prior recipients from this queue."
+                          : "Select a template to apply template-history exclusions."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {selectedQueryId && (
@@ -322,8 +373,19 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
                   <div className="text-muted-foreground">
                     {loadingPreviewUsers
                       ? "Resolving group members..."
-                      : `${recipientCount} ${recipientCount === 1 ? "eligible recipient" : "eligible recipients"} for this queued send${excludedUsersWithoutWhatsApp > 0 ? `, ${excludedUsersWithoutWhatsApp} excluded` : ""}`}
+                      : `${recipientCount} ${recipientCount === 1 ? "eligible recipient" : "eligible recipients"} for this queued send`}
                   </div>
+                  {!loadingPreviewUsers && (
+                    <div className="text-xs text-muted-foreground">
+                      {totalMatches} {totalMatches === 1 ? "matched client" : "matched clients"}
+                      {excludedUsersAlreadySent > 0
+                        ? `, ${excludedUsersAlreadySent} already received this template`
+                        : ""}
+                      {excludedUsersWithoutWhatsApp > 0
+                        ? `, ${excludedUsersWithoutWhatsApp} without WhatsApp`
+                        : ""}
+                    </div>
+                  )}
                 </div>
                 <Button
                   type="button"
@@ -337,6 +399,14 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
                 </Button>
               </div>
             )}
+
+            {selectedTemplate &&
+              selectedQueryId &&
+              excludedUsersAlreadySent > 0 && (
+                <p className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-100">
+                  {excludedUsersAlreadySent} {excludedUsersAlreadySent === 1 ? "client has" : "clients have"} been removed because {excludedUsersAlreadySent === 1 ? "that client has" : "those clients have"} already received this template.
+                </p>
+              )}
 
             {loadingPreviewUsers && selectedQueryId && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -454,14 +524,18 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
               totalMatches > 0 &&
               recipientCount === 0 && (
                 <p className="text-sm text-destructive">
-                  This saved group has no sendable recipients because none of
-                  the matched users have a WhatsApp number.
+                  {excludedUsersAlreadySent > 0 &&
+                  excludedUsersWithoutWhatsApp === 0
+                    ? "This saved group has no sendable recipients because all matched clients have already received this template."
+                    : excludedUsersAlreadySent > 0
+                      ? "This saved group has no sendable recipients after removing clients without WhatsApp numbers and clients who already received this template."
+                      : "This saved group has no sendable recipients because none of the matched users have a WhatsApp number."}
                 </p>
               )}
 
             <Alert
               title="Queue template for this group?"
-              description={`This will queue this WhatsApp template for ${recipientCount} ${recipientCount === 1 ? "eligible recipient" : "eligible recipients"}.${excludedUsersWithoutWhatsApp > 0 ? ` ${excludedUsersWithoutWhatsApp} ${excludedUsersWithoutWhatsApp === 1 ? "matched user will be" : "matched users will be"} excluded because ${excludedUsersWithoutWhatsApp === 1 ? "that user does not have a WhatsApp number" : "those users do not have WhatsApp numbers"}.` : ""} Delivery will happen asynchronously after the queued job starts. This action cannot be undone.`}
+              description={`This will queue this WhatsApp template for ${recipientCount} ${recipientCount === 1 ? "eligible recipient" : "eligible recipients"}.${excludedUsersAlreadySent > 0 ? ` ${excludedUsersAlreadySent} ${excludedUsersAlreadySent === 1 ? "matched client will be" : "matched clients will be"} excluded because ${excludedUsersAlreadySent === 1 ? "that client has" : "those clients have"} already received this template.` : ""}${excludedUsersWithoutWhatsApp > 0 ? ` ${excludedUsersWithoutWhatsApp} ${excludedUsersWithoutWhatsApp === 1 ? "matched user will be" : "matched users will be"} excluded because ${excludedUsersWithoutWhatsApp === 1 ? "that user does not have a WhatsApp number" : "those users do not have WhatsApp numbers"}.` : ""} Delivery will happen asynchronously after the queued job starts. This action cannot be undone.`}
               actionText={
                 recipientCount === 1
                   ? "Queue for 1 recipient"

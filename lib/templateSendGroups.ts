@@ -55,15 +55,20 @@ export async function getSavedTemplateSendGroup({
 export async function getChatUsersForSavedTemplateSendGroup({
   agentId,
   queryId,
+  templateId,
+  excludeAlreadySent = false,
 }: {
   agentId: string;
   queryId: string;
+  templateId?: string;
+  excludeAlreadySent?: boolean;
 }): Promise<
   | {
       success: true;
       query: SavedChatUserQuery;
       chatUsers: TemplateChatUserRecord[];
       excludedUsersWithoutWhatsApp: number;
+      excludedUsersAlreadySent: number;
     }
   | {
       success: false;
@@ -100,10 +105,37 @@ export async function getChatUsersForSavedTemplateSendGroup({
     (chatUser) => !!chatUser.number?.trim(),
   );
 
+  if (!excludeAlreadySent || !templateId || eligibleChatUsers.length === 0) {
+    return {
+      success: true,
+      query: groupResult.query,
+      chatUsers: eligibleChatUsers,
+      excludedUsersWithoutWhatsApp: chatUsers.length - eligibleChatUsers.length,
+      excludedUsersAlreadySent: 0,
+    };
+  }
+
+  const successfulAttempts = await db("templateMessageSendAttempt")
+    .distinct("chatUserId")
+    .where("templateId", templateId)
+    .where("success", true)
+    .whereIn(
+      "chatUserId",
+      eligibleChatUsers.map((chatUser) => chatUser.id),
+    );
+
+  const alreadySentChatUserIds = new Set(
+    successfulAttempts.map((attempt) => String(attempt.chatUserId)),
+  );
+  const filteredChatUsers = eligibleChatUsers.filter(
+    (chatUser) => !alreadySentChatUserIds.has(chatUser.id),
+  );
+
   return {
     success: true,
     query: groupResult.query,
-    chatUsers: eligibleChatUsers,
+    chatUsers: filteredChatUsers,
     excludedUsersWithoutWhatsApp: chatUsers.length - eligibleChatUsers.length,
+    excludedUsersAlreadySent: eligibleChatUsers.length - filteredChatUsers.length,
   };
 }

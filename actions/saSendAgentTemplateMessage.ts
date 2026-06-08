@@ -19,6 +19,7 @@ type GroupTemplateSuccess = {
     templateMessageSendId: string;
     recipientCount: number;
     excludedUsersWithoutWhatsApp: number;
+    excludedUsersAlreadySent?: number;
     queryName: string;
     queued: true;
     runStatus: "queued";
@@ -32,11 +33,13 @@ const saSendAgentTemplateMessage = async ({
   queryId,
   templateId,
   mappings,
+  excludeAlreadySent = false,
 }: {
   agentId: string;
   queryId: string;
   templateId: string;
   mappings: TemplateParameterMappings;
+  excludeAlreadySent?: boolean;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -52,6 +55,7 @@ const saSendAgentTemplateMessage = async ({
         queryId,
         templateId,
         mappings,
+        excludeAlreadySent,
         requestedByAdminUserId: accessToken.adminUserId,
       },
     });
