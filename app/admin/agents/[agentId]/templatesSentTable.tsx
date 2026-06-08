@@ -261,7 +261,9 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
 
       if (result.data?.excludedUsersAlreadySent) {
         const excludedLabel =
-          result.data.excludedUsersAlreadySent === 1 ? "user was" : "users were";
+          result.data.excludedUsersAlreadySent === 1
+            ? "user was"
+            : "users were";
         const excludedReason =
           result.data.excludedUsersAlreadySent === 1
             ? "that user has already received this template"
@@ -377,7 +379,10 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
                   </div>
                   {!loadingPreviewUsers && (
                     <div className="text-xs text-muted-foreground">
-                      {totalMatches} {totalMatches === 1 ? "matched client" : "matched clients"}
+                      {totalMatches}{" "}
+                      {totalMatches === 1
+                        ? "matched client"
+                        : "matched clients"}
                       {excludedUsersAlreadySent > 0
                         ? `, ${excludedUsersAlreadySent} already received this template`
                         : ""}
@@ -404,7 +409,15 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
               selectedQueryId &&
               excludedUsersAlreadySent > 0 && (
                 <p className="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-100">
-                  {excludedUsersAlreadySent} {excludedUsersAlreadySent === 1 ? "client has" : "clients have"} been removed because {excludedUsersAlreadySent === 1 ? "that client has" : "those clients have"} already received this template.
+                  {excludedUsersAlreadySent}{" "}
+                  {excludedUsersAlreadySent === 1
+                    ? "client has"
+                    : "clients have"}{" "}
+                  been removed because{" "}
+                  {excludedUsersAlreadySent === 1
+                    ? "that client has"
+                    : "those clients have"}{" "}
+                  already received this template.
                 </p>
               )}
 

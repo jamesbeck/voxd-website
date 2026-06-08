@@ -136,6 +136,7 @@ export async function getChatUsersForSavedTemplateSendGroup({
     query: groupResult.query,
     chatUsers: filteredChatUsers,
     excludedUsersWithoutWhatsApp: chatUsers.length - eligibleChatUsers.length,
-    excludedUsersAlreadySent: eligibleChatUsers.length - filteredChatUsers.length,
+    excludedUsersAlreadySent:
+      eligibleChatUsers.length - filteredChatUsers.length,
   };
 }
