@@ -1,10 +1,10 @@
 "use server";
 
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import db from "../database/db";
 import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
+import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 type GenerateScenarioParams = (
   | {
@@ -51,6 +51,7 @@ const saGenerateScenario = async (
   let context: string = "";
   let businessName: string = "";
   let providerApiKey: string | null = null;
+  let providerName: string | null = null;
   let existingScenarios: string[] = [];
 
   if (exampleId) {
@@ -74,19 +75,23 @@ const saGenerateScenario = async (
       }
     }
 
-    // Get the partner's provider API key
-    if (accessToken.partnerId) {
-      const partner = await db("organisation")
-        .leftJoin(
-          "providerApiKey",
-          "organisation.providerApiKeyId",
-          "providerApiKey.id",
-        )
-        .where("organisation.id", accessToken.partnerId)
-        .select(db.raw('"providerApiKey"."key" as "providerApiKey"'))
-        .first();
-      providerApiKey = partner?.providerApiKey || null;
-    }
+    // Get the example organisation's provider API key and provider.
+    const partner = await db("organisation")
+      .leftJoin(
+        "providerApiKey",
+        "organisation.providerApiKeyId",
+        "providerApiKey.id",
+      )
+      .leftJoin("provider", "providerApiKey.providerId", "provider.id")
+      .where("organisation.id", example.organisationId)
+      .select(
+        db.raw('"providerApiKey"."key" as "providerApiKey"'),
+        "provider.name as providerName",
+      )
+      .first();
+
+    providerApiKey = partner?.providerApiKey || null;
+    providerName = partner?.providerName || null;
 
     context = example.body || "No specification provided";
     businessName = example.businessName || "the business";
@@ -113,12 +118,14 @@ const saGenerateScenario = async (
         "partnerOrganisation.providerApiKeyId",
         "providerApiKey.id",
       )
+      .leftJoin("provider", "providerApiKey.providerId", "provider.id")
       .where("quote.id", quoteId)
       .select(
         "quote.*",
         "organisation.name as organisationName",
         "organisation.partnerId",
         db.raw('"providerApiKey"."key" as "providerApiKey"'),
+        "provider.name as providerName",
       )
       .first();
 
@@ -142,7 +149,7 @@ const saGenerateScenario = async (
     }
 
     // Check if partner has a provider API key
-    if (!quote.providerApiKey) {
+    if (!quote.providerApiKey || !quote.providerName) {
       return {
         success: false,
         error: "Partner does not have a provider API key configured",
@@ -150,6 +157,7 @@ const saGenerateScenario = async (
     }
 
     providerApiKey = quote.providerApiKey;
+    providerName = quote.providerName;
 
     // Get knowledge sources linked to this quote
     const quoteKnowledgeSources = await db("quoteKnowledgeSource")
@@ -231,7 +239,7 @@ ${quote.otherNotes || "Not specified"}
       .filter((p) => p);
   }
 
-  if (!providerApiKey) {
+  if (!providerApiKey || !providerName) {
     return {
       success: false,
       error:
@@ -239,14 +247,12 @@ ${quote.otherNotes || "Not specified"}
     };
   }
 
-  // Create OpenAI client with partner's API key
-  const openai = createOpenAI({
-    apiKey: providerApiKey,
-  });
-
   try {
     const { text } = await generateText({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName,
+        apiKey: providerApiKey,
+      }),
       prompt: `You are helping to generate realistic scenario descriptions for an AI WhatsApp chatbot.
 
 The business name is "${businessName}".

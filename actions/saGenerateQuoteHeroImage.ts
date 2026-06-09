@@ -1,6 +1,5 @@
 "use server";
 
-import { createOpenAI } from "@ai-sdk/openai";
 import { experimental_generateImage as generateImage, generateText } from "ai";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import sharp from "sharp";
@@ -9,7 +8,11 @@ import { ServerActionResponse } from "@/types/types";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { addLog } from "@/lib/addLog";
 import { createQuoteOgWithLogo } from "@/lib/createQuoteOgWithLogo";
-import { getAdminAiImageModel, getAdminAiModelId } from "@/lib/adminAi";
+import {
+  getAdminAiImageModel,
+  getAdminAiLanguageModel,
+  getAdminAiModelId,
+} from "@/lib/adminAi";
 
 const saGenerateQuoteHeroImage = async ({
   quoteId,
@@ -72,7 +75,7 @@ const saGenerateQuoteHeroImage = async ({
   let providerApiKey: string | null = null;
   let providerName: string | null = null;
 
-  if (accessToken.partnerId) {
+  if (quote.partnerId) {
     const partner = await db("organisation")
       .leftJoin(
         "providerApiKey",
@@ -80,7 +83,7 @@ const saGenerateQuoteHeroImage = async ({
         "providerApiKey.id",
       )
       .leftJoin("provider", "providerApiKey.providerId", "provider.id")
-      .where("organisation.id", accessToken.partnerId)
+      .where("organisation.id", quote.partnerId)
       .select(
         db.raw('"providerApiKey"."key" as "providerApiKey"'),
         "provider.name as providerName",
@@ -99,14 +102,12 @@ const saGenerateQuoteHeroImage = async ({
   }
 
   try {
-    // Create OpenAI client with partner's API key
-    const openai = createOpenAI({
-      apiKey: providerApiKey,
-    });
-
-    // Step 1: Generate hero image prompt using gpt-5-nano
+    // Step 1: Generate hero image prompt using the partner's configured text model
     const promptGenerationResult = await generateText({
-      model: openai("gpt-5-nano"),
+      model: getAdminAiLanguageModel({
+        providerName,
+        apiKey: providerApiKey,
+      }),
       prompt: `Create a short prompt for generating a hero image.
 
 Organisation: ${quote.organisationName || "the organisation"}

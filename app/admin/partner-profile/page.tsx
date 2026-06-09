@@ -10,6 +10,8 @@ import getOrganisationById from "@/lib/getOrganisationById";
 import EditSubPartnerMarkupForm from "./EditSubPartnerMarkupForm";
 import OrganisationBrandingTab from "@/components/admin/OrganisationBrandingTab";
 import EditPartnerGoCardlessForm from "@/app/admin/organisations/[organisationId]/partnerSettings/EditPartnerGoCardlessForm";
+import NewProviderApiKeyDialog from "@/app/admin/provider-api-keys/NewProviderApiKeyDialog";
+import ProviderApiKeysTable from "@/app/admin/provider-api-keys/providerApiKeysTable";
 
 export default async function Page() {
   const accessToken = await verifyAccessToken();
@@ -34,6 +36,7 @@ export default async function Page() {
           { value: "email", label: "Email Sending" },
           { value: "goCardless", label: "GoCardless" },
           { value: "subPartners", label: "Sub-Partners" },
+          { value: "providerApiKeys", label: "API Keys" },
         ]}
       >
         <TabsContent value="branding">
@@ -67,6 +70,20 @@ export default async function Page() {
             defaultSubPartnerMarkupHourlyRate={
               organisation.defaultSubPartnerMarkupHourlyRate
             }
+          />
+        </TabsContent>
+        <TabsContent value="providerApiKeys">
+          <div className="flex justify-end mb-4">
+            <NewProviderApiKeyDialog
+              preselectedOrganisationId={organisation.id}
+              preselectedOrganisationName={organisation.name}
+            />
+          </div>
+          <ProviderApiKeysTable
+            organisationId={organisation.id}
+            allowDelete
+            partnerId={organisation.id}
+            currentPartnerProviderApiKeyId={organisation.providerApiKeyId ?? null}
           />
         </TabsContent>
       </RecordTabs>

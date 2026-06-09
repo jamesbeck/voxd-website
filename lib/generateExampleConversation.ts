@@ -1,12 +1,11 @@
 import db from "../database/db";
-import { createOpenAI } from "@ai-sdk/openai";
 import {
   experimental_generateImage as generateImage,
   generateObject,
 } from "ai";
 import { z } from "zod";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getAdminAiImageModel } from "@/lib/adminAi";
+import { getAdminAiImageModel, getAdminAiLanguageModel } from "@/lib/adminAi";
 
 /**
  * Core logic for generating an example conversation.
@@ -177,10 +176,11 @@ ${quote.otherNotes || "Not specified"}
   }
 
   try {
-    const openai = createOpenAI({ apiKey: providerApiKey });
-
     const { object } = await generateObject({
-      model: openai("gpt-5.4"),
+      model: getAdminAiLanguageModel({
+        providerName,
+        apiKey: providerApiKey,
+      }),
       schema: z.object({
         summary: z
           .string()
