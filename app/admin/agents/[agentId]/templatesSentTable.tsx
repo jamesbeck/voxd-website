@@ -311,8 +311,8 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
               )}
             </div>
 
-            <div className="space-y-2">
-              <div className="flex flex-col gap-3 md:flex-row md:items-end">
+            <div className="space-y-3">
+              <div className="flex flex-col gap-3 md:max-w-md">
                 <div className="flex-1 space-y-2">
                   <Label>Saved Group</Label>
                   {loadingQueries ? (
@@ -338,29 +338,29 @@ const TemplatesSentTable = ({ agentId }: { agentId: string }) => {
                     </Select>
                   )}
                 </div>
+              </div>
 
-                <div className="rounded-md border px-3 py-2 md:max-w-sm">
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="exclude-already-sent"
-                      checked={excludeAlreadySent}
-                      onCheckedChange={(checked) =>
-                        setExcludeAlreadySent(checked === true)
-                      }
-                    />
-                    <div className="space-y-1">
-                      <Label
-                        htmlFor="exclude-already-sent"
-                        className="cursor-pointer"
-                      >
-                        Exclude clients who already received this template
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedTemplate
-                          ? "Uses successful template history to remove prior recipients from this queue."
-                          : "Select a template to apply template-history exclusions."}
-                      </p>
-                    </div>
+              <div className="rounded-md border px-3 py-2 md:max-w-md">
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="exclude-already-sent"
+                    checked={excludeAlreadySent}
+                    onCheckedChange={(checked) =>
+                      setExcludeAlreadySent(checked === true)
+                    }
+                  />
+                  <div className="space-y-1">
+                    <Label
+                      htmlFor="exclude-already-sent"
+                      className="cursor-pointer"
+                    >
+                      Exclude clients who already received this template
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedTemplate
+                        ? "Uses successful template history to remove prior recipients from this queue."
+                        : "Select a template to apply template-history exclusions."}
+                    </p>
                   </div>
                 </div>
               </div>
