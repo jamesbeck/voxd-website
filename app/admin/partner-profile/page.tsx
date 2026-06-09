@@ -83,7 +83,9 @@ export default async function Page() {
             organisationId={organisation.id}
             allowDelete
             partnerId={organisation.id}
-            currentPartnerProviderApiKeyId={organisation.providerApiKeyId ?? null}
+            currentPartnerProviderApiKeyId={
+              organisation.providerApiKeyId ?? null
+            }
           />
         </TabsContent>
       </RecordTabs>
