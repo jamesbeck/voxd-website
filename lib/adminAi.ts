@@ -3,7 +3,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
 
-export type AdminAiTaskType = "text" | "embedding" | "image";
+export type AdminAiTaskType = "text" | "image";
 
 export type AdminAiProviderSlug = "openai" | "google" | "anthropic" | "groq";
 
@@ -19,22 +19,18 @@ const ADMIN_AI_ENV_MAP: Record<
 > = {
   openai: {
     text: "ADMIN_AI_OPENAI_TEXT_MODEL",
-    embedding: "ADMIN_AI_OPENAI_EMBEDDING_MODEL",
     image: "ADMIN_AI_OPENAI_IMAGE_MODEL",
   },
   google: {
     text: "ADMIN_AI_GOOGLE_TEXT_MODEL",
-    embedding: "ADMIN_AI_GOOGLE_EMBEDDING_MODEL",
     image: "ADMIN_AI_GOOGLE_IMAGE_MODEL",
   },
   anthropic: {
     text: "ADMIN_AI_ANTHROPIC_TEXT_MODEL",
-    embedding: "ADMIN_AI_ANTHROPIC_EMBEDDING_MODEL",
     image: "ADMIN_AI_ANTHROPIC_IMAGE_MODEL",
   },
   groq: {
     text: "ADMIN_AI_GROQ_TEXT_MODEL",
-    embedding: "ADMIN_AI_GROQ_EMBEDDING_MODEL",
     image: "ADMIN_AI_GROQ_IMAGE_MODEL",
   },
 };

@@ -22,24 +22,22 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Admin AI Models
 
-Admin-triggered AI requests are provider-aware and use the partner or organisation's configured provider API key together with env-configured model ids.
+Admin-triggered AI requests are provider-aware and use the partner or organisation's configured provider API key. Text and image model ids are configured via environment variables. Embedding models are resolved per agent from the database.
 
 Set the model ids for the providers you want to support:
 
 ```bash
 ADMIN_AI_OPENAI_TEXT_MODEL=
-ADMIN_AI_OPENAI_EMBEDDING_MODEL=
 ADMIN_AI_OPENAI_IMAGE_MODEL=
 
 ADMIN_AI_GOOGLE_TEXT_MODEL=
-ADMIN_AI_GOOGLE_EMBEDDING_MODEL=
 ADMIN_AI_GOOGLE_IMAGE_MODEL=
 
 ADMIN_AI_ANTHROPIC_TEXT_MODEL=
 ADMIN_AI_GROQ_TEXT_MODEL=
 ```
 
-Anthropic and Groq are currently wired for text generation in the admin area. OpenAI and Google are wired for text, embeddings, and image-capable model resolution.
+Anthropic and Groq are currently wired for text generation in the admin area. OpenAI and Google are wired for text and image-capable model resolution. Embeddings use each agent's configured embedding model.
 
 ## Learn More
 
