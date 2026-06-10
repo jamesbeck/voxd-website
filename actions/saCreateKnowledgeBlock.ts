@@ -6,7 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { embed } from "ai";
 import { addLog } from "@/lib/addLog";
 import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
-import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
 
 const saCreateKnowledgeBlock = async ({
   documentId,
@@ -29,6 +29,7 @@ const saCreateKnowledgeBlock = async ({
       "knowledgeDocument.*",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
+      "provider.id as providerId",
     )
     .first();
 
@@ -84,7 +85,11 @@ const saCreateKnowledgeBlock = async ({
       value: embeddingText,
     });
     embeddingVector = embedding;
-    tokenCount = usage?.tokens ?? Math.ceil(embeddingText.length / 4);
+    const usageTokens = usage?.tokens;
+    tokenCount =
+      typeof usageTokens === "number" && Number.isFinite(usageTokens)
+        ? usageTokens
+        : Math.ceil(embeddingText.length / 4);
   } catch (error) {
     console.error("Error generating embedding:", error);
     return {
@@ -96,6 +101,10 @@ const saCreateKnowledgeBlock = async ({
   }
 
   // Create the knowledge block with embedding
+  const embeddingModel = getAdminAiModelId({
+    providerName: document.providerName,
+    taskType: "embedding",
+  });
   const [newBlock] = await db("knowledgeBlock")
     .insert({
       documentId,
@@ -104,6 +113,9 @@ const saCreateKnowledgeBlock = async ({
       blockIndex,
       tokenCount,
       embedding: embeddingVector ? `[${embeddingVector.join(",")}]` : null,
+      embeddingProviderId: document.providerId,
+      embeddingModel,
+      embeddingDimensions: embeddingVector ? embeddingVector.length : 0,
     })
     .returning([
       "id",

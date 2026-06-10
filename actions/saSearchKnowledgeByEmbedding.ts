@@ -5,7 +5,7 @@ import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import getAgentById from "@/lib/getAgentById";
-import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
 
 export type KnowledgeBlockSearchResult = {
   blockId: string;
@@ -57,6 +57,11 @@ const saSearchKnowledgeByEmbedding = async ({
 
     // Convert embedding array to pgvector format
     const embeddingString = `[${embedding.join(",")}]`;
+    const queryEmbeddingModel = getAdminAiModelId({
+      providerName: agent.providerApiKeyProviderName,
+      taskType: "embedding",
+    });
+    const queryEmbeddingDimensions = embedding.length;
 
     // Query the knowledge base using cosine similarity
     const results = await db.raw(
@@ -75,6 +80,8 @@ const saSearchKnowledgeByEmbedding = async ({
       JOIN "knowledgeDocument" kd ON kb."documentId" = kd.id
       WHERE kd."agentId" = ?
         AND kb.embedding IS NOT NULL
+        AND kb."embeddingModel" = ?
+        AND kb."embeddingDimensions" = ?
         AND 1 - (kb.embedding <=> ?::vector) >= ?
       ORDER BY kb.embedding <=> ?::vector
       LIMIT 100
@@ -82,6 +89,8 @@ const saSearchKnowledgeByEmbedding = async ({
       [
         embeddingString,
         agentId,
+        queryEmbeddingModel,
+        queryEmbeddingDimensions,
         embeddingString,
         similarityThreshold,
         embeddingString,

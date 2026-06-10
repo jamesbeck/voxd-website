@@ -88,6 +88,9 @@ const saCloneDocument = async (input: {
             metadata: block.metadata ? JSON.stringify(block.metadata) : null,
             tokenCount: block.tokenCount,
             embedding: block.embedding,
+            embeddingProviderId: block.embeddingProviderId,
+            embeddingModel: block.embeddingModel,
+            embeddingDimensions: block.embeddingDimensions,
           })),
         );
       }

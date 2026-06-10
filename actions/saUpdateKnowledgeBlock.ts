@@ -7,7 +7,7 @@ import { embed } from "ai";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import { addLog } from "@/lib/addLog";
 import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
-import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
 
 const saUpdateKnowledgeBlock = async ({
   blockId,
@@ -38,6 +38,7 @@ const saUpdateKnowledgeBlock = async ({
       "knowledgeDocument.sourceType",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
+      "provider.id as providerId",
     )
     .first();
 
@@ -90,7 +91,11 @@ const saUpdateKnowledgeBlock = async ({
       value: embeddingText,
     });
     embeddingVector = embedding;
-    tokenCount = usage?.tokens ?? Math.ceil(embeddingText.length / 4);
+    const usageTokens = usage?.tokens;
+    tokenCount =
+      typeof usageTokens === "number" && Number.isFinite(usageTokens)
+        ? usageTokens
+        : Math.ceil(embeddingText.length / 4);
   } catch (error) {
     console.error("Error generating embedding:", error);
     return {
@@ -102,6 +107,10 @@ const saUpdateKnowledgeBlock = async ({
   }
 
   // Update the block with new content and embedding
+  const embeddingModel = getAdminAiModelId({
+    providerName: block.providerName,
+    taskType: "embedding",
+  });
   const [updatedBlock] = await db("knowledgeBlock")
     .where({ id: blockId })
     .update({
@@ -109,6 +118,9 @@ const saUpdateKnowledgeBlock = async ({
       title,
       tokenCount,
       embedding: embeddingVector ? `[${embeddingVector.join(",")}]` : null,
+      embeddingProviderId: block.providerId,
+      embeddingModel,
+      embeddingDimensions: embeddingVector ? embeddingVector.length : 0,
     })
     .returning([
       "id",

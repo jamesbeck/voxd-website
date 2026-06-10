@@ -6,7 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { embed } from "ai";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import { addLog } from "@/lib/addLog";
-import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
 
 const saRegenerateDocumentEmbeddings = async ({
   documentId,
@@ -25,6 +25,7 @@ const saRegenerateDocumentEmbeddings = async ({
       "knowledgeDocument.*",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
+      "provider.id as providerId",
     )
     .first();
 
@@ -84,7 +85,11 @@ const saRegenerateDocumentEmbeddings = async ({
         value: embeddingText,
       });
 
-      const tokenCount = usage?.tokens ?? Math.ceil(embeddingText.length / 4);
+      const usageTokens = usage?.tokens;
+      const tokenCount =
+        typeof usageTokens === "number" && Number.isFinite(usageTokens)
+          ? usageTokens
+          : Math.ceil(embeddingText.length / 4);
 
       // Update the block with new embedding
       await db("knowledgeBlock")
@@ -92,6 +97,12 @@ const saRegenerateDocumentEmbeddings = async ({
         .update({
           tokenCount,
           embedding: `[${embedding.join(",")}]`,
+          embeddingProviderId: document.providerId,
+          embeddingModel: getAdminAiModelId({
+            providerName: document.providerName,
+            taskType: "embedding",
+          }),
+          embeddingDimensions: embedding.length,
         });
 
       successCount++;

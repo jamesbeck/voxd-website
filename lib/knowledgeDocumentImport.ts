@@ -6,6 +6,7 @@ import { extractWebsiteText } from "@/lib/extractWebsiteText";
 import {
   getAdminAiEmbeddingModel,
   getAdminAiLanguageModel,
+  getAdminAiModelId,
 } from "@/lib/adminAi";
 
 const blockSchema = z.object({
@@ -33,6 +34,7 @@ type KnowledgeDocumentImportContext = {
   sourceUrl: string | null;
   providerApiKey: string;
   providerName: string;
+  providerId: string;
   modelName: string | null;
 };
 
@@ -229,6 +231,7 @@ export async function getKnowledgeDocumentImportContext({
       "knowledgeDocument.sourceUrl",
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
+      "provider.id as providerId",
       "model.model as modelName",
     )
     .first();
@@ -253,6 +256,7 @@ export async function importKnowledgeBlocksFromText({
   text,
   providerApiKey,
   providerName,
+  providerId,
   trx,
   strategy = "ai",
   blocks,
@@ -261,15 +265,19 @@ export async function importKnowledgeBlocksFromText({
   text: string;
   providerApiKey: string;
   providerName?: string;
+  providerId?: string;
   modelName?: string | null;
   trx?: Knex | Knex.Transaction;
   strategy?: ImportStrategy;
   blocks?: { title: string; content: string }[];
 }) {
   const executor = getExecutor(trx);
-  const resolvedProviderName =
-    providerName ??
-    (await getKnowledgeDocumentImportContext({ documentId, trx })).providerName;
+  const resolvedContext =
+    !providerName || !providerId
+      ? await getKnowledgeDocumentImportContext({ documentId, trx })
+      : null;
+  const resolvedProviderName = providerName ?? resolvedContext!.providerName;
+  const resolvedProviderId = providerId ?? resolvedContext!.providerId;
 
   const lastBlock = await executor("knowledgeBlock")
     .where("documentId", documentId)
@@ -304,6 +312,10 @@ export async function importKnowledgeBlocksFromText({
     values: embeddingInput,
   });
 
+  const embeddingModel = getAdminAiModelId({
+    providerName: resolvedProviderName,
+    taskType: "embedding",
+  });
   const blockRecords = resolvedBlocks.map((block, index) => ({
     documentId,
     content: block.content,
@@ -313,6 +325,9 @@ export async function importKnowledgeBlocksFromText({
     embedding: embeddingResult.embeddings[index]
       ? `[${embeddingResult.embeddings[index].join(",")}]`
       : null,
+    embeddingProviderId: resolvedProviderId,
+    embeddingModel,
+    embeddingDimensions: embeddingResult.embeddings[index]?.length ?? 0,
   }));
 
   await executor("knowledgeBlock").insert(blockRecords);
@@ -350,6 +365,7 @@ export async function refreshKnowledgeDocumentFromUrl({
     text: extracted.text,
     providerApiKey: document.providerApiKey,
     providerName: document.providerName,
+    providerId: document.providerId,
     modelName: document.modelName,
     trx,
     strategy: "preserve-all",
