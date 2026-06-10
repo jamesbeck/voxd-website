@@ -33,10 +33,17 @@ const saCreateOrganisation = async ({
   const partnerId = accessToken.partnerId;
 
   //check organisation name is unique
-  const existingOrganisation = await db("organisation")
+  const existingOrganisationQuery = db("organisation")
     .select("*")
-    .whereRaw("LOWER(name) = ?", name.toLowerCase())
-    .first();
+    .whereRaw("LOWER(name) = ?", name.toLowerCase());
+
+  if (partnerId) {
+    existingOrganisationQuery.where({ partnerId });
+  } else {
+    existingOrganisationQuery.whereNull("partnerId");
+  }
+
+  const existingOrganisation = await existingOrganisationQuery.first();
 
   if (existingOrganisation) {
     return {
