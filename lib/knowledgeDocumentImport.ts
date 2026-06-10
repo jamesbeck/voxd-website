@@ -6,7 +6,6 @@ import { extractWebsiteText } from "@/lib/extractWebsiteText";
 import {
   getAdminAiEmbeddingModel,
   getAdminAiLanguageModel,
-  getAdminAiModelId,
 } from "@/lib/adminAi";
 
 const blockSchema = z.object({
@@ -35,6 +34,7 @@ type KnowledgeDocumentImportContext = {
   providerApiKey: string;
   providerName: string;
   providerId: string;
+  embeddingModelName: string | null;
   modelName: string | null;
 };
 
@@ -220,6 +220,11 @@ export async function getKnowledgeDocumentImportContext({
   const document = await executor("knowledgeDocument")
     .join("agent", "knowledgeDocument.agentId", "agent.id")
     .leftJoin("model", "agent.modelId", "model.id")
+    .leftJoin(
+      "model as embeddingModel",
+      "agent.embeddingModelId",
+      "embeddingModel.id",
+    )
     .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where("knowledgeDocument.id", documentId)
@@ -232,6 +237,7 @@ export async function getKnowledgeDocumentImportContext({
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
       "provider.id as providerId",
+      "embeddingModel.model as embeddingModelName",
       "model.model as modelName",
     )
     .first();
@@ -248,6 +254,10 @@ export async function getKnowledgeDocumentImportContext({
     throw new Error("Agent provider API key is missing its provider");
   }
 
+  if (!document.embeddingModelName) {
+    throw new Error("Agent does not have an embedding model configured");
+  }
+
   return document;
 }
 
@@ -257,6 +267,7 @@ export async function importKnowledgeBlocksFromText({
   providerApiKey,
   providerName,
   providerId,
+  embeddingModelName,
   trx,
   strategy = "ai",
   blocks,
@@ -266,6 +277,7 @@ export async function importKnowledgeBlocksFromText({
   providerApiKey: string;
   providerName?: string;
   providerId?: string;
+  embeddingModelName?: string | null;
   modelName?: string | null;
   trx?: Knex | Knex.Transaction;
   strategy?: ImportStrategy;
@@ -273,11 +285,17 @@ export async function importKnowledgeBlocksFromText({
 }) {
   const executor = getExecutor(trx);
   const resolvedContext =
-    !providerName || !providerId
+    !providerName || !providerId || !embeddingModelName
       ? await getKnowledgeDocumentImportContext({ documentId, trx })
       : null;
   const resolvedProviderName = providerName ?? resolvedContext!.providerName;
   const resolvedProviderId = providerId ?? resolvedContext!.providerId;
+  const resolvedEmbeddingModelName =
+    embeddingModelName ?? resolvedContext!.embeddingModelName;
+
+  if (!resolvedEmbeddingModelName) {
+    throw new Error("Agent does not have an embedding model configured");
+  }
 
   const lastBlock = await executor("knowledgeBlock")
     .where("documentId", documentId)
@@ -308,14 +326,12 @@ export async function importKnowledgeBlocksFromText({
     model: getAdminAiEmbeddingModel({
       providerName: resolvedProviderName,
       apiKey: providerApiKey,
+      modelId: resolvedEmbeddingModelName,
     }),
     values: embeddingInput,
   });
 
-  const embeddingModel = getAdminAiModelId({
-    providerName: resolvedProviderName,
-    taskType: "embedding",
-  });
+  const embeddingModel = resolvedEmbeddingModelName;
   const blockRecords = resolvedBlocks.map((block, index) => ({
     documentId,
     content: block.content,

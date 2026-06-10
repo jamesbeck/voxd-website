@@ -6,7 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { embed } from "ai";
 import { addLog } from "@/lib/addLog";
 import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
-import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
 
 const saCreateKnowledgeBlock = async ({
   documentId,
@@ -22,6 +22,11 @@ const saCreateKnowledgeBlock = async ({
   // Get the document and its associated agent's API key
   const document = await db("knowledgeDocument")
     .join("agent", "knowledgeDocument.agentId", "agent.id")
+    .leftJoin(
+      "model as embeddingModel",
+      "agent.embeddingModelId",
+      "embeddingModel.id",
+    )
     .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where("knowledgeDocument.id", documentId)
@@ -30,6 +35,7 @@ const saCreateKnowledgeBlock = async ({
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
       "provider.id as providerId",
+      "embeddingModel.model as embeddingModelName",
     )
     .first();
 
@@ -52,6 +58,13 @@ const saCreateKnowledgeBlock = async ({
     return {
       success: false,
       error: "Agent does not have a provider API key configured",
+    };
+  }
+
+  if (!document.embeddingModelName) {
+    return {
+      success: false,
+      error: "Agent does not have an embedding model configured",
     };
   }
 
@@ -81,6 +94,7 @@ const saCreateKnowledgeBlock = async ({
       model: getAdminAiEmbeddingModel({
         providerName: document.providerName,
         apiKey: document.providerApiKey,
+        modelId: document.embeddingModelName,
       }),
       value: embeddingText,
     });
@@ -101,10 +115,7 @@ const saCreateKnowledgeBlock = async ({
   }
 
   // Create the knowledge block with embedding
-  const embeddingModel = getAdminAiModelId({
-    providerName: document.providerName,
-    taskType: "embedding",
-  });
+  const embeddingModel = document.embeddingModelName;
   const [newBlock] = await db("knowledgeBlock")
     .insert({
       documentId,

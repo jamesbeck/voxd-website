@@ -150,9 +150,11 @@ export function getAdminAiLanguageModel({
 export function getAdminAiEmbeddingModel({
   providerName,
   apiKey,
+  modelId,
 }: {
   providerName: string;
   apiKey: string;
+  modelId: string;
 }) {
   const provider = resolveAdminAiProvider(providerName);
   const client = getAdminAiProviderClient({ provider, apiKey });
@@ -163,9 +165,7 @@ export function getAdminAiEmbeddingModel({
     );
   }
 
-  return client.textEmbeddingModel(
-    getAdminAiModelId({ providerName, taskType: "embedding" }),
-  );
+  return client.textEmbeddingModel(modelId);
 }
 
 export function getAdminAiImageModel({

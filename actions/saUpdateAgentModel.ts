@@ -9,19 +9,22 @@ import userCanViewAgent from "@/lib/userCanViewAgent";
 export default async function saUpdateAgentModel({
   agentId,
   modelId,
+  embeddingModelId,
   providerApiKeyId,
 }: {
   agentId: string;
   modelId: string;
+  embeddingModelId: string;
   providerApiKeyId: string;
 }): Promise<ServerActionResponse> {
   try {
     const accessToken = await verifyAccessToken();
 
-    if (!agentId || !modelId || !providerApiKeyId) {
+    if (!agentId || !modelId || !embeddingModelId || !providerApiKeyId) {
       return {
         success: false,
-        error: "Agent, model, and provider API key are required.",
+        error:
+          "Agent, chat model, embedding model, and provider API key are required.",
       };
     }
 
@@ -30,8 +33,22 @@ export default async function saUpdateAgentModel({
     }
 
     const agent = await db("agent")
-      .leftJoin("model", "agent.modelId", "model.id")
-      .leftJoin("provider", "model.providerId", "provider.id")
+      .leftJoin("model as chatModel", "agent.modelId", "chatModel.id")
+      .leftJoin(
+        "provider as chatProvider",
+        "chatModel.providerId",
+        "chatProvider.id",
+      )
+      .leftJoin(
+        "model as embeddingModel",
+        "agent.embeddingModelId",
+        "embeddingModel.id",
+      )
+      .leftJoin(
+        "provider as embeddingProvider",
+        "embeddingModel.providerId",
+        "embeddingProvider.id",
+      )
       .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
       .leftJoin(
         "provider as oldKeyProvider",
@@ -42,9 +59,12 @@ export default async function saUpdateAgentModel({
       .select(
         "agent.organisationId",
         "agent.modelId as oldModelId",
+        "agent.embeddingModelId as oldEmbeddingModelId",
         "agent.providerApiKeyId as oldProviderApiKeyId",
-        "model.model as oldModelName",
-        "provider.name as oldProviderName",
+        "chatModel.model as oldModelName",
+        "chatProvider.name as oldProviderName",
+        "embeddingModel.model as oldEmbeddingModelName",
+        "embeddingProvider.name as oldEmbeddingProviderName",
         "oldKeyProvider.name as oldKeyProviderName",
       )
       .first();
@@ -53,20 +73,36 @@ export default async function saUpdateAgentModel({
       return { success: false, error: "Agent not found" };
     }
 
-    const model = await db("model")
+    const selectedModels = await db("model")
       .leftJoin("provider", "model.providerId", "provider.id")
-      .where("model.id", modelId)
+      .whereIn("model.id", [modelId, embeddingModelId])
       .where("model.disabled", false)
       .select(
         "model.id",
         "model.model",
         "model.providerId",
+        "model.embeddings",
         "provider.name as providerName",
-      )
-      .first();
+      );
+
+    const model = selectedModels.find((record) => record.id === modelId);
+    const embeddingModel = selectedModels.find(
+      (record) => record.id === embeddingModelId,
+    );
 
     if (!model) {
       return { success: false, error: "Model not found" };
+    }
+
+    if (!embeddingModel) {
+      return { success: false, error: "Embedding model not found" };
+    }
+
+    if (!embeddingModel.embeddings) {
+      return {
+        success: false,
+        error: "The selected embedding model does not support embeddings.",
+      };
     }
 
     const providerApiKey = await db("providerApiKey")
@@ -87,16 +123,20 @@ export default async function saUpdateAgentModel({
       };
     }
 
-    if (providerApiKey.providerId !== model.providerId) {
+    if (
+      providerApiKey.providerId !== model.providerId ||
+      providerApiKey.providerId !== embeddingModel.providerId
+    ) {
       return {
         success: false,
         error:
-          "The selected model is not compatible with the selected API key.",
+          "The selected models are not compatible with the selected API key.",
       };
     }
 
     await db("agent").where({ id: agentId }).update({
       modelId,
+      embeddingModelId,
       providerApiKeyId,
     });
 
@@ -106,18 +146,28 @@ export default async function saUpdateAgentModel({
       event: "Agent Model Settings Changed",
       description: `Changed agent model from ${
         agent?.oldProviderName || "Unknown"
-      } / ${agent?.oldModelName || "Unknown"} (${agent?.oldKeyProviderName || "Unknown"} key) to ${
+      } / ${agent?.oldModelName || "Unknown"} and embedding model from ${
+        agent?.oldEmbeddingProviderName || "Unknown"
+      } / ${agent?.oldEmbeddingModelName || "Unknown"} (${agent?.oldKeyProviderName || "Unknown"} key) to ${
         model.providerName || "Unknown"
-      } / ${model.model} (${providerApiKey.providerName || "Unknown"} key)`,
+      } / ${model.model} and ${embeddingModel.providerName || "Unknown"} / ${
+        embeddingModel.model
+      } (${providerApiKey.providerName || "Unknown"} key)`,
       data: {
         oldModelId: agent?.oldModelId,
         oldModelName: agent?.oldModelName,
         oldProviderName: agent?.oldProviderName,
+        oldEmbeddingModelId: agent?.oldEmbeddingModelId,
+        oldEmbeddingModelName: agent?.oldEmbeddingModelName,
+        oldEmbeddingProviderName: agent?.oldEmbeddingProviderName,
         oldProviderApiKeyId: agent?.oldProviderApiKeyId,
         oldKeyProviderName: agent?.oldKeyProviderName,
         newModelId: modelId,
         newModelName: model.model,
         newProviderName: model.providerName,
+        newEmbeddingModelId: embeddingModelId,
+        newEmbeddingModelName: embeddingModel.model,
+        newEmbeddingProviderName: embeddingModel.providerName,
         newProviderApiKeyId: providerApiKeyId,
         newKeyProviderName: providerApiKey.providerName,
       },

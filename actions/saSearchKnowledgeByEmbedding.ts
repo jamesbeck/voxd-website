@@ -5,7 +5,7 @@ import db from "../database/db";
 import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import getAgentById from "@/lib/getAgentById";
-import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
 
 export type KnowledgeBlockSearchResult = {
   blockId: string;
@@ -42,7 +42,12 @@ const saSearchKnowledgeByEmbedding = async ({
 
     // Get agent to retrieve API key
     const agent = await getAgentById({ agentId });
-    if (!agent || !agent.providerApiKey || !agent.providerApiKeyProviderName) {
+    if (
+      !agent ||
+      !agent.providerApiKey ||
+      !agent.providerApiKeyProviderName ||
+      !agent.embeddingModelName
+    ) {
       return { success: false, error: "Agent not found or missing API key" };
     }
 
@@ -51,16 +56,14 @@ const saSearchKnowledgeByEmbedding = async ({
       model: getAdminAiEmbeddingModel({
         providerName: agent.providerApiKeyProviderName,
         apiKey: agent.providerApiKey,
+        modelId: agent.embeddingModelName,
       }),
       value: query,
     });
 
     // Convert embedding array to pgvector format
     const embeddingString = `[${embedding.join(",")}]`;
-    const queryEmbeddingModel = getAdminAiModelId({
-      providerName: agent.providerApiKeyProviderName,
-      taskType: "embedding",
-    });
+    const queryEmbeddingModel = agent.embeddingModelName;
     const queryEmbeddingDimensions = embedding.length;
 
     // Query the knowledge base using cosine similarity

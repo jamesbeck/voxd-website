@@ -8,8 +8,9 @@ interface Model {
   providerId: string;
   provider: string;
   model: string;
-  inputTokenCost: string;
-  outputTokenCost: string;
+  inputTokenCost: string | null;
+  outputTokenCost: string | null;
+  embeddings: boolean;
 }
 
 const saGetAllModels = async (): Promise<ServerActionResponse> => {
@@ -22,6 +23,7 @@ const saGetAllModels = async (): Promise<ServerActionResponse> => {
         "model.model",
         "model.inputTokenCost",
         "model.outputTokenCost",
+        "model.embeddings",
         "provider.name as provider",
       )
       .where("model.disabled", false)

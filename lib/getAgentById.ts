@@ -4,6 +4,11 @@ const getAgentById = async ({ agentId }: { agentId: string }) => {
   const agent = await db("agent")
     .leftJoin("model", "agent.modelId", "model.id")
     .leftJoin("provider", "model.providerId", "provider.id")
+    .leftJoin(
+      "model as embeddingModel",
+      "agent.embeddingModelId",
+      "embeddingModel.id",
+    )
     .leftJoin("phoneNumber", "agent.phoneNumberId", "phoneNumber.id")
     .leftJoin("organisation", "agent.organisationId", "organisation.id")
     .leftJoin(
@@ -31,6 +36,7 @@ const getAgentById = async ({ agentId }: { agentId: string }) => {
     .select(
       "agent.*",
       "model.model",
+      "embeddingModel.model as embeddingModelName",
       "provider.name as provider",
       "keyProvider.name as providerApiKeyProviderName",
       "model.inputTokenCost",

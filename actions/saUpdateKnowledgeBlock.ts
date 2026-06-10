@@ -7,7 +7,7 @@ import { embed } from "ai";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import { addLog } from "@/lib/addLog";
 import { knowledgeDocumentBlocksAreEditable } from "@/lib/knowledgeDocumentSource";
-import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
 
 const saUpdateKnowledgeBlock = async ({
   blockId,
@@ -28,6 +28,11 @@ const saUpdateKnowledgeBlock = async ({
       "knowledgeDocument.id",
     )
     .join("agent", "knowledgeDocument.agentId", "agent.id")
+    .leftJoin(
+      "model as embeddingModel",
+      "agent.embeddingModelId",
+      "embeddingModel.id",
+    )
     .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where("knowledgeBlock.id", blockId)
@@ -39,6 +44,7 @@ const saUpdateKnowledgeBlock = async ({
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
       "provider.id as providerId",
+      "embeddingModel.model as embeddingModelName",
     )
     .first();
 
@@ -69,6 +75,13 @@ const saUpdateKnowledgeBlock = async ({
     };
   }
 
+  if (!block.embeddingModelName) {
+    return {
+      success: false,
+      error: "Agent does not have an embedding model configured",
+    };
+  }
+
   // Generate new embedding using the agent's OpenAI API key
   // Include document title and block title for better semantic context
   let embeddingText = content;
@@ -87,6 +100,7 @@ const saUpdateKnowledgeBlock = async ({
       model: getAdminAiEmbeddingModel({
         providerName: block.providerName,
         apiKey: block.providerApiKey,
+        modelId: block.embeddingModelName,
       }),
       value: embeddingText,
     });
@@ -107,10 +121,7 @@ const saUpdateKnowledgeBlock = async ({
   }
 
   // Update the block with new content and embedding
-  const embeddingModel = getAdminAiModelId({
-    providerName: block.providerName,
-    taskType: "embedding",
-  });
+  const embeddingModel = block.embeddingModelName;
   const [updatedBlock] = await db("knowledgeBlock")
     .where({ id: blockId })
     .update({

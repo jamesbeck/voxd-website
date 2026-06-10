@@ -6,7 +6,7 @@ import { verifyAccessToken } from "@/lib/auth/verifyToken";
 import { embed } from "ai";
 import userCanViewAgent from "@/lib/userCanViewAgent";
 import { addLog } from "@/lib/addLog";
-import { getAdminAiEmbeddingModel, getAdminAiModelId } from "@/lib/adminAi";
+import { getAdminAiEmbeddingModel } from "@/lib/adminAi";
 
 const saRegenerateDocumentEmbeddings = async ({
   documentId,
@@ -18,6 +18,11 @@ const saRegenerateDocumentEmbeddings = async ({
   // Get the document and its associated agent's API key
   const document = await db("knowledgeDocument")
     .join("agent", "knowledgeDocument.agentId", "agent.id")
+    .leftJoin(
+      "model as embeddingModel",
+      "agent.embeddingModelId",
+      "embeddingModel.id",
+    )
     .leftJoin("providerApiKey", "agent.providerApiKeyId", "providerApiKey.id")
     .leftJoin("provider", "providerApiKey.providerId", "provider.id")
     .where("knowledgeDocument.id", documentId)
@@ -26,6 +31,7 @@ const saRegenerateDocumentEmbeddings = async ({
       db.raw('"providerApiKey"."key" as "providerApiKey"'),
       "provider.name as providerName",
       "provider.id as providerId",
+      "embeddingModel.model as embeddingModelName",
     )
     .first();
 
@@ -45,6 +51,13 @@ const saRegenerateDocumentEmbeddings = async ({
     return {
       success: false,
       error: "Agent does not have a provider API key configured",
+    };
+  }
+
+  if (!document.embeddingModelName) {
+    return {
+      success: false,
+      error: "Agent does not have an embedding model configured",
     };
   }
 
@@ -81,6 +94,7 @@ const saRegenerateDocumentEmbeddings = async ({
         model: getAdminAiEmbeddingModel({
           providerName: document.providerName,
           apiKey: document.providerApiKey,
+          modelId: document.embeddingModelName,
         }),
         value: embeddingText,
       });
@@ -98,10 +112,7 @@ const saRegenerateDocumentEmbeddings = async ({
           tokenCount,
           embedding: `[${embedding.join(",")}]`,
           embeddingProviderId: document.providerId,
-          embeddingModel: getAdminAiModelId({
-            providerName: document.providerName,
-            taskType: "embedding",
-          }),
+          embeddingModel: document.embeddingModelName,
           embeddingDimensions: embedding.length,
         });
 
