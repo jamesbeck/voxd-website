@@ -5,7 +5,238 @@ import {
 } from "ai";
 import { z } from "zod";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getAdminAiImageModel, getAdminAiLanguageModel } from "@/lib/adminAi";
+import {
+  getAdminAiImageModel,
+  getAdminAiLanguageModel,
+  resolveAdminAiProvider,
+} from "@/lib/adminAi";
+
+const conversationSummarySchema = z
+  .string()
+  .describe("A very brief summary of the chat, around 20 words.");
+
+const conversationStartTimeSchema = z
+  .string()
+  .describe(
+    "The start time of the chat as a string (HH:mm). Make this realistic based on the action.",
+  );
+
+const userMessageSchema = z.object({
+  role: z.literal("user"),
+  content: z.string().describe("The content of the message as HTML"),
+  time: z.number().describe("Seconds elapsed since the last message."),
+  hasImage: z
+    .boolean()
+    .optional()
+    .describe(
+      "Set to true if the user would realistically attach a photo with this message (e.g. showing damage, sharing a product photo, sending a receipt). Only include when it genuinely fits the scenario.",
+    ),
+  imagePrompt: z
+    .string()
+    .optional()
+    .describe(
+      "When hasImage is true, provide a detailed visual description of the photo the user would send, suitable for AI image generation. Describe it as a realistic phone photo (e.g. 'A slightly blurry phone photo of a cracked laptop screen on a wooden desk'). Keep it concise but descriptive.",
+    ),
+  hasFile: z
+    .boolean()
+    .optional()
+    .describe(
+      "Set to true if the user would realistically attach a non-image file with this message (e.g. sending a PDF invoice, a spreadsheet, a contract, a CV/resume). Only include when it genuinely fits the scenario.",
+    ),
+  fileName: z
+    .string()
+    .optional()
+    .describe(
+      "When hasFile is true, provide a realistic filename for the attached document (e.g. 'Invoice_2026_March.pdf', 'Annual_Report.xlsx', 'Contract_v2.docx').",
+    ),
+  fileSize: z
+    .string()
+    .optional()
+    .describe(
+      "When hasFile is true, provide a realistic human-readable file size string (e.g. '2.4 MB', '156 KB', '1.1 MB').",
+    ),
+});
+
+const assistantMessageSchema = z.object({
+  role: z.literal("assistant"),
+  content: z.string().describe("The content of the message as HTML"),
+  annotation: z
+    .string()
+    .describe("A short annotation for assistant messages, around 20 words."),
+  time: z.number().describe("Seconds elapsed since the last message."),
+  hasImage: z
+    .boolean()
+    .optional()
+    .describe(
+      "Set to true if the bot would realistically send a photo in this message (e.g. sending a product photo, a floorplan image, a photo of a property). Only include when it genuinely fits the scenario.",
+    ),
+  imagePrompt: z
+    .string()
+    .optional()
+    .describe(
+      "When hasImage is true, provide a detailed visual description of the photo the bot would send, suitable for AI image generation. Keep it concise but descriptive.",
+    ),
+  hasFile: z
+    .boolean()
+    .optional()
+    .describe(
+      "Set to true if the bot would realistically send a file in this message (e.g. sending a pricelist PDF, a brochure, a floorplan document, a report). Only include when it genuinely fits the scenario.",
+    ),
+  fileName: z
+    .string()
+    .optional()
+    .describe(
+      "When hasFile is true, provide a realistic filename for the document (e.g. 'Pricelist_2026.pdf', 'Property_Brochure.pdf', 'Floorplan_Unit_4B.pdf').",
+    ),
+  fileSize: z
+    .string()
+    .optional()
+    .describe(
+      "When hasFile is true, provide a realistic human-readable file size string (e.g. '2.4 MB', '156 KB', '1.1 MB').",
+    ),
+});
+
+const openAiUserMessageSchema = z.object({
+  role: z.literal("user"),
+  content: z.string().describe("The content of the message as HTML"),
+  time: z.number().describe("Seconds elapsed since the last message."),
+  hasImage: z
+    .boolean()
+    .nullable()
+    .describe(
+      "Set to true if the user would realistically attach a photo with this message (e.g. showing damage, sharing a product photo, sending a receipt). Use null when there is no image.",
+    ),
+  imagePrompt: z
+    .string()
+    .nullable()
+    .describe(
+      "When hasImage is true, provide a detailed visual description of the photo the user would send, suitable for AI image generation. Otherwise use null.",
+    ),
+  hasFile: z
+    .boolean()
+    .nullable()
+    .describe(
+      "Set to true if the user would realistically attach a non-image file with this message (e.g. sending a PDF invoice, a spreadsheet, a contract, a CV/resume). Use null when there is no file.",
+    ),
+  fileName: z
+    .string()
+    .nullable()
+    .describe(
+      "When hasFile is true, provide a realistic filename for the attached document. Otherwise use null.",
+    ),
+  fileSize: z
+    .string()
+    .nullable()
+    .describe(
+      "When hasFile is true, provide a realistic human-readable file size string. Otherwise use null.",
+    ),
+});
+
+const openAiAssistantMessageSchema = z.object({
+  role: z.literal("assistant"),
+  content: z.string().describe("The content of the message as HTML"),
+  annotation: z
+    .string()
+    .describe("A short annotation for assistant messages, around 20 words."),
+  time: z.number().describe("Seconds elapsed since the last message."),
+  hasImage: z
+    .boolean()
+    .nullable()
+    .describe(
+      "Set to true if the bot would realistically send a photo in this message. Use null when there is no image.",
+    ),
+  imagePrompt: z
+    .string()
+    .nullable()
+    .describe(
+      "When hasImage is true, provide a detailed visual description of the photo the bot would send, suitable for AI image generation. Otherwise use null.",
+    ),
+  hasFile: z
+    .boolean()
+    .nullable()
+    .describe(
+      "Set to true if the bot would realistically send a file in this message. Use null when there is no file.",
+    ),
+  fileName: z
+    .string()
+    .nullable()
+    .describe(
+      "When hasFile is true, provide a realistic filename for the document. Otherwise use null.",
+    ),
+  fileSize: z
+    .string()
+    .nullable()
+    .describe(
+      "When hasFile is true, provide a realistic human-readable file size string. Otherwise use null.",
+    ),
+});
+
+const conversationResponseSchema = z.object({
+  summary: conversationSummarySchema,
+  startTime: conversationStartTimeSchema,
+  messages: z.array(
+    z.discriminatedUnion("role", [userMessageSchema, assistantMessageSchema]),
+  ),
+});
+
+const openAiConversationResponseSchema = z.object({
+  summary: conversationSummarySchema,
+  startTime: conversationStartTimeSchema,
+  messages: z.array(
+    z.discriminatedUnion("role", [
+      openAiUserMessageSchema,
+      openAiAssistantMessageSchema,
+    ]),
+  ),
+});
+
+type GeneratedConversationMessage = {
+  role: "user" | "assistant";
+  content: string;
+  time: number;
+  annotation?: string;
+  hasImage?: boolean | null;
+  imagePrompt?: string | null;
+  hasFile?: boolean | null;
+  fileName?: string | null;
+  fileSize?: string | null;
+};
+
+function normalizeGeneratedMessages(messages: GeneratedConversationMessage[]) {
+  return messages.map((message) => {
+    const normalizedMessage: Record<string, unknown> = {
+      role: message.role,
+      content: message.content,
+      time: message.time,
+    };
+
+    if (message.role === "assistant" && message.annotation) {
+      normalizedMessage.annotation = message.annotation;
+    }
+
+    if (message.hasImage === true) {
+      normalizedMessage.hasImage = true;
+
+      if (message.imagePrompt) {
+        normalizedMessage.imagePrompt = message.imagePrompt;
+      }
+    }
+
+    if (message.hasFile === true) {
+      normalizedMessage.hasFile = true;
+
+      if (message.fileName) {
+        normalizedMessage.fileName = message.fileName;
+      }
+
+      if (message.fileSize) {
+        normalizedMessage.fileSize = message.fileSize;
+      }
+    }
+
+    return normalizedMessage;
+  });
+}
 
 /**
  * Core logic for generating an example conversation.
@@ -176,108 +407,16 @@ ${quote.otherNotes || "Not specified"}
   }
 
   try {
+    const adminAiProvider = resolveAdminAiProvider(providerName);
     const { object } = await generateObject({
       model: getAdminAiLanguageModel({
         providerName,
         apiKey: providerApiKey,
       }),
-      schema: z.object({
-        summary: z
-          .string()
-          .describe("A very brief summary of the chat, around 20 words."),
-        startTime: z
-          .string()
-          .describe(
-            "The start time of the chat as a string (HH:mm). Make this realistic based on the action.",
-          ),
-        messages: z.array(
-          z.discriminatedUnion("role", [
-            z.object({
-              role: z.literal("user"),
-              content: z
-                .string()
-                .describe("The content of the message as HTML"),
-              time: z
-                .number()
-                .describe("Seconds elapsed since the last message."),
-              hasImage: z
-                .boolean()
-                .optional()
-                .describe(
-                  "Set to true if the user would realistically attach a photo with this message (e.g. showing damage, sharing a product photo, sending a receipt). Only include when it genuinely fits the scenario.",
-                ),
-              imagePrompt: z
-                .string()
-                .optional()
-                .describe(
-                  "When hasImage is true, provide a detailed visual description of the photo the user would send, suitable for AI image generation. Describe it as a realistic phone photo (e.g. 'A slightly blurry phone photo of a cracked laptop screen on a wooden desk'). Keep it concise but descriptive.",
-                ),
-              hasFile: z
-                .boolean()
-                .optional()
-                .describe(
-                  "Set to true if the user would realistically attach a non-image file with this message (e.g. sending a PDF invoice, a spreadsheet, a contract, a CV/resume). Only include when it genuinely fits the scenario.",
-                ),
-              fileName: z
-                .string()
-                .optional()
-                .describe(
-                  "When hasFile is true, provide a realistic filename for the attached document (e.g. 'Invoice_2026_March.pdf', 'Annual_Report.xlsx', 'Contract_v2.docx').",
-                ),
-              fileSize: z
-                .string()
-                .optional()
-                .describe(
-                  "When hasFile is true, provide a realistic human-readable file size string (e.g. '2.4 MB', '156 KB', '1.1 MB').",
-                ),
-            }),
-            z.object({
-              role: z.literal("assistant"),
-              content: z
-                .string()
-                .describe("The content of the message as HTML"),
-              annotation: z
-                .string()
-                .describe(
-                  "A short annotation for assistant messages, around 20 words.",
-                ),
-              time: z
-                .number()
-                .describe("Seconds elapsed since the last message."),
-              hasImage: z
-                .boolean()
-                .optional()
-                .describe(
-                  "Set to true if the bot would realistically send a photo in this message (e.g. sending a product photo, a floorplan image, a photo of a property). Only include when it genuinely fits the scenario.",
-                ),
-              imagePrompt: z
-                .string()
-                .optional()
-                .describe(
-                  "When hasImage is true, provide a detailed visual description of the photo the bot would send, suitable for AI image generation. Keep it concise but descriptive.",
-                ),
-              hasFile: z
-                .boolean()
-                .optional()
-                .describe(
-                  "Set to true if the bot would realistically send a file in this message (e.g. sending a pricelist PDF, a brochure, a floorplan document, a report). Only include when it genuinely fits the scenario.",
-                ),
-              fileName: z
-                .string()
-                .optional()
-                .describe(
-                  "When hasFile is true, provide a realistic filename for the document (e.g. 'Pricelist_2026.pdf', 'Property_Brochure.pdf', 'Floorplan_Unit_4B.pdf').",
-                ),
-              fileSize: z
-                .string()
-                .optional()
-                .describe(
-                  "When hasFile is true, provide a realistic human-readable file size string (e.g. '2.4 MB', '156 KB', '1.1 MB').",
-                ),
-            }),
-          ]),
-        ),
-      }),
+      schema:
+        adminAiProvider === "openai"
+          ? openAiConversationResponseSchema
+          : conversationResponseSchema,
       prompt: `
         Given the content of the below chat bot specification. Write a message exchange between a user and an AI WhatsApp Chatbot.
 
@@ -312,11 +451,15 @@ ${quote.otherNotes || "Not specified"}
       `,
     });
 
+    const normalizedMessages = normalizeGeneratedMessages(
+      object.messages as GeneratedConversationMessage[],
+    );
+
     // Save the generated conversation text first while image processing is still in progress.
     await db("exampleConversation")
       .where("id", conversationId)
       .update({
-        messages: JSON.stringify(object.messages),
+        messages: JSON.stringify(normalizedMessages),
         description: object.summary,
         startTime: object.startTime,
         generationErrorSummary: null,
@@ -324,9 +467,7 @@ ${quote.otherNotes || "Not specified"}
       });
 
     // Check if any messages have images to generate
-    const hasImages = object.messages.some(
-      (msg) => "hasImage" in msg && msg.hasImage === true,
-    );
+    const hasImages = normalizedMessages.some((msg) => msg.hasImage === true);
 
     if (hasImages) {
       await generateConversationImages({
