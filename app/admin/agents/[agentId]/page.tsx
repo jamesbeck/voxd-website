@@ -36,7 +36,7 @@ import {
   FileText,
 } from "lucide-react";
 import ModelTab from "./modelTab";
-import JsonConfigEditor from "./JsonConfigEditor";
+import AgentConfigTab from "./AgentConfigTab";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import saGetAllModels from "@/actions/saGetAllModels";
 import AgentDomainsTab from "./AgentDomainsTab";
@@ -507,26 +507,14 @@ export default async function Page({
               <TabsContent value="config">
                 <Container>
                   <H2>Agent Config</H2>
-                  {agent.config ? (
-                    <JsonConfigEditor
-                      agentId={agentId}
-                      initialData={agent.config}
-                      configSchema={agent.configSchema}
-                      canEdit={canWriteAgentConfig}
-                    />
-                  ) : (
-                    <div className="space-y-4">
-                      <p className="text-muted-foreground">
-                        No config stored for this agent.
-                      </p>
-                      <JsonConfigEditor
-                        agentId={agentId}
-                        initialData={{}}
-                        configSchema={agent.configSchema}
-                        canEdit={canWriteAgentConfig}
-                      />
-                    </div>
-                  )}
+                  <AgentConfigTab
+                    agentId={agentId}
+                    config={agent.config}
+                    configSchema={agent.configSchema}
+                    testConfig={agent.testConfig}
+                    testConfigSchema={agent.testConfigSchema}
+                    canEdit={canWriteAgentConfig}
+                  />
                 </Container>
               </TabsContent>
             )}

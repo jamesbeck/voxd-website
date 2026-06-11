@@ -1,6 +1,7 @@
 "use client";
 
 import { saUpdateAgentConfig } from "@/actions/saUpdateAgentConfig";
+import { saUpdateAgentTestConfig } from "@/actions/saUpdateAgentTestConfig";
 import JsonSchemaEditor from "@/components/admin/JsonSchemaEditor";
 
 interface JsonConfigEditorProps {
@@ -8,6 +9,7 @@ interface JsonConfigEditorProps {
   initialData: unknown;
   configSchema: unknown;
   canEdit?: boolean;
+  mode?: "production" | "test";
 }
 
 export default function JsonConfigEditor({
@@ -15,18 +17,43 @@ export default function JsonConfigEditor({
   initialData,
   configSchema,
   canEdit = true,
+  mode = "production",
 }: JsonConfigEditorProps) {
+  const isTestMode = mode === "test";
+
   return (
     <JsonSchemaEditor
-      editorPath={`file:///agent-config/${agentId}.json`}
+      editorPath={
+        isTestMode
+          ? `file:///agent-test-config/${agentId}.json`
+          : `file:///agent-config/${agentId}.json`
+      }
       initialData={initialData}
       schema={configSchema}
       readOnly={!canEdit}
-      onSave={(config) => saUpdateAgentConfig({ agentId, config })}
-      saveSuccessMessage="Config saved successfully"
-      saveErrorMessage="Failed to save config"
-      validMessage="Config is valid against the schema"
-      validationErrorTitle="Config validation issues"
+      onSave={(config) =>
+        isTestMode
+          ? saUpdateAgentTestConfig({ agentId, config })
+          : saUpdateAgentConfig({ agentId, config })
+      }
+      saveSuccessMessage={
+        isTestMode
+          ? "Test config saved successfully"
+          : "Config saved successfully"
+      }
+      saveErrorMessage={
+        isTestMode ? "Failed to save test config" : "Failed to save config"
+      }
+      validMessage={
+        isTestMode
+          ? "Test config is valid against the schema"
+          : "Config is valid against the schema"
+      }
+      validationErrorTitle={
+        isTestMode
+          ? "Test config validation issues"
+          : "Config validation issues"
+      }
     />
   );
 }
