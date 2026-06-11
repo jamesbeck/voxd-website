@@ -133,6 +133,24 @@ function removeBoilerplateElements($: cheerio.CheerioAPI) {
     const combined = `${id} ${className} ${role} ${ariaLabel}`;
 
     if (combined && BOILERPLATE_HINTS.test(combined)) {
+      const text = normalizeWhitespace(node.text());
+      const paragraphCount = node.find("p").length;
+      const headingCount = node.find("h1, h2, h3").length;
+      const linkTextLength = normalizeWhitespace(node.find("a").text()).length;
+      const linkDensity = text.length ? linkTextLength / text.length : 1;
+
+      if (node.is("html, body, main, article, [role='main'], #content, #main-content")) {
+        return;
+      }
+
+      if (
+        text.length >= 1000 &&
+        (paragraphCount >= 3 || headingCount >= 2) &&
+        linkDensity < 0.7
+      ) {
+        return;
+      }
+
       node.remove();
     }
   });
