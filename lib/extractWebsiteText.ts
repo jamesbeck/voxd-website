@@ -139,7 +139,11 @@ function removeBoilerplateElements($: cheerio.CheerioAPI) {
       const linkTextLength = normalizeWhitespace(node.find("a").text()).length;
       const linkDensity = text.length ? linkTextLength / text.length : 1;
 
-      if (node.is("html, body, main, article, [role='main'], #content, #main-content")) {
+      if (
+        node.is(
+          "html, body, main, article, [role='main'], #content, #main-content",
+        )
+      ) {
         return;
       }
 
