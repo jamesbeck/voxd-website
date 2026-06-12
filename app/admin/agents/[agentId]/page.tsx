@@ -41,6 +41,7 @@ import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 import saGetAllModels from "@/actions/saGetAllModels";
 import AgentDomainsTab from "./AgentDomainsTab";
 import BillingTab from "./billingTab";
+import WebhooksTable from "@/app/admin/webhooks/webhooksTable";
 import getPartnerAncestorMarkupMultipliers from "@/lib/getPartnerAncestorMarkupMultipliers";
 import saCheckEmbeddingCompatibility from "@/actions/saCheckEmbeddingCompatibility";
 import { AlertTriangle } from "lucide-react";
@@ -121,7 +122,9 @@ export default async function Page({
       ? "info"
       : normalizedActiveTab === "domains" && !isSuperAdmin
         ? "info"
-        : normalizedActiveTab;
+        : normalizedActiveTab === "webhooks" && !isSuperAdmin
+          ? "info"
+          : normalizedActiveTab;
 
   // Fetch tickets for this agent
   const ticketsResponse = await saGetTicketsByAgentId({ agentId });
@@ -212,6 +215,15 @@ export default async function Page({
                   label: "Sessions",
                   href: `/admin/agents/${agentId}?tab=sessions`,
                 },
+                ...(isSuperAdmin
+                  ? [
+                      {
+                        value: "webhooks",
+                        label: "Webhooks",
+                        href: `/admin/agents/${agentId}?tab=webhooks`,
+                      },
+                    ]
+                  : []),
                 {
                   value: "users",
                   label: "Users",
@@ -406,6 +418,17 @@ export default async function Page({
                 />
               </Container>
             </TabsContent>
+            {isSuperAdmin && (
+              <TabsContent value="webhooks">
+                <Container>
+                  <H2>Received Webhooks</H2>
+                  <p className="mb-4 text-muted-foreground">
+                    Review inbound webhook receipts for this agent only.
+                  </p>
+                  <WebhooksTable agentId={agentId} />
+                </Container>
+              </TabsContent>
+            )}
             <TabsContent value="users">
               <Container>
                 <H2>Chat Users</H2>

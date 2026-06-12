@@ -17,6 +17,7 @@ import {
   Ticket,
   Link2,
   Wrench,
+  Webhook,
   Paperclip,
   BookOpen,
   Plug,
@@ -133,6 +134,12 @@ const menuItems: MenuItem[] = [
     title: "Tool Calls",
     url: "/admin/tool-calls",
     icon: Wrench,
+  },
+  {
+    roles: ["admin"],
+    title: "Webhooks",
+    url: "/admin/webhooks",
+    icon: Webhook,
   },
   {
     roles: ["admin"],
