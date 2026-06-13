@@ -84,36 +84,41 @@ function getStatusBadgeClass(isPositive: boolean) {
     : "border-red-200 bg-red-50 text-red-700";
 }
 
-function getResendRecordReason(record: DnsInstructionRecord) {
-  if (record.name.includes("_domainkey")) {
-    return "Lets Resend sign outgoing email with DKIM so recipient mail servers trust the messages.";
+function formatDnsSummaryName(name: string, zoneDomain?: string) {
+  const normalizedName = name.replace(/\.$/, "");
+  const normalizedZone = zoneDomain?.replace(/\.$/, "");
+
+  if (!normalizedZone) {
+    return normalizedName;
   }
 
-  if (record.type === "MX") {
-    return "Routes bounces and delivery feedback for the sending domain through Resend's mail infrastructure.";
+  if (normalizedName === "@" || normalizedName === normalizedZone) {
+    return `@ (${normalizedZone})`;
   }
 
-  if (record.type === "TXT" && record.value.includes("spf1")) {
-    return "Publishes an SPF policy so Resend is allowed to send email on behalf of this domain.";
+  if (normalizedName.endsWith(`.${normalizedZone}`)) {
+    const shortName = normalizedName.slice(0, -(normalizedZone.length + 1));
+    return `${shortName} (${normalizedName})`;
   }
 
-  return "Required by Resend to verify the sending domain and deliver email reliably.";
+  return `${normalizedName} (${normalizedName}.${normalizedZone})`;
 }
 
-function getVercelRecordReason() {
-  return "Points the website domain at Vercel so the deployment can resolve correctly and Vercel can provision SSL.";
-}
+function buildDnsSummaryEntry(
+  record: DnsInstructionRecord,
+  options?: { priority?: number; zoneDomain?: string },
+) {
+  const lines = [
+    `Type: \`${record.type}\``,
+    `Name: ${formatDnsSummaryName(record.name, options?.zoneDomain)}`,
+    `Value: \`${record.value}\``,
+  ];
 
-function getCoreRecordReason() {
-  return "Points the core domain at Voxd so the shared core experience resolves to the correct target.";
-}
-
-function buildMarkdownSection(title: string, entries: string[]) {
-  if (entries.length === 0) {
-    return null;
+  if (options?.priority !== undefined) {
+    lines.push(`Priority: \`${options.priority}\``);
   }
 
-  return [`## ${title}`, ...entries].join("\n\n");
+  return lines.join("\n");
 }
 
 function DnsInstructionsTable({
@@ -357,31 +362,39 @@ export default function EditPartnerDomainsForm({
       ? coreDnsRecords
       : [];
 
+  const resendZoneDomain =
+    domainStatus && domainStatus.status !== "not_configured"
+      ? domainStatus.domain
+      : undefined;
+
+  const vercelZoneDomain =
+    vercelStatus && vercelStatus.status !== "not_configured"
+      ? vercelStatus.domain
+      : undefined;
+
+  const coreZoneDomain =
+    coreStatus && coreStatus.status !== "not_configured"
+      ? coreStatus.domain
+      : undefined;
+
   const dnsChangesMarkdown = [
-    buildMarkdownSection(
-      "Resend",
-      incompleteResendRecords.map(
-        (record, index) =>
-          `### ${index + 1}. ${record.type} record for \`${record.name}\`\nType: \`${record.type}\`\nName: \`${record.name}\`\nValue: \`${record.value}\`\nWhy: ${getResendRecordReason(record)}`,
-      ),
+    ...incompleteResendRecords.map((record) =>
+      buildDnsSummaryEntry(record, {
+        priority: record.type === "MX" ? 10 : undefined,
+        zoneDomain: resendZoneDomain,
+      }),
     ),
-    buildMarkdownSection(
-      "Vercel",
-      incompleteVercelRecords.map(
-        (record, index) =>
-          `### ${index + 1}. ${record.type} record for \`${record.name}\`\nType: \`${record.type}\`\nName: \`${record.name}\`\nValue: \`${record.value}\`\nWhy: ${getVercelRecordReason()}`,
-      ),
+    ...incompleteVercelRecords.map((record) =>
+      buildDnsSummaryEntry(record, {
+        zoneDomain: vercelZoneDomain,
+      }),
     ),
-    buildMarkdownSection(
-      "Core Domain",
-      incompleteCoreRecords.map(
-        (record, index) =>
-          `### ${index + 1}. ${record.type} record for \`${record.name}\`\nType: \`${record.type}\`\nName: \`${record.name}\`\nValue: \`${record.value}\`\nWhy: ${getCoreRecordReason()}`,
-      ),
+    ...incompleteCoreRecords.map((record) =>
+      buildDnsSummaryEntry(record, {
+        zoneDomain: coreZoneDomain,
+      }),
     ),
-  ]
-    .filter(Boolean)
-    .join("\n\n---\n\n");
+  ].join("\n\n");
 
   const resendStatusPositive = domainStatus?.status === "verified";
   const vercelStatusPositive = vercelStatus?.status === "verified";
