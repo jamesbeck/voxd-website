@@ -92,8 +92,12 @@ function formatDnsSummaryName(name: string, zoneDomain?: string) {
     return normalizedName;
   }
 
-  if (normalizedName === "@" || normalizedName === normalizedZone) {
+  if (normalizedName === "@") {
     return `@ (${normalizedZone})`;
+  }
+
+  if (normalizedName === normalizedZone) {
+    return normalizedName;
   }
 
   if (normalizedName.endsWith(`.${normalizedZone}`)) {
@@ -126,11 +130,13 @@ function DnsInstructionsTable({
   onCopy,
   showStatus = false,
   showRank = false,
+  zoneDomain,
 }: {
   records: DnsInstructionRecord[];
   onCopy: (text: string) => void;
   showStatus?: boolean;
   showRank?: boolean;
+  zoneDomain?: string;
 }) {
   return (
     <Table className="table-fixed">
@@ -152,7 +158,9 @@ function DnsInstructionsTable({
             key={`${record.type}-${record.name}-${record.value}-${index}`}
           >
             <TableCell>{record.type}</TableCell>
-            <TableCell className="font-mono text-xs">{record.name}</TableCell>
+            <TableCell className="font-mono text-xs">
+              {formatDnsSummaryName(record.name, zoneDomain)}
+            </TableCell>
             <TableCell className="font-mono text-xs">
               <div
                 className="max-w-full truncate whitespace-nowrap"
@@ -597,6 +605,7 @@ export default function EditPartnerDomainsForm({
               records={domainStatus.records}
               onCopy={copyToClipboard}
               showStatus
+              zoneDomain={resendZoneDomain}
             />
           </div>
         )}
@@ -629,6 +638,7 @@ export default function EditPartnerDomainsForm({
                 records={vercelDnsRecords}
                 onCopy={copyToClipboard}
                 showStatus
+                zoneDomain={vercelZoneDomain}
               />
             ) : (
               <Alert>
@@ -664,6 +674,7 @@ export default function EditPartnerDomainsForm({
               records={coreDnsRecords}
               onCopy={copyToClipboard}
               showStatus
+              zoneDomain={coreZoneDomain}
             />
           </div>
         )}
