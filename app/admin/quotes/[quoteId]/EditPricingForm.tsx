@@ -44,7 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertTriangle, ChevronRight, Info } from "lucide-react";
+import { AlertTriangle, ArrowUp, ChevronRight, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Collapsible,
@@ -67,11 +67,65 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 type PricingFieldName = keyof FormValues;
+type PricingChainStep = {
+  billedByPartnerName: string;
+  billedToPartnerName: string;
+  setupFeeCost: number | null;
+  monthlyFeeCost: number | null;
+  hourlyRateCost: number | null;
+};
+
+const calculateMarginDelta = (
+  downstreamValue: number | null,
+  upstreamValue: number | null,
+) => {
+  if (downstreamValue == null || upstreamValue == null) {
+    return null;
+  }
+
+  return Number((downstreamValue - upstreamValue).toFixed(2));
+};
+
+const calculateMarginPercent = (
+  downstreamValue: number | null,
+  upstreamValue: number | null,
+) => {
+  if (
+    downstreamValue == null ||
+    upstreamValue == null ||
+    Math.abs(upstreamValue) < 0.01
+  ) {
+    return null;
+  }
+
+  return Number(
+    (((downstreamValue - upstreamValue) / upstreamValue) * 100).toFixed(1),
+  );
+};
+
+const hasMeaningfulMargin = (value: number | null) =>
+  value != null && Math.abs(value) >= 0.01;
+
+const formatCurrency = (value: number) =>
+  `£${value.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const formatMarginBadge = (
+  label: string,
+  amount: number,
+  percent: number | null,
+) =>
+  `${label} ${formatCurrency(amount)}${
+    percent != null ? ` (${percent.toFixed(1)}%)` : ""
+  }`;
 
 export default function EditPricingForm({
   quoteId,
   effectivePartnerName,
   upstreamPartnerName,
+  pricingChain,
   setupFee,
   monthlyFee,
   hourlyRate,
@@ -95,6 +149,7 @@ export default function EditPricingForm({
   quoteId: string;
   effectivePartnerName: string | null;
   upstreamPartnerName: string;
+  pricingChain: PricingChainStep[];
   setupFee: number | null;
   monthlyFee: number | null;
   hourlyRate: number | null;
@@ -135,6 +190,17 @@ export default function EditPricingForm({
     !isSuperAdmin && contractLength != null && contractLength < 12
       ? contractLength
       : 12;
+  const visiblePricingChain = pricingChain.length
+    ? pricingChain
+    : [
+        {
+          billedByPartnerName: upstreamPartnerBrandName,
+          billedToPartnerName: partnerBrandName,
+          setupFeeCost: setupFeeVoxdCost,
+          monthlyFeeCost: monthlyFeeVoxdCost,
+          hourlyRateCost: hourlyRateVoxdCost,
+        },
+      ];
 
   // Determine best source for costing calculation
   const costingSource = hasGeneratedProposal
@@ -608,8 +674,8 @@ export default function EditPricingForm({
           )}
         />
 
-        {/* Partner costs - editable form for super admin, professional read-only card for others */}
-        {canEditAdminFields ? (
+        {/* Partner costs - editable form for super admin */}
+        {canEditAdminFields && (
           <div className="border-t pt-6">
             <h3 className="text-lg font-medium mb-4">
               {partnerBrandName} Costs
@@ -721,203 +787,348 @@ export default function EditPricingForm({
               />
             </div>
           </div>
-        ) : showCostPricing ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                {upstreamPartnerBrandName} Service Pricing
-              </CardTitle>
-              <CardDescription>
-                What your partner account will be charged by{" "}
-                {upstreamPartnerBrandName} for this chatbot
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
-                    Setup Cost
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-sm">
-                          This is due in full before project commencement.
-                          Minimum &pound;250.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {setupFeeVoxdCost != null ? (
-                      <>
-                        {costingBreakdown?.costingCalculatedFrom ===
-                          "concept" && "~"}
-                        &pound;
-                        {setupFeeVoxdCost.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </>
-                    ) : (
-                      <span className="text-muted-foreground">&mdash;</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {costingBreakdown &&
-                    costingBreakdown.totalIntegrationTime > 0 ? (
-                      <>
-                        {costingBreakdown.totalIntegrationTime}h @ &pound;
-                        {(hourlyRateVoxdCost ?? 0).toLocaleString(undefined, {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        })}
-                        /hr
-                      </>
-                    ) : (
-                      "one-time"
-                    )}
-                  </p>
+        )}
+
+        {/* Partner pricing chain */}
+        {showCostPricing ? (
+          <div
+            className={
+              canEditAdminFields ? "space-y-4 border-t pt-6" : "space-y-4"
+            }
+          >
+            {visiblePricingChain.map((pricingStep, index) => {
+              const nextPricingStep = visiblePricingChain[index + 1];
+              const setupMarginDelta = nextPricingStep
+                ? calculateMarginDelta(
+                    pricingStep.setupFeeCost,
+                    nextPricingStep.setupFeeCost,
+                  )
+                : null;
+              const setupMarginPercent = nextPricingStep
+                ? calculateMarginPercent(
+                    pricingStep.setupFeeCost,
+                    nextPricingStep.setupFeeCost,
+                  )
+                : null;
+              const monthlyMarginDelta = nextPricingStep
+                ? calculateMarginDelta(
+                    pricingStep.monthlyFeeCost,
+                    nextPricingStep.monthlyFeeCost,
+                  )
+                : null;
+              const monthlyMarginPercent = nextPricingStep
+                ? calculateMarginPercent(
+                    pricingStep.monthlyFeeCost,
+                    nextPricingStep.monthlyFeeCost,
+                  )
+                : null;
+              const hourlyMarginDelta = nextPricingStep
+                ? calculateMarginDelta(
+                    pricingStep.hourlyRateCost,
+                    nextPricingStep.hourlyRateCost,
+                  )
+                : null;
+              const hourlyMarginPercent = nextPricingStep
+                ? calculateMarginPercent(
+                    pricingStep.hourlyRateCost,
+                    nextPricingStep.hourlyRateCost,
+                  )
+                : null;
+              const hasMarginSummary = [
+                setupMarginDelta,
+                monthlyMarginDelta,
+                hourlyMarginDelta,
+              ].some(hasMeaningfulMargin);
+
+              return (
+                <div
+                  key={`${pricingStep.billedToPartnerName}-${pricingStep.billedByPartnerName}-${index}`}
+                  className="space-y-4"
+                >
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">
+                        {pricingStep.billedByPartnerName} Service Pricing
+                      </CardTitle>
+                      <CardDescription>
+                        What {pricingStep.billedByPartnerName} will charge{" "}
+                        {pricingStep.billedToPartnerName} for this chatbot
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div className="text-center p-4 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                            Setup Cost
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-sm">
+                                  This is due in full before project
+                                  commencement. Minimum &pound;250.
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {pricingStep.setupFeeCost != null ? (
+                              <>
+                                {costingBreakdown?.costingCalculatedFrom ===
+                                  "concept" && "~"}
+                                &pound;
+                                {pricingStep.setupFeeCost.toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  },
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                &mdash;
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {costingBreakdown &&
+                            costingBreakdown.totalIntegrationTime > 0 ? (
+                              <>
+                                {costingBreakdown.totalIntegrationTime}h @
+                                &pound;
+                                {(
+                                  pricingStep.hourlyRateCost ?? 0
+                                ).toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                                /hr
+                              </>
+                            ) : (
+                              "one-time"
+                            )}
+                          </p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                            Monthly Cost
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-sm">
+                                  From completion of development.
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {pricingStep.monthlyFeeCost != null ? (
+                              <>
+                                {costingBreakdown?.costingCalculatedFrom ===
+                                  "concept" && "~"}
+                                &pound;
+                                {pricingStep.monthlyFeeCost.toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  },
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                &mdash;
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            per month
+                          </p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground mb-1">
+                            Free Minutes
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {freeMonthlyMinutes != null ? (
+                              freeMonthlyMinutes.toLocaleString()
+                            ) : (
+                              <span className="text-muted-foreground">
+                                &mdash;
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            per month
+                          </p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                            Contract Length
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-sm">
+                                  This can be reduced on request with good
+                                  justification.
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {contractLength != null ? (
+                              contractLength
+                            ) : (
+                              <span className="text-muted-foreground">
+                                &mdash;
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            months
+                          </p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
+                            Build Time
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-sm">
+                                  Working days from payment of setup costs.
+                                  Minimum 1 day.
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {buildDays != null ? (
+                              <>
+                                {costingBreakdown?.costingCalculatedFrom ===
+                                  "concept" && "~"}
+                                {buildDays}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                &mdash;
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            days
+                          </p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-muted/50">
+                          <p className="text-sm text-muted-foreground mb-1">
+                            Hourly Rate
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {pricingStep.hourlyRateCost != null ? (
+                              <>
+                                &pound;
+                                {pricingStep.hourlyRateCost.toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 2,
+                                  },
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">
+                                &mdash;
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            per hour for future changes
+                          </p>
+                        </div>
+                      </div>
+                      {index === 0 &&
+                        costingBreakdown &&
+                        costingBreakdown.costingCalculatedFrom ===
+                          "concept" && (
+                          <Alert
+                            variant="destructive"
+                            className="mt-4 bg-destructive text-white [&>svg]:text-white [&>svg~*]:text-white [&_[data-slot=alert-description]]:text-white"
+                          >
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertDescription>
+                              These costs have been estimated from the concept.
+                              For accurate pricing, generate or write a full
+                              proposal for the client.
+                            </AlertDescription>
+                          </Alert>
+                        )}
+                    </CardContent>
+                  </Card>
+
+                  {nextPricingStep && (
+                    <div className="flex flex-col items-center gap-2 px-4 pb-1">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <div className="h-px w-12 bg-border" />
+                        <ArrowUp className="h-4 w-4" />
+                        <div className="h-px w-12 bg-border" />
+                      </div>
+                      <div className="rounded-xl border bg-muted/40 px-4 py-3 text-center">
+                        <p className="text-sm font-medium">
+                          {pricingStep.billedByPartnerName} adds margin
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Applied before charging{" "}
+                          {pricingStep.billedToPartnerName}
+                        </p>
+                        {hasMarginSummary ? (
+                          <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs">
+                            {hasMeaningfulMargin(setupMarginDelta) && (
+                              <Badge variant="outline">
+                                {formatMarginBadge(
+                                  "Setup",
+                                  setupMarginDelta!,
+                                  setupMarginPercent,
+                                )}
+                              </Badge>
+                            )}
+                            {hasMeaningfulMargin(monthlyMarginDelta) && (
+                              <Badge variant="outline">
+                                {formatMarginBadge(
+                                  "Monthly",
+                                  monthlyMarginDelta!,
+                                  monthlyMarginPercent,
+                                )}
+                              </Badge>
+                            )}
+                            {hasMeaningfulMargin(hourlyMarginDelta) && (
+                              <Badge variant="outline">
+                                {formatMarginBadge(
+                                  "Hourly",
+                                  hourlyMarginDelta!,
+                                  hourlyMarginPercent,
+                                )}
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            No additional markup on this step.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
-                    Monthly Cost
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-sm">
-                          From completion of development.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {monthlyFeeVoxdCost != null ? (
-                      <>
-                        {costingBreakdown?.costingCalculatedFrom ===
-                          "concept" && "~"}
-                        &pound;
-                        {monthlyFeeVoxdCost.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </>
-                    ) : (
-                      <span className="text-muted-foreground">&mdash;</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    per month
-                  </p>
-                </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Free Minutes
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {freeMonthlyMinutes != null ? (
-                      freeMonthlyMinutes.toLocaleString()
-                    ) : (
-                      <span className="text-muted-foreground">&mdash;</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    per month
-                  </p>
-                </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
-                    Contract Length
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-sm">
-                          This can be reduced on request with good
-                          justification.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {contractLength != null ? (
-                      contractLength
-                    ) : (
-                      <span className="text-muted-foreground">&mdash;</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">months</p>
-                </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1 inline-flex items-center gap-1 justify-center w-full">
-                    Build Time
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help shrink-0" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-sm">
-                          Working days from payment of setup costs. Minimum 1
-                          day.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {buildDays != null ? (
-                      <>
-                        {costingBreakdown?.costingCalculatedFrom ===
-                          "concept" && "~"}
-                        {buildDays}
-                      </>
-                    ) : (
-                      <span className="text-muted-foreground">&mdash;</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">days</p>
-                </div>
-                <div className="text-center p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Hourly Rate
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {hourlyRateVoxdCost != null ? (
-                      <>
-                        &pound;
-                        {hourlyRateVoxdCost.toLocaleString(undefined, {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        })}
-                      </>
-                    ) : (
-                      <span className="text-muted-foreground">&mdash;</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    per hour for future changes
-                  </p>
-                </div>
-              </div>
-              {costingBreakdown &&
-                costingBreakdown.costingCalculatedFrom === "concept" && (
-                  <Alert
-                    variant="destructive"
-                    className="mt-4 bg-destructive text-white [&>svg]:text-white [&>svg~*]:text-white [&_[data-slot=alert-description]]:text-white"
-                  >
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      These costs have been estimated from the concept. For
-                      accurate pricing, generate or write a full proposal for
-                      the client.
-                    </AlertDescription>
-                  </Alert>
-                )}
-            </CardContent>
-          </Card>
+              );
+            })}
+          </div>
         ) : null}
       </form>
 

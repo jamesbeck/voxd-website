@@ -35,6 +35,17 @@ import QuoteActionsTab from "./QuoteActionsTab";
 import userCanViewQuote from "@/lib/quoteAccess";
 import { hasAdminUserPermission } from "@/lib/adminUserPermissions";
 
+const applyMarkup = (
+  value: number | null | undefined,
+  multiplier: number,
+): number | null => {
+  if (value == null) {
+    return null;
+  }
+
+  return Number((Number(value) * multiplier).toFixed(2));
+};
+
 export default async function Page({
   params,
   searchParams,
@@ -91,6 +102,53 @@ export default async function Page({
     ? (quote?.hourlyRateVoxdCost ?? null)
     : (quote?.effectiveHourlyRateVoxdCost ?? null);
   const upstreamPartnerName = quote?.parentPartnerName || "Voxd";
+  const viewerPartnerId = accessToken.partnerId
+    ? accessToken.partnerId
+    : accessToken.organisationIsPartner
+      ? (accessToken.organisationId ?? null)
+      : (accessToken.organisationPartnerId ?? null);
+  const viewerPricingChainIndex = viewerPartnerId
+    ? (quote?.partnerPricingChain.findIndex(
+        (step) => step.billedToPartnerId === viewerPartnerId,
+      ) ?? -1)
+    : -1;
+  const pricingQuote = quote;
+  const visiblePricingChain = pricingQuote
+    ? !isSuperAdmin && viewerPartnerId
+      ? pricingQuote.partnerPricingChain.slice(
+          0,
+          viewerPricingChainIndex >= 0 ? viewerPricingChainIndex + 1 : 1,
+        )
+      : pricingQuote.partnerPricingChain
+    : [];
+  const pricingChain = pricingQuote && visiblePricingChain.length
+    ? visiblePricingChain.map((step) => ({
+        billedByPartnerName: step.billedByPartnerName,
+        billedToPartnerName: step.billedToPartnerName,
+        setupFeeCost: applyMarkup(
+          pricingQuote.setupFeeVoxdCost,
+          step.setupFeeMultiplier,
+        ),
+        monthlyFeeCost: applyMarkup(
+          pricingQuote.monthlyFeeVoxdCost,
+          step.monthlyFeeMultiplier,
+        ),
+        hourlyRateCost: applyMarkup(
+          pricingQuote.hourlyRateVoxdCost,
+          step.hourlyRateMultiplier,
+        ),
+      }))
+    : pricingQuote
+      ? [
+          {
+            billedByPartnerName: upstreamPartnerName,
+            billedToPartnerName: pricingQuote.effectivePartnerName || "Partner",
+            setupFeeCost: displayedSetupFeeVoxdCost,
+            monthlyFeeCost: displayedMonthlyFeeVoxdCost,
+            hourlyRateCost: displayedHourlyRateVoxdCost,
+          },
+        ]
+      : [];
 
   // Fetch prototypingAgentId from the partner organisation that owns this quote's organisation
   let prototypingAgentId: string | null = null;
@@ -332,6 +390,7 @@ export default async function Page({
                 quoteId={quote.id}
                 effectivePartnerName={quote.effectivePartnerName}
                 upstreamPartnerName={upstreamPartnerName}
+                pricingChain={pricingChain}
                 setupFee={quote.setupFee}
                 monthlyFee={quote.monthlyFee}
                 hourlyRate={quote.hourlyRate}

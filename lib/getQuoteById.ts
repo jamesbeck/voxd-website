@@ -2,6 +2,7 @@ import db from "../database/db";
 import { CostingBreakdown } from "@/types/types";
 import getPartnerAncestorMarkupMultipliers from "@/lib/getPartnerAncestorMarkupMultipliers";
 import { getEffectivePartnerBranding } from "@/lib/getEffectivePartnerBranding";
+import getPartnerLineage from "@/lib/getPartnerLineage";
 
 export type QuoteConversation = {
   id: string;
@@ -27,6 +28,16 @@ export type QuoteLinkedItem = {
   otherName: string | null;
   otherDescription: string | null;
   note: string | null;
+};
+
+export type QuotePricingChainStep = {
+  billedToPartnerId: string;
+  billedToPartnerName: string;
+  billedByPartnerId: string | null;
+  billedByPartnerName: string;
+  setupFeeMultiplier: number;
+  monthlyFeeMultiplier: number;
+  hourlyRateMultiplier: number;
 };
 
 export type Quote = {
@@ -77,6 +88,7 @@ export type Quote = {
   partnerHourlyRateVoxdCost: number | null;
   partnerMonthlyBaseFee: number | null;
   partnerMonthlyPerIntegration: number | null;
+  partnerPricingChain: QuotePricingChainStep[];
   quoteIntegrations: QuoteLinkedItem[];
   quoteKnowledgeSources: QuoteLinkedItem[];
 };
@@ -135,6 +147,35 @@ export const getQuoteById = async ({
   const effectivePartnerBranding = await getEffectivePartnerBranding({
     partnerId: quote.partnerId,
   });
+  const partnerLineage = await getPartnerLineage({
+    partnerId: quote.partnerId,
+  });
+  const partnerPricingChain = await Promise.all(
+    partnerLineage.map(async (partner, index) => {
+      const multipliers = await getPartnerAncestorMarkupMultipliers({
+        partnerId: partner.id,
+      });
+      const upstreamPartner = partnerLineage[index + 1];
+
+      return {
+        billedToPartnerId: partner.id,
+        billedToPartnerName: partner.name,
+        billedByPartnerId: upstreamPartner?.id ?? null,
+        billedByPartnerName: upstreamPartner?.name ?? "Voxd",
+        setupFeeMultiplier: multipliers.setupFeeMultiplier,
+        monthlyFeeMultiplier: multipliers.monthlyFeeMultiplier,
+        hourlyRateMultiplier: multipliers.hourlyRateMultiplier,
+      } satisfies QuotePricingChainStep;
+    }),
+  ).then((steps) =>
+    steps.filter(
+      (step) =>
+        !(
+          step.billedByPartnerId == null &&
+          step.billedToPartnerName.trim().toLowerCase() === "voxd"
+        ),
+    ),
+  );
 
   // Get example conversations for this quote
   // Order by "order" field first (nulls last), then by id for consistent ordering
@@ -222,6 +263,7 @@ export const getQuoteById = async ({
       quote.hourlyRateVoxdCost,
       markupMultipliers.hourlyRateMultiplier,
     ),
+    partnerPricingChain,
     exampleConversations: parsedConversations,
     quoteIntegrations,
     quoteKnowledgeSources,
