@@ -349,10 +349,15 @@ export default async function Page({
                     accountsEmail={organisation.accountsEmail ?? undefined}
                     legalName={organisation.legalName ?? undefined}
                     companyNumber={organisation.companyNumber ?? undefined}
+                    vatNumber={organisation.vatNumber ?? undefined}
                     registeredAddress={
                       organisation.registeredAddress ?? undefined
                     }
                     legalEmail={organisation.legalEmail ?? undefined}
+                    bankAccountNumber={
+                      organisation.bankAccountNumber ?? undefined
+                    }
+                    bankSortCode={organisation.bankSortCode ?? undefined}
                   />
                 </Container>
               </TabsContent>

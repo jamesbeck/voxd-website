@@ -18,6 +18,7 @@ const saUpdatePartner = async ({
   salesBotName,
   legalName,
   companyNumber,
+  vatNumber,
   registeredAddress,
   legalEmail,
   gcAccessToken,
@@ -32,6 +33,8 @@ const saUpdatePartner = async ({
   defaultSubPartnerMarkupSetupFee,
   defaultSubPartnerMarkupMonthlyFee,
   defaultSubPartnerMarkupHourlyRate,
+  bankAccountNumber,
+  bankSortCode,
 }: {
   partnerId: string;
   name?: string;
@@ -42,6 +45,7 @@ const saUpdatePartner = async ({
   salesBotName?: string;
   legalName?: string;
   companyNumber?: string;
+  vatNumber?: string;
   registeredAddress?: string;
   legalEmail?: string;
   gcAccessToken?: string;
@@ -56,6 +60,8 @@ const saUpdatePartner = async ({
   defaultSubPartnerMarkupSetupFee?: number | null;
   defaultSubPartnerMarkupMonthlyFee?: number | null;
   defaultSubPartnerMarkupHourlyRate?: number | null;
+  bankAccountNumber?: string;
+  bankSortCode?: string;
 }): Promise<ServerActionResponse> => {
   const accessToken = await verifyAccessToken();
 
@@ -101,6 +107,7 @@ const saUpdatePartner = async ({
       salesBotName,
       legalName,
       companyNumber,
+      vatNumber,
       registeredAddress,
       legalEmail,
       gcAccessToken,
@@ -115,6 +122,8 @@ const saUpdatePartner = async ({
       defaultSubPartnerMarkupSetupFee,
       defaultSubPartnerMarkupMonthlyFee,
       defaultSubPartnerMarkupHourlyRate,
+      bankAccountNumber,
+      bankSortCode,
     });
 
   // If sendEmailFromDomain changed, ensure it exists in Resend

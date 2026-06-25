@@ -25,8 +25,11 @@ const formSchema = z.object({
   accountsEmail: z.string().optional(),
   legalName: z.string().optional(),
   companyNumber: z.string().optional(),
+  vatNumber: z.string().optional(),
   registeredAddress: z.string().optional(),
   legalEmail: z.string().optional(),
+  bankAccountNumber: z.string().optional(),
+  bankSortCode: z.string().optional(),
 });
 
 export default function EditPartnerContactLegalForm({
@@ -35,16 +38,22 @@ export default function EditPartnerContactLegalForm({
   accountsEmail,
   legalName,
   companyNumber,
+  vatNumber,
   registeredAddress,
   legalEmail,
+  bankAccountNumber,
+  bankSortCode,
 }: {
   partnerId: string;
   salesEmail?: string;
   accountsEmail?: string;
   legalName?: string;
   companyNumber?: string;
+  vatNumber?: string;
   registeredAddress?: string;
   legalEmail?: string;
+  bankAccountNumber?: string;
+  bankSortCode?: string;
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -56,8 +65,11 @@ export default function EditPartnerContactLegalForm({
       accountsEmail: accountsEmail || "",
       legalName: legalName || "",
       companyNumber: companyNumber || "",
+      vatNumber: vatNumber || "",
       registeredAddress: registeredAddress || "",
       legalEmail: legalEmail || "",
+      bankAccountNumber: bankAccountNumber || "",
+      bankSortCode: bankSortCode || "",
     },
   });
 
@@ -70,8 +82,11 @@ export default function EditPartnerContactLegalForm({
       accountsEmail: values.accountsEmail,
       legalName: values.legalName,
       companyNumber: values.companyNumber,
+      vatNumber: values.vatNumber,
       registeredAddress: values.registeredAddress,
       legalEmail: values.legalEmail,
+      bankAccountNumber: values.bankAccountNumber,
+      bankSortCode: values.bankSortCode,
     });
 
     if (!response.success) {
@@ -159,6 +174,20 @@ export default function EditPartnerContactLegalForm({
 
         <FormField
           control={form.control}
+          name="vatNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>VAT Number</FormLabel>
+              <FormControl>
+                <Input placeholder="GB123456789" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="registeredAddress"
           render={({ field }) => (
             <FormItem>
@@ -182,6 +211,34 @@ export default function EditPartnerContactLegalForm({
               <FormLabel>Legal Email</FormLabel>
               <FormControl>
                 <Input placeholder="legal@partner.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="bankAccountNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bank Account Number</FormLabel>
+              <FormControl>
+                <Input placeholder="12345678" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="bankSortCode"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sort Code</FormLabel>
+              <FormControl>
+                <Input placeholder="12-34-56" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

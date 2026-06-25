@@ -90,6 +90,7 @@ export default async function Page({
   const displayedHourlyRateVoxdCost = isSuperAdmin
     ? (quote?.hourlyRateVoxdCost ?? null)
     : (quote?.effectiveHourlyRateVoxdCost ?? null);
+  const upstreamPartnerName = quote?.parentPartnerName || "Voxd";
 
   // Fetch prototypingAgentId from the partner organisation that owns this quote's organisation
   let prototypingAgentId: string | null = null;
@@ -330,6 +331,7 @@ export default async function Page({
               <EditPricingForm
                 quoteId={quote.id}
                 effectivePartnerName={quote.effectivePartnerName}
+                upstreamPartnerName={upstreamPartnerName}
                 setupFee={quote.setupFee}
                 monthlyFee={quote.monthlyFee}
                 hourlyRate={quote.hourlyRate}

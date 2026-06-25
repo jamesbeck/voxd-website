@@ -71,6 +71,7 @@ type PricingFieldName = keyof FormValues;
 export default function EditPricingForm({
   quoteId,
   effectivePartnerName,
+  upstreamPartnerName,
   setupFee,
   monthlyFee,
   hourlyRate,
@@ -93,6 +94,7 @@ export default function EditPricingForm({
 }: {
   quoteId: string;
   effectivePartnerName: string | null;
+  upstreamPartnerName: string;
   setupFee: number | null;
   monthlyFee: number | null;
   hourlyRate: number | null;
@@ -125,6 +127,7 @@ export default function EditPricingForm({
   const canEditAdminFields = isSuperAdmin;
   const showCostPricing = canEditAdminFields || canViewCostPrice;
   const partnerBrandName = effectivePartnerName?.trim() || "Voxd";
+  const upstreamPartnerBrandName = upstreamPartnerName.trim() || "Voxd";
   const partnerBrandPossessive = partnerBrandName.endsWith("s")
     ? `${partnerBrandName}'`
     : `${partnerBrandName}'s`;
@@ -722,11 +725,11 @@ export default function EditPricingForm({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
-                {partnerBrandName} Service Pricing
+                {upstreamPartnerBrandName} Service Pricing
               </CardTitle>
               <CardDescription>
-                What your partner account will be charged by {partnerBrandName}{" "}
-                for this chatbot
+                What your partner account will be charged by{" "}
+                {upstreamPartnerBrandName} for this chatbot
               </CardDescription>
             </CardHeader>
             <CardContent>

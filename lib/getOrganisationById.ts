@@ -24,12 +24,15 @@ const getOrganisationById = async ({
   prototypingAgentId?: string | null;
   legalName?: string | null;
   companyNumber?: string | null;
+  vatNumber?: string | null;
   registeredAddress?: string | null;
   legalEmail?: string | null;
   gcAccessToken?: string | null;
   goCardlessMandateLink?: string | null;
   salesEmail?: string | null;
   accountsEmail?: string | null;
+  bankAccountNumber?: string | null;
+  bankSortCode?: string | null;
   billingAddress?: string | null;
   billingPostcode?: string | null;
   billingEmails?: string | null;

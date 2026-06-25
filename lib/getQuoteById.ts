@@ -37,6 +37,7 @@ export type Quote = {
   organisationName: string;
   partnerId: string | null;
   parentPartnerId: string | null;
+  parentPartnerName: string | null;
   effectivePartnerName: string | null;
   status: string;
   background: string | null;
@@ -115,6 +116,7 @@ export const getQuoteById = async ({
       "organisation.name as organisationName",
       "organisation.partnerId as partnerId",
       "partnerOrganisation.partnerId as parentPartnerId",
+      "parentPartnerOrganisation.name as parentPartnerName",
       "parentPartnerOrganisation.hourlyRate as partnerHourlyRateVoxdCost",
       "parentPartnerOrganisation.monthlyBaseFee as partnerMonthlyBaseFee",
       "parentPartnerOrganisation.monthlyPerIntegration as partnerMonthlyPerIntegration",
@@ -196,6 +198,7 @@ export const getQuoteById = async ({
 
   return {
     ...quote,
+    parentPartnerName: quote.parentPartnerName ?? null,
     effectivePartnerName: effectivePartnerBranding?.name ?? null,
     setupFeeVoxdCost:
       quote.setupFeeVoxdCost != null ? Number(quote.setupFeeVoxdCost) : null,
