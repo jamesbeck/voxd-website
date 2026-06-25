@@ -20,6 +20,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const formSchema = z.object({
   defaultSubPartnerMarkupSetupFee: z.string().optional(),
@@ -147,7 +153,21 @@ export default function EditSubPartnerMarkupForm({
           name="defaultSubPartnerMarkupHourlyRate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Hourly Rate Markup Multiplier</FormLabel>
+              <FormLabel className="inline-flex items-center gap-1">
+                Hourly Rate Markup Multiplier
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-3.5 w-3.5 cursor-help text-muted-foreground shrink-0" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs text-sm">
+                      This hourly rate markup is only used for future changes
+                      and support work. Setup pricing uses the setup fee markup
+                      instead.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </FormLabel>
               <FormControl>
                 <Input
                   type="number"

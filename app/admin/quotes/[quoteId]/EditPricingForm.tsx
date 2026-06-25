@@ -71,6 +71,7 @@ type PricingChainStep = {
   billedByPartnerName: string;
   billedToPartnerName: string;
   setupFeeCost: number | null;
+  setupHourlyRateCost: number | null;
   monthlyFeeCost: number | null;
   hourlyRateCost: number | null;
 };
@@ -137,6 +138,7 @@ export default function EditPricingForm({
   contractLength,
   costingBreakdown,
   hourlyRateVoxdCost,
+  costBreakdownSetupRate,
   monthlyBaseFeeVoxdCost,
   monthlyPerIntegrationVoxdCost,
   hasGeneratedConcept,
@@ -161,6 +163,7 @@ export default function EditPricingForm({
   contractLength: number | null;
   costingBreakdown: CostingBreakdown | null;
   hourlyRateVoxdCost: number | null;
+  costBreakdownSetupRate: number | null;
   monthlyBaseFeeVoxdCost: number | null;
   monthlyPerIntegrationVoxdCost: number | null;
   hasGeneratedConcept: boolean;
@@ -183,9 +186,6 @@ export default function EditPricingForm({
   const showCostPricing = canEditAdminFields || canViewCostPrice;
   const partnerBrandName = effectivePartnerName?.trim() || "Voxd";
   const upstreamPartnerBrandName = upstreamPartnerName.trim() || "Voxd";
-  const partnerBrandPossessive = partnerBrandName.endsWith("s")
-    ? `${partnerBrandName}'`
-    : `${partnerBrandName}'s`;
   const minimumPartnerContractLength =
     !isSuperAdmin && contractLength != null && contractLength < 12
       ? contractLength
@@ -197,6 +197,7 @@ export default function EditPricingForm({
           billedByPartnerName: upstreamPartnerBrandName,
           billedToPartnerName: partnerBrandName,
           setupFeeCost: setupFeeVoxdCost,
+          setupHourlyRateCost: costBreakdownSetupRate,
           monthlyFeeCost: monthlyFeeVoxdCost,
           hourlyRateCost: hourlyRateVoxdCost,
         },
@@ -677,9 +678,7 @@ export default function EditPricingForm({
         {/* Partner costs - editable form for super admin */}
         {canEditAdminFields && (
           <div className="border-t pt-6">
-            <h3 className="text-lg font-medium mb-4">
-              {partnerBrandName} Costs
-            </h3>
+            <h3 className="text-lg font-medium mb-4">Base price from Voxd</h3>
             {hourlyRateVoxdCost != null &&
               monthlyBaseFeeVoxdCost != null &&
               monthlyPerIntegrationVoxdCost != null && (
@@ -708,13 +707,11 @@ export default function EditPricingForm({
                 name="setupFeeVoxdCost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Setup Fee ({partnerBrandName} Cost)</FormLabel>
+                    <FormLabel>Setup Fee</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="0" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      {partnerBrandPossessive} cost for setup
-                    </FormDescription>
+                    <FormDescription>Base setup cost from Voxd</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -725,12 +722,12 @@ export default function EditPricingForm({
                 name="monthlyFeeVoxdCost"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Monthly Fee ({partnerBrandName} Cost)</FormLabel>
+                    <FormLabel>Monthly Fee</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="0" {...field} />
                     </FormControl>
                     <FormDescription>
-                      {partnerBrandPossessive} monthly cost
+                      Base monthly cost from Voxd
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -899,7 +896,7 @@ export default function EditPricingForm({
                                 {costingBreakdown.totalIntegrationTime}h @
                                 &pound;
                                 {(
-                                  pricingStep.hourlyRateCost ?? 0
+                                  pricingStep.setupHourlyRateCost ?? 0
                                 ).toLocaleString(undefined, {
                                   minimumFractionDigits: 0,
                                   maximumFractionDigits: 2,
@@ -1173,7 +1170,7 @@ export default function EditPricingForm({
                   0,
                 );
                 const integrationCost =
-                  integrationHours * (hourlyRateVoxdCost ?? 0);
+                  integrationHours * (costBreakdownSetupRate ?? 0);
                 return (
                   <Collapsible key={i}>
                     <Card className="p-0">

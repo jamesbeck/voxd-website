@@ -121,6 +121,15 @@ export default async function Page({
         )
       : pricingQuote.partnerPricingChain
     : [];
+  const visibleViewerPricingStep = visiblePricingChain.at(-1);
+  const costBreakdownSetupRate = isSuperAdmin
+    ? (quote?.hourlyRateVoxdCost ?? null)
+    : visibleViewerPricingStep
+      ? applyMarkup(
+          pricingQuote?.hourlyRateVoxdCost ?? null,
+          visibleViewerPricingStep.setupFeeMultiplier,
+        )
+      : displayedHourlyRateVoxdCost;
   const pricingChain =
     pricingQuote && visiblePricingChain.length
       ? visiblePricingChain.map((step) => ({
@@ -128,6 +137,10 @@ export default async function Page({
           billedToPartnerName: step.billedToPartnerName,
           setupFeeCost: applyMarkup(
             pricingQuote.setupFeeVoxdCost,
+            step.setupFeeMultiplier,
+          ),
+          setupHourlyRateCost: applyMarkup(
+            pricingQuote.hourlyRateVoxdCost,
             step.setupFeeMultiplier,
           ),
           monthlyFeeCost: applyMarkup(
@@ -146,6 +159,7 @@ export default async function Page({
               billedToPartnerName:
                 pricingQuote.effectivePartnerName || "Partner",
               setupFeeCost: displayedSetupFeeVoxdCost,
+              setupHourlyRateCost: costBreakdownSetupRate,
               monthlyFeeCost: displayedMonthlyFeeVoxdCost,
               hourlyRateCost: displayedHourlyRateVoxdCost,
             },
@@ -413,6 +427,9 @@ export default async function Page({
                 }
                 hourlyRateVoxdCost={
                   canViewCostPrice ? displayedHourlyRateVoxdCost : null
+                }
+                costBreakdownSetupRate={
+                  canViewCostPrice ? costBreakdownSetupRate : null
                 }
                 monthlyBaseFeeVoxdCost={
                   isSuperAdmin && canViewCostPrice
