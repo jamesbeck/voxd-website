@@ -121,34 +121,36 @@ export default async function Page({
         )
       : pricingQuote.partnerPricingChain
     : [];
-  const pricingChain = pricingQuote && visiblePricingChain.length
-    ? visiblePricingChain.map((step) => ({
-        billedByPartnerName: step.billedByPartnerName,
-        billedToPartnerName: step.billedToPartnerName,
-        setupFeeCost: applyMarkup(
-          pricingQuote.setupFeeVoxdCost,
-          step.setupFeeMultiplier,
-        ),
-        monthlyFeeCost: applyMarkup(
-          pricingQuote.monthlyFeeVoxdCost,
-          step.monthlyFeeMultiplier,
-        ),
-        hourlyRateCost: applyMarkup(
-          pricingQuote.hourlyRateVoxdCost,
-          step.hourlyRateMultiplier,
-        ),
-      }))
-    : pricingQuote
-      ? [
-          {
-            billedByPartnerName: upstreamPartnerName,
-            billedToPartnerName: pricingQuote.effectivePartnerName || "Partner",
-            setupFeeCost: displayedSetupFeeVoxdCost,
-            monthlyFeeCost: displayedMonthlyFeeVoxdCost,
-            hourlyRateCost: displayedHourlyRateVoxdCost,
-          },
-        ]
-      : [];
+  const pricingChain =
+    pricingQuote && visiblePricingChain.length
+      ? visiblePricingChain.map((step) => ({
+          billedByPartnerName: step.billedByPartnerName,
+          billedToPartnerName: step.billedToPartnerName,
+          setupFeeCost: applyMarkup(
+            pricingQuote.setupFeeVoxdCost,
+            step.setupFeeMultiplier,
+          ),
+          monthlyFeeCost: applyMarkup(
+            pricingQuote.monthlyFeeVoxdCost,
+            step.monthlyFeeMultiplier,
+          ),
+          hourlyRateCost: applyMarkup(
+            pricingQuote.hourlyRateVoxdCost,
+            step.hourlyRateMultiplier,
+          ),
+        }))
+      : pricingQuote
+        ? [
+            {
+              billedByPartnerName: upstreamPartnerName,
+              billedToPartnerName:
+                pricingQuote.effectivePartnerName || "Partner",
+              setupFeeCost: displayedSetupFeeVoxdCost,
+              monthlyFeeCost: displayedMonthlyFeeVoxdCost,
+              hourlyRateCost: displayedHourlyRateVoxdCost,
+            },
+          ]
+        : [];
 
   // Fetch prototypingAgentId from the partner organisation that owns this quote's organisation
   let prototypingAgentId: string | null = null;
