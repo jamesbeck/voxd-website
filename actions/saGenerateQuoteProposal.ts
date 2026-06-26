@@ -8,12 +8,13 @@ import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 const getPartnerContext = (partnerName: string) => `## About ${partnerName}
 
-${partnerName} provides WhatsApp-based AI chatbot services that help businesses automate customer interactions.
+${partnerName} provides AI agent solutions that help businesses automate customer interactions across WhatsApp, websites, web apps and mobile apps.
 
 ### How ${partnerName} Works:
 1. **WhatsApp Integration**: We use the Meta API to add webhooks to WhatsApp Business Accounts (WABAs)
-2. **Message Processing**: Incoming messages are saved to our database and queued for processing
-3. **AI-Powered Responses**: Each message is sent to an LLM (Large Language Model) along with:
+2. **Website, Web App and Mobile App Deployment**: The same AI agent can also be embedded into websites and integrated into web apps and mobile apps with the same core functionality
+3. **Message Processing**: Incoming messages are saved to our database and queued for processing
+4. **AI-Powered Responses**: Each message is sent to an LLM (Large Language Model) along with:
    - An agent-specific prompt customized for the business
    - Any attached media (images, documents) that the AI can understand and include in the conversation context
    - Full conversation history
@@ -21,7 +22,7 @@ ${partnerName} provides WhatsApp-based AI chatbot services that help businesses 
    - Relevant information from external applications (user account details, addresses, etc.)
    - Tools giving the LLM real-time access to external systems (CRM and back-office systems)
    - Tools providing access to unlimited knowledge documents (policies, FAQs, general information, product lists, menus, etc.)
-4. **Response Delivery**: The AI-generated reply is saved and sent back to the user via the Meta Graph API
+5. **Response Delivery**: The AI-generated reply is saved and sent back to the user via the relevant channel, including WhatsApp, website chat and app-based experiences
 
 ### Workers System:
 ${partnerName} runs "workers" - separate AI-powered scripts that monitor conversations and perform actions outside the message reply mechanism:
@@ -41,6 +42,7 @@ ${partnerName} runs "workers" - separate AI-powered scripts that monitor convers
 
 ### Key Benefits:
 - 24/7 automated customer support via WhatsApp
+- One AI agent that can be deployed across WhatsApp, websites, web apps and mobile apps
 - Intelligent AI responses with full context awareness
 - Integration with existing business systems
 - Proactive customer engagement through workers
@@ -187,7 +189,7 @@ ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 
     // Build the introduction system prompt
     const introSystemPrompt = isAmendMode
-      ? `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      ? `You are an expert proposal writer for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
@@ -197,7 +199,7 @@ Your task is to AMEND an existing proposal introduction based on the user's inst
 
 The introduction should:
 - Welcome the client and thank them for their interest
-- Briefly explain that we provide WhatsApp AI chatbot solutions
+- Briefly explain that we provide AI agent solutions across WhatsApp, websites, web apps and mobile apps
 - Set the stage for the detailed specification that follows
 - Be warm, professional, and confident
 - Reference ONLY the client's specific needs as mentioned in their specification
@@ -205,7 +207,7 @@ The introduction should:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided.
+IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. The only default platform context you may mention without it being explicitly requested is that the AI agent can be deployed across WhatsApp, websites, web apps and mobile apps. Do not add optional features or suggest additional capabilities beyond what they've asked for. Outbound messaging, workers and other optional capabilities should only be mentioned when they are clearly relevant to the client's specification or the user explicitly asks for them. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided.
 
 Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.
 
@@ -214,7 +216,7 @@ ${existingIntroduction}
 
 USER'S AMENDMENT INSTRUCTIONS:
 ${extraPrompt || "Please improve and refine the existing content."}`
-      : `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      : `You are an expert proposal writer for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
@@ -222,7 +224,7 @@ The above context is for YOUR UNDERSTANDING ONLY of what ${partnerName} does. Do
 
 Your task is to write a compelling, professional INTRODUCTION section for a client proposal. This introduction should:
 - Welcome the client and thank them for their interest
-- Briefly explain that we provide WhatsApp AI chatbot solutions
+- Briefly explain that we provide AI agent solutions across WhatsApp, websites, web apps and mobile apps
 - Set the stage for the detailed specification that follows
 - Be warm, professional, and confident
 - Reference ONLY the client's specific needs as mentioned in their specification
@@ -230,7 +232,7 @@ Your task is to write a compelling, professional INTRODUCTION section for a clie
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. Do not add optional features or suggest additional capabilities beyond what they've asked for. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided.
+IMPORTANT: Only reference features and capabilities that the client has specifically mentioned or requested. The only default platform context you may mention without it being explicitly requested is that the AI agent can be deployed across WhatsApp, websites, web apps and mobile apps. Do not add optional features or suggest additional capabilities beyond what they've asked for. Outbound messaging, workers and other optional capabilities should only be mentioned when they are clearly relevant to the client's specification or the user explicitly asks for them. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided.
 
 Write in Markdown format. Use **bold** for emphasis. Do not use headings in this section - it will be displayed under an "Introduction" heading.${
           extraPrompt
@@ -255,7 +257,7 @@ Write in Markdown format. Use **bold** for emphasis. Do not use headings in this
 
     // Build the specification system prompt
     const specSystemPrompt = isAmendMode
-      ? `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      ? `You are an expert proposal writer for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
@@ -278,7 +280,7 @@ The specification MUST follow this structure:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
+CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Do not add outbound messaging unless it is clearly relevant to what they have asked for or the user explicitly requests it. Stick strictly to their requirements. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
 
 Write in Markdown format. Use ## for numbered section headings, ### for subsections within numbered sections, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.
 
@@ -287,7 +289,7 @@ ${existingSpecification}
 
 USER'S AMENDMENT INSTRUCTIONS:
 ${extraPrompt || "Please improve and refine the existing content."}`
-      : `You are an expert proposal writer for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      : `You are an expert proposal writer for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
@@ -310,7 +312,7 @@ The specification MUST follow this structure:
 - Avoid use of hyphens in the content
 - Do not use the Oxford comma before 'and' in a list
 
-CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Stick strictly to their requirements. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
+CRITICAL: Only include what the client has explicitly written in their specification. If they haven't mentioned workers, don't add workers. If they haven't mentioned CRM integration, don't add CRM integration. Do not add outbound messaging unless it is clearly relevant to what they have asked for or the user explicitly requests it. Stick strictly to their requirements. ONLY reference knowledge sources and integrations that are explicitly listed in the specification. Do NOT invent, assume or suggest any additional data sources, integrations or system connections beyond what is provided. The chatbot will only have access to the listed knowledge sources and integrations.
 
 Write in Markdown format. Use ## for numbered section headings, ### for subsections within numbered sections, **bold** for emphasis, bullet points for feature lists with sub-bullets where needed.${
           extraPrompt

@@ -8,7 +8,7 @@ import { getAdminAiLanguageModel } from "@/lib/adminAi";
 
 const getPartnerContext = (partnerName: string) => `## What is ${partnerName}?
 
-${partnerName} provides a powerful, enterprise-ready platform for delivering intelligent, automated conversations through WhatsApp. By combining WhatsApp Business integration, large language models (LLMs), and deep system integrations, ${partnerName} enables organisations to communicate with customers in a natural, personal, and highly effective way—without requiring users to download apps, create accounts, or learn new interfaces.
+${partnerName} provides a powerful, enterprise-ready platform for delivering intelligent, automated conversations through WhatsApp, websites, web apps and mobile apps. By combining WhatsApp Business integration, embeddable web chat experiences, app-based deployment, large language models (LLMs) and deep system integrations, ${partnerName} enables organisations to communicate with customers in a natural, personal and highly effective way across the channels their customers already use.
 
 ### Key Platform Capabilities
 
@@ -16,6 +16,11 @@ ${partnerName} provides a powerful, enterprise-ready platform for delivering int
 - Direct integration with WhatsApp for Business using the Meta API
 - Secure webhook configuration for real-time message reception
 - Reliable message capture, storage, and processing
+
+**Website, Web App and Mobile App Deployment**
+- Deploy the same AI agent inside websites, web apps and mobile apps with full core functionality
+- Provide embedded chat experiences for website visitors and in-app users
+- Deliver a consistent assistant experience across desktop and mobile devices
 
 **AI Agent Capabilities**
 - Rich contextual prompting with conversation history
@@ -204,7 +209,7 @@ ${quote.otherNotes ? `### Other Notes\n${quote.otherNotes}\n` : ""}
 
     // Generate the concept introduction
     const introSystemPrompt = isAmendMode
-      ? `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      ? `You are an expert sales consultant for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
@@ -214,7 +219,7 @@ The introduction should:
 - Be friendly and welcoming, addressing the client by their organisation name
 - Acknowledge their business and industry based on the background provided
 - Express genuine excitement about the potential to help transform their customer communications
-- Set the stage for explaining how AI chatbots can benefit their specific business
+- Set the stage for explaining how AI agents can benefit their specific business across WhatsApp, websites and apps
 - Be no more than 2 paragraphs
 - Be conversational but professional
 
@@ -234,7 +239,7 @@ ${existingIntroduction}
 
 USER'S AMENDMENT INSTRUCTIONS:
 ${extraPrompt || "Please improve and refine the existing content."}`
-      : `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      : `You are an expert sales consultant for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
@@ -242,7 +247,7 @@ Your task is to write a warm, engaging INTRODUCTION for a concept to a potential
 - Be friendly and welcoming, addressing the client by their organisation name
 - Acknowledge their business and industry based on the background provided
 - Express genuine excitement about the potential to help transform their customer communications
-- Set the stage for explaining how AI chatbots can benefit their specific business
+- Set the stage for explaining how AI agents can benefit their specific business across WhatsApp, websites and apps
 - Be no more than 2 paragraphs
 - Be conversational but professional
 
@@ -272,14 +277,15 @@ Write in Markdown format. Use **bold** for emphasis where appropriate. Do not us
 
     // Build the main concept system prompt
     const mainConceptSystemPrompt = isAmendMode
-      ? `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      ? `You are an expert sales consultant for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
 Your task is to AMEND an existing concept based on the user's instructions. You have the existing concept and should modify it according to their specific requests while maintaining the overall structure and coverage of key themes.
 
 The concept should cover themes like:
-- What a chatbot could do for their business
+    - What an AI agent could do for their business
+    - Flexible deployment across WhatsApp, websites, web apps and mobile apps
 - Saving money and time while improving customer experience
 - Getting ahead of the competition with AI
 - The benefits of WhatsApp vs other channels
@@ -313,71 +319,76 @@ ${existingConcept}
 
 USER'S AMENDMENT INSTRUCTIONS:
 ${extraPrompt || "Please improve and refine the existing content."}`
-      : `You are an expert sales consultant for ${partnerName}, a company that provides WhatsApp-based AI chatbot services.
+      : `You are an expert sales consultant for ${partnerName}, a company that provides AI agents across WhatsApp, websites, web apps and mobile apps.
 
 ${partnerContext}
 
-Your task is to write a compelling, persuasive concept that helps the client understand how a WhatsApp AI chatbot could transform their business. Based on their background and industry, you should cover the key themes below. However, you have creative freedom to choose appropriate section headings that fit the specific context and industry of this client. Don't feel constrained to use the exact headings below - adapt them to sound natural and relevant for this particular business.
+Your task is to write a compelling, persuasive concept that helps the client understand how an AI agent deployed across WhatsApp, websites, web apps and mobile apps could transform their business. Based on their background and industry, you should cover the key themes below. However, you have creative freedom to choose appropriate section headings that fit the specific context and industry of this client. Don't feel constrained to use the exact headings below - adapt them to sound natural and relevant for this particular business.
 
 **Key themes to address (use appropriate headings for the context):**
 
-1. **What a chatbot could do for their business**
+1. **What an AI agent could do for their business**
    - Focus on logical, specific features relevant to their sector
    - Describe the types of enquiries and tasks it could handle
    - Explain how it would work in their specific context
    - Offer multilingual support for diverse customer bases
 
-2. **Saving money and time while improving customer experience**
+2. **Flexible deployment across customer channels**
+  - Explain that the same AI agent can be deployed through WhatsApp, embedded on websites and integrated into web apps and mobile apps
+  - Highlight that this gives the client one consistent assistant experience across messaging, browser and in-app journeys
+  - Emphasise that core functionality can remain available across these channels, rather than limiting the solution to WhatsApp alone
+
+3. **Saving money and time while improving customer experience**
    - Identify specific areas where they can reduce costs (staffing, response times)
    - Highlight time savings for both the business and their customers
    - Explain how this improves the customer experience with 24/7 availability
 
-3. **Getting ahead of the competition with AI**
+4. **Getting ahead of the competition with AI**
    - Position this as an easy, accessible way to introduce AI into their business
    - Emphasise the competitive advantage of early adoption
    - Highlight how this sets them apart from competitors still using traditional channels
 
-4. **The benefits of WhatsApp vs other channels**
+5. **The benefits of WhatsApp vs other channels**
    - No apps to download - customers already have WhatsApp
    - No new logins or passwords to remember
    - Personal, familiar experience that customers trust
    - Higher engagement rates than email or web forms
    - Instant, convenient communication on the go
 
-5. **Seamless integration capabilities**
+6. **Seamless integration capabilities**
    - Integration with external applications (CRM, booking systems, inventory)
    - Google Workspace and Microsoft 365 connectivity
    - Connection to existing back-office and accounting systems
    - Real-time data synchronisation across platforms
 
-6. **Security and safeguards**
+7. **Security and safeguards**
    - Enterprise-grade security measures
    - AI guardrails to ensure appropriate responses
    - Data protection and privacy compliance
    - Regular security testing and monitoring
    - Clear escalation paths to human agents when needed
 
-7. **Additional benefits**
+8. **Additional benefits**
    - Proactive customer engagement through AI workers
    - Analytics and insights into customer interactions
    - Continuous improvement through feedback loops
    - Scalability to handle growth without proportional cost increase
 
-8. **Outbound marketing messages** (include when relevant to the client's business)
-   - WhatsApp can be used for outbound marketing messages such as promotions, product launches, re-engagement campaigns and personalised offers
+9. **Outbound marketing messages** (include when relevant to the client's business)
+  - WhatsApp can be used for easy outbound marketing messages such as promotions, product launches, re-engagement campaigns and personalised offers
    - What makes this unique is that recipients can reply directly to these marketing messages, which triggers a live conversation with the AI agent
    - This transforms traditional one way marketing into an interactive, two way experience
    - Far more engaging than email or SMS where replies typically go nowhere
    - Combine with AI intelligence to provide personalised follow-up based on the customer's response
 
-9. **Future potential**
+10. **Future potential**
    - Describe realistic but more advanced future capabilities that could be added to the chatbot over time
    - Think about features that would be natural next steps once the initial chatbot is established
    - Consider industry-specific advanced use cases (e.g., predictive recommendations, voice integration, proactive outreach campaigns)
    - Keep suggestions grounded and achievable, but show the exciting growth potential
    - Frame this as a journey - starting with solid foundations and growing into more sophisticated capabilities
 
-10. **Summary / Conclusion**
+11. **Summary / Conclusion**
    - End with a sincere, heartfelt message about how genuinely excited we would be to work on building a chatbot for their business
    - Express enthusiasm for the potential partnership
    - Keep it warm and authentic, not salesy
